@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Login | VibeTravel West Sumatra</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=Noto+Serif:wght@500;600;700&amp;family=Space+Grotesk:wght@500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container": "#eceef0",
+                    "outline-variant": "#e1bfb5",
+                    "on-tertiary": "#ffffff",
+                    "on-tertiary-fixed-variant": "#005049",
+                    "surface-container-low": "#f2f4f6",
+                    "on-background": "#191c1e",
+                    "on-tertiary-fixed": "#00201d",
+                    "on-primary-fixed-variant": "#832600",
+                    "on-tertiary-container": "#b2fff3",
+                    "background": "#f7f9fb",
+                    "surface-tint": "#ac3400",
+                    "surface-container-lowest": "#ffffff",
+                    "on-surface": "#191c1e",
+                    "secondary-fixed-dim": "#bec6e0",
+                    "inverse-primary": "#ffb59d",
+                    "error": "#ba1a1a",
+                    "surface-bright": "#f7f9fb",
+                    "surface-container-highest": "#e0e3e5",
+                    "primary": "#9b2f00",
+                    "primary-fixed": "#ffdbd0",
+                    "error-container": "#ffdad6",
+                    "tertiary-container": "#007b71",
+                    "tertiary": "#006058",
+                    "on-secondary-container": "#5c647a",
+                    "on-primary": "#ffffff",
+                    "surface-dim": "#d8dadc",
+                    "on-secondary-fixed-variant": "#3f465c",
+                    "on-secondary-fixed": "#131b2e",
+                    "on-error-container": "#93000a",
+                    "primary-container": "#c2410c",
+                    "inverse-on-surface": "#eff1f3",
+                    "surface": "#f7f9fb",
+                    "on-surface-variant": "#59413a",
+                    "tertiary-fixed": "#89f5e7",
+                    "secondary-fixed": "#dae2fd",
+                    "on-error": "#ffffff",
+                    "on-primary-fixed": "#390c00",
+                    "primary-fixed-dim": "#ffb59d",
+                    "surface-container-high": "#e6e8ea",
+                    "tertiary-fixed-dim": "#6bd8cb",
+                    "inverse-surface": "#2d3133",
+                    "secondary-container": "#dae2fd",
+                    "on-secondary": "#ffffff",
+                    "outline": "#8d7168",
+                    "secondary": "#565e74",
+                    "on-primary-container": "#ffece7",
+                    "surface-variant": "#e0e3e5"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "sm": "12px",
+                    "container-margin": "32px",
+                    "lg": "48px",
+                    "xs": "4px",
+                    "md": "24px",
+                    "xl": "80px",
+                    "base": "8px",
+                    "gutter": "20px"
+            },
+            "fontFamily": {
+                    "headline-lg": ["Noto Serif", "serif"],
+                    "data-point": ["Space Grotesk", "sans-serif"],
+                    "body-lg": ["Plus Jakarta Sans", "sans-serif"],
+                    "display-xl": ["Noto Serif", "serif"],
+                    "body-md": ["Plus Jakarta Sans", "sans-serif"],
+                    "label-caps": ["Space Grotesk", "sans-serif"],
+                    "headline-md": ["Noto Serif", "serif"]
+            },
+            "fontSize": {
+                    "headline-lg": ["40px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                    "data-point": ["14px", {"lineHeight": "1.4", "fontWeight": "500"}],
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "display-xl": ["64px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "label-caps": ["12px", {"lineHeight": "1.0", "letterSpacing": "0.1em", "fontWeight": "600"}],
+                    "headline-md": ["32px", {"lineHeight": "1.3", "fontWeight": "500"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .glass-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .input-glass {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            transition: all 0.3s ease;
+        }
+        .input-glass:focus {
+            border-color: #c2410c;
+            background: rgba(255, 255, 255, 0.15);
+            outline: none;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md min-h-screen relative overflow-hidden">
+<!-- Cinematic Background -->
+<div class="fixed inset-0 z-0">
+<img class="w-full h-full object-cover" data-alt="A breathtaking cinematic wide-angle shot of the lush emerald green rice terraces in West Sumatra, Indonesia, during the golden hour. The soft evening sun casts long, warm shadows across the terraced landscape, highlighting the intricate agricultural engineering. In the distance, majestic volcanic peaks are shrouded in a light, mystical morning mist under a clear, vibrant sky. The overall mood is peaceful, evocative, and luxurious, reflecting an intentional travel experience." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDsvSJvmyhsrLQGjBHf3ANr_ZmJ-xyM0u_JvR19TysSCEspoYhuCZNgDqiN8WRwjNF1S8RfNRbVwiAqU7hu750cL9ViRLY79hYs0JfGN0HG9lxv-oZIVinlyfyQL-3HrylAkmYfufaBFcxlqVStun7Xr1BCOu8hDCl84-xmzliVMUczzAwDeKnm23Z6l5l3bdho1nwDNZp1j_2K6Ua-G-e10M023q_kqAN2iHKGEeY8SW8t6I5X8fyrOSdcww81ZKZ40fENz9wyNWSW"/>
+<div class="absolute inset-0 bg-black/30"></div>
+</div>
+<!-- Navigation Shell (Suppressed context check: This is Login, but user explicitly asked for the navbar style) -->
+<header class="fixed top-0 w-full z-50 bg-white/10 backdrop-blur-md border-b border-white/10 h-20 flex items-center">
+<div class="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
+<div class="font-display-md text-headline-sm font-bold text-white">VibeTravel</div>
+<!-- Links for Visual context as requested -->
+<nav class="hidden md:flex items-center gap-lg">
+<a class="font-body-md text-white/70 hover:text-white transition-colors" href="#">Destinations</a>
+<a class="font-body-md text-white/70 hover:text-white transition-colors" href="#">Sentiment AI</a>
+<a class="font-body-md text-white/70 hover:text-white transition-colors" href="#">Culture</a>
+<a class="font-body-md text-white/70 hover:text-white transition-colors" href="#">Itineraries</a>
+</nav>
+<div class="flex items-center gap-md">
+<button class="bg-primary-container text-on-primary-container px-md py-sm rounded-full font-label-caps tracking-widest hover:opacity-90 transition-all">Plan Trip</button>
+<span class="material-symbols-outlined text-white text-[28px] cursor-pointer">account_circle</span>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="relative z-10 min-h-screen flex items-center justify-center px-margin-mobile">
+<div class="glass-card w-full max-w-[480px] p-xl rounded-[32px] shadow-2xl flex flex-col items-center">
+<div class="mb-lg text-center">
+<h1 class="font-headline-lg text-headline-lg text-white mb-xs">Welcome Back</h1>
+<p class="text-white/60 font-body-md">Continue your cultural journey in West Sumatra.</p>
+</div>
+<form class="w-full space-y-md">
+<!-- Email Field -->
+<div class="space-y-base">
+<label class="font-label-caps text-white/80 block ml-1">Email Address</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-white/40">mail</span>
+<input class="input-glass w-full h-14 pl-12 pr-4 rounded-xl text-white placeholder:text-white/30" placeholder="explorer@vibetravel.com" type="email"/>
+</div>
+</div>
+<!-- Password Field -->
+<div class="space-y-base">
+<div class="flex justify-between items-center px-1">
+<label class="font-label-caps text-white/80">Password</label>
+<a class="text-xs font-label-caps text-primary-fixed hover:underline" href="#">Forgot Password?</a>
+</div>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-white/40">lock</span>
+<input class="input-glass w-full h-14 pl-12 pr-4 rounded-xl text-white placeholder:text-white/30" placeholder="••••••••" type="password"/>
+</div>
+</div>
+<!-- Action Button -->
+<div class="pt-sm">
+<button class="w-full h-14 bg-primary-container text-on-primary-container font-label-caps text-body-md tracking-[0.2em] rounded-full hover:scale-[1.02] active:scale-95 transition-all shadow-lg flex items-center justify-center gap-base" type="submit">
+                        SIGN IN
+                        <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+</button>
+</div>
+</form>
+<!-- Social Login Divider -->
+<div class="w-full flex items-center gap-md my-lg">
+<div class="h-[1px] flex-1 bg-white/10"></div>
+<span class="font-label-caps text-[10px] text-white/40 tracking-widest uppercase">Or connect with</span>
+<div class="h-[1px] flex-1 bg-white/10"></div>
+</div>
+<!-- Alternate Login -->
+<div class="flex gap-md w-full mb-lg">
+<button class="flex-1 h-12 rounded-xl input-glass flex items-center justify-center hover:bg-white/20 transition-all">
+<img alt="Google" class="w-5 h-5 opacity-80" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD54Ug2L5aYEEJEfVMX5Yrf1FjhJgL9JSjlLdEjlNddkzJIUbN4iS4jcxsD9V9c-ufEKZuvytngXH7VcIZF2ROXDYE5UbWnliV0lXnPoI0OIl1JDzLSdCRgk-GzwNkclf7giGuXu4jOckL-8fv4t1hwBPPwKCD9P9lg4a623LQkrWTVHuiaraiQrpT6fXbX_oQYoPGD2tmuE4m23mVEPFXdqZCa5Sm3WO19ifDbisuEq6o_sY4t7IZvODLTZ9Ba9DBhnSruhYIq0bce"/>
+</button>
+<button class="flex-1 h-12 rounded-xl input-glass flex items-center justify-center hover:bg-white/20 transition-all">
+<span class="material-symbols-outlined text-white/80">ios</span>
+</button>
+</div>
+<!-- Footer Link -->
+<p class="text-white/60 font-body-md text-center">
+                Don't have an account? 
+                <a class="text-primary-fixed font-semibold hover:underline ml-1" href="#">Sign Up</a>
+</p>
+</div>
+</main>
+<!-- Footer Attribution (Minimal) -->
+<footer class="fixed bottom-0 w-full z-10 py-md px-margin-mobile">
+<div class="max-w-container-max mx-auto flex flex-col md:flex-row justify-between items-center gap-sm">
+<p class="font-label-caps text-white/40 text-[10px] tracking-widest uppercase">© 2024 VibeTravel West Sumatra. AI-Driven Cultural Intelligence.</p>
+<div class="flex gap-md">
+<a class="font-label-caps text-white/40 text-[10px] tracking-widest uppercase hover:text-white transition-colors" href="#">Privacy Policy</a>
+<a class="font-label-caps text-white/40 text-[10px] tracking-widest uppercase hover:text-white transition-colors" href="#">Field Guides</a>
+</div>
+</div>
+</footer>
+</body></html>

@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>VibeAdmin - User Management</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@500;600;700&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=Space+Grotesk:wght@500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "tertiary": "#006058",
+                      "tertiary-container": "#007b71",
+                      "surface-container-highest": "#e0e3e5",
+                      "surface-container": "#eceef0",
+                      "secondary-fixed-dim": "#bec6e0",
+                      "on-error-container": "#93000a",
+                      "on-primary-container": "#ffece7",
+                      "secondary-fixed": "#dae2fd",
+                      "on-secondary-container": "#5c647a",
+                      "outline": "#8d7168",
+                      "primary": "#9b2f00",
+                      "on-secondary-fixed-variant": "#3f465c",
+                      "primary-fixed-dim": "#ffb59d",
+                      "error-container": "#ffdad6",
+                      "secondary-container": "#dae2fd",
+                      "on-secondary": "#ffffff",
+                      "on-primary": "#ffffff",
+                      "on-background": "#191c1e",
+                      "background": "#f7f9fb",
+                      "outline-variant": "#e1bfb5",
+                      "on-secondary-fixed": "#131b2e",
+                      "surface-variant": "#e0e3e5",
+                      "primary-fixed": "#ffdbd0",
+                      "on-tertiary-container": "#b2fff3",
+                      "tertiary-fixed": "#89f5e7",
+                      "on-tertiary-fixed": "#00201d",
+                      "on-surface-variant": "#59413a",
+                      "surface-container-low": "#f2f4f6",
+                      "primary-container": "#c2410c",
+                      "inverse-primary": "#ffb59d",
+                      "on-error": "#ffffff",
+                      "on-primary-fixed-variant": "#832600",
+                      "error": "#ba1a1a",
+                      "surface-container-lowest": "#ffffff",
+                      "inverse-on-surface": "#eff1f3",
+                      "surface-bright": "#f7f9fb",
+                      "on-tertiary": "#ffffff",
+                      "surface-dim": "#d8dadc",
+                      "on-tertiary-fixed-variant": "#005049",
+                      "tertiary-fixed-dim": "#6bd8cb",
+                      "secondary": "#565e74",
+                      "on-primary-fixed": "#390c00",
+                      "surface": "#f7f9fb",
+                      "on-surface": "#191c1e",
+                      "surface-tint": "#ac3400",
+                      "surface-container-high": "#e6e8ea",
+                      "inverse-surface": "#2d3133"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "xs": "4px",
+                      "container-margin": "32px",
+                      "xl": "80px",
+                      "md": "24px",
+                      "base": "8px",
+                      "gutter": "20px",
+                      "sm": "12px",
+                      "lg": "48px"
+              },
+              "fontFamily": {
+                      "label-caps": [
+                              "spaceGrotesk"
+                      ],
+                      "data-point": [
+                              "spaceGrotesk"
+                      ],
+                      "body-lg": [
+                              "plusJakartaSans"
+                      ],
+                      "headline-lg": [
+                              "notoSerif"
+                      ],
+                      "body-md": [
+                              "plusJakartaSans"
+                      ],
+                      "display-xl": [
+                              "notoSerif"
+                      ],
+                      "headline-md": [
+                              "notoSerif"
+                      ]
+              },
+              "fontSize": {
+                      "label-caps": [
+                              "12px",
+                              {
+                                      "lineHeight": "1.0",
+                                      "letterSpacing": "0.1em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "data-point": [
+                              "14px",
+                              {
+                                      "lineHeight": "1.4",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg": [
+                              "40px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.5",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "display-xl": [
+                              "64px",
+                              {
+                                      "lineHeight": "1.1",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-md": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.3",
+                                      "fontWeight": "500"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+</head>
+<body class="bg-background text-on-background font-body-md text-body-md flex h-screen overflow-hidden">
+<!-- SideNavBar Component -->
+<nav class="bg-surface-container-low border-r border-outline-variant fixed left-0 h-full w-64 flex flex-col p-md gap-base z-50">
+<!-- Header -->
+<div class="flex items-center gap-sm mb-lg">
+<img alt="Admin Avatar" class="w-12 h-12 rounded-full object-cover border border-outline-variant" data-alt="A professional portrait of an administrator in a sleek, modern office setting. Soft, natural light illuminates the subject, reflecting a bright, sophisticated light-mode aesthetic. The mood is confident and authoritative." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDh1U894NojtBxYwBPqGop3jxnqd2wjLUz4Ly8wjt0Gx8yCkk4o_heORqZuoI6W7FzzAAxYFWs20-T66IEOys-Fz5qEOhg3HEArD4L1ZjbW2b-tyXLuAk_Z5ScxU-zu5gTIWrTjPpVLpxyL3DHQqyZImBPc_REZjua4sytj0xCb7orPfywMKXl9MxFgC8xF_uXDlPJeKxgDW9MCdfSfGVnBgjeSDZo5dUQ_nv3zHK6XBVhEff98XhtoHaQ7IB8DaNWZYtlaGv7DLpmv"/>
+<div>
+<h1 class="font-headline-md text-headline-md font-bold text-primary leading-tight">VibeAdmin</h1>
+<span class="font-data-point text-data-point text-on-surface-variant">Sumatra Analytics</span>
+</div>
+</div>
+<!-- CTA -->
+<button class="bg-primary-container text-on-primary font-body-md text-body-md font-bold py-sm px-md rounded-full w-full mb-md hover:bg-surface-tint transition-all opacity-80 hover:opacity-100 flex justify-center items-center gap-xs shadow-[0_8px_32px_rgba(15,23,42,0.08)]">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">add</span>
+            Generate Report
+        </button>
+<!-- Navigation Links -->
+<ul class="flex flex-col gap-xs flex-grow">
+<li>
+<a class="flex items-center gap-sm p-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg hover:bg-secondary-container/50 transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-body-md text-body-md">Dashboard</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-sm p-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg hover:bg-secondary-container/50 transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+<span class="font-body-md text-body-md">Sentiment Analysis</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-sm p-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg hover:bg-secondary-container/50 transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="topic">topic</span>
+<span class="font-body-md text-body-md">Topic Modeling</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-sm p-sm bg-secondary-container text-on-secondary-container rounded-lg font-bold transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="group" style="font-variation-settings: 'FILL' 1;">group</span>
+<span class="font-body-md text-body-md">User Management</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-sm p-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg hover:bg-secondary-container/50 transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="map">map</span>
+<span class="font-body-md text-body-md">Location Audit</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-sm p-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg hover:bg-secondary-container/50 transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-body-md text-body-md">System Settings</span>
+</a>
+</li>
+</ul>
+<!-- Footer Links -->
+<ul class="flex flex-col gap-xs mt-auto pt-md border-t border-outline-variant">
+<li>
+<a class="flex items-center gap-sm p-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg hover:bg-secondary-container/50 transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+<span class="font-body-md text-body-md">Help Center</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-sm p-sm text-on-surface-variant hover:bg-surface-container-high rounded-lg hover:bg-secondary-container/50 transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span class="font-body-md text-body-md">Logout</span>
+</a>
+</li>
+</ul>
+</nav>
+<!-- Main Content Area -->
+<main class="ml-64 flex-1 h-full overflow-y-auto bg-surface pt-lg pb-xl px-container-margin">
+<!-- Header Section -->
+<div class="flex justify-between items-end mb-lg">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface mb-xs">User Management</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Oversee user accounts, roles, and platform engagement.</p>
+</div>
+<div class="flex gap-md items-center">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-sm top-1/2 transform -translate-y-1/2 text-on-surface-variant" data-icon="search">search</span>
+<input class="pl-lg pr-sm py-sm bg-surface-container border-b-2 border-outline-variant focus:border-primary-container focus:outline-none font-body-md text-body-md rounded-t-lg w-64 bg-opacity-50 transition-colors" placeholder="Search users..." type="text"/>
+</div>
+<button class="bg-surface-container-highest text-on-surface p-sm rounded-lg hover:bg-surface-container-low border border-outline-variant transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="filter_list">filter_list</span>
+</button>
+</div>
+</div>
+<!-- User Table Card (Glassmorphic) -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden shadow-[0_8px_32px_rgba(15,23,42,0.03)] mb-xl">
+<table class="w-full text-left border-collapse">
+<thead class="bg-surface-container-low border-b border-outline-variant">
+<tr>
+<th class="font-label-caps text-label-caps text-on-surface-variant py-md px-md uppercase">User</th>
+<th class="font-label-caps text-label-caps text-on-surface-variant py-md px-md uppercase">Role</th>
+<th class="font-label-caps text-label-caps text-on-surface-variant py-md px-md uppercase">Status</th>
+<th class="font-label-caps text-label-caps text-on-surface-variant py-md px-md uppercase">Last Active</th>
+<th class="font-label-caps text-label-caps text-on-surface-variant py-md px-md uppercase text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="font-body-md text-body-md text-on-surface">
+<!-- Row 1 -->
+<tr class="border-b border-outline-variant hover:bg-surface-container/50 transition-colors">
+<td class="py-sm px-md flex items-center gap-sm">
+<img alt="User" class="w-10 h-10 rounded-full object-cover" data-alt="A portrait of a young woman with a warm smile, set against a blurred urban background. Soft sunlight highlights her features, creating an approachable and vibrant mood, fitting a modern light-mode interface." src="https://lh3.googleusercontent.com/aida-public/AB6AXuApNBoZfBkvJaqIUZSb9UHv7AH0QDv4jMdGxR2k6LbpgX15LUfgX55juUFxdZg383Ak1SzRM6tAv82qulzs4kopROTe27hqIRVhfaOic9k4Xp6jF5W5jRciOF9ZZhILEzHTBKyboPMnN9z6i4VXrRhFtBjKvZZhvaq3sLyK95Q-YCmwUVd7up_zugjbu8_FxU5ifM1VVRnMIkUq0C9ugMeWa-Gt0rRpClOrwzCBAWi6wE1RJNiqD2T7KMbFwb_KLOrVXa4euzNpvJNy"/>
+<div>
+<p class="font-bold">Elena Rodriguez</p>
+<p class="text-on-surface-variant text-sm">elena.r@example.com</p>
+</div>
+</td>
+<td class="py-sm px-md">
+<span class="font-data-point text-data-point bg-primary-container/10 text-primary-container py-xs px-sm rounded-full">ADMIN</span>
+</td>
+<td class="py-sm px-md">
+<span class="flex items-center gap-xs text-tertiary">
+<span class="w-2 h-2 rounded-full bg-tertiary"></span> Active
+                            </span>
+</td>
+<td class="py-sm px-md text-on-surface-variant">2 hours ago</td>
+<td class="py-sm px-md text-right">
+<button class="text-on-surface-variant hover:text-primary transition-colors p-xs"><span class="material-symbols-outlined" data-icon="edit">edit</span></button>
+<button class="text-on-surface-variant hover:text-error transition-colors p-xs"><span class="material-symbols-outlined" data-icon="block">block</span></button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="border-b border-outline-variant hover:bg-surface-container/50 transition-colors bg-secondary-container/20">
+<td class="py-sm px-md flex items-center gap-sm">
+<div class="w-10 h-10 rounded-full bg-secondary text-on-secondary flex items-center justify-center font-bold">MK</div>
+<div>
+<p class="font-bold">Marcus Kim</p>
+<p class="text-on-surface-variant text-sm">m.kim@traveler.com</p>
+</div>
+</td>
+<td class="py-sm px-md">
+<span class="font-data-point text-data-point bg-surface-variant text-on-surface-variant py-xs px-sm rounded-full">USER</span>
+</td>
+<td class="py-sm px-md">
+<span class="flex items-center gap-xs text-tertiary">
+<span class="w-2 h-2 rounded-full bg-tertiary"></span> Active
+                            </span>
+</td>
+<td class="py-sm px-md text-on-surface-variant">Yesterday</td>
+<td class="py-sm px-md text-right">
+<button class="text-primary hover:text-surface-tint transition-colors p-xs font-bold"><span class="material-symbols-outlined" data-icon="visibility">visibility</span></button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="border-b border-outline-variant hover:bg-surface-container/50 transition-colors">
+<td class="py-sm px-md flex items-center gap-sm">
+<img alt="User" class="w-10 h-10 rounded-full object-cover grayscale" data-alt="A portrait of a man looking away thoughtfully, captured in a monochromatic style. The lighting is moody but bright enough for a modern aesthetic. Represents a suspended or inactive user profile." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBzWvIe3svvzPd9eFA2gR2-jvJwQnJNIUB-fd2-EYLuPnKlmw0WHDp77ZVRlcYF5LGZb275FT7Az0-2ZvexxlXeSf2ncDIX8H8o8mkVGYz6Hllv9-lN819eZHNoozlv3BlKastfF6pACrKtGlPQCl1Ea8q9cjxQr6rZVJfavGtxGW8_SKDJgO7BYqFnwUXKUgBf8zyVVM4JwwxIv_x66_eQhj-I-QHcUF4QySVDxVXPOzF8cxyq3ZUJH4qZhSJetOLUHXY0qPtFpWvF"/>
+<div>
+<p class="font-bold text-on-surface-variant">David Chen</p>
+<p class="text-on-surface-variant text-sm">david.c@nomad.net</p>
+</div>
+</td>
+<td class="py-sm px-md">
+<span class="font-data-point text-data-point bg-surface-variant text-on-surface-variant py-xs px-sm rounded-full">USER</span>
+</td>
+<td class="py-sm px-md">
+<span class="flex items-center gap-xs text-error">
+<span class="w-2 h-2 rounded-full bg-error"></span> Suspended
+                            </span>
+</td>
+<td class="py-sm px-md text-on-surface-variant">14 days ago</td>
+<td class="py-sm px-md text-right">
+<button class="text-on-surface-variant hover:text-primary transition-colors p-xs"><span class="material-symbols-outlined" data-icon="edit">edit</span></button>
+<button class="text-on-surface-variant hover:text-tertiary transition-colors p-xs"><span class="material-symbols-outlined" data-icon="restore">restore</span></button>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="p-sm flex justify-between items-center bg-surface-container-lowest border-t border-outline-variant">
+<span class="font-data-point text-data-point text-on-surface-variant">Showing 1-3 of 248 users</span>
+<div class="flex gap-xs">
+<button class="p-xs text-on-surface-variant hover:text-primary disabled:opacity-50"><span class="material-symbols-outlined" data-icon="chevron_left">chevron_left</span></button>
+<button class="p-xs text-on-surface-variant hover:text-primary"><span class="material-symbols-outlined" data-icon="chevron_right">chevron_right</span></button>
+</div>
+</div>
+</div>
+</main>
+</body></html>
