@@ -1,11 +1,12 @@
 'use client';
 
 import * as React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useSearchParams, useRouter } from 'next/navigation';
 import axios from 'axios';
 import { motion } from 'framer-motion';
-import { ArrowLeft, ArrowRightLeft, Sparkles, AlertCircle, BarChart3, TrendingUp, Target } from 'lucide-react';
+import { ArrowLeft, ArrowRightLeft, Sparkles, AlertCircle, BarChart3, TrendingUp, Target, RotateCcw } from 'lucide-react';
 import Link from 'next/link';
 import {
   Radar,
@@ -24,6 +25,15 @@ import {
 } from 'recharts';
 import DestinationSelect from './DestinationSelect';
 
+// Centralized chart color tokens (avoids hardcoded hex inline)
+const CHART_COLORS = {
+  dest1: '#FF7B54',       // matches --color-primary
+  dest2: '#2D82B5',       // matches --color-secondary
+  positive: '#10b981',
+  neutral: '#94a3b8',
+  negative: '#ef4444',
+};
+
 interface DestinationMinimal {
   id: number;
   name: string;
@@ -37,8 +47,30 @@ interface CompareClientProps {
 }
 
 export default function CompareClient({ availableDestinations }: CompareClientProps) {
-  const [dest1Id, setDest1Id] = useState<number | null>(null);
-  const [dest2Id, setDest2Id] = useState<number | null>(null);
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  // Read initial state from URL params
+  const initialD1 = searchParams.get('d1') ? Number(searchParams.get('d1')) : null;
+  const initialD2 = searchParams.get('d2') ? Number(searchParams.get('d2')) : null;
+
+  const [dest1Id, setDest1Id] = useState<number | null>(initialD1);
+  const [dest2Id, setDest2Id] = useState<number | null>(initialD2);
+
+  // Sync state to URL params
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (dest1Id) params.set('d1', String(dest1Id));
+    if (dest2Id) params.set('d2', String(dest2Id));
+    const paramString = params.toString();
+    const newUrl = paramString ? `/compare?${paramString}` : '/compare';
+    router.replace(newUrl, { scroll: false });
+  }, [dest1Id, dest2Id, router]);
+
+  const handleReset = () => {
+    setDest1Id(null);
+    setDest2Id(null);
+  };
 
   const { data: compareData, isLoading, isError, error } = useQuery({
     queryKey: ['compare', dest1Id, dest2Id],
@@ -60,30 +92,26 @@ export default function CompareClient({ availableDestinations }: CompareClientPr
     
     return [
       {
-        subject: 'Rec Score',
-        [d1.name]: (d1.recommendation_score || 0) * 100,
-        [d2.name]: (d2.recommendation_score || 0) * 100,
+        subject: 'Skor Rekomendasi',
+        tooltip: 'Skor gabungan dari sentimen positif dan relevansi AI',
+        dest1: (d1.recommendation_score || 0) * 100,
+        dest2: (d2.recommendation_score || 0) * 100,
         fullMark: 100,
       },
       {
-        subject: 'Positif',
-        [d1.name]: (d1.positive_ratio || 0) * 100,
-        [d2.name]: (d2.positive_ratio || 0) * 100,
+        subject: 'Rasio Positif',
+        tooltip: 'Persentase ulasan dengan sentimen positif',
+        dest1: (d1.positive_ratio || 0) * 100,
+        dest2: (d2.positive_ratio || 0) * 100,
         fullMark: 100,
       },
       {
-        subject: 'User Rating',
-        [d1.name]: ((d1.rating.user || 0) / 5) * 100,
-        [d2.name]: ((d2.rating.user || 0) / 5) * 100,
+        subject: 'Rating Pengguna',
+        tooltip: 'Rata-rata rating dari pengguna (skala 1-5)',
+        dest1: ((d1.rating.user || 0) / 5) * 100,
+        dest2: ((d2.rating.user || 0) / 5) * 100,
         fullMark: 100,
       },
-      {
-        subject: 'Total Ulasan',
-        // Normalized roughly for visual purposes (max ~100)
-        [d1.name]: Math.min((d1.sentiment.positive + d1.sentiment.negative + d1.sentiment.neutral) * 2, 100),
-        [d2.name]: Math.min((d2.sentiment.positive + d2.sentiment.negative + d2.sentiment.neutral) * 2, 100),
-        fullMark: 100,
-      }
     ];
   }, [compareData]);
 
@@ -107,6 +135,13 @@ export default function CompareClient({ availableDestinations }: CompareClientPr
       }
     ];
   }, [compareData]);
+
+  // Friendly error messages instead of raw API errors
+  const getFriendlyError = (err: any): string => {
+    if (err?.response?.status === 404) return 'Data destinasi tidak ditemukan.';
+    if (err?.response?.status === 500) return 'Server sedang bermasalah. Coba beberapa saat lagi.';
+    return 'Terjadi kesalahan. Coba pilih destinasi lain.';
+  };
 
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
@@ -169,6 +204,19 @@ export default function CompareClient({ availableDestinations }: CompareClientPr
             />
 
           </div>
+          {/* Reset button */}
+          {(dest1Id || dest2Id) && (
+            <div className="mt-4 flex justify-end">
+              <button
+                type="button"
+                onClick={handleReset}
+                className="inline-flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-primary transition-colors"
+              >
+                <RotateCcw className="w-4 h-4" />
+                Reset Perbandingan
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Loading / Error States */}
@@ -184,7 +232,7 @@ export default function CompareClient({ availableDestinations }: CompareClientPr
             <AlertCircle className="w-6 h-6 mr-3 shrink-0" />
             <div>
               <h3 className="font-bold text-lg mb-1">Gagal memuat data</h3>
-              <p className="text-red-500">{(error as any)?.response?.data?.message || error.message || 'Terjadi kesalahan saat mengambil data perbandingan.'}</p>
+              <p className="text-red-500">{getFriendlyError(error)}</p>
             </div>
           </div>
         )}
@@ -207,11 +255,11 @@ export default function CompareClient({ availableDestinations }: CompareClientPr
             animate={{ opacity: 1, y: 0 }}
             className="space-y-8"
           >
-            {/* Winner Banner */}
-            <div className="bg-gradient-to-r from-slate-900 to-slate-800 rounded-3xl p-6 md:p-8 flex items-center justify-between shadow-xl">
+            {/* Winner Banner — uses brand orange for celebratory feel */}
+            <div className="bg-primary rounded-3xl p-6 md:p-8 flex items-center justify-between shadow-xl">
               <div className="text-white">
-                <p className="text-slate-400 font-bold text-sm uppercase tracking-wider mb-2 flex items-center">
-                  <Sparkles className="w-4 h-4 mr-2 text-yellow-400" /> AI Recommendation Winner
+                <p className="text-white/70 font-bold text-sm uppercase tracking-wider mb-2 flex items-center">
+                  <Sparkles className="w-4 h-4 mr-2 text-yellow-300" /> Rekomendasi Terbaik AI
                 </p>
                 <h2 className="text-3xl font-black">
                   {compareData.comparison.recommendation_winner === compareData.destination1.id 
@@ -222,8 +270,8 @@ export default function CompareClient({ availableDestinations }: CompareClientPr
                 </h2>
               </div>
               <div className="text-right">
-                <p className="text-slate-400 text-sm font-medium mb-1">Selisih Skor</p>
-                <p className="text-2xl font-bold text-emerald-400">
+                <p className="text-white/70 text-sm font-medium mb-1">Selisih Skor</p>
+                <p className="text-2xl font-bold text-white">
                   +{(compareData.comparison.score_difference * 100).toFixed(1)}%
                 </p>
               </div>
@@ -246,8 +294,8 @@ export default function CompareClient({ availableDestinations }: CompareClientPr
                       <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
                       <Tooltip content={<CustomTooltip />} />
                       <Legend iconType="circle" wrapperStyle={{ paddingTop: '20px', fontWeight: 'bold' }} />
-                      <Radar name={compareData.destination1.name} dataKey={compareData.destination1.name} stroke="#f97316" fill="#f97316" fillOpacity={0.4} strokeWidth={3} />
-                      <Radar name={compareData.destination2.name} dataKey={compareData.destination2.name} stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.4} strokeWidth={3} />
+                      <Radar name={compareData.destination1.name} dataKey="dest1" stroke={CHART_COLORS.dest1} fill={CHART_COLORS.dest1} fillOpacity={0.4} strokeWidth={3} />
+                      <Radar name={compareData.destination2.name} dataKey="dest2" stroke={CHART_COLORS.dest2} fill={CHART_COLORS.dest2} fillOpacity={0.4} strokeWidth={3} />
                     </RadarChart>
                   </ResponsiveContainer>
                 </div>
@@ -270,9 +318,9 @@ export default function CompareClient({ availableDestinations }: CompareClientPr
                       <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 12 }} />
                       <Tooltip content={<CustomTooltip />} cursor={{ fill: '#f8fafc' }} />
                       <Legend iconType="circle" wrapperStyle={{ paddingTop: '20px' }} />
-                      <Bar dataKey="Positif" stackId="a" fill="#10b981" radius={[0, 0, 4, 4]} barSize={60} />
-                      <Bar dataKey="Netral" stackId="a" fill="#94a3b8" />
-                      <Bar dataKey="Negatif" stackId="a" fill="#ef4444" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="Positif" stackId="a" fill={CHART_COLORS.positive} radius={[0, 0, 4, 4]} barSize={60} />
+                      <Bar dataKey="Netral" stackId="a" fill={CHART_COLORS.neutral} />
+                      <Bar dataKey="Negatif" stackId="a" fill={CHART_COLORS.negative} radius={[4, 4, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -280,12 +328,28 @@ export default function CompareClient({ availableDestinations }: CompareClientPr
 
             </div>
 
+            {/* Review Count Stats — replaces misleading normalized radar axis */}
+            <div className="grid grid-cols-2 gap-4">
+              {[compareData.destination1, compareData.destination2].map((dest, idx) => {
+                const totalReviews = dest.sentiment.positive + dest.sentiment.negative + dest.sentiment.neutral;
+                return (
+                  <div key={idx} className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm flex items-center gap-4">
+                    <div className={`w-3 h-3 rounded-full ${idx === 0 ? 'bg-primary' : 'bg-secondary'}`} />
+                    <div>
+                      <p className="text-sm font-bold text-slate-900">{dest.name}</p>
+                      <p className="text-xs text-slate-500">{totalReviews} ulasan dianalisis</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
             {/* Top Topics Comparison */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {[compareData.destination1, compareData.destination2].map((dest, idx) => (
                 <div key={idx} className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm">
                   <h3 className="text-lg font-black text-slate-900 mb-6 pb-4 border-b border-slate-100 border-dashed">
-                    Vibe Dominan: <span className={idx === 0 ? 'text-primary' : 'text-blue-500'}>{dest.name}</span>
+                    Vibe Dominan: <span className={idx === 0 ? 'text-primary' : 'text-secondary'}>{dest.name}</span>
                   </h3>
                   
                   {dest.topics && dest.topics.length > 0 ? (

@@ -34,6 +34,11 @@ interface Topic {
   keywords?: string[];
 }
 
+interface SearchHistoryItem {
+  keyword: string;
+  createdAt?: string;
+}
+
 export default function SearchClient() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -47,7 +52,7 @@ export default function SearchClient() {
   
   const [results, setResults] = useState<Destination[]>([]);
   const [topics, setTopics] = useState<Topic[]>([]);
-  const [history, setHistory] = useState<any[]>([]);
+  const [history, setHistory] = useState<SearchHistoryItem[]>([]);
   
   const [isLoading, setIsLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
@@ -81,7 +86,7 @@ export default function SearchClient() {
   }, [isAuthenticated]);
 
   // Execute Search
-  const executeSearch = async (searchQuery: string, topicId: number | null) => {
+  const executeSearch = useCallback(async (searchQuery: string, topicId: number | null) => {
     setIsLoading(true);
     setHasSearched(true);
     
@@ -109,7 +114,7 @@ export default function SearchClient() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   // Initial load search if query exists
   const initialSearchDone = React.useRef(false);
@@ -118,7 +123,7 @@ export default function SearchClient() {
       initialSearchDone.current = true;
       executeSearch(initialQuery, null);
     }
-  }, [initialQuery]);
+  }, [initialQuery, executeSearch]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -180,28 +185,29 @@ export default function SearchClient() {
         {/* Vibe Filters */}
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
           <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Vibe Filters</h3>
-          <ul className="space-y-3">
-            {topics.map((topic) => (
-              <li key={topic.id}>
-                <button
-                  type="button"
-                  role="checkbox"
-                  aria-checked={selectedTopicId === topic.id}
-                  onClick={() => handleTopicClick(topic.id)}
-                  className="flex items-center cursor-pointer group w-full text-left"
-                >
-                  <div className={`w-5 h-5 rounded border flex items-center justify-center mr-3 transition-colors ${
-                    selectedTopicId === topic.id ? 'bg-primary border-primary' : 'border-slate-300 group-hover:border-primary'
-                  }`}>
-                    {selectedTopicId === topic.id && <Check className="w-3 h-3 text-white" />}
-                  </div>
-                  <span className={`text-sm transition-colors ${selectedTopicId === topic.id ? 'font-bold text-slate-900' : 'text-slate-600 group-hover:text-slate-900'}`}>
-                    #{topic.keywords ? topic.keywords.slice(0, 2).join(', ') : topic.topic_name?.replace(/Topic \d+: /, '')}
-                  </span>
-                </button>
-              </li>
-            ))}
-          </ul>
+          <div role="group" aria-label="Filter berdasarkan vibe">
+            <ul className="space-y-3">
+              {topics.map((topic) => (
+                <li key={topic.id}>
+                  <button
+                    type="button"
+                    aria-pressed={selectedTopicId === topic.id}
+                    onClick={() => handleTopicClick(topic.id)}
+                    className="flex items-center cursor-pointer group w-full text-left"
+                  >
+                    <div className={`w-5 h-5 rounded border flex items-center justify-center mr-3 transition-colors ${
+                      selectedTopicId === topic.id ? 'bg-primary border-primary' : 'border-slate-300 group-hover:border-primary'
+                    }`}>
+                      {selectedTopicId === topic.id && <Check className="w-3 h-3 text-white" />}
+                    </div>
+                    <span className={`text-sm transition-colors ${selectedTopicId === topic.id ? 'font-bold text-slate-900' : 'text-slate-600 group-hover:text-slate-900'}`}>
+                      #{topic.keywords ? topic.keywords.slice(0, 2).join(', ') : topic.topic_name?.replace(/Topic \d+: /, '')}
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       </aside>
 
@@ -209,9 +215,11 @@ export default function SearchClient() {
       <div className="flex-1">
         {/* Search Input */}
         <form onSubmit={handleSearchSubmit} className="mb-8">
+          <label htmlFor="search-main" className="sr-only">Cari destinasi berdasarkan vibe</label>
           <div className="relative flex items-center">
             <Search className="absolute left-6 text-slate-400 w-6 h-6" />
             <input 
+              id="search-main"
               type="text" 
               placeholder="Cari berdasarkan vibe (contoh: 'pantai tenang' atau 'kuliner pedas')" 
               className="w-full bg-white border border-slate-200 rounded-full py-4 pl-16 pr-32 text-lg text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary shadow-sm transition-all"
@@ -228,15 +236,48 @@ export default function SearchClient() {
           </div>
         </form>
 
+        {/* Active filter indicator with reset */}
+        {hasSearched && (activeQuery || selectedTopicId) && (
+          <div className="flex items-center gap-3 mb-6">
+            <span className="text-sm text-slate-500 font-medium">Filter aktif:</span>
+            {activeQuery && (
+              <span className="inline-flex items-center gap-1.5 bg-primary/10 text-primary px-3 py-1.5 rounded-full text-sm font-bold">
+                &ldquo;{activeQuery}&rdquo;
+                <button
+                  type="button"
+                  onClick={() => { setQuery(''); setActiveQuery(''); setResults([]); setHasSearched(false); router.push('/search'); }}
+                  aria-label="Hapus filter pencarian"
+                  className="hover:bg-primary/20 rounded-full p-0.5 transition-colors"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </span>
+            )}
+            {selectedTopicId && (
+              <span className="inline-flex items-center gap-1.5 bg-primary/10 text-primary px-3 py-1.5 rounded-full text-sm font-bold">
+                #{topics.find(t => t.id === selectedTopicId)?.keywords?.slice(0, 1).join('') || 'Vibe'}
+                <button
+                  type="button"
+                  onClick={() => { setSelectedTopicId(null); setResults([]); setHasSearched(false); router.push('/search'); }}
+                  aria-label="Hapus filter topik"
+                  className="hover:bg-primary/20 rounded-full p-0.5 transition-colors"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </span>
+            )}
+          </div>
+        )}
+
         {/* Results Header */}
         {hasSearched && (
           <div className="mb-8">
-            <h2 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-2">
+            <p className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-2">
               Menampilkan Hasil Untuk
-            </h2>
+            </p>
             {activeQuery ? (
               <div>
-                <h1 className="text-3xl md:text-4xl font-black text-slate-900 mb-3">"{activeQuery}"</h1>
+                <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-3">"{activeQuery}"</h2>
                 <p className="flex items-center text-sm text-slate-500">
                   <Sparkles className="w-4 h-4 text-primary mr-2" />
                   Menganalisis destinasi berdasarkan kemiripan semantik AI.
@@ -244,9 +285,9 @@ export default function SearchClient() {
               </div>
             ) : (
               <div>
-                <h1 className="text-3xl md:text-4xl font-black text-slate-900 mb-3 capitalize">
+                <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-3 capitalize">
                   #{topics.find(t => t.id === selectedTopicId)?.keywords?.slice(0, 2).join(', ') || topics.find(t => t.id === selectedTopicId)?.topic_name?.replace(/Topic \d+: /, '')}
-                </h1>
+                </h2>
                 <p className="flex items-center text-sm text-slate-500">
                   <Sparkles className="w-4 h-4 text-primary mr-2" />
                   Menampilkan destinasi berdasarkan kategori topik ini.
@@ -278,23 +319,35 @@ export default function SearchClient() {
             animate={{ opacity: 1 }}
             className="grid grid-cols-1 md:grid-cols-2 gap-6"
           >
-            {results.map((dest, index) => (
+            {results.map((dest, index) => {
+              const isFeatured = index === 0;
+              return (
               <motion.div 
                 key={dest.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: index * 0.1 }}
-                className="bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col group"
+                className={`bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col group ${
+                  isFeatured ? 'md:col-span-2 md:flex-row' : ''
+                }`}
               >
                 {/* Image Section */}
-                <div className="relative h-56 overflow-hidden">
+                <div className={`relative overflow-hidden ${
+                  isFeatured ? 'md:w-1/2 h-56 md:h-auto md:min-h-[320px]' : 'h-56'
+                }`}>
                   <Image 
                     src={dest.thumbnail_url || dest.thumbnailUrl ? getImageUrl(dest.thumbnail_url || dest.thumbnailUrl) : '/images/auth-bg.jpg'} 
                     alt={dest.name}
                     fill
-                    sizes="(max-width: 768px) 100vw, 50vw"
+                    sizes={isFeatured ? '(max-width: 768px) 100vw, 50vw' : '(max-width: 768px) 100vw, 50vw'}
                     className="object-cover group-hover:scale-105 transition-transform duration-700"
                   />
+                  {isFeatured && (
+                    <div className="absolute top-4 left-4 bg-primary px-3 py-1.5 rounded-full shadow-sm text-xs font-bold text-white flex items-center gap-1.5">
+                      <Sparkles className="w-3 h-3" />
+                      Top Match
+                    </div>
+                  )}
                   {(dest.hybrid_score !== undefined || dest.similarity !== undefined) && (
                     <div className="absolute top-4 right-4 bg-white px-3 py-1.5 rounded-full shadow-sm text-xs font-bold text-slate-800 flex items-center border border-slate-200">
                       <Sparkles className="w-3 h-3 mr-1.5 text-primary" />
@@ -304,10 +357,10 @@ export default function SearchClient() {
                 </div>
 
                 {/* Content Section */}
-                <div className="p-6 flex flex-col flex-1">
+                <div className={`p-6 flex flex-col flex-1 ${isFeatured ? 'md:p-8' : ''}`}>
                   <div className="flex justify-between items-start mb-4">
                     <div>
-                      <h3 className="text-2xl font-black text-slate-900 mb-1">{dest.name}</h3>
+                      <h3 className={`font-black text-slate-900 mb-1 ${isFeatured ? 'text-3xl' : 'text-2xl'}`}>{dest.name}</h3>
                       <p className="flex items-center text-sm text-slate-500 font-medium">
                         <MapPin className="w-4 h-4 mr-1 text-slate-400" />
                         {dest.city}
@@ -316,14 +369,14 @@ export default function SearchClient() {
                     {(dest.recommendation_score !== undefined || dest.recommendationScore !== undefined) && (
                       <div className="text-right" title="Skor rekomendasi AI berdasarkan sentimen dan relevansi">
                         <span className="block text-xs font-bold text-slate-400 uppercase">Skor AI</span>
-                        <span className="text-2xl font-black text-primary">{((dest.recommendation_score ?? dest.recommendationScore ?? 0) * 100).toFixed(0)}</span>
+                        <span className={`font-black text-primary ${isFeatured ? 'text-3xl' : 'text-2xl'}`}>{((dest.recommendation_score ?? dest.recommendationScore ?? 0) * 100).toFixed(0)}</span>
                       </div>
                     )}
                   </div>
 
                   {/* Tags */}
                   <div className="flex flex-wrap gap-2 mb-6">
-                    {dest.topics?.slice(0, 3).map(topic => (
+                    {dest.topics?.slice(0, isFeatured ? 5 : 3).map(topic => (
                       <span key={topic.id} className="bg-slate-50 border border-slate-100 px-2.5 py-1 rounded-md text-xs font-bold text-slate-600 capitalize">
                         #{(topic as any).topic_name?.replace(/Topic \d+: /, '') || (topic as any).name || 'Vibe'}
                       </span>
@@ -343,12 +396,13 @@ export default function SearchClient() {
                       href={`/destinations/${dest.slug}`}
                       className="text-primary font-bold text-sm flex items-center group-hover:text-slate-900 transition-colors"
                     >
-                      Explore <ArrowRight className="w-4 h-4 ml-1 transform group-hover:translate-x-1 transition-transform" />
+                      Lihat Detail <ArrowRight className="w-4 h-4 ml-1 transform group-hover:translate-x-1 transition-transform" />
                     </Link>
                   </div>
                 </div>
               </motion.div>
-            ))}
+            );
+            })}
           </motion.div>
         )}
 

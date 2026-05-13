@@ -6,6 +6,7 @@ import { ChevronLeft, ChevronRight, MapPin, Star } from 'lucide-react';
 import { useCallback } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import Image from 'next/image';
+import Link from 'next/link';
 
 import { getImageUrl } from '@/lib/utils';
 
@@ -61,12 +62,14 @@ export function TrendingCarousel({ destinations }: TrendingCarouselProps) {
         <div className="flex gap-3">
           <button 
             onClick={scrollPrev}
+            aria-label="Destinasi sebelumnya"
             className="w-12 h-12 rounded-full border-2 border-slate-200 flex items-center justify-center text-slate-600 hover:border-primary hover:text-primary hover:bg-orange-50 transition-all active:scale-95"
           >
             <ChevronLeft className="w-6 h-6" />
           </button>
           <button 
             onClick={scrollNext}
+            aria-label="Destinasi berikutnya"
             className="w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center hover:bg-primary/90 transition-all active:scale-95 shadow-md shadow-primary/20"
           >
             <ChevronRight className="w-6 h-6" />
@@ -86,7 +89,7 @@ export function TrendingCarousel({ destinations }: TrendingCarouselProps) {
               key={dest.id} 
               className="flex-[0_0_85%] sm:flex-[0_0_45%] lg:flex-[0_0_30%] min-w-0"
             >
-              <div className="group relative h-[450px] rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 cursor-pointer">
+              <Link href={`/destinations/${dest.slug}`} className="group relative h-[450px] rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 block">
                 {/* Background Image */}
                 <Image 
                   src={dest.thumbnailUrl ? getImageUrl(dest.thumbnailUrl) : '/images/auth-bg.jpg'} 
@@ -129,7 +132,7 @@ export function TrendingCarousel({ destinations }: TrendingCarouselProps) {
                     </div>
                   </div>
                 </div>
-              </div>
+              </Link>
             </motion.div>
           ))}
         </div>

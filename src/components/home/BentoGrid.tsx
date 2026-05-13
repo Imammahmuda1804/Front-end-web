@@ -9,8 +9,8 @@ export function BentoGrid() {
   return (
     <section className="py-32 bg-slate-900 text-white relative overflow-hidden">
       {/* Decorative Background Elements */}
-      <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-primary/20 rounded-full blur-[120px] -mr-40 -mt-40 pointer-events-none"></div>
-      <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-secondary/20 rounded-full blur-[100px] -ml-20 -mb-20 pointer-events-none"></div>
+      <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-primary/20 rounded-full blur-[120px] -mr-40 -mt-40 pointer-events-none will-change-transform"></div>
+      <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-secondary/20 rounded-full blur-[100px] -ml-20 -mb-20 pointer-events-none will-change-transform"></div>
 
       <div className="max-w-7xl mx-auto px-6 md:px-12 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-[280px]">
@@ -34,7 +34,7 @@ export function BentoGrid() {
             </div>
           </motion.div>
 
-          {/* Stats Box */}
+          {/* Vibe Topics Box */}
           <motion.div 
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -42,11 +42,14 @@ export function BentoGrid() {
             transition={{ duration: 0.6, delay: 0.1 }}
             className="bg-slate-800/50 rounded-[2.5rem] p-10 flex flex-col justify-center border border-white/10 shadow-xl group hover:bg-slate-800 transition-colors"
           >
-            {/* TODO: Replace with actual review count from API */}
-            <div className="text-orange-400 font-black text-6xl md:text-7xl mb-4 tracking-tighter group-hover:scale-105 transform origin-left transition-transform">
-              1.2M<span className="text-orange-500">+</span>
+            <p className="font-bold text-slate-400 uppercase tracking-widest text-xs mb-4">Vibe Tersedia</p>
+            <div className="flex flex-wrap gap-2">
+              {['Culture', 'Nature', 'Gastronomy', 'Adventure', 'Healing'].map((vibe) => (
+                <span key={vibe} className="px-3 py-1.5 bg-white/10 border border-white/10 rounded-full text-sm font-bold text-white/80 hover:bg-primary/30 hover:text-white transition-colors cursor-default">
+                  #{vibe}
+                </span>
+              ))}
             </div>
-            <p className="font-bold text-slate-400 uppercase tracking-widest text-sm">Data Ulasan Dianalisis</p>
           </motion.div>
 
           {/* Map Link Box */}
@@ -58,9 +61,9 @@ export function BentoGrid() {
               <Map className="w-8 h-8" />
             </div>
             <div>
-              <h5 className="text-2xl font-black mb-4">Cari Berdasarkan Peta</h5>
+              <h5 className="text-2xl font-black mb-4">Jelajahi Vibe</h5>
               <span className="flex items-center gap-2 text-primary font-bold text-lg group-hover:gap-4 transition-all">
-                Buka Topic Map <ArrowRight className="w-5 h-5" />
+                Mulai Pencarian <ArrowRight className="w-5 h-5" />
               </span>
             </div>
           </Link>
@@ -73,7 +76,7 @@ export function BentoGrid() {
             transition={{ duration: 0.6, delay: 0.3 }}
             className="md:col-span-3 bg-secondary rounded-[2.5rem] p-10 flex flex-col md:flex-row items-center justify-between shadow-2xl relative overflow-hidden"
           >
-            <div className="absolute inset-0 bg-[url('/images/auth-bg.jpg')] opacity-10 bg-cover bg-center mix-blend-overlay"></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent mix-blend-overlay"></div>
             <div className="relative z-10 mb-8 md:mb-0">
               <h4 className="text-3xl md:text-4xl font-black mb-2">Siap Temukan Vibe Anda?</h4>
               <p className="text-white/80 text-lg">Mulai perjalanan emosional Anda hari ini.</p>

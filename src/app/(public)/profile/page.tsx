@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import ProfileClient from '@/components/profile/ProfileClient';
 
 export const metadata: Metadata = {
-  title: 'Profil & Preferensi - VibeTravel',
+  title: 'Profil & Preferensi - RANAHINSIGHT',
   description: 'Kelola detail profil dan lihat destinasi favorit Anda',
 };
 
