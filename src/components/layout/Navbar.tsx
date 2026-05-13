@@ -2,8 +2,10 @@
 
 import * as React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useAuthStore } from '@/store/auth.store';
+import { getImageUrl } from '@/lib/utils';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Menu, User, LogOut } from 'lucide-react';
 import {
@@ -18,6 +20,7 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 export function Navbar() {
   const { isAuthenticated, user, logout } = useAuthStore();
   const pathname = usePathname();
+  const [mobileOpen, setMobileOpen] = React.useState(false);
 
   // Auto-sync cookie for users who were already logged in via localStorage
   React.useEffect(() => {
@@ -41,11 +44,11 @@ export function Navbar() {
   ];
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 w-full bg-white/80 backdrop-blur-md border-b border-slate-200/50 shadow-sm transition-all duration-300">
-      <div className="container mx-auto px-6 lg:px-12 flex h-20 items-center justify-between">
+    <nav aria-label="Navigasi Utama" className="fixed top-0 left-0 right-0 z-50 w-full bg-white border-b border-slate-200 shadow-sm transition-all duration-300">
+      <div className="container mx-auto px-6 lg:px-12 flex h-16 items-center justify-between">
         <div className="flex items-center gap-8 md:gap-12">
           <Link href="/" className="flex items-center space-x-3 group">
-            <img src="/images/logo-icon.png" alt="RanahInsight Logo" className="w-9 h-9 object-contain drop-shadow-sm group-hover:scale-105 transition-transform" />
+            <Image src="/images/logo-icon.png" alt="RanahInsight Logo" width={36} height={36} className="object-contain drop-shadow-sm group-hover:scale-105 transition-transform" />
             <span className="font-black text-slate-900 tracking-tight text-xl">RANAHINSIGHT</span>
           </Link>
           <div className="hidden md:flex gap-8">
@@ -68,7 +71,7 @@ export function Navbar() {
             <DropdownMenu>
               <DropdownMenuTrigger className="relative h-10 w-10 rounded-full flex items-center justify-center bg-slate-100 border border-slate-200 text-slate-700 hover:bg-slate-200 focus:outline-none transition-colors overflow-hidden">
                 {user.profilePicture ? (
-                  <img src={user.profilePicture.startsWith('http') ? user.profilePicture : `${process.env.NEXT_PUBLIC_API_URL}${user.profilePicture}`} alt={user.name} className="w-full h-full object-cover" />
+                  <Image src={getImageUrl(user.profilePicture)} alt={user.name} width={40} height={40} className="w-full h-full object-cover" />
                 ) : (
                   <User className="h-5 w-5" />
                 )}
@@ -109,7 +112,7 @@ export function Navbar() {
           )}
 
           {/* Mobile menu */}
-          <Sheet>
+          <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
             <SheetTrigger className="md:hidden flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-700 hover:bg-slate-200 focus:outline-none transition-colors">
               <Menu className="h-5 w-5" />
               <span className="sr-only">Toggle Menu</span>
@@ -117,13 +120,14 @@ export function Navbar() {
             <SheetContent side="right" className="bg-white border-l-slate-100 sm:max-w-xs">
               <div className="flex flex-col gap-6 mt-12">
                 <div className="flex items-center gap-3 mb-4">
-                  <img src="/images/logo-icon.png" alt="Logo" className="w-8 h-8" />
+                  <Image src="/images/logo-icon.png" alt="Logo" width={32} height={32} />
                   <span className="font-black text-slate-900 tracking-tight text-lg">RANAHINSIGHT</span>
                 </div>
                 {navLinks.map((link) => (
                   <Link
                     key={link.href}
                     href={link.href}
+                    onClick={() => setMobileOpen(false)}
                     className="text-lg font-bold text-slate-800 hover:text-primary border-b border-slate-100 pb-4 transition-colors"
                   >
                     {link.label}
@@ -131,8 +135,8 @@ export function Navbar() {
                 ))}
                 {!isAuthenticated && (
                   <div className="flex flex-col gap-3 mt-4">
-                    <Link href="/login" className="text-center font-bold text-slate-700 bg-slate-100 py-3 rounded-xl hover:bg-slate-200 transition-colors">Masuk</Link>
-                    <Link href="/register" className="text-center font-bold text-white bg-primary py-3 rounded-xl hover:bg-primary/90 transition-colors shadow-md shadow-primary/20">Daftar Sekarang</Link>
+                    <Link href="/login" onClick={() => setMobileOpen(false)} className="text-center font-bold text-slate-700 bg-slate-100 py-3 rounded-xl hover:bg-slate-200 transition-colors">Masuk</Link>
+                    <Link href="/register" onClick={() => setMobileOpen(false)} className="text-center font-bold text-white bg-primary py-3 rounded-xl hover:bg-primary/90 transition-colors shadow-md shadow-primary/20">Daftar Sekarang</Link>
                   </div>
                 )}
               </div>

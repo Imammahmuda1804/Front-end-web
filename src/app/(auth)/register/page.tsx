@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -53,19 +54,6 @@ export default function RegisterPage() {
 
   return (
     <main className="min-h-screen w-full flex bg-white relative overflow-hidden">
-      
-      {/* Wave Gradient Bottom */}
-      <div className="absolute bottom-0 left-0 right-0 z-0 pointer-events-none">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 220" className="w-full h-auto">
-          <defs>
-            <linearGradient id="wave-grad-reg" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor="#2D82B5" />
-              <stop offset="100%" stopColor="#FF7B54" />
-            </linearGradient>
-          </defs>
-          <path fill="url(#wave-grad-reg)" fillOpacity="0.9" d="M0,128L48,138.7C96,149,192,171,288,160C384,149,480,107,576,90.7C672,75,768,85,864,106.7C960,128,1056,160,1152,160C1248,160,1344,128,1392,112L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
-        </svg>
-      </div>
 
       {/* Kiri: Form Section */}
       <section className="w-full lg:w-1/2 flex flex-col justify-center px-8 sm:px-16 md:px-24 xl:px-32 relative z-10 pb-16">
@@ -73,7 +61,7 @@ export default function RegisterPage() {
           <div className="mb-10 text-center">
             <p className="text-slate-600 font-bold mb-2 text-lg">Bergabung dengan</p>
             <div className="flex flex-col items-center justify-center mb-4">
-              <img src="/images/logo-icon.png" alt="RanahInsight Logo" className="h-16 w-16 object-contain mb-2" />
+              <Image src="/images/logo-icon.png" alt="RanahInsight Logo" width={64} height={64} className="object-contain mb-2" />
               <h1 className="text-3xl font-black text-slate-900 tracking-tighter">
                 RANAH<span className="text-primary">INSIGHT</span>
               </h1>
@@ -98,6 +86,7 @@ export default function RegisterPage() {
                   placeholder="Masukkan nama lengkap" 
                   type="text"
                   autoFocus
+                  autoComplete="name"
                   {...register('name')}
                 />
               </div>
@@ -119,6 +108,7 @@ export default function RegisterPage() {
                   className="input-minimal pl-11" 
                   placeholder="Masukkan email Anda" 
                   type="email"
+                  autoComplete="email"
                   {...register('email')}
                 />
               </div>
@@ -140,6 +130,7 @@ export default function RegisterPage() {
                   className="input-minimal pl-11 pr-12" 
                   placeholder="Masukkan password Anda" 
                   type={showPassword ? "text" : "password"}
+                  autoComplete="new-password"
                   {...register('password')}
                 />
                 <button
@@ -193,14 +184,14 @@ export default function RegisterPage() {
             src="/images/auth-bg.jpg"
           />
           
-          {/* Overlay Logo agar tidak boring */}
-          <div className="absolute top-10 right-10 z-20 flex items-center gap-3 bg-white/70 backdrop-blur-sm px-6 py-3 rounded-full border border-white shadow-lg">
+          {/* Overlay Logo */}
+          <div className="absolute top-10 right-10 z-20 flex items-center gap-3 bg-white px-6 py-3 rounded-full border border-slate-200 shadow-lg">
             <span className="text-slate-900 font-black tracking-tight text-xl">RANAHINSIGHT</span>
-            <img src="/images/logo-icon.png" alt="RanahInsight" className="w-10 h-10 object-contain drop-shadow-sm" />
+            <Image src="/images/logo-icon.png" alt="RanahInsight" width={40} height={40} className="object-contain drop-shadow-sm" />
           </div>
 
-          {/* Dummy AI Cards */}
-          <div className="absolute bottom-24 right-10 z-20 bg-white/70 backdrop-blur-sm border border-white p-5 rounded-2xl shadow-xl transform hover:scale-105 transition-transform">
+          {/* AI Info Cards */}
+          <div className="absolute bottom-24 right-10 z-20 bg-white border border-slate-200 p-5 rounded-2xl shadow-xl">
             <p className="text-slate-500 font-bold text-xs uppercase tracking-wider mb-1">Sentimen Positif</p>
             <div className="flex items-center justify-end gap-3">
               <p className="text-slate-700 font-medium text-sm max-w-[100px] text-right leading-tight">Wisatawan sangat puas</p>
@@ -210,7 +201,7 @@ export default function RegisterPage() {
             </div>
           </div>
           
-          <div className="absolute top-1/3 left-10 z-20 bg-white/70 backdrop-blur-sm border border-white p-5 rounded-2xl shadow-xl transform hover:scale-105 transition-transform text-left">
+          <div className="absolute top-1/3 left-10 z-20 bg-white border border-slate-200 p-5 rounded-2xl shadow-xl text-left">
              <p className="text-slate-500 font-bold text-xs uppercase tracking-wider mb-1">Topik Populer</p>
              <p className="text-slate-900 font-black text-xl mb-1">Alam & Budaya</p>
              <p className="text-slate-600 font-medium text-sm">Rekomendasi AI teratas</p>

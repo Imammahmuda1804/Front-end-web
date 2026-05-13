@@ -60,6 +60,11 @@ export const adminUserService = {
     return data?.data || data;
   },
 
+  createUser: async (userData: AdminUpdateUserData) => {
+    const { data } = await api.post("/api/admin/users", userData);
+    return data;
+  },
+
   updateUser: async (id: number, userData: AdminUpdateUserData) => {
     const { data } = await api.put(`/api/admin/users/${id}`, userData);
     return data;

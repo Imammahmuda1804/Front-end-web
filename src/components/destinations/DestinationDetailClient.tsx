@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { MapPin, Star, Sparkles, Navigation, ArrowLeft, Image as ImageIcon, MessageSquare, TrendingUp, ThumbsUp, Heart } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   AreaChart,
   Area,
@@ -202,10 +203,13 @@ export default function DestinationDetailClient({ destination }: Props) {
           transition={{ duration: 0.6 }}
           className="relative h-[60vh] min-h-[400px] rounded-3xl overflow-hidden shadow-2xl mb-8 group"
         >
-          <img 
+          <Image 
             src={thumbUrl || '/images/auth-bg.jpg'} 
             alt={destination.name}
-            className="absolute inset-0 w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-1000 ease-out"
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover transform group-hover:scale-105 transition-transform duration-1000 ease-out"
           />
           {/* Gradient Overlays */}
           <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/40 to-transparent" />
@@ -213,7 +217,7 @@ export default function DestinationDetailClient({ destination }: Props) {
           
           {/* AI Match Badge */}
           {destination.recommendationScore !== null && (
-            <div className="absolute top-6 left-6 bg-white/20 backdrop-blur-md border border-white/30 px-4 py-2 rounded-full flex items-center shadow-lg">
+            <div className="absolute top-6 left-6 bg-primary/90 px-4 py-2 rounded-full flex items-center shadow-lg">
               <Sparkles className="w-4 h-4 text-orange-300 mr-2" />
               <span className="text-white font-bold text-sm tracking-wide">
                 AI MATCH SCORE <span className="ml-2 bg-white text-slate-900 px-2 py-0.5 rounded-full">{(destination.recommendationScore * 100).toFixed(0)}</span>
@@ -225,7 +229,7 @@ export default function DestinationDetailClient({ destination }: Props) {
           <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12">
             <div className="flex flex-wrap gap-2 mb-4">
               {tags.slice(0, 3).map((tag, idx) => (
-                <span key={idx} className="bg-primary/90 backdrop-blur-md text-white text-xs font-bold px-3 py-1 rounded-md uppercase tracking-wider">
+                <span key={idx} className="bg-primary/90 text-white text-xs font-bold px-3 py-1 rounded-md uppercase tracking-wider">
                   #{tag}
                 </span>
               ))}
@@ -272,7 +276,7 @@ export default function DestinationDetailClient({ destination }: Props) {
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex items-center justify-between group hover:border-primary/50 transition-colors cursor-pointer" onClick={() => window.open(destination.googleMapsUrl, '_blank')}>
+          <a href={destination.googleMapsUrl} target="_blank" rel="noopener noreferrer" className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex items-center justify-between group hover:border-primary/50 transition-colors">
             <div>
               <p className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-1">Lokasi</p>
               <span className="text-lg font-bold text-slate-900 group-hover:text-primary transition-colors">Buka Google Maps</span>
@@ -280,19 +284,25 @@ export default function DestinationDetailClient({ destination }: Props) {
             <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center group-hover:bg-primary/10 transition-colors">
               <Navigation className="w-6 h-6 text-blue-500 group-hover:text-primary" />
             </div>
-          </div>
+          </a>
         </motion.div>
 
         {/* Main Content Tabs */}
         <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
-          <div className="flex border-b border-slate-100 overflow-x-auto hide-scrollbar">
+          <div role="tablist" className="flex border-b border-slate-100 overflow-x-auto hide-scrollbar">
             <button 
+              role="tab"
+              aria-selected={activeTab === 'overview'}
+              aria-controls="panel-overview"
               onClick={() => setActiveTab('overview')}
               className={`flex-shrink-0 px-8 py-5 text-sm font-bold uppercase tracking-wider border-b-2 transition-colors ${activeTab === 'overview' ? 'border-primary text-primary' : 'border-transparent text-slate-500 hover:text-slate-900'}`}
             >
               Overview
             </button>
             <button 
+              role="tab"
+              aria-selected={activeTab === 'gallery'}
+              aria-controls="panel-gallery"
               onClick={() => setActiveTab('gallery')}
               className={`flex-shrink-0 flex items-center px-8 py-5 text-sm font-bold uppercase tracking-wider border-b-2 transition-colors ${activeTab === 'gallery' ? 'border-primary text-primary' : 'border-transparent text-slate-500 hover:text-slate-900'}`}
             >
@@ -300,6 +310,9 @@ export default function DestinationDetailClient({ destination }: Props) {
               Galeri ({allImages.length})
             </button>
             <button 
+              role="tab"
+              aria-selected={activeTab === 'reviews'}
+              aria-controls="panel-reviews"
               onClick={() => setActiveTab('reviews')}
               className={`flex-shrink-0 flex items-center px-8 py-5 text-sm font-bold uppercase tracking-wider border-b-2 transition-colors ${activeTab === 'reviews' ? 'border-primary text-primary' : 'border-transparent text-slate-500 hover:text-slate-900'}`}
             >
@@ -312,7 +325,7 @@ export default function DestinationDetailClient({ destination }: Props) {
             
             {/* OVERVIEW TAB */}
             {activeTab === 'overview' && (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+              <motion.div id="panel-overview" role="tabpanel" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="grid grid-cols-1 lg:grid-cols-3 gap-12">
                 
                 {/* Description */}
                 <div className="lg:col-span-2 space-y-8">
@@ -407,14 +420,16 @@ export default function DestinationDetailClient({ destination }: Props) {
 
             {/* GALLERY TAB */}
             {activeTab === 'gallery' && (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+              <motion.div id="panel-gallery" role="tabpanel" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 grid-rows-[auto]">
                   {allImages.length > 0 ? allImages.map((img, idx) => (
                     <div key={idx} className={`relative rounded-2xl overflow-hidden group shadow-sm ${idx === 0 ? 'md:col-span-2 md:row-span-2 aspect-video' : 'aspect-square'}`}>
-                      <img 
+                      <Image 
                         src={img} 
-                        alt={`${destination.name} ${idx + 1}`} 
-                        className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
+                        alt={`${destination.name} ${idx + 1}`}
+                        fill
+                        sizes={idx === 0 ? '(max-width: 768px) 100vw, 66vw' : '(max-width: 768px) 100vw, 33vw'}
+                        className="object-cover transform group-hover:scale-110 transition-transform duration-700"
                       />
                       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300" />
                     </div>
@@ -430,7 +445,7 @@ export default function DestinationDetailClient({ destination }: Props) {
 
             {/* REVIEWS TAB */}
             {activeTab === 'reviews' && (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="max-w-3xl mx-auto">
+              <motion.div id="panel-reviews" role="tabpanel" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="max-w-3xl mx-auto">
                 <div className="flex items-center justify-between mb-8">
                   <h3 className="text-2xl font-black text-slate-900">Ulasan Wisatawan</h3>
                   <div className="bg-slate-100 px-4 py-2 rounded-full font-bold text-slate-700">
@@ -445,7 +460,7 @@ export default function DestinationDetailClient({ destination }: Props) {
                         <div className="flex items-center">
                           <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold mr-3 overflow-hidden">
                             {review.user.profilePicture ? (
-                              <img src={review.user.profilePicture} alt={review.user.name} className="w-full h-full object-cover" />
+                              <Image src={review.user.profilePicture} alt={review.user.name} width={40} height={40} className="w-full h-full object-cover" />
                             ) : (
                               review.user.name.charAt(0).toUpperCase()
                             )}

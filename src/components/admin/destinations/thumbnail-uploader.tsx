@@ -1,20 +1,27 @@
 import React, { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
-import { X, UploadCloud, ImageIcon } from "lucide-react";
+import { X, UploadCloud, Link as LinkIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 interface ThumbnailUploaderProps {
   onFileChange: (file: File | null) => void;
+  onUrlChange: (url: string) => void;
   currentThumbnailUrl?: string;
 }
 
-export function ThumbnailUploader({ onFileChange, currentThumbnailUrl }: ThumbnailUploaderProps) {
+export function ThumbnailUploader({ onFileChange, onUrlChange, currentThumbnailUrl }: ThumbnailUploaderProps) {
   const [preview, setPreview] = useState<string | null>(currentThumbnailUrl || null);
   const [fileName, setFileName] = useState<string | null>(null);
+  const [urlInput, setUrlInput] = useState<string>("");
+  const [mode, setMode] = useState<"upload" | "url">("upload");
 
   React.useEffect(() => {
     setPreview(currentThumbnailUrl || null);
     setFileName(null);
+    if (currentThumbnailUrl && currentThumbnailUrl.startsWith('http')) {
+      setUrlInput(currentThumbnailUrl);
+    }
   }, [currentThumbnailUrl]);
 
   const onDrop = useCallback(
@@ -25,18 +32,34 @@ export function ThumbnailUploader({ onFileChange, currentThumbnailUrl }: Thumbna
         setPreview(previewUrl);
         setFileName(file.name);
         onFileChange(file);
+        onUrlChange(""); // clear URL if file is chosen
+        setUrlInput("");
       }
     },
-    [onFileChange]
+    [onFileChange, onUrlChange]
   );
+
+  const handleUrlSubmit = () => {
+    if (urlInput.trim()) {
+      setPreview(urlInput.trim());
+      setFileName(null);
+      onFileChange(null); // clear file if URL is used
+      onUrlChange(urlInput.trim());
+    }
+  };
 
   const removeFile = () => {
     if (preview && !currentThumbnailUrl) {
-      URL.revokeObjectURL(preview);
+      // only revoke if it's a blob
+      if (preview.startsWith('blob:')) {
+        URL.revokeObjectURL(preview);
+      }
     }
     setPreview(null);
     setFileName(null);
+    setUrlInput("");
     onFileChange(null);
+    onUrlChange("");
   };
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -71,29 +94,70 @@ export function ThumbnailUploader({ onFileChange, currentThumbnailUrl }: Thumbna
               size="icon"
               className="h-8 w-8 rounded-full"
               onClick={removeFile}
+              type="button"
             >
               <X className="h-4 w-4" />
             </Button>
           </div>
-          {fileName && (
-            <p className="text-xs text-muted-foreground p-2 truncate">{fileName}</p>
+          {fileName ? (
+            <p className="text-xs text-muted-foreground p-2 truncate">File: {fileName}</p>
+          ) : (
+            <p className="text-xs text-muted-foreground p-2 truncate">URL: {preview}</p>
           )}
         </div>
       ) : (
-        <div
-          {...getRootProps()}
-          className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors max-w-xs ${
-            isDragActive ? "border-primary bg-primary/10" : "border-border hover:border-primary/50"
-          }`}
-        >
-          <input {...getInputProps()} />
-          <UploadCloud className="mx-auto h-10 w-10 text-muted-foreground mb-3" />
-          <p className="text-sm font-medium">
-            Pilih gambar cover
-          </p>
-          <p className="text-xs text-muted-foreground mt-1">
-            JPG, PNG, WEBP (1 gambar)
-          </p>
+        <div className="w-full max-w-xs space-y-4">
+          <div className="flex p-1 bg-slate-100 rounded-lg">
+            <button
+              type="button"
+              onClick={() => setMode("upload")}
+              className={`flex-1 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                mode === "upload" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"
+              }`}
+            >
+              Upload Gambar
+            </button>
+            <button
+              type="button"
+              onClick={() => setMode("url")}
+              className={`flex-1 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                mode === "url" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"
+              }`}
+            >
+              Link URL
+            </button>
+          </div>
+          
+          {mode === "upload" ? (
+            <div
+              {...getRootProps()}
+              className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors w-full ${
+                isDragActive ? "border-primary bg-primary/10" : "border-border hover:border-primary/50"
+              }`}
+            >
+              <input {...getInputProps()} />
+              <UploadCloud className="mx-auto h-10 w-10 text-muted-foreground mb-3" />
+              <p className="text-sm font-medium">Pilih gambar cover</p>
+              <p className="text-xs text-muted-foreground mt-1">JPG, PNG, WEBP (1 gambar)</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <div className="relative">
+                <LinkIcon className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input 
+                  type="url" 
+                  placeholder="https://example.com/image.jpg" 
+                  className="pl-9"
+                  value={urlInput}
+                  onChange={(e) => setUrlInput(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleUrlSubmit())}
+                />
+              </div>
+              <Button type="button" size="sm" onClick={handleUrlSubmit} className="w-full">
+                Pratinjau & Gunakan URL
+              </Button>
+            </div>
+          )}
         </div>
       )}
     </div>

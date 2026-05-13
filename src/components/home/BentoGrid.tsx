@@ -40,8 +40,9 @@ export function BentoGrid() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="bg-slate-800/50 backdrop-blur-md rounded-[2.5rem] p-10 flex flex-col justify-center border border-white/10 shadow-xl group hover:bg-slate-800 transition-colors"
+            className="bg-slate-800/50 rounded-[2.5rem] p-10 flex flex-col justify-center border border-white/10 shadow-xl group hover:bg-slate-800 transition-colors"
           >
+            {/* TODO: Replace with actual review count from API */}
             <div className="text-orange-400 font-black text-6xl md:text-7xl mb-4 tracking-tighter group-hover:scale-105 transform origin-left transition-transform">
               1.2M<span className="text-orange-500">+</span>
             </div>
@@ -49,24 +50,20 @@ export function BentoGrid() {
           </motion.div>
 
           {/* Map Link Box */}
-          <motion.div 
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="bg-white text-slate-900 rounded-[2.5rem] p-10 flex flex-col justify-between shadow-xl group hover:-translate-y-2 transition-transform duration-300 cursor-pointer"
-            onClick={() => window.location.href = '/search'}
+          <Link 
+            href="/search"
+            className="bg-white text-slate-900 rounded-[2.5rem] p-10 flex flex-col justify-between shadow-xl group hover:-translate-y-2 transition-transform duration-300"
           >
             <div className="w-16 h-16 bg-orange-100 rounded-2xl flex items-center justify-center text-primary mb-6 group-hover:scale-110 transition-transform">
               <Map className="w-8 h-8" />
             </div>
             <div>
               <h5 className="text-2xl font-black mb-4">Cari Berdasarkan Peta</h5>
-              <button className="flex items-center gap-2 text-primary font-bold text-lg group-hover:gap-4 transition-all">
+              <span className="flex items-center gap-2 text-primary font-bold text-lg group-hover:gap-4 transition-all">
                 Buka Topic Map <ArrowRight className="w-5 h-5" />
-              </button>
+              </span>
             </div>
-          </motion.div>
+          </Link>
 
           {/* Call to Action Box */}
           <motion.div 

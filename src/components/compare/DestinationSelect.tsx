@@ -3,6 +3,8 @@
 import * as React from 'react';
 import { useState, useRef, useEffect } from 'react';
 import { Search, MapPin, ChevronDown, Check } from 'lucide-react';
+import Image from 'next/image';
+import { getImageUrl } from '@/lib/utils';
 
 interface Destination {
   id: number;
@@ -68,11 +70,13 @@ export default function DestinationSelect({
         <div className="flex items-center gap-3 overflow-hidden">
           {selectedDest ? (
             <>
-              <div className="w-10 h-10 rounded-xl overflow-hidden shrink-0 bg-slate-100">
-                <img 
-                  src={selectedDest.thumbnailUrl || selectedDest.thumbnail_url || '/images/auth-bg.jpg'} 
+              <div className="w-10 h-10 rounded-xl overflow-hidden shrink-0 bg-slate-100 relative">
+                <Image 
+                  src={getImageUrl(selectedDest.thumbnailUrl || selectedDest.thumbnail_url)} 
                   alt={selectedDest.name}
-                  className="w-full h-full object-cover"
+                  fill
+                  sizes="40px"
+                  className="object-cover"
                 />
               </div>
               <div className="truncate">
@@ -124,11 +128,13 @@ export default function DestinationSelect({
                     className={`w-full text-left px-3 py-2.5 rounded-xl flex items-center justify-between mb-1 transition-colors ${selectedId === dest.id ? 'bg-primary/5' : 'hover:bg-slate-50'}`}
                   >
                     <div className="flex items-center gap-3 overflow-hidden">
-                      <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0 bg-slate-100">
-                        <img 
-                          src={dest.thumbnailUrl || dest.thumbnail_url || '/images/auth-bg.jpg'} 
+                      <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0 bg-slate-100 relative">
+                        <Image 
+                          src={getImageUrl(dest.thumbnailUrl || dest.thumbnail_url)} 
                           alt={dest.name}
-                          className="w-full h-full object-cover"
+                          fill
+                          sizes="32px"
+                          className="object-cover"
                         />
                       </div>
                       <div className="truncate">

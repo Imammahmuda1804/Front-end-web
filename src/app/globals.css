@@ -151,3 +151,28 @@
     @apply w-full h-14 bg-primary text-white font-bold tracking-wide rounded-xl hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/30 active:scale-95 transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none disabled:active:scale-100;
   }
 }
+
+/* Hero zoom animation */
+@keyframes hero-zoom {
+  from { transform: scale(1.1); }
+  to { transform: scale(1); }
+}
+
+/* Global reduced motion guard */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Hide scrollbar utility */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

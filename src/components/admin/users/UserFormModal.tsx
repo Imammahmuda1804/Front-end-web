@@ -130,9 +130,7 @@ export function UserFormModal({ open, onOpenChange, onSuccess, initialData }: Us
         await adminUserService.updateUser(initialData.id, payload);
         toast.success("Data pengguna berhasil diperbarui");
       } else {
-        // For now, admin can only edit existing users via API
-        // If create endpoint exists, use it here
-        await adminUserService.updateUser(0, payload);
+        await adminUserService.createUser(payload);
         toast.success("Pengguna berhasil ditambahkan");
       }
 

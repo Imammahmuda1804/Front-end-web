@@ -10,6 +10,9 @@ export function getImageUrl(url: string | null | undefined): string {
   if (url.startsWith('http') || url.startsWith('blob:') || url.startsWith('data:')) {
     return url;
   }
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+  let baseUrl = process.env.NEXT_PUBLIC_API_URL;
+  if (!baseUrl || baseUrl === 'undefined') {
+    baseUrl = 'http://localhost:3000';
+  }
   return `${baseUrl}${url.startsWith('/') ? '' : '/'}${url}`;
 }

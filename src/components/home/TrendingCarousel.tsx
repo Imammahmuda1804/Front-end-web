@@ -2,9 +2,10 @@
 
 import * as React from 'react';
 import useEmblaCarousel from 'embla-carousel-react';
-import { ChevronLeft, ChevronRight, Heart, MapPin, Star } from 'lucide-react';
+import { ChevronLeft, ChevronRight, MapPin, Star } from 'lucide-react';
 import { useCallback } from 'react';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
+import Image from 'next/image';
 
 import { getImageUrl } from '@/lib/utils';
 
@@ -29,6 +30,8 @@ export function TrendingCarousel({ destinations }: TrendingCarouselProps) {
     dragFree: true,
   });
 
+  const prefersReduced = useReducedMotion();
+
   const scrollPrev = useCallback(() => {
     if (emblaApi) emblaApi.scrollPrev();
   }, [emblaApi]);
@@ -42,7 +45,7 @@ export function TrendingCarousel({ destinations }: TrendingCarouselProps) {
   }
 
   return (
-    <section className="py-24 bg-white relative overflow-hidden">
+    <section aria-label="Rekomendasi Destinasi Teratas" className="py-24 bg-white relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 md:px-12 mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
         <motion.div
           initial={{ opacity: 0, x: -20 }}
@@ -79,16 +82,18 @@ export function TrendingCarousel({ destinations }: TrendingCarouselProps) {
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
+              transition={{ duration: prefersReduced ? 0 : 0.5, delay: prefersReduced ? 0 : Math.min(index * 0.1, 0.3) }}
               key={dest.id} 
               className="flex-[0_0_85%] sm:flex-[0_0_45%] lg:flex-[0_0_30%] min-w-0"
             >
               <div className="group relative h-[450px] rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 cursor-pointer">
                 {/* Background Image */}
-                <img 
+                <Image 
                   src={dest.thumbnailUrl ? getImageUrl(dest.thumbnailUrl) : '/images/auth-bg.jpg'} 
-                  alt={dest.name} 
-                  className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out"
+                  alt={dest.name}
+                  fill
+                  sizes="(max-width: 640px) 85vw, (max-width: 1024px) 45vw, 30vw"
+                  className="object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out"
                 />
                 
                 {/* Overlays */}
@@ -98,13 +103,10 @@ export function TrendingCarousel({ destinations }: TrendingCarouselProps) {
                 <div className="absolute inset-0 p-6 flex flex-col justify-between">
                   {/* Top: Score */}
                   <div className="flex justify-between items-start">
-                    <div className="bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-sm">
+                    <div className="bg-white px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-sm border border-slate-200">
                       <Star className="w-4 h-4 text-orange-500 fill-orange-500" />
                       <span className="font-bold text-slate-900 text-sm">{dest.userRating?.toFixed(1) || '4.5'}</span>
                     </div>
-                    <button className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md border border-white/40 flex items-center justify-center text-white hover:bg-white hover:text-red-500 transition-colors">
-                      <Heart className="w-5 h-5" />
-                    </button>
                   </div>
                   
                   {/* Bottom: Info */}
@@ -116,7 +118,7 @@ export function TrendingCarousel({ destinations }: TrendingCarouselProps) {
                     </div>
                     
                     {/* AI Insight Box */}
-                    <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <div className="bg-slate-900/60 border border-white/10 rounded-2xl p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                        <div className="flex items-center justify-between mb-2">
                          <span className="text-white/70 text-xs font-bold uppercase tracking-wider">AI Sentiment</span>
                          <span className="text-green-400 font-bold text-sm">{(dest.positiveRatio * 100).toFixed(0)}% Positif</span>

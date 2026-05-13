@@ -238,7 +238,7 @@ export default function CompareClient({ availableDestinations }: CompareClientPr
                   <Target className="w-5 h-5 text-primary mr-2" />
                   <h3 className="text-lg font-black text-slate-900">Perbandingan Metrik Utama</h3>
                 </div>
-                <div className="flex-1 min-h-[350px]">
+                <div className="h-[350px] w-full">
                   <ResponsiveContainer width="100%" height="100%">
                     <RadarChart cx="50%" cy="50%" outerRadius="70%" data={radarData}>
                       <PolarGrid stroke="#e2e8f0" />
@@ -259,7 +259,7 @@ export default function CompareClient({ availableDestinations }: CompareClientPr
                   <TrendingUp className="w-5 h-5 text-emerald-500 mr-2" />
                   <h3 className="text-lg font-black text-slate-900">Distribusi Sentimen</h3>
                 </div>
-                <div className="flex-1 min-h-[350px]">
+                <div className="h-[350px] w-full">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart
                       data={sentimentData}

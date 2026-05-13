@@ -1,13 +1,13 @@
 import axios from 'axios';
 import { useAuthStore } from '@/store/auth.store';
 
-const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+let baseURL = process.env.NEXT_PUBLIC_API_URL;
+if (!baseURL || baseURL === 'undefined') {
+  baseURL = 'http://localhost:3000';
+}
 
 export const api = axios.create({
   baseURL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
   // withCredentials: true, // Enable if using cookies for refresh token
 });
 

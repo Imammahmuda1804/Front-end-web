@@ -6,6 +6,7 @@ import { api } from '@/lib/axios';
 import { getImageUrl } from '@/lib/utils';
 import { MapPin, Camera, Loader2, Heart, RefreshCw, X } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 interface Favorite {
   id: number;
@@ -67,7 +68,7 @@ export default function ProfileClient() {
       if (password) updateData.password = password;
       
       const res = await api.put('/api/users/me', updateData);
-      setAuth(res.data, useAuthStore.getState().accessToken!);
+      setAuth(res.data.data, useAuthStore.getState().accessToken!);
       setMessage({ text: 'Profil berhasil diperbarui!', type: 'success' });
       setPassword('');
     } catch (error: any) {
@@ -93,10 +94,8 @@ export default function ProfileClient() {
 
     try {
       setSaving(true);
-      const res = await api.post('/api/users/me/avatar', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
-      setAuth(res.data, useAuthStore.getState().accessToken!);
+      const res = await api.post('/api/users/me/avatar', formData);
+      setAuth(res.data.data, useAuthStore.getState().accessToken!);
       setMessage({ text: 'Foto profil diperbarui!', type: 'success' });
     } catch (error: any) {
       setMessage({ 
@@ -129,7 +128,7 @@ export default function ProfileClient() {
   }
 
   const avatarUrl = user?.profilePicture 
-    ? (user.profilePicture.startsWith('http') ? user.profilePicture : `${process.env.NEXT_PUBLIC_API_URL}${user.profilePicture}`) 
+    ? getImageUrl(user.profilePicture) 
     : `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || 'U')}&background=FDBA74&color=C2410C`;
 
   return (
@@ -149,9 +148,11 @@ export default function ProfileClient() {
               
               <div className="flex items-center gap-4 mb-8">
                 <div className="relative group/avatar cursor-pointer" onClick={handleAvatarClick}>
-                  <img 
+                  <Image 
                     src={avatarUrl} 
                     alt={user?.name || 'Profile'} 
+                    width={64}
+                    height={64}
                     className="w-16 h-16 rounded-full object-cover border-4 border-white shadow-md"
                   />
                   <div className="absolute inset-0 bg-black/40 rounded-full opacity-0 group-hover/avatar:opacity-100 flex items-center justify-center transition-opacity">
@@ -266,17 +267,19 @@ export default function ProfileClient() {
                   <div key={fav.id} className="group relative rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-slate-100 bg-white">
                     {/* Image Area */}
                     <div className="h-60 overflow-hidden relative">
-                      <img 
-                        src={fav.destination.thumbnailUrl ? getImageUrl(fav.destination.thumbnailUrl) : '/images/placeholder-dest.jpg'} 
-                        alt={fav.destination.name} 
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out-expo"
+                      <Image 
+                        src={fav.destination.thumbnailUrl ? getImageUrl(fav.destination.thumbnailUrl) : '/images/auth-bg.jpg'} 
+                        alt={fav.destination.name}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 50vw"
+                        className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                       />
                       <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/60"></div>
                       
                       {/* Heart Button */}
                       <button 
                         onClick={() => handleRemoveFavorite(fav.destination.id)}
-                        className="absolute top-4 right-4 w-10 h-10 bg-white/30 hover:bg-white backdrop-blur-md rounded-full flex items-center justify-center transition-colors shadow-sm group/btn"
+                        className="absolute top-4 right-4 w-10 h-10 bg-white hover:bg-red-50 rounded-full flex items-center justify-center transition-colors shadow-sm border border-slate-200 group/btn"
                         aria-label="Remove from favorites"
                       >
                         <Heart className="w-5 h-5 text-red-500 fill-red-500 group-hover/btn:scale-110 transition-transform" />
@@ -285,7 +288,7 @@ export default function ProfileClient() {
 
                     {/* Content Area */}
                     <div className="p-6 relative">
-                      <div className="absolute -top-12 right-6 bg-white/90 backdrop-blur-md px-4 py-2 rounded-2xl shadow-lg border border-white/20 flex flex-col items-center">
+                      <div className="absolute -top-12 right-6 bg-white px-4 py-2 rounded-2xl shadow-lg border border-slate-200 flex flex-col items-center">
                         <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-0.5">Vibe Match</span>
                         <span className="text-xl font-black text-[#c2410c]">
                           {fav.destination.recommendationScore 

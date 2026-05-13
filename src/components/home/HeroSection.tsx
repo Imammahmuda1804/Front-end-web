@@ -2,13 +2,15 @@
 
 import * as React from 'react';
 import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { Search, Compass } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 export function HeroSection() {
   const [query, setQuery] = useState('');
   const router = useRouter();
+  const prefersReduced = useReducedMotion();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,13 +24,14 @@ export function HeroSection() {
       {/* Background Image & Overlay */}
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-gradient-to-b from-slate-900/40 via-slate-900/20 to-white z-10" />
-        <motion.img 
-          initial={{ scale: 1.1 }}
-          animate={{ scale: 1 }}
-          transition={{ duration: 1.5, ease: "easeOut" }}
+        <Image 
           src="/images/auth-bg.jpg" 
           alt="West Sumatra Landscape" 
-          className="w-full h-full object-cover"
+          fill
+          priority
+          sizes="100vw"
+          className={`object-cover ${!prefersReduced ? 'animate-[hero-zoom_1.5s_ease-out_forwards]' : ''}`}
+          style={{ transform: prefersReduced ? 'scale(1)' : undefined }}
         />
       </div>
 
@@ -38,11 +41,11 @@ export function HeroSection() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
         >
-          <span className="inline-block py-1.5 px-4 rounded-full bg-white/80 backdrop-blur-sm border border-white text-primary font-bold text-sm tracking-widest uppercase mb-6 shadow-sm">
+          <span className="inline-block py-1.5 px-4 rounded-full bg-white border border-slate-200 text-primary font-bold text-sm tracking-widest uppercase mb-6 shadow-sm">
             AI-Powered Tourism
           </span>
           <h1 className="text-5xl md:text-7xl font-black text-white drop-shadow-lg tracking-tight leading-[1.1] mb-8">
-            Temukan <span className="text-primary-fixed">Vibe</span> Liburan<br/>
+            Temukan <span className="text-[#FF7B54]">Vibe</span> Liburan<br/>
             di Sumatera Barat
           </h1>
         </motion.div>
@@ -53,10 +56,12 @@ export function HeroSection() {
           transition={{ duration: 0.8, delay: 0.4 }}
           className="max-w-3xl mx-auto"
         >
-          <form onSubmit={handleSearch} className="flex flex-col md:flex-row items-center bg-white/90 backdrop-blur-md p-3 rounded-full shadow-2xl border border-white/50 gap-2">
+          <form onSubmit={handleSearch} className="flex flex-col md:flex-row items-center bg-white p-3 rounded-full shadow-2xl border border-slate-200 gap-2">
             <div className="flex items-center flex-1 w-full px-6 py-2">
               <Compass className="w-6 h-6 text-primary mr-4" />
+              <label htmlFor="hero-search" className="sr-only">Cari destinasi wisata</label>
               <input 
+                id="hero-search"
                 type="text" 
                 placeholder="Ingin vibe seperti apa hari ini? (Misal: 'Keluarga dan alam')" 
                 className="w-full bg-transparent border-none outline-none text-slate-800 placeholder:text-slate-500 font-medium text-lg focus:ring-0"
@@ -78,8 +83,9 @@ export function HeroSection() {
             {['Pantai tersembunyi', 'Kuliner pedas', 'Tempat bersejarah', 'Staycation tenang'].map((tag) => (
               <button 
                 key={tag}
+                type="button"
                 onClick={() => setQuery(tag)}
-                className="text-xs font-bold text-slate-800 bg-white/80 hover:bg-white px-3 py-1.5 rounded-full transition-colors shadow-sm"
+                className="text-xs font-bold text-slate-800 bg-white hover:bg-slate-50 px-3 py-1.5 rounded-full transition-colors shadow-sm border border-slate-200"
               >
                 {tag}
               </button>

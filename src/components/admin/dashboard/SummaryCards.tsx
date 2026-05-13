@@ -1,6 +1,6 @@
 'use client';
 
-import { Users, MapPin, MessageSquare, Briefcase, MoreHorizontal, ArrowRight, TrendingUp, TrendingDown } from 'lucide-react';
+import { Users, MapPin, MessageSquare, Briefcase, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
 interface SummaryCardsProps {
@@ -30,18 +30,11 @@ export default function SummaryCards({
             <Users className="w-5 h-5 text-yellow-900" />
             <h3 className="font-semibold text-yellow-950">Total Users</h3>
           </div>
-          <button className="text-yellow-900/60 hover:text-yellow-900 transition-colors">
-            <MoreHorizontal className="w-5 h-5" />
-          </button>
         </div>
         
         <div>
           <div className="flex items-baseline gap-3 mb-2">
             <span className="text-4xl font-bold text-yellow-950">{totalUsers.toLocaleString()}</span>
-            <div className="flex items-center bg-white/60 text-emerald-700 px-2 py-0.5 rounded-full text-xs font-semibold">
-              <TrendingUp className="w-3 h-3 mr-1" />
-              12%
-            </div>
           </div>
           <div className="flex justify-between items-end">
             <p className="text-sm text-yellow-900/80">Registered accounts</p>
@@ -59,18 +52,11 @@ export default function SummaryCards({
             <MapPin className="w-5 h-5 text-rose-900" />
             <h3 className="font-semibold text-rose-950">Destinations</h3>
           </div>
-          <button className="text-rose-900/60 hover:text-rose-900 transition-colors">
-            <MoreHorizontal className="w-5 h-5" />
-          </button>
         </div>
         
         <div>
           <div className="flex items-baseline gap-3 mb-2">
             <span className="text-4xl font-bold text-rose-950">{totalDestinations.toLocaleString()}</span>
-            <div className="flex items-center bg-white/60 text-rose-700 px-2 py-0.5 rounded-full text-xs font-semibold">
-              <TrendingDown className="w-3 h-3 mr-1" />
-              02%
-            </div>
           </div>
           <div className="flex justify-between items-end">
             <p className="text-sm text-rose-900/80">{destinationsBreakdown.active} active</p>
@@ -88,22 +74,15 @@ export default function SummaryCards({
             <MessageSquare className="w-5 h-5 text-purple-900" />
             <h3 className="font-semibold text-purple-950">Total Reviews</h3>
           </div>
-          <button className="text-purple-900/60 hover:text-purple-900 transition-colors">
-            <MoreHorizontal className="w-5 h-5" />
-          </button>
         </div>
         
         <div>
           <div className="flex items-baseline gap-3 mb-2">
             <span className="text-4xl font-bold text-purple-950">{totalReviews.toLocaleString()}</span>
-            <div className="flex items-center bg-white/60 text-emerald-700 px-2 py-0.5 rounded-full text-xs font-semibold">
-              <TrendingUp className="w-3 h-3 mr-1" />
-              18%
-            </div>
           </div>
           <div className="flex justify-between items-end">
             <p className="text-sm text-purple-900/80">{reviewsBreakdown.scraped.toLocaleString()} scraped</p>
-            <Link href="/admin/reviews" className="bg-white/80 hover:bg-white text-purple-950 text-xs font-medium px-3 py-1.5 rounded-full flex items-center transition-colors">
+            <Link href="/admin/scraper" className="bg-white/80 hover:bg-white text-purple-950 text-xs font-medium px-3 py-1.5 rounded-full flex items-center transition-colors">
               See Details <ArrowRight className="w-3 h-3 ml-1" />
             </Link>
           </div>
@@ -117,22 +96,15 @@ export default function SummaryCards({
             <Briefcase className="w-5 h-5 text-sky-900" />
             <h3 className="font-semibold text-sky-950">Scraping Jobs</h3>
           </div>
-          <button className="text-sky-900/60 hover:text-sky-900 transition-colors">
-            <MoreHorizontal className="w-5 h-5" />
-          </button>
         </div>
         
         <div>
           <div className="flex items-baseline gap-3 mb-2">
             <span className="text-4xl font-bold text-sky-950">{totalJobs.toLocaleString()}</span>
-            <div className="flex items-center bg-white/60 text-emerald-700 px-2 py-0.5 rounded-full text-xs font-semibold">
-              <TrendingUp className="w-3 h-3 mr-1" />
-              5%
-            </div>
           </div>
           <div className="flex justify-between items-end">
             <p className="text-sm text-sky-900/80">Tasks processed</p>
-            <Link href="/admin" className="bg-white/80 hover:bg-white text-sky-950 text-xs font-medium px-3 py-1.5 rounded-full flex items-center transition-colors">
+            <Link href="/admin/scraper" className="bg-white/80 hover:bg-white text-sky-950 text-xs font-medium px-3 py-1.5 rounded-full flex items-center transition-colors">
               See Details <ArrowRight className="w-3 h-3 ml-1" />
             </Link>
           </div>

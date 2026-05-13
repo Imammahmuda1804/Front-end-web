@@ -41,6 +41,7 @@ export function DestinationFormModal({ open, onOpenChange, onSuccess, initialDat
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
+  const [thumbnailLink, setThumbnailLink] = useState<string>("");
   const [galleryFiles, setGalleryFiles] = useState<File[]>([]);
   const [existingImages, setExistingImages] = useState<ExistingImage[]>([]);
 
@@ -82,6 +83,7 @@ export function DestinationFormModal({ open, onOpenChange, onSuccess, initialDat
       }
       setStep(1);
       setThumbnailFile(null);
+      setThumbnailLink(initialData?.thumbnailUrl || "");
       setGalleryFiles([]);
     }
   }, [open, initialData, reset]);
@@ -126,6 +128,7 @@ export function DestinationFormModal({ open, onOpenChange, onSuccess, initialDat
         googleMapsUrl: data.googleMapsUrl?.trim() || undefined,
         youtubeUrl: data.youtubeUrl?.trim() || undefined,
         googlePlaceId: data.googlePlaceId?.trim() || undefined,
+        thumbnailUrl: thumbnailLink || undefined,
       };
 
       if (isEditing) {
@@ -153,6 +156,7 @@ export function DestinationFormModal({ open, onOpenChange, onSuccess, initialDat
       onOpenChange(false);
       setStep(1);
       setThumbnailFile(null);
+      setThumbnailLink("");
       setGalleryFiles([]);
     } catch (error) {
       toast.error("Terjadi kesalahan saat menyimpan data");
@@ -319,6 +323,7 @@ export function DestinationFormModal({ open, onOpenChange, onSuccess, initialDat
               </p>
               <ThumbnailUploader
                 onFileChange={setThumbnailFile}
+                onUrlChange={setThumbnailLink}
                 currentThumbnailUrl={initialData?.thumbnailUrl}
               />
             </div>
@@ -396,7 +401,7 @@ export function DestinationFormModal({ open, onOpenChange, onSuccess, initialDat
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Gambar</span>
                   <span className="font-medium">
-                    {(thumbnailFile ? 1 : (initialData?.thumbnailUrl ? 1 : 0)) + galleryFiles.length + existingImages.length} file
+                    {(thumbnailFile || thumbnailLink ? 1 : 0) + galleryFiles.length + existingImages.length} file/link
                   </span>
                 </div>
               </div>

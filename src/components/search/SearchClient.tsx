@@ -1,14 +1,15 @@
 'use client';
 
 import * as React from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { api } from '@/lib/axios';
 import { getImageUrl } from '@/lib/utils';
 import { useAuthStore } from '@/store/auth.store';
-import { Search, History, Sparkles, MapPin, Star, ArrowRight, X } from 'lucide-react';
+import { Search, History, Sparkles, MapPin, Star, ArrowRight, X, Check } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 // Types
 interface Destination {
@@ -111,11 +112,13 @@ export default function SearchClient() {
   };
 
   // Initial load search if query exists
+  const initialSearchDone = React.useRef(false);
   useEffect(() => {
-    if (initialQuery) {
+    if (initialQuery && !initialSearchDone.current) {
+      initialSearchDone.current = true;
       executeSearch(initialQuery, null);
     }
-  }, []);
+  }, [initialQuery]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -180,22 +183,22 @@ export default function SearchClient() {
           <ul className="space-y-3">
             {topics.map((topic) => (
               <li key={topic.id}>
-                <label className="flex items-center cursor-pointer group">
+                <button
+                  type="button"
+                  role="checkbox"
+                  aria-checked={selectedTopicId === topic.id}
+                  onClick={() => handleTopicClick(topic.id)}
+                  className="flex items-center cursor-pointer group w-full text-left"
+                >
                   <div className={`w-5 h-5 rounded border flex items-center justify-center mr-3 transition-colors ${
                     selectedTopicId === topic.id ? 'bg-primary border-primary' : 'border-slate-300 group-hover:border-primary'
                   }`}>
-                    {selectedTopicId === topic.id && <X className="w-3 h-3 text-white" />}
+                    {selectedTopicId === topic.id && <Check className="w-3 h-3 text-white" />}
                   </div>
                   <span className={`text-sm transition-colors ${selectedTopicId === topic.id ? 'font-bold text-slate-900' : 'text-slate-600 group-hover:text-slate-900'}`}>
                     #{topic.keywords ? topic.keywords.slice(0, 2).join(', ') : topic.topic_name?.replace(/Topic \d+: /, '')}
                   </span>
-                  <input 
-                    type="checkbox" 
-                    className="hidden" 
-                    checked={selectedTopicId === topic.id}
-                    onChange={() => handleTopicClick(topic.id)}
-                  />
-                </label>
+                </button>
               </li>
             ))}
           </ul>
@@ -218,7 +221,7 @@ export default function SearchClient() {
             <button 
               type="submit" 
               disabled={isLoading || !query.trim()}
-              className="absolute right-2 top-2 bottom-2 bg-slate-900 text-white rounded-full px-6 font-bold text-sm hover:bg-slate-800 transition-colors disabled:opacity-50"
+              className="absolute right-2 top-2 bottom-2 bg-primary text-white rounded-full px-6 font-bold text-sm hover:bg-primary/90 transition-colors disabled:opacity-50"
             >
               Cari
             </button>
@@ -285,13 +288,15 @@ export default function SearchClient() {
               >
                 {/* Image Section */}
                 <div className="relative h-56 overflow-hidden">
-                  <img 
+                  <Image 
                     src={dest.thumbnail_url || dest.thumbnailUrl ? getImageUrl(dest.thumbnail_url || dest.thumbnailUrl) : '/images/auth-bg.jpg'} 
                     alt={dest.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                    fill
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    className="object-cover group-hover:scale-105 transition-transform duration-700"
                   />
                   {(dest.hybrid_score !== undefined || dest.similarity !== undefined) && (
-                    <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-full shadow-sm text-xs font-bold text-slate-800 flex items-center">
+                    <div className="absolute top-4 right-4 bg-white px-3 py-1.5 rounded-full shadow-sm text-xs font-bold text-slate-800 flex items-center border border-slate-200">
                       <Sparkles className="w-3 h-3 mr-1.5 text-primary" />
                       {((dest.hybrid_score ?? dest.similarity ?? 0) * 100).toFixed(0)}% Match
                     </div>
@@ -309,9 +314,9 @@ export default function SearchClient() {
                       </p>
                     </div>
                     {(dest.recommendation_score !== undefined || dest.recommendationScore !== undefined) && (
-                      <div className="text-right">
-                        <span className="block text-xs font-bold text-slate-400 uppercase">Rec Score</span>
-                        <span className="text-2xl font-black text-primary">{(dest.recommendation_score ?? dest.recommendationScore ?? 0).toFixed(1)}</span>
+                      <div className="text-right" title="Skor rekomendasi AI berdasarkan sentimen dan relevansi">
+                        <span className="block text-xs font-bold text-slate-400 uppercase">Skor AI</span>
+                        <span className="text-2xl font-black text-primary">{((dest.recommendation_score ?? dest.recommendationScore ?? 0) * 100).toFixed(0)}</span>
                       </div>
                     )}
                   </div>
@@ -331,7 +336,7 @@ export default function SearchClient() {
                         <Star className="w-3 h-3 text-orange-500 fill-orange-500" />
                       </div>
                       <span className="text-slate-600 font-medium">
-                        Rasio Positif: <span className="font-bold text-slate-900">{(dest.positive_ratio ?? dest.positiveRatio) !== undefined ? (dest.positive_ratio ?? dest.positiveRatio)?.toFixed(2) : 'N/A'}</span>
+                        Rasio Positif: <span className="font-bold text-slate-900">{(dest.positive_ratio ?? dest.positiveRatio) !== undefined ? `${((dest.positive_ratio ?? dest.positiveRatio ?? 0) * 100).toFixed(0)}%` : 'N/A'}</span>
                       </span>
                     </div>
                     <Link 
@@ -355,7 +360,7 @@ export default function SearchClient() {
             </div>
             <h3 className="text-xl font-black text-slate-900 mb-2">Tidak ada hasil ditemukan</h3>
             <p className="text-slate-500 max-w-md mx-auto">
-              Maaf, kami tidak dapat menemukan destinasi yang sesuai dengan pencarian Anda. Coba gunakan kata kunci yang berbeda atau pilih vibe filter yang tersedia.
+              Tidak ada hasil. Coba kata kunci lain atau pilih vibe filter.
             </p>
           </div>
         )}

@@ -2,6 +2,7 @@
 
 import { useState, Suspense } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -58,19 +59,6 @@ function LoginContent() {
 
   return (
     <main className="min-h-screen w-full flex bg-white flex-row-reverse relative overflow-hidden">
-      
-      {/* Wave Gradient Bottom */}
-      <div className="absolute bottom-0 left-0 right-0 z-0 pointer-events-none">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 220" className="w-full h-auto">
-          <defs>
-            <linearGradient id="wave-grad" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor="#FF7B54" />
-              <stop offset="100%" stopColor="#FFA07A" />
-            </linearGradient>
-          </defs>
-          <path fill="url(#wave-grad)" fillOpacity="0.9" d="M0,128L48,138.7C96,149,192,171,288,160C384,149,480,107,576,90.7C672,75,768,85,864,106.7C960,128,1056,160,1152,160C1248,160,1344,128,1392,112L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
-        </svg>
-      </div>
 
       {/* Kanan: Form Section */}
       <section className="w-full lg:w-1/2 flex flex-col justify-center px-8 sm:px-16 md:px-24 xl:px-32 relative z-10 pb-16">
@@ -78,12 +66,12 @@ function LoginContent() {
           <div className="mb-10 text-center">
             <p className="text-slate-600 font-bold mb-2 text-lg">Selamat Datang di</p>
             <div className="flex flex-col items-center justify-center mb-4">
-              <img src="/images/logo-icon.png" alt="RanahInsight Logo" className="h-16 w-16 object-contain mb-2" />
+              <Image src="/images/logo-icon.png" alt="RanahInsight Logo" width={64} height={64} className="object-contain mb-2" />
               <h1 className="text-3xl font-black text-slate-900 tracking-tighter">
                 RANAH<span className="text-primary">INSIGHT</span>
               </h1>
             </div>
-            <p className="text-sm text-slate-500 font-medium max-w-[280px] mx-auto leading-relaxed">
+            <p className="text-sm text-slate-500 font-medium max-w-70 mx-auto leading-relaxed">
               Temukan dan jelajahi wisata terbaik Sumatera Barat dengan AI & Data Insight
             </p>
           </div>
@@ -103,6 +91,7 @@ function LoginContent() {
                   placeholder="Masukkan email Anda" 
                   type="email"
                   autoFocus
+                  autoComplete="email"
                   {...register('email')}
                 />
               </div>
@@ -124,6 +113,7 @@ function LoginContent() {
                   className="input-minimal pl-11 pr-12" 
                   placeholder="Masukkan password Anda" 
                   type={showPassword ? "text" : "password"}
+                  autoComplete="current-password"
                   {...register('password')}
                 />
                 <button
@@ -154,7 +144,8 @@ function LoginContent() {
                 <input type="checkbox" className="w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary" />
                 <span className="text-sm font-semibold text-slate-600">Ingat saya</span>
               </label>
-              <a className="text-sm font-bold text-primary hover:underline" href="#">Lupa password?</a>
+              {/* Link disabled until /forgot-password is implemented */}
+              <span className="text-sm font-bold text-slate-400 cursor-not-allowed">Lupa password?</span>
             </div>
 
             {/* Action Button */}
@@ -186,24 +177,24 @@ function LoginContent() {
             src="/images/auth-bg.jpg"
           />
           
-          {/* Overlay Logo agar tidak boring */}
-          <div className="absolute top-10 left-10 z-20 flex items-center gap-3 bg-white/70 backdrop-blur-sm px-6 py-3 rounded-full border border-white shadow-lg opacity-70">
-            <img src="/images/logo-icon.png" alt="RanahInsight" className="w-10 h-10 object-contain drop-shadow-sm" />
+          {/* Overlay Logo */}
+          <div className="absolute top-10 left-10 z-20 flex items-center gap-3 bg-white px-6 py-3 rounded-full border border-slate-200 shadow-lg">
+            <Image src="/images/logo-icon.png" alt="RanahInsight" width={40} height={40} className="object-contain drop-shadow-sm" />
             <span className="text-slate-900 font-black tracking-tight text-xl">RANAHINSIGHT</span>
           </div>
 
-          {/* Dummy AI Cards */}
-          <div className="absolute bottom-24 left-10 z-20 bg-white/70 backdrop-blur-sm border border-white p-5 rounded-2xl shadow-xl transform hover:scale-105 transition-transform opacity-70">
+          {/* AI Info Cards */}
+          <div className="absolute bottom-24 left-10 z-20 bg-white border border-slate-200 p-5 rounded-2xl shadow-xl">
             <p className="text-slate-500 font-bold text-xs uppercase tracking-wider mb-1">Sentimen Positif</p>
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-full border-4 border-primary border-t-transparent flex items-center justify-center bg-white shadow-sm">
                  <span className="text-primary font-bold text-sm">85%</span>
               </div>
-              <p className="text-slate-700 font-medium text-sm max-w-[100px] leading-tight">Wisatawan sangat puas</p>
+              <p className="text-slate-700 font-medium text-sm max-w-25 leading-tight">Wisatawan sangat puas</p>
             </div>
           </div>
           
-          <div className="absolute top-1/3 right-10 z-20 bg-white/70 backdrop-blur-sm border border-white p-5 rounded-2xl shadow-xl transform hover:scale-105 transition-transform text-right opacity-70">
+          <div className="absolute top-1/3 right-10 z-20 bg-white border border-slate-200 p-5 rounded-2xl shadow-xl text-right">
              <p className="text-slate-500 font-bold text-xs uppercase tracking-wider mb-1">Topik Populer</p>
              <p className="text-slate-900 font-black text-xl mb-1">Alam & Budaya</p>
              <p className="text-slate-600 font-medium text-sm">Rekomendasi AI teratas</p>

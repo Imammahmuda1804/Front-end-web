@@ -1,9 +1,9 @@
 'use client';
 
-import { useTheme } from 'next-themes';
+import { useState } from 'react';
 import { useAuthStore } from '@/store/auth.store';
 import { Button, buttonVariants } from '@/components/ui/button';
-import { Moon, Sun, Menu } from 'lucide-react';
+import { Menu, User } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,10 +13,11 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export function AdminTopbar() {
-  const { theme, setTheme } = useTheme();
   const { user, logout } = useAuthStore();
+  const [sheetOpen, setSheetOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -24,49 +25,39 @@ export function AdminTopbar() {
   };
 
   return (
-    <header className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b bg-background px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
-      {/* Mobile Menu Trigger */}
-      <Sheet>
-        <SheetTrigger className={buttonVariants({ variant: "ghost", size: "icon", className: "md:hidden" })}>
-          <Menu className="h-5 w-5" />
+    <header className="sticky top-0 z-20 flex h-16 shrink-0 items-center gap-x-4 border-b bg-background px-4 sm:gap-x-6 sm:px-6 lg:px-8">
+      <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+        <SheetTrigger className="md:hidden -m-2.5 p-2.5 text-muted-foreground">
           <span className="sr-only">Open sidebar</span>
+          <Menu className="h-6 w-6" />
         </SheetTrigger>
         <SheetContent side="left" className="w-64 p-0">
           <div className="h-16 flex items-center px-6 border-b">
-            <span className="font-bold text-lg text-primary">Wisata AI Admin</span>
+            <div className="flex items-center gap-2">
+              <Image src="/images/logo-icon.png" alt="RanahInsight" width={28} height={28} />
+              <span className="font-bold text-lg text-primary">RANAHINSIGHT</span>
+            </div>
           </div>
           <div className="p-4 flex flex-col gap-2">
-            <Link href="/admin" className="px-3 py-2 hover:bg-muted rounded-md text-sm font-medium">Dashboard</Link>
-            <Link href="/admin/destinations" className="px-3 py-2 hover:bg-muted rounded-md text-sm font-medium">Destinations</Link>
-            <Link href="/admin/compare" className="px-3 py-2 hover:bg-muted rounded-md text-sm font-medium">Compare Analytics</Link>
-            <Link href="/admin/reviews" className="px-3 py-2 hover:bg-muted rounded-md text-sm font-medium">Review Analysis</Link>
-            <Link href="/admin/users" className="px-3 py-2 hover:bg-muted rounded-md text-sm font-medium">Users</Link>
+            <Link href="/admin" onClick={() => setSheetOpen(false)} className="px-3 py-2 hover:bg-muted rounded-md text-sm font-medium">Dashboard</Link>
+            <Link href="/admin/destinations" onClick={() => setSheetOpen(false)} className="px-3 py-2 hover:bg-muted rounded-md text-sm font-medium">Destinations</Link>
+            <Link href="/admin/compare" onClick={() => setSheetOpen(false)} className="px-3 py-2 hover:bg-muted rounded-md text-sm font-medium">Compare Analytics</Link>
+            <Link href="/admin/scraper" onClick={() => setSheetOpen(false)} className="px-3 py-2 hover:bg-muted rounded-md text-sm font-medium">Scraper & NLP</Link>
+            <Link href="/admin/users" onClick={() => setSheetOpen(false)} className="px-3 py-2 hover:bg-muted rounded-md text-sm font-medium">Users</Link>
           </div>
         </SheetContent>
       </Sheet>
 
-      <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
-        <div className="flex flex-1"></div>
-        <div className="flex items-center gap-x-4 lg:gap-x-6">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-          >
-            <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-            <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-            <span className="sr-only">Toggle theme</span>
-          </Button>
-
-          {/* Separator */}
-          <div className="hidden lg:block lg:h-6 lg:w-px lg:bg-border" aria-hidden="true" />
-
+      <div className="flex flex-1 items-center justify-end gap-x-4 lg:gap-x-6">
           {/* Profile dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger className={buttonVariants({ variant: "ghost", className: "-m-1.5 flex items-center p-1.5" })}>
               <span className="sr-only">Open user menu</span>
+              <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm mr-2">
+                {user?.name?.charAt(0).toUpperCase() || <User className="h-4 w-4" />}
+              </div>
               <span className="hidden lg:flex lg:items-center">
-                <span className="ml-4 text-sm font-semibold leading-6" aria-hidden="true">
+                <span className="text-sm font-semibold leading-6">
                   {user?.name || 'Admin'}
                 </span>
               </span>
@@ -81,7 +72,6 @@ export function AdminTopbar() {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-        </div>
       </div>
     </header>
   );
