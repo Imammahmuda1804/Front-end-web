@@ -10,6 +10,7 @@ import {
   BarChart3, 
   Search, 
   Users,
+  Tags,
   LogOut 
 } from 'lucide-react';
 import { useAuthStore } from '@/store/auth.store';
@@ -18,6 +19,7 @@ const sidebarLinks = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/admin/destinations', label: 'Destinations', icon: MapPin },
   { href: '/admin/compare', label: 'Compare Analytics', icon: BarChart3 },
+  { href: '/admin/topics', label: 'Manajemen Topik', icon: Tags },
   { href: '/admin/scraper', label: 'Scraper & NLP', icon: Search },
   { href: '/admin/users', label: 'Users', icon: Users },
 ];

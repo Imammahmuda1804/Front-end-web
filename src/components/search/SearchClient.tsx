@@ -201,7 +201,7 @@ export default function SearchClient() {
                       {selectedTopicId === topic.id && <Check className="w-3 h-3 text-white" />}
                     </div>
                     <span className={`text-sm transition-colors ${selectedTopicId === topic.id ? 'font-bold text-slate-900' : 'text-slate-600 group-hover:text-slate-900'}`}>
-                      #{topic.keywords ? topic.keywords.slice(0, 2).join(', ') : topic.topic_name?.replace(/Topic \d+: /, '')}
+                      {topic.topic_name && !topic.topic_name.startsWith('Topic ') ? topic.topic_name : topic.keywords ? `#${topic.keywords.slice(0, 2).join(', ')}` : topic.topic_name?.replace(/Topic \d+: /, '')}
                     </span>
                   </button>
                 </li>
@@ -255,7 +255,7 @@ export default function SearchClient() {
             )}
             {selectedTopicId && (
               <span className="inline-flex items-center gap-1.5 bg-primary/10 text-primary px-3 py-1.5 rounded-full text-sm font-bold">
-                #{topics.find(t => t.id === selectedTopicId)?.keywords?.slice(0, 1).join('') || 'Vibe'}
+                {(() => { const t = topics.find(t => t.id === selectedTopicId); return t?.topic_name && !t.topic_name.startsWith('Topic ') ? t.topic_name : `#${t?.keywords?.slice(0, 1).join('') || 'Vibe'}`; })()}
                 <button
                   type="button"
                   onClick={() => { setSelectedTopicId(null); setResults([]); setHasSearched(false); router.push('/search'); }}
@@ -286,7 +286,7 @@ export default function SearchClient() {
             ) : (
               <div>
                 <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-3 capitalize">
-                  #{topics.find(t => t.id === selectedTopicId)?.keywords?.slice(0, 2).join(', ') || topics.find(t => t.id === selectedTopicId)?.topic_name?.replace(/Topic \d+: /, '')}
+                  {(() => { const t = topics.find(t => t.id === selectedTopicId); return t?.topic_name && !t.topic_name.startsWith('Topic ') ? t.topic_name : `#${t?.keywords?.slice(0, 2).join(', ') || t?.topic_name?.replace(/Topic \d+: /, '')}`; })()}
                 </h2>
                 <p className="flex items-center text-sm text-slate-500">
                   <Sparkles className="w-4 h-4 text-primary mr-2" />
