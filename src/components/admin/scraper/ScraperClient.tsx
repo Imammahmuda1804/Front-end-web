@@ -39,7 +39,6 @@ import {
   LinkIcon,
   Play,
   Download,
-  BrainCircuit,
   RefreshCw,
   Activity,
   CheckCircle2,
@@ -52,6 +51,7 @@ import {
   AlignLeft,
   ChevronRight,
   Zap,
+  BrainCircuit,
 } from "lucide-react";
 
 // ─── Status badge ─────────────────────────────────────────────────────────────
@@ -225,34 +225,24 @@ export default function ScraperClient() {
     }
   };
 
-  const handleDownloadCsv = async (jobId: number) => {
+  const handleDownloadExcel = async (jobId: number) => {
     try {
-      const blob = await adminScraperService.downloadCsv(jobId);
+      const blob = await adminScraperService.downloadResults(jobId);
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `ulasan_job_${jobId}.csv`;
+      a.download = `ulasan_job_${jobId}.xlsx`;
       document.body.appendChild(a);
       a.click();
       URL.revokeObjectURL(url);
       document.body.removeChild(a);
-      toast.success("CSV berhasil diunduh");
+      toast.success("File Excel berhasil diunduh");
     } catch {
-      toast.error("Gagal mengunduh CSV");
+      toast.error("Gagal mengunduh file Excel");
     }
   };
 
-  const handleProcessNlp = async (jobId: number) => {
-    try {
-      await adminScraperService.processNlp(jobId);
-      toast.success("Pipeline NLP dimulai");
-      fetchJobs();
-    } catch (err: any) {
-      toast.error(
-        err?.response?.data?.message || "Gagal memulai NLP processing"
-      );
-    }
-  };
+
 
   // ── Helpers ────────────────────────────────────────────────────────────────
 
@@ -562,18 +552,11 @@ export default function ScraperClient() {
                       {job.status === "completed" && (
                         <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button
-                            onClick={() => handleDownloadCsv(job.id)}
-                            title="Unduh CSV"
+                            onClick={() => handleDownloadExcel(job.id)}
+                            title="Unduh File Excel"
                             className="w-8 h-8 rounded-lg flex items-center justify-center text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700 transition-colors cursor-pointer"
                           >
                             <Download className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => handleProcessNlp(job.id)}
-                            title="Trigger NLP Processing"
-                            className="w-8 h-8 rounded-lg flex items-center justify-center text-violet-600 hover:bg-violet-50 hover:text-violet-700 transition-colors cursor-pointer"
-                          >
-                            <BrainCircuit className="w-4 h-4" />
                           </button>
                         </div>
                       )}

@@ -126,18 +126,12 @@ class AdminScraperService {
     return res.data?.data ?? res.data;
   }
 
-  /** Download a completed job's reviews as a CSV Blob. */
-  async downloadCsv(jobId: number): Promise<Blob> {
+  /** Download a completed job's results as an Excel file (.xlsx). */
+  async downloadResults(jobId: number): Promise<Blob> {
     const res = await api.get(`/api/admin/scraper/download/${jobId}`, {
       responseType: 'blob',
     });
     return res.data;
-  }
-
-  /** Trigger NLP pipeline for a completed job. */
-  async processNlp(jobId: number): Promise<{ message: string; job_id: number }> {
-    const res = await api.post(`/api/admin/scraper/process/${jobId}`);
-    return res.data?.data ?? res.data;
   }
 }
 

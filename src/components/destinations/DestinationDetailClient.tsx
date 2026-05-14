@@ -81,6 +81,8 @@ interface DestinationDetail {
   userReviews: UserReview[];
   averageUserRating: number | null;
   totalUserReviews: number;
+  scrapedAverageRating: number | null;
+  scrapedReviewCount: number | null;
 }
 
 interface Props {
@@ -159,7 +161,12 @@ export default function DestinationDetailClient({ destination }: Props) {
   }));
 
   // Stats
-  const displayRating = destination.averageUserRating || destination.googleRating || destination.userRating || 0;
+  const googleRating = destination.googleRating || 0;
+  const googleCount = destination.googleReviewCount || 0;
+  
+  const scrapedRating = destination.scrapedAverageRating || 0;
+  const scrapedCount = destination.scrapedReviewCount || 0;
+
   const positivePercentage = destination.positiveRatio !== null ? (destination.positiveRatio * 100).toFixed(0) : 'N/A';
 
   return (
@@ -249,15 +256,32 @@ export default function DestinationDetailClient({ destination }: Props) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-12"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-12"
         >
+          {/* Google Maps Rating */}
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex items-center justify-between">
             <div>
-              <p className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-1">Rating</p>
+              <p className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-1">Google Maps</p>
               <div className="flex items-end">
-                <span className="text-3xl font-black text-slate-900 mr-2">{displayRating.toFixed(1)}</span>
+                <span className="text-3xl font-black text-slate-900 mr-2">{googleRating.toFixed(1)}</span>
                 <span className="text-sm font-medium text-slate-500 mb-1">/ 5.0</span>
               </div>
+              <p className="text-xs text-slate-400 mt-1">{googleCount} ulasan asli</p>
+            </div>
+            <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center">
+              <Star className="w-6 h-6 text-blue-500 fill-blue-500" />
+            </div>
+          </div>
+
+          {/* Scraped Rating */}
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex items-center justify-between">
+            <div>
+              <p className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-1">Rating Scraping</p>
+              <div className="flex items-end">
+                <span className="text-3xl font-black text-slate-900 mr-2">{scrapedRating.toFixed(1)}</span>
+                <span className="text-sm font-medium text-slate-500 mb-1">/ 5.0</span>
+              </div>
+              <p className="text-xs text-slate-400 mt-1">{scrapedCount} ulasan dianalisis</p>
             </div>
             <div className="w-12 h-12 rounded-full bg-orange-50 flex items-center justify-center">
               <Star className="w-6 h-6 text-orange-500 fill-orange-500" />
