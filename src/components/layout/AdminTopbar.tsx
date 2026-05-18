@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useAuthStore } from '@/store/auth.store';
-import { Button, buttonVariants } from '@/components/ui/button';
+import { buttonVariants } from '@/components/ui/button';
 import { Menu, User } from 'lucide-react';
 import {
   DropdownMenu,
@@ -14,6 +14,17 @@ import {
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import Link from 'next/link';
 import Image from 'next/image';
+
+const mobileAdminLinks = [
+  { href: '/admin', label: 'Dashboard' },
+  { href: '/admin/destinations', label: 'Destinations' },
+  { href: '/admin/reviews', label: 'Manajemen Review' },
+  { href: '/admin/compare', label: 'Compare Analytics' },
+  { href: '/admin/topics', label: 'Manajemen Topik' },
+  { href: '/admin/scraper', label: 'Scraper' },
+  { href: '/admin/nlp-processing', label: 'NLP Processing' },
+  { href: '/admin/users', label: 'Users' },
+];
 
 export function AdminTopbar() {
   const { user, logout } = useAuthStore();
@@ -39,11 +50,16 @@ export function AdminTopbar() {
             </div>
           </div>
           <div className="p-4 flex flex-col gap-2">
-            <Link href="/admin" onClick={() => setSheetOpen(false)} className="px-3 py-2 hover:bg-muted rounded-md text-sm font-medium">Dashboard</Link>
-            <Link href="/admin/destinations" onClick={() => setSheetOpen(false)} className="px-3 py-2 hover:bg-muted rounded-md text-sm font-medium">Destinations</Link>
-            <Link href="/admin/compare" onClick={() => setSheetOpen(false)} className="px-3 py-2 hover:bg-muted rounded-md text-sm font-medium">Compare Analytics</Link>
-            <Link href="/admin/scraper" onClick={() => setSheetOpen(false)} className="px-3 py-2 hover:bg-muted rounded-md text-sm font-medium">Scraper & NLP</Link>
-            <Link href="/admin/users" onClick={() => setSheetOpen(false)} className="px-3 py-2 hover:bg-muted rounded-md text-sm font-medium">Users</Link>
+            {mobileAdminLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                onClick={() => setSheetOpen(false)}
+                className="px-3 py-2 hover:bg-muted rounded-md text-sm font-medium"
+              >
+                {link.label}
+              </Link>
+            ))}
           </div>
         </SheetContent>
       </Sheet>

@@ -1,8 +1,7 @@
 "use client";
-import * as z from "zod";
 
 import React, { useState } from "react";
-import { useForm } from "react-hook-form";
+import { Resolver, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -13,7 +12,7 @@ import { destinationSchema, DestinationFormValues } from "@/lib/validations/dest
 import { ThumbnailUploader } from "./thumbnail-uploader";
 import { GalleryUploader, ExistingImage } from "./gallery-uploader";
 import { toast } from "sonner";
-import { adminDestinationService } from "@/services/admin/destination.service";
+import { AdminDestination, adminDestinationService } from "@/services/admin/destination.service";
 import {
   FileText,
   MapPin,
@@ -22,13 +21,14 @@ import {
   Globe,
   Video,
   Navigation,
+  Star,
 } from "lucide-react";
 
 interface DestinationFormModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
-  initialData?: any;
+  initialData?: AdminDestination;
 }
 
 const STEPS = [
@@ -37,18 +37,30 @@ const STEPS = [
   { label: "Upload Gambar", icon: ImageIcon, description: "Thumbnail dan galeri" },
 ];
 
+function getHttpStatus(error: unknown) {
+  if (typeof error !== "object" || error === null) return undefined;
+  const maybeError = error as { response?: { status?: number }; status?: number };
+  return maybeError.response?.status || maybeError.status;
+}
+
+type GalleryUploadError = Error & {
+  isFileTooLarge?: boolean;
+  successCount?: number;
+  failedFiles?: string[];
+};
+
 export function DestinationFormModal({ open, onOpenChange, onSuccess, initialData }: DestinationFormModalProps) {
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
-  const [thumbnailLink, setThumbnailLink] = useState<string>("");
+  const [thumbnailLink, setThumbnailLink] = useState<string>(initialData?.thumbnailUrl || "");
   const [galleryFiles, setGalleryFiles] = useState<File[]>([]);
-  const [existingImages, setExistingImages] = useState<ExistingImage[]>([]);
+  const [existingImages, setExistingImages] = useState<ExistingImage[]>(initialData?.images || []);
 
   const isEditing = !!initialData;
 
-  const { register, handleSubmit, formState: { errors }, trigger, reset, watch } = useForm<DestinationFormValues>({
-    resolver: zodResolver(destinationSchema) as any,
+  const { register, handleSubmit, formState: { errors }, trigger, control } = useForm<DestinationFormValues>({
+    resolver: zodResolver(destinationSchema) as Resolver<DestinationFormValues>,
     defaultValues: initialData || {
       name: "",
       description: "",
@@ -57,41 +69,27 @@ export function DestinationFormModal({ open, onOpenChange, onSuccess, initialDat
       latitude: 0,
       longitude: 0,
       googleMapsUrl: "",
-      googlePlaceId: "",
       youtubeUrl: "",
+      googleRating: undefined,
+      googleReviewCount: undefined,
     },
   });
-
-  React.useEffect(() => {
-    if (open) {
-      if (initialData) {
-        reset(initialData);
-        setExistingImages(initialData.images || []);
-      } else {
-        reset({
-          name: "",
-          description: "",
-          city: "",
-          province: "",
-          latitude: 0,
-          longitude: 0,
-          googleMapsUrl: "",
-          googlePlaceId: "",
-          youtubeUrl: "",
-        });
-        setExistingImages([]);
-      }
-      setStep(1);
-      setThumbnailFile(null);
-      setThumbnailLink(initialData?.thumbnailUrl || "");
-      setGalleryFiles([]);
-    }
-  }, [open, initialData, reset]);
+  const watchedValues = useWatch({ control });
 
   const handleDeleteExistingImage = async (imageId: number) => {
     try {
       await adminDestinationService.deleteDestinationImage(imageId);
       setExistingImages((prev) => prev.filter((img) => img.id !== imageId));
+      
+      const slug = initialData?.slug;
+      if (slug) {
+        fetch('/api/revalidate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ tag: `destination-${slug}` }),
+        }).catch(e => console.error(e));
+      }
+
       toast.success("Gambar berhasil dihapus");
     } catch (error) {
       toast.error("Gagal menghapus gambar");
@@ -104,7 +102,7 @@ export function DestinationFormModal({ open, onOpenChange, onSuccess, initialDat
     if (step === 1) {
       isValid = await trigger(["name", "description", "city", "province"]);
     } else if (step === 2) {
-      isValid = await trigger(["latitude", "longitude", "googleMapsUrl", "googlePlaceId", "youtubeUrl"]);
+      isValid = await trigger(["latitude", "longitude", "googleMapsUrl", "youtubeUrl", "googleRating", "googleReviewCount"]);
     }
     
     if (isValid) {
@@ -127,29 +125,67 @@ export function DestinationFormModal({ open, onOpenChange, onSuccess, initialDat
         ...data,
         googleMapsUrl: data.googleMapsUrl?.trim() || undefined,
         youtubeUrl: data.youtubeUrl?.trim() || undefined,
-        googlePlaceId: data.googlePlaceId?.trim() || undefined,
         thumbnailUrl: thumbnailLink || undefined,
+        googleRating: data.googleRating ?? undefined,
+        googleReviewCount: data.googleReviewCount ?? undefined,
       };
 
-      if (isEditing) {
+      if (isEditing && destinationId) {
         await adminDestinationService.updateDestination(destinationId, payload);
         toast.success("Destinasi berhasil diperbarui");
       } else {
         const result = await adminDestinationService.createDestination(payload);
-        destinationId = result.data.id;
+        const createdDestination = "data" in result ? result.data : result;
+        destinationId = createdDestination.id;
         toast.success("Destinasi berhasil ditambahkan");
       }
 
       // Upload thumbnail if selected (file upload → updates thumbnailUrl)
       if (thumbnailFile && destinationId) {
-        await adminDestinationService.uploadThumbnail(destinationId, thumbnailFile);
-        toast.success("Thumbnail berhasil diunggah");
+        try {
+          await adminDestinationService.uploadThumbnail(destinationId, thumbnailFile);
+          toast.success("Thumbnail berhasil diunggah");
+        } catch (err: unknown) {
+          const status = getHttpStatus(err);
+          if (status === 413) {
+            const sizeMB = (thumbnailFile.size / (1024 * 1024)).toFixed(1);
+            toast.error(`Thumbnail terlalu besar (${sizeMB} MB). Maksimal 5 MB.`);
+          } else {
+            toast.error("Gagal mengunggah thumbnail");
+          }
+        }
       }
 
       // Upload gallery images if any (file upload → creates destination_images records)
       if (galleryFiles.length > 0 && destinationId) {
-        await adminDestinationService.uploadGalleryImages(destinationId, galleryFiles);
-        toast.success(`${galleryFiles.length} gambar galeri berhasil diunggah`);
+        try {
+          await adminDestinationService.uploadGalleryImages(destinationId, galleryFiles);
+          toast.success(`${galleryFiles.length} gambar galeri berhasil diunggah`);
+        } catch (err: unknown) {
+          const uploadError = err as GalleryUploadError;
+          if (uploadError?.isFileTooLarge) {
+            if ((uploadError.successCount || 0) > 0) {
+              toast.warning(`${uploadError.successCount} gambar berhasil, tapi ${uploadError.failedFiles?.length || 0} gambar terlalu besar.`);
+            }
+            toast.error(uploadError.message);
+          } else {
+            toast.error("Gagal mengunggah gambar galeri");
+          }
+        }
+      }
+
+      // Revalidate cache for this destination slug if available
+      const slug = initialData?.slug || data?.name?.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+      if (slug) {
+        try {
+          await fetch('/api/revalidate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ tag: `destination-${slug}` }),
+          });
+        } catch (e) {
+          console.error("Failed to revalidate cache", e);
+        }
       }
 
       onSuccess();
@@ -158,8 +194,13 @@ export function DestinationFormModal({ open, onOpenChange, onSuccess, initialDat
       setThumbnailFile(null);
       setThumbnailLink("");
       setGalleryFiles([]);
-    } catch (error) {
-      toast.error("Terjadi kesalahan saat menyimpan data");
+    } catch (error: unknown) {
+      const status = getHttpStatus(error);
+      if (status === 413) {
+        toast.error("File terlalu besar. Maksimal ukuran file adalah 5 MB.");
+      } else {
+        toast.error("Terjadi kesalahan saat menyimpan data");
+      }
       console.error(error);
     } finally {
       setIsSubmitting(false);
@@ -168,7 +209,7 @@ export function DestinationFormModal({ open, onOpenChange, onSuccess, initialDat
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] max-h-[85vh] overflow-y-auto">
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[760px]">
         <DialogHeader>
           <DialogTitle>{isEditing ? "Edit Destinasi" : "Tambah Destinasi Baru"}</DialogTitle>
           <DialogDescription>
@@ -295,17 +336,50 @@ export function DestinationFormModal({ open, onOpenChange, onSuccess, initialDat
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="googlePlaceId">Google Place ID (Opsional)</Label>
-                <Input id="googlePlaceId" {...register("googlePlaceId")} placeholder="ChIJ..." />
-              </div>
-
-              <div className="space-y-2">
                 <Label htmlFor="youtubeUrl" className="flex items-center gap-1.5">
                   <Video className="h-3.5 w-3.5 text-red-500" />
                   YouTube Video URL (Opsional)
                 </Label>
                 <Input id="youtubeUrl" {...register("youtubeUrl")} placeholder="https://youtube.com/watch?v=..." />
                 {errors.youtubeUrl && <p className="text-sm text-destructive">{errors.youtubeUrl.message}</p>}
+              </div>
+            </div>
+
+            {/* Google Maps Rating Section */}
+            <div className="p-4 bg-muted/30 rounded-lg border space-y-4">
+              <h4 className="font-medium text-sm flex items-center gap-2">
+                <Star className="h-4 w-4 text-yellow-500" />
+                Rating Google Maps (Opsional)
+              </h4>
+              <p className="text-xs text-muted-foreground -mt-2">
+                Salin dari halaman Google Maps destinasi ini.
+              </p>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="googleRating">Rating (1.0 – 5.0)</Label>
+                  <Input
+                    id="googleRating"
+                    type="number"
+                    step="0.1"
+                    min="1"
+                    max="5"
+                    placeholder="Contoh: 4.5"
+                    {...register("googleRating")}
+                  />
+                  {errors.googleRating && <p className="text-sm text-destructive">{errors.googleRating.message}</p>}
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="googleReviewCount">Jumlah Ulasan</Label>
+                  <Input
+                    id="googleReviewCount"
+                    type="number"
+                    min="0"
+                    step="1"
+                    placeholder="Contoh: 1200"
+                    {...register("googleReviewCount")}
+                  />
+                  {errors.googleReviewCount && <p className="text-sm text-destructive">{errors.googleReviewCount.message}</p>}
+                </div>
               </div>
             </div>
           </div>
@@ -322,6 +396,7 @@ export function DestinationFormModal({ open, onOpenChange, onSuccess, initialDat
                 Gambar utama yang ditampilkan di daftar destinasi. Upload 1 gambar.
               </p>
               <ThumbnailUploader
+                key={initialData?.id ?? "new-thumbnail"}
                 onFileChange={setThumbnailFile}
                 onUrlChange={setThumbnailLink}
                 currentThumbnailUrl={initialData?.thumbnailUrl}
@@ -335,11 +410,11 @@ export function DestinationFormModal({ open, onOpenChange, onSuccess, initialDat
                 Galeri Gambar
               </h4>
               <p className="text-xs text-muted-foreground mb-3">
-                Gambar tambahan untuk halaman detail. Maksimal 5 gambar.
+                Gambar tambahan untuk halaman detail. Maksimal 20 gambar.
               </p>
               <GalleryUploader 
                 onFilesChange={setGalleryFiles} 
-                maxFiles={5} 
+                maxFiles={20} 
                 existingImages={existingImages}
                 onDeleteExisting={handleDeleteExistingImage}
               />
@@ -355,22 +430,22 @@ export function DestinationFormModal({ open, onOpenChange, onSuccess, initialDat
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Nama</span>
                   <span className="font-medium truncate ml-4 max-w-[200px] text-right">
-                    {watch("name") || "-"}
+                    {watchedValues.name || "-"}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Lokasi</span>
                   <span className="font-medium truncate ml-4 max-w-[200px] text-right">
-                    {watch("city") && watch("province")
-                      ? `${watch("city")}, ${watch("province")}`
+                    {watchedValues.city && watchedValues.province
+                      ? `${watchedValues.city}, ${watchedValues.province}`
                       : "-"}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Koordinat</span>
                   <span className="font-medium text-xs font-mono">
-                    {watch("latitude") && watch("longitude")
-                      ? `${watch("latitude")}, ${watch("longitude")}`
+                    {watchedValues.latitude && watchedValues.longitude
+                      ? `${watchedValues.latitude}, ${watchedValues.longitude}`
                       : "-"}
                   </span>
                 </div>
@@ -378,24 +453,24 @@ export function DestinationFormModal({ open, onOpenChange, onSuccess, initialDat
                   <span className="text-muted-foreground">Google Maps</span>
                   <span
                     className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold ${
-                      watch("googleMapsUrl")
-                        ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300"
+                      watchedValues.googleMapsUrl
+                        ? "bg-green-100 text-green-700"
                         : "bg-muted text-muted-foreground"
                     }`}
                   >
-                    {watch("googleMapsUrl") ? "Tersedia" : "Belum diisi"}
+                    {watchedValues.googleMapsUrl ? "Tersedia" : "Belum diisi"}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">YouTube</span>
                   <span
                     className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold ${
-                      watch("youtubeUrl")
-                        ? "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300"
+                      watchedValues.youtubeUrl
+                        ? "bg-red-100 text-red-700"
                         : "bg-muted text-muted-foreground"
                     }`}
                   >
-                    {watch("youtubeUrl") ? "Tersedia" : "Belum diisi"}
+                    {watchedValues.youtubeUrl ? "Tersedia" : "Belum diisi"}
                   </span>
                 </div>
                 <div className="flex justify-between">
@@ -408,7 +483,7 @@ export function DestinationFormModal({ open, onOpenChange, onSuccess, initialDat
             </div>
           </div>
 
-          <DialogFooter className="flex justify-between sm:justify-between items-center w-full">
+          <DialogFooter className="sticky bottom-0 flex w-full items-center justify-between bg-popover/95 backdrop-blur sm:justify-between">
             <div className="flex gap-2">
               <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
                 Batal
@@ -425,7 +500,7 @@ export function DestinationFormModal({ open, onOpenChange, onSuccess, initialDat
                   Selanjutnya
                 </Button>
               ) : (
-                <Button onClick={handleSubmit(onSubmit as any)} disabled={isSubmitting}>
+                <Button onClick={handleSubmit(onSubmit)} disabled={isSubmitting}>
                   {isSubmitting ? "Menyimpan..." : "Simpan Destinasi"}
                 </Button>
               )}

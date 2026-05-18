@@ -1,11 +1,45 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { adminTopicService, TopicItem } from '@/services/admin/topic.service';
+import React, { useMemo, useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  AlertTriangle,
+  ArrowUpDown,
+  BarChart3,
+  CheckCircle2,
+  Database,
+  Hash,
+  Layers3,
+  Loader2,
+  MapPin,
+  Pencil,
+  Search,
+  Sparkles,
+  Tags,
+  Target,
+  Trash2,
+} from 'lucide-react';
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
 import { toast } from 'sonner';
-import { Input } from '@/components/ui/input';
+
 import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
 import {
   Table,
   TableBody,
@@ -14,74 +48,101 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from '@/components/ui/dialog';
-import {
-  Search,
-  Sparkles,
-  Pencil,
-  Trash2,
-  Tags,
-  TrendingUp,
-  AlertTriangle,
-  Loader2,
-  ArrowUpDown,
-  Hash,
-  MapPin,
-} from 'lucide-react';
-
-/* ─── Color palette for topic bubbles ─── */
-const BUBBLE_COLORS = [
-  { bg: 'oklch(0.92 0.05 30)', border: 'oklch(0.78 0.12 30)', text: 'oklch(0.35 0.12 30)' },
-  { bg: 'oklch(0.92 0.05 240)', border: 'oklch(0.72 0.1 240)', text: 'oklch(0.35 0.1 240)' },
-  { bg: 'oklch(0.93 0.04 150)', border: 'oklch(0.75 0.1 150)', text: 'oklch(0.35 0.1 150)' },
-  { bg: 'oklch(0.92 0.05 300)', border: 'oklch(0.75 0.1 300)', text: 'oklch(0.35 0.1 300)' },
-  { bg: 'oklch(0.93 0.04 60)', border: 'oklch(0.78 0.12 60)', text: 'oklch(0.35 0.12 60)' },
-  { bg: 'oklch(0.92 0.05 180)', border: 'oklch(0.72 0.1 180)', text: 'oklch(0.35 0.1 180)' },
-  { bg: 'oklch(0.93 0.04 0)', border: 'oklch(0.78 0.12 0)', text: 'oklch(0.35 0.12 0)' },
-  { bg: 'oklch(0.92 0.05 90)', border: 'oklch(0.75 0.1 90)', text: 'oklch(0.35 0.1 90)' },
-];
-
-const getColor = (i: number) => BUBBLE_COLORS[i % BUBBLE_COLORS.length];
+import { NativeSelect } from '@/components/ui/native-select';
+import { adminTopicService, TopicItem } from '@/services/admin/topic.service';
 
 type SortKey = 'name' | 'destinations' | 'id';
 type SortDir = 'asc' | 'desc';
+type QuickFilter = 'all' | 'unnamed' | 'dominant' | 'longtail' | 'noKeywords';
+type Tone = 'orange' | 'blue' | 'emerald' | 'amber' | 'rose' | 'slate';
+
+type TopicStatus = {
+  label: 'Perlu nama AI' | 'Dominan' | 'Long-tail' | 'Normal';
+  tone: Tone;
+};
+
+type DistributionBucket = {
+  name: string;
+  count: number;
+};
+
+type ActionItem = {
+  label: string;
+  helper: string;
+  value: string;
+  tone: Extract<Tone, 'orange' | 'blue' | 'emerald' | 'amber' | 'rose'>;
+  icon: React.ElementType;
+  onClick?: () => void;
+};
+
+const DEST_A_COLOR = '#FF7B54';
+const DEST_B_COLOR = '#2D82B5';
+
+function isUnnamed(topic: TopicItem) {
+  return topic.topic_name.trim().toLowerCase().startsWith('topic ');
+}
+
+function getTopicStatus(topic: TopicItem, maxDestinations: number): TopicStatus {
+  if (isUnnamed(topic)) return { label: 'Perlu nama AI', tone: 'amber' };
+  if (maxDestinations > 0 && topic.total_destinations >= Math.max(10, maxDestinations * 0.6)) {
+    return { label: 'Dominan', tone: 'orange' };
+  }
+  if (topic.total_destinations <= 1) return { label: 'Long-tail', tone: 'blue' };
+  return { label: 'Normal', tone: 'emerald' };
+}
+
+function getCoverageBucket(topic: TopicItem) {
+  if (topic.total_destinations <= 1) return '0-1';
+  if (topic.total_destinations <= 5) return '2-5';
+  if (topic.total_destinations <= 10) return '6-10';
+  return '>10';
+}
+
+function topicMatchesFilter(topic: TopicItem, filter: QuickFilter, maxDestinations: number) {
+  if (filter === 'all') return true;
+  if (filter === 'unnamed') return isUnnamed(topic);
+  if (filter === 'dominant') return getTopicStatus(topic, maxDestinations).label === 'Dominan';
+  if (filter === 'longtail') return topic.total_destinations <= 1;
+  return !topic.keywords || topic.keywords.length === 0;
+}
+
+function formatAverage(value: number) {
+  return Number.isFinite(value) ? value.toFixed(1) : '0.0';
+}
 
 export function TopicsClient() {
   const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
   const [sortKey, setSortKey] = useState<SortKey>('destinations');
   const [sortDir, setSortDir] = useState<SortDir>('desc');
+  const [quickFilter, setQuickFilter] = useState<QuickFilter>('all');
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [renameTarget, setRenameTarget] = useState<TopicItem | null>(null);
   const [renameValue, setRenameValue] = useState('');
   const [deleteTarget, setDeleteTarget] = useState<TopicItem | null>(null);
 
-  /* ─── Queries ─── */
-  const { data: topics = [], isLoading } = useQuery({
+  const {
+    data: topics = [],
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery({
     queryKey: ['admin-topics'],
     queryFn: () => adminTopicService.getTopics(),
   });
 
-  /* ─── Mutations ─── */
   const aiRenameMutation = useMutation({
     mutationFn: () => adminTopicService.triggerAiRename(),
     onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ['admin-topics'] });
-      toast.success(
-        `AI Rename selesai: ${result.renamed} berhasil, ${result.failed} gagal dari ${result.total} topik`,
-      );
+      toast.success(`AI Rename selesai: ${result.renamed} berhasil, ${result.failed} gagal dari ${result.total} topik`);
     },
     onError: () => toast.error('Gagal menjalankan AI Rename. Cek quota Gemini API.'),
   });
 
   const renameMutation = useMutation({
-    mutationFn: ({ id, name }: { id: number; name: string }) =>
-      adminTopicService.renameTopic(id, name),
+    mutationFn: ({ id, name }: { id: number; name: string }) => adminTopicService.renameTopic(id, name),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-topics'] });
       setRenameTarget(null);
@@ -100,287 +161,759 @@ export function TopicsClient() {
     onError: () => toast.error('Gagal menghapus topik'),
   });
 
-  /* ─── Derived state ─── */
-  const filtered = useMemo(() => {
-    let result = topics.filter(
-      (t) =>
-        t.topic_name.toLowerCase().includes(search.toLowerCase()) ||
-        t.keywords?.some((k) => k.toLowerCase().includes(search.toLowerCase())),
-    );
+  const maxDestinations = useMemo(
+    () => Math.max(...topics.map((topic) => topic.total_destinations), 0),
+    [topics],
+  );
 
-    result.sort((a, b) => {
-      let cmp = 0;
-      if (sortKey === 'name') cmp = a.topic_name.localeCompare(b.topic_name);
-      else if (sortKey === 'destinations') cmp = a.total_destinations - b.total_destinations;
-      else cmp = a.id - b.id;
-      return sortDir === 'asc' ? cmp : -cmp;
+  const filtered = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    const result = topics.filter((topic) => {
+      const matchesSearch =
+        query.length === 0 ||
+        topic.topic_name.toLowerCase().includes(query) ||
+        topic.keywords?.some((keyword) => keyword.toLowerCase().includes(query));
+      return matchesSearch && topicMatchesFilter(topic, quickFilter, maxDestinations);
     });
 
-    return result;
-  }, [topics, search, sortKey, sortDir]);
+    return [...result].sort((a, b) => {
+      let comparison = 0;
+      if (sortKey === 'name') comparison = a.topic_name.localeCompare(b.topic_name);
+      else if (sortKey === 'destinations') comparison = a.total_destinations - b.total_destinations;
+      else comparison = a.id - b.id;
+      return sortDir === 'asc' ? comparison : -comparison;
+    });
+  }, [maxDestinations, quickFilter, search, sortDir, sortKey, topics]);
 
-  const unnamedCount = topics.filter((t) => t.topic_name.startsWith('Topic ')).length;
-  const totalDestLinks = topics.reduce((sum, t) => sum + t.total_destinations, 0);
+  const metrics = useMemo(() => {
+    const unnamed = topics.filter(isUnnamed);
+    const totalDestLinks = topics.reduce((sum, topic) => sum + topic.total_destinations, 0);
+    const withoutKeywords = topics.filter((topic) => !topic.keywords || topic.keywords.length === 0);
+    const longTail = topics.filter((topic) => topic.total_destinations <= 1);
+    const dominant = topics.filter((topic) => getTopicStatus(topic, maxDestinations).label === 'Dominan');
+    const averageDestinations = topics.length > 0 ? totalDestLinks / topics.length : 0;
+    const taxonomyHealth = topics.length === 0
+      ? 0
+      : Math.max(0, Math.round(((topics.length - unnamed.length - withoutKeywords.length * 0.5) / topics.length) * 100));
 
-  /* ─── Sort toggle ─── */
+    return {
+      unnamed,
+      totalDestLinks,
+      withoutKeywords,
+      longTail,
+      dominant,
+      averageDestinations,
+      taxonomyHealth,
+    };
+  }, [maxDestinations, topics]);
+
+  const topCoverage = useMemo(
+    () => [...topics].sort((a, b) => b.total_destinations - a.total_destinations).slice(0, 12),
+    [topics],
+  );
+
+  const distribution = useMemo<DistributionBucket[]>(() => {
+    const buckets: Record<string, number> = { '0-1': 0, '2-5': 0, '6-10': 0, '>10': 0 };
+    topics.forEach((topic) => {
+      buckets[getCoverageBucket(topic)] += 1;
+    });
+    return Object.entries(buckets).map(([name, count]) => ({ name, count }));
+  }, [topics]);
+
+  const bubbleTopics = useMemo(
+    () => [...topics].sort((a, b) => b.total_destinations - a.total_destinations).slice(0, 18),
+    [topics],
+  );
+
+  const actionItems = useMemo<ActionItem[]>(() => [
+    {
+      label: 'Selesaikan naming debt',
+      helper: metrics.unnamed.length > 0 ? 'Topik generik masih perlu nama yang readable untuk admin.' : 'Semua topik utama sudah punya nama readable.',
+      value: String(metrics.unnamed.length),
+      tone: metrics.unnamed.length > 0 ? 'amber' : 'emerald',
+      icon: Sparkles,
+      onClick: metrics.unnamed.length > 0 ? () => setQuickFilter('unnamed') : undefined,
+    },
+    {
+      label: 'Pantau topik dominan',
+      helper: metrics.dominant.length > 0 ? 'Topik ini terlalu luas dan bisa menutupi taxonomy lain.' : 'Coverage topik terlihat cukup merata.',
+      value: String(metrics.dominant.length),
+      tone: metrics.dominant.length > 0 ? 'orange' : 'emerald',
+      icon: Target,
+      onClick: metrics.dominant.length > 0 ? () => setQuickFilter('dominant') : undefined,
+    },
+    {
+      label: 'Rapikan long-tail',
+      helper: metrics.longTail.length > 0 ? 'Topik kecil bisa dipertimbangkan untuk merge atau review ulang.' : 'Tidak ada topik kecil ekstrem.',
+      value: String(metrics.longTail.length),
+      tone: metrics.longTail.length > 0 ? 'blue' : 'emerald',
+      icon: Layers3,
+      onClick: metrics.longTail.length > 0 ? () => setQuickFilter('longtail') : undefined,
+    },
+    {
+      label: 'Lengkapi keyword',
+      helper: metrics.withoutKeywords.length > 0 ? 'Keyword kosong membuat pencarian dan audit topik kurang jelas.' : 'Semua topik punya keyword pendukung.',
+      value: String(metrics.withoutKeywords.length),
+      tone: metrics.withoutKeywords.length > 0 ? 'rose' : 'emerald',
+      icon: Database,
+      onClick: metrics.withoutKeywords.length > 0 ? () => setQuickFilter('noKeywords') : undefined,
+    },
+  ], [metrics.dominant.length, metrics.longTail.length, metrics.unnamed.length, metrics.withoutKeywords.length]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const currentPage = Math.min(page, totalPages);
+  const paginatedTopics = useMemo(
+    () => filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize),
+    [currentPage, filtered, pageSize],
+  );
+
   const toggleSort = (key: SortKey) => {
-    if (sortKey === key) setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'));
+    setPage(1);
+    if (sortKey === key) setSortDir((current) => (current === 'asc' ? 'desc' : 'asc'));
     else {
       setSortKey(key);
       setSortDir(key === 'name' ? 'asc' : 'desc');
     }
   };
 
-  /* ─── Bubble visualization: top 20 topics by destination count ─── */
-  const topBubbles = useMemo(() => {
-    return [...topics]
-      .sort((a, b) => b.total_destinations - a.total_destinations)
-      .slice(0, 24);
-  }, [topics]);
+  const clearControls = () => {
+    setSearch('');
+    setQuickFilter('all');
+    setSortKey('destinations');
+    setSortDir('desc');
+  };
 
-  const maxDest = Math.max(...topBubbles.map((t) => t.total_destinations), 1);
+  if (isLoading) {
+    return <TopicsSkeleton />;
+  }
+
+  if (isError) {
+    return (
+      <div className="rounded-[1.75rem] border border-red-100 bg-red-50 p-8 text-center">
+        <AlertTriangle className="mx-auto mb-3 h-10 w-10 text-red-500" />
+        <h1 className="text-xl font-black text-red-900">Gagal memuat topik</h1>
+        <p className="mt-2 text-sm font-semibold text-red-600">Periksa koneksi API atau sesi admin, lalu coba ulang.</p>
+        <Button onClick={() => refetch()} className="mt-5 rounded-full">
+          Coba lagi
+        </Button>
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-8">
-      {/* ─── Summary strip ─── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <SummaryCard
-          icon={<Tags className="h-5 w-5" />}
-          label="Total Topik"
-          value={topics.length}
-          accent="oklch(0.68 0.17 42)"
-        />
-        <SummaryCard
-          icon={<MapPin className="h-5 w-5" />}
-          label="Total Relasi Destinasi"
-          value={totalDestLinks}
-          accent="oklch(0.55 0.1 240)"
-        />
-        <SummaryCard
-          icon={<AlertTriangle className="h-5 w-5" />}
-          label="Belum Diberi Nama AI"
-          value={unnamedCount}
-          accent={unnamedCount > 0 ? 'oklch(0.65 0.18 55)' : 'oklch(0.6 0.15 150)'}
-        />
-        <SummaryCard
-          icon={<TrendingUp className="h-5 w-5" />}
-          label="Rata-rata Destinasi/Topik"
-          value={topics.length > 0 ? (totalDestLinks / topics.length).toFixed(1) : '0'}
-          accent="oklch(0.55 0.12 300)"
-        />
-      </div>
+    <div className="space-y-6">
+      <TopicHeroPanel
+        taxonomyHealth={metrics.taxonomyHealth}
+        namingDebt={metrics.unnamed.length}
+        coverage={metrics.totalDestLinks}
+      />
 
-      {/* ─── Bubble map visualization ─── */}
-      {topBubbles.length > 0 && (
-        <section>
-          <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4">
-            Distribusi Topik Utama
-          </h3>
-          <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-6">
-            <div className="flex flex-wrap gap-3 justify-center items-end" style={{ minHeight: 140 }}>
-              {topBubbles.map((topic, i) => {
-                const ratio = topic.total_destinations / maxDest;
-                const size = Math.max(48, Math.round(ratio * 110));
-                const color = getColor(i);
-                const displayName =
-                  topic.topic_name.length > 18
-                    ? topic.topic_name.slice(0, 16) + '…'
-                    : topic.topic_name;
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <MetricCard icon={Tags} label="Total Topik" value={String(topics.length)} helper="Cluster taxonomy aktif" tone="orange" />
+        <MetricCard icon={MapPin} label="Relasi Destinasi" value={String(metrics.totalDestLinks)} helper="Total topic-destination links" tone="blue" />
+        <MetricCard icon={AlertTriangle} label="Naming Debt" value={String(metrics.unnamed.length)} helper="Topik generik perlu nama AI" tone={metrics.unnamed.length > 0 ? 'amber' : 'emerald'} />
+        <MetricCard icon={BarChart3} label="Rata-rata Coverage" value={formatAverage(metrics.averageDestinations)} helper="Destinasi per topik" tone="slate" />
+      </section>
 
-                return (
-                  <button
-                    key={topic.id}
-                    onClick={() => {
-                      setSearch(topic.topic_name);
-                    }}
-                    title={`${topic.topic_name} (${topic.total_destinations} destinasi)`}
-                    className="relative flex flex-col items-center justify-center rounded-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-lg cursor-pointer select-none"
-                    style={{
-                      width: size + 40,
-                      height: size,
-                      background: color.bg,
-                      border: `1.5px solid ${color.border}`,
-                    }}
-                  >
-                    <span
-                      className="font-bold tabular-nums"
-                      style={{ fontSize: Math.max(14, size * 0.25), color: color.text }}
-                    >
-                      {topic.total_destinations}
-                    </span>
-                    <span
-                      className="leading-tight text-center px-1"
-                      style={{
-                        fontSize: Math.max(9, Math.min(11, size * 0.12)),
-                        color: color.text,
-                        opacity: 0.8,
-                        maxWidth: size + 30,
-                      }}
-                    >
-                      {displayName}
-                    </span>
-                  </button>
-                );
-              })}
+      {topics.length === 0 ? (
+        <EmptyTopicsState />
+      ) : (
+        <>
+          <TopicCommandPanel
+            search={search}
+            sortKey={sortKey}
+            sortDir={sortDir}
+            quickFilter={quickFilter}
+            unnamedCount={metrics.unnamed.length}
+            aiRenamePending={aiRenameMutation.isPending}
+            onSearchChange={(value) => {
+              setSearch(value);
+              setPage(1);
+            }}
+            onSortKeyChange={(value) => {
+              setSortKey(value);
+              setPage(1);
+            }}
+            onSortDirChange={(value) => {
+              setSortDir(value);
+              setPage(1);
+            }}
+            onQuickFilterChange={(value) => {
+              setQuickFilter(value);
+              setPage(1);
+            }}
+            onAiRename={() => aiRenameMutation.mutate()}
+            onReset={clearControls}
+          />
+
+          <TaxonomyTable
+            topics={paginatedTopics}
+            totalTopics={topics.length}
+            filteredCount={filtered.length}
+            maxDestinations={maxDestinations}
+            sortKey={sortKey}
+            page={currentPage}
+            pageSize={pageSize}
+            totalPages={totalPages}
+            onSort={toggleSort}
+            onPageChange={setPage}
+            onPageSizeChange={(value) => {
+              setPageSize(value);
+              setPage(1);
+            }}
+            onRename={(topic) => {
+              setRenameTarget(topic);
+              setRenameValue(topic.topic_name);
+            }}
+            onDelete={setDeleteTarget}
+          />
+
+          <div className="grid gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(22rem,0.85fr)]">
+            <div className="space-y-6">
+              <TopicCoverageParetoChart topics={topCoverage} maxDestinations={maxDestinations} />
+              <div className="grid gap-6 lg:grid-cols-2">
+                <CoverageDistributionChart data={distribution} />
+                <TopicCloud topics={bubbleTopics} maxDestinations={maxDestinations} onSelectTopic={setSearch} />
+              </div>
             </div>
+
+            <aside className="space-y-6">
+              <NamingDebtPanel topics={metrics.unnamed} onRename={(topic) => {
+                setRenameTarget(topic);
+                setRenameValue(topic.topic_name);
+              }} />
+              <TopicActionQueue items={actionItems} />
+              <TopicQualityChecklist
+                taxonomyHealth={metrics.taxonomyHealth}
+                unnamedCount={metrics.unnamed.length}
+                noKeywordCount={metrics.withoutKeywords.length}
+                dominantCount={metrics.dominant.length}
+              />
+            </aside>
           </div>
-        </section>
+        </>
       )}
 
-      {/* ─── Toolbar ─── */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-        <div className="relative w-full sm:max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-          <Input
-            placeholder="Cari topik atau kata kunci..."
-            className="pl-9"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
+      <RenameTopicDialog
+        topic={renameTarget}
+        value={renameValue}
+        pending={renameMutation.isPending}
+        onValueChange={setRenameValue}
+        onClose={() => setRenameTarget(null)}
+        onSubmit={() => {
+          if (renameTarget && renameValue.trim()) {
+            renameMutation.mutate({ id: renameTarget.id, name: renameValue.trim() });
+          }
+        }}
+      />
+
+      <DeleteTopicDialog
+        topic={deleteTarget}
+        pending={deleteMutation.isPending}
+        onClose={() => setDeleteTarget(null)}
+        onSubmit={() => {
+          if (deleteTarget) deleteMutation.mutate(deleteTarget.id);
+        }}
+      />
+    </div>
+  );
+}
+
+function TopicHeroPanel({ taxonomyHealth, namingDebt, coverage }: { taxonomyHealth: number; namingDebt: number; coverage: number }) {
+  const insights = [
+    { label: 'Taxonomy health', value: `${taxonomyHealth}%`, helper: 'Nama dan keyword tersedia', icon: CheckCircle2, tone: 'emerald' as Tone },
+    { label: 'Naming debt', value: String(namingDebt), helper: 'Topik generik perlu rename', icon: Sparkles, tone: namingDebt > 0 ? 'amber' as Tone : 'emerald' as Tone },
+    { label: 'Coverage', value: String(coverage), helper: 'Total relasi destinasi', icon: Layers3, tone: 'blue' as Tone },
+  ];
+
+  return (
+    <section className="rounded-[2rem] border border-orange-100 bg-orange-50/70 p-6 shadow-sm shadow-orange-100/50">
+      <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
+        <div className="max-w-3xl">
+          <p className="mb-3 inline-flex items-center gap-2 rounded-full bg-white px-3 py-1.5 text-xs font-black uppercase tracking-[0.16em] text-primary shadow-sm">
+            <Tags className="h-3.5 w-3.5" />
+            Topic Intelligence
+          </p>
+          <h1 className="text-3xl font-black tracking-tight text-slate-950 md:text-5xl">Manajemen Topik</h1>
+          <p className="mt-3 max-w-2xl text-sm font-semibold leading-7 text-slate-600 md:text-base">
+            Kelola taxonomy hasil topic modelling, rapikan naming debt, pantau coverage, dan pastikan topik mudah dipakai untuk audit review.
+          </p>
         </div>
-        <div className="flex gap-2">
-          {unnamedCount > 0 && (
-            <Button
-              onClick={() => aiRenameMutation.mutate()}
-              disabled={aiRenameMutation.isPending}
-              className="gap-2"
-              variant="default"
-            >
-              {aiRenameMutation.isPending ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Sparkles className="h-4 w-4" />
-              )}
-              AI Rename ({unnamedCount} topik)
-            </Button>
-          )}
+
+        <div className="grid gap-3 md:grid-cols-3 xl:min-w-[42rem]">
+          {insights.map((insight) => <HeroInsightCard key={insight.label} {...insight} />)}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function TopicCommandPanel({
+  search,
+  sortKey,
+  sortDir,
+  quickFilter,
+  unnamedCount,
+  aiRenamePending,
+  onSearchChange,
+  onSortKeyChange,
+  onSortDirChange,
+  onQuickFilterChange,
+  onAiRename,
+  onReset,
+}: {
+  search: string;
+  sortKey: SortKey;
+  sortDir: SortDir;
+  quickFilter: QuickFilter;
+  unnamedCount: number;
+  aiRenamePending: boolean;
+  onSearchChange: (value: string) => void;
+  onSortKeyChange: (value: SortKey) => void;
+  onSortDirChange: (value: SortDir) => void;
+  onQuickFilterChange: (value: QuickFilter) => void;
+  onAiRename: () => void;
+  onReset: () => void;
+}) {
+  const quickFilters: Array<{ value: QuickFilter; label: string }> = [
+    { value: 'all', label: 'Semua' },
+    { value: 'unnamed', label: 'Perlu nama' },
+    { value: 'dominant', label: 'Dominan' },
+    { value: 'longtail', label: 'Long-tail' },
+    { value: 'noKeywords', label: 'Tanpa keyword' },
+  ];
+
+  return (
+    <section className="sticky top-4 z-20 rounded-[1.75rem] border border-slate-200 bg-white/95 p-4 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-white/85">
+      <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
+        <div className="grid flex-1 gap-3 lg:grid-cols-[minmax(18rem,1fr)_11rem_10rem]">
+          <label className="min-w-0">
+            <span className="mb-2 block text-xs font-black uppercase tracking-[0.16em] text-primary">Cari topik</span>
+            <span className="relative block">
+              <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <Input
+                value={search}
+                onChange={(event) => onSearchChange(event.target.value)}
+                placeholder="Cari nama topik atau keyword..."
+                className="min-h-12 rounded-2xl border-slate-200 bg-slate-50 pl-11 font-semibold"
+              />
+            </span>
+          </label>
+
+          <label>
+            <span className="mb-2 block text-xs font-black uppercase tracking-[0.16em] text-slate-500">Urutkan</span>
+            <NativeSelect
+              aria-label="Urutkan topik"
+              value={sortKey}
+              onValueChange={(value) => onSortKeyChange(value as SortKey)}
+              options={[
+                { value: 'destinations', label: 'Destinasi', description: 'Jumlah relasi terbanyak' },
+                { value: 'name', label: 'Nama', description: 'Urut berdasarkan nama topik' },
+                { value: 'id', label: 'ID', description: 'Urut berdasarkan ID data' },
+              ]}
+            />
+          </label>
+
+          <label>
+            <span className="mb-2 block text-xs font-black uppercase tracking-[0.16em] text-slate-500">Arah</span>
+            <NativeSelect
+              aria-label="Pilih arah urutan topik"
+              value={sortDir}
+              onValueChange={(value) => onSortDirChange(value as SortDir)}
+              options={[
+                { value: 'desc', label: 'Terbesar', description: 'Nilai tinggi lebih dulu' },
+                { value: 'asc', label: 'Terkecil', description: 'Nilai rendah lebih dulu' },
+              ]}
+            />
+          </label>
+        </div>
+
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <Button
+            type="button"
+            onClick={onAiRename}
+            disabled={aiRenamePending || unnamedCount === 0}
+            className="min-h-12 rounded-full bg-primary px-5 font-black text-white shadow-sm shadow-orange-200 hover:bg-primary/90"
+          >
+            {aiRenamePending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+            AI Rename ({unnamedCount})
+          </Button>
+          <Button type="button" onClick={onReset} variant="outline" className="min-h-12 rounded-full px-5 font-black">
+            Reset
+          </Button>
         </div>
       </div>
 
-      {/* ─── Table ─── */}
-      <div className="rounded-xl border border-slate-200 overflow-hidden">
-        <Table>
+      <div className="mt-4 flex flex-wrap gap-2" aria-label="Filter cepat topik">
+        {quickFilters.map((filter) => (
+          <button
+            key={filter.value}
+            type="button"
+            onClick={() => onQuickFilterChange(filter.value)}
+            className={`min-h-10 rounded-full border px-4 text-sm font-black transition ${
+              quickFilter === filter.value
+                ? 'border-primary bg-orange-50 text-primary'
+                : 'border-slate-200 bg-slate-50 text-slate-600 hover:border-primary/40 hover:text-primary'
+            }`}
+          >
+            {filter.label}
+          </button>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function TopicCoverageParetoChart({ topics, maxDestinations }: { topics: TopicItem[]; maxDestinations: number }) {
+  const data = topics.map((topic) => ({
+    name: topic.topic_name.trim()
+      ? topic.topic_name.length > 28 ? `${topic.topic_name.slice(0, 26)}...` : topic.topic_name
+      : `Topik ${topic.id}`,
+    destinations: topic.total_destinations,
+  }));
+
+  return (
+    <ChartShell title="Topic Coverage Pareto" description="Topik dengan relasi destinasi terbesar. Gunakan untuk menemukan topik yang terlalu dominan." icon={BarChart3}>
+      <div className="h-[24rem]">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={data} layout="vertical" margin={{ top: 4, right: 24, left: 20, bottom: 4 }}>
+            <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e2e8f0" />
+            <XAxis type="number" domain={[0, Math.max(maxDestinations, 1)]} axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12, fontWeight: 700 }} />
+            <YAxis type="category" dataKey="name" width={150} axisLine={false} tickLine={false} tick={{ fill: '#334155', fontSize: 11, fontWeight: 800 }} />
+            <Tooltip contentStyle={{ borderRadius: '14px', border: '1px solid #e2e8f0', fontSize: '12px' }} />
+            <Bar dataKey="destinations" name="Destinasi" fill={DEST_A_COLOR} radius={[0, 10, 10, 0]} barSize={18} />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+    </ChartShell>
+  );
+}
+
+function CoverageDistributionChart({ data }: { data: DistributionBucket[] }) {
+  return (
+    <ChartShell title="Coverage Distribution" description="Sebaran jumlah destinasi per topik untuk melihat topik kecil dan besar." icon={Layers3}>
+      <div className="h-72">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={data} margin={{ top: 8, right: 12, left: -12, bottom: 0 }}>
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+            <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12, fontWeight: 800 }} />
+            <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} allowDecimals={false} />
+            <Tooltip contentStyle={{ borderRadius: '14px', border: '1px solid #e2e8f0', fontSize: '12px' }} />
+            <Bar dataKey="count" name="Jumlah topik" radius={[10, 10, 0, 0]} barSize={44}>
+              {data.map((entry, index) => (
+                <Cell key={`${entry.name || 'bucket'}-${index}`} fill={index === 0 ? DEST_B_COLOR : index === 3 ? DEST_A_COLOR : '#94a3b8'} />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+    </ChartShell>
+  );
+}
+
+function TopicCloud({ topics, maxDestinations, onSelectTopic }: { topics: TopicItem[]; maxDestinations: number; onSelectTopic: (value: string) => void }) {
+  return (
+    <ChartShell title="Topic Cloud" description="Visual sekunder untuk eksplorasi cepat topik teratas." icon={Tags}>
+      <div className="flex min-h-72 flex-wrap items-end justify-center gap-3">
+        {topics.map((topic, index) => {
+          const ratio = maxDestinations > 0 ? topic.total_destinations / maxDestinations : 0;
+          const size = Math.max(46, Math.round(ratio * 108));
+          const isOrange = index % 2 === 0;
+          return (
+            <button
+              key={topic.id}
+              type="button"
+              onClick={() => onSelectTopic(topic.topic_name)}
+              title={`${topic.topic_name} (${topic.total_destinations} destinasi)`}
+              className={`flex flex-col items-center justify-center rounded-2xl border text-center transition hover:-translate-y-0.5 focus:outline-none focus:ring-4 focus:ring-primary/15 ${
+                isOrange ? 'border-orange-200 bg-orange-50 text-primary' : 'border-sky-200 bg-sky-50 text-[#2D82B5]'
+              }`}
+              style={{ width: size + 34, height: size }}
+            >
+              <span className="text-lg font-black tabular-nums">{topic.total_destinations}</span>
+              <span className="mt-1 line-clamp-2 px-2 text-[11px] font-bold leading-tight">{topic.topic_name}</span>
+            </button>
+          );
+        })}
+      </div>
+    </ChartShell>
+  );
+}
+
+function NamingDebtPanel({ topics, onRename }: { topics: TopicItem[]; onRename: (topic: TopicItem) => void }) {
+  return (
+    <section className="rounded-[1.75rem] border border-slate-200 bg-white p-5 shadow-sm">
+      <div className="mb-4 flex items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-black uppercase tracking-[0.16em] text-primary">Naming debt</p>
+          <h3 className="mt-1 text-xl font-black text-slate-950">Topik perlu rename</h3>
+        </div>
+        <Sparkles className="h-5 w-5 text-primary" />
+      </div>
+      {topics.length === 0 ? (
+        <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-4 text-sm font-bold text-emerald-700">
+          Tidak ada topik generik yang perlu rename.
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {topics.slice(0, 5).map((topic) => (
+            <div key={topic.id} className="rounded-2xl border border-amber-100 bg-amber-50/70 p-3">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-black text-slate-950">{topic.topic_name}</p>
+                  <p className="mt-1 text-xs font-bold text-amber-700">{topic.total_destinations} destinasi terkait</p>
+                </div>
+                <button
+                  type="button"
+                  aria-label={`Rename ${topic.topic_name}`}
+                  onClick={() => onRename(topic)}
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white text-amber-700 shadow-sm transition hover:text-primary focus:outline-none focus:ring-4 focus:ring-primary/15"
+                >
+                  <Pencil className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
+
+function TopicActionQueue({ items }: { items: ActionItem[] }) {
+  return (
+    <section className="rounded-[1.75rem] border border-slate-200 bg-white p-5 shadow-sm">
+      <div className="mb-4 flex items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-black uppercase tracking-[0.16em] text-[#2D82B5]">Action queue</p>
+          <h3 className="mt-1 text-xl font-black text-slate-950">Prioritas admin</h3>
+        </div>
+        <Target className="h-5 w-5 text-[#2D82B5]" />
+      </div>
+      <div className="space-y-3">
+        {items.map((item) => (
+          <ActionQueueItem key={item.label} item={item} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function ActionQueueItem({ item }: { item: ActionItem }) {
+  const toneClass = {
+    orange: 'border-orange-100 bg-orange-50 text-primary',
+    blue: 'border-sky-100 bg-sky-50 text-[#2D82B5]',
+    emerald: 'border-emerald-100 bg-emerald-50 text-emerald-700',
+    amber: 'border-amber-100 bg-amber-50 text-amber-700',
+    rose: 'border-rose-100 bg-rose-50 text-rose-700',
+  }[item.tone];
+  const Icon = item.icon;
+
+  const content = (
+    <>
+      <div className="flex items-start gap-3">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white">
+          <Icon className="h-5 w-5" />
+        </span>
+        <div className="min-w-0 flex-1 text-left">
+          <div className="flex items-start justify-between gap-3">
+            <p className="font-black text-slate-950">{item.label}</p>
+            <span className="text-lg font-black text-slate-950">{item.value}</span>
+          </div>
+          <p className="mt-1 text-xs font-bold leading-5 opacity-80">{item.helper}</p>
+        </div>
+      </div>
+    </>
+  );
+
+  if (item.onClick) {
+    return (
+      <button
+        type="button"
+        onClick={item.onClick}
+        className={`w-full rounded-2xl border p-4 transition hover:-translate-y-0.5 focus:outline-none focus:ring-4 focus:ring-primary/15 ${toneClass}`}
+      >
+        {content}
+      </button>
+    );
+  }
+
+  return <div className={`rounded-2xl border p-4 ${toneClass}`}>{content}</div>;
+}
+
+function TopicQualityChecklist({
+  taxonomyHealth,
+  unnamedCount,
+  noKeywordCount,
+  dominantCount,
+}: {
+  taxonomyHealth: number;
+  unnamedCount: number;
+  noKeywordCount: number;
+  dominantCount: number;
+}) {
+  const checks = [
+    { label: 'AI naming selesai', done: unnamedCount === 0 },
+    { label: 'Keyword tersedia', done: noKeywordCount === 0 },
+    { label: 'Coverage merata', done: dominantCount === 0 },
+    { label: 'Health di atas 80%', done: taxonomyHealth >= 80 },
+  ];
+
+  return (
+    <section className="rounded-[1.75rem] border border-slate-200 bg-white p-5 shadow-sm">
+      <p className="text-xs font-black uppercase tracking-[0.16em] text-primary">Quality checklist</p>
+      <div className="mt-4 space-y-2">
+        {checks.map((check) => (
+          <div key={check.label} className="flex items-center justify-between gap-3 rounded-2xl bg-slate-50 p-3">
+            <span className="text-sm font-black text-slate-800">{check.label}</span>
+            <span className={`rounded-full px-3 py-1 text-xs font-black ${check.done ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'}`}>
+              {check.done ? 'OK' : 'Perlu cek'}
+            </span>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function TaxonomyTable({
+  topics,
+  totalTopics,
+  filteredCount,
+  maxDestinations,
+  sortKey,
+  page,
+  pageSize,
+  totalPages,
+  onSort,
+  onPageChange,
+  onPageSizeChange,
+  onRename,
+  onDelete,
+}: {
+  topics: TopicItem[];
+  totalTopics: number;
+  filteredCount: number;
+  maxDestinations: number;
+  sortKey: SortKey;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+  onSort: (key: SortKey) => void;
+  onPageChange: (page: number) => void;
+  onPageSizeChange: (pageSize: number) => void;
+  onRename: (topic: TopicItem) => void;
+  onDelete: (topic: TopicItem) => void;
+}) {
+  const startItem = filteredCount === 0 ? 0 : (page - 1) * pageSize + 1;
+  const endItem = Math.min(page * pageSize, filteredCount);
+  const visiblePages = Array.from(
+    new Set([1, page - 1, page, page + 1, totalPages].filter((item) => item >= 1 && item <= totalPages)),
+  );
+
+  return (
+    <section className="overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white shadow-sm">
+      <div className="flex flex-col gap-3 border-b border-slate-100 bg-slate-50/70 p-5 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p className="text-xs font-black uppercase tracking-[0.16em] text-primary">Taxonomy table</p>
+          <h3 className="mt-1 text-xl font-black text-slate-950">Daftar Topik</h3>
+        </div>
+        <p className="text-sm font-bold text-slate-500">
+          Menampilkan {startItem}-{endItem} dari {filteredCount} hasil, total {totalTopics} topik
+        </p>
+      </div>
+
+      <div className="overflow-x-auto">
+        <Table className="min-w-[980px]">
           <TableHeader>
             <TableRow className="bg-slate-50/80">
-              <TableHead className="w-16">
-                <button onClick={() => toggleSort('id')} className="flex items-center gap-1 font-semibold hover:text-primary cursor-pointer">
+              <TableHead className="w-20">
+                <SortButton active={sortKey === 'id'} onClick={() => onSort('id')}>
                   <Hash className="h-3.5 w-3.5" /> ID
-                  {sortKey === 'id' && <ArrowUpDown className="h-3 w-3" />}
-                </button>
+                </SortButton>
               </TableHead>
               <TableHead>
-                <button onClick={() => toggleSort('name')} className="flex items-center gap-1 font-semibold hover:text-primary cursor-pointer">
-                  Nama Topik
-                  {sortKey === 'name' && <ArrowUpDown className="h-3 w-3" />}
-                </button>
+                <SortButton active={sortKey === 'name'} onClick={() => onSort('name')}>Nama Topik</SortButton>
               </TableHead>
+              <TableHead>Status</TableHead>
               <TableHead>Kata Kunci</TableHead>
-              <TableHead className="w-28">
-                <button onClick={() => toggleSort('destinations')} className="flex items-center gap-1 font-semibold hover:text-primary cursor-pointer">
+              <TableHead className="w-36">
+                <SortButton active={sortKey === 'destinations'} onClick={() => onSort('destinations')}>
                   <MapPin className="h-3.5 w-3.5" /> Destinasi
-                  {sortKey === 'destinations' && <ArrowUpDown className="h-3 w-3" />}
-                </button>
+                </SortButton>
               </TableHead>
-              <TableHead className="w-28 text-right">Aksi</TableHead>
+              <TableHead className="w-32 text-right">Aksi</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {isLoading ? (
+            {topics.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center h-32 text-slate-400">
-                  <Loader2 className="h-5 w-5 animate-spin mx-auto mb-2" />
-                  Memuat topik...
-                </TableCell>
-              </TableRow>
-            ) : filtered.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={5} className="text-center h-32 text-slate-400">
-                  Tidak ada topik ditemukan.
+                <TableCell colSpan={6} className="h-40 text-center">
+                  <p className="font-black text-slate-700">Tidak ada topik yang cocok</p>
+                  <p className="mt-1 text-sm font-semibold text-slate-500">Ubah pencarian atau filter cepat untuk melihat topik lain.</p>
                 </TableCell>
               </TableRow>
             ) : (
-              filtered.map((topic, idx) => {
-                const isUnnamed = topic.topic_name.startsWith('Topic ');
+              topics.map((topic) => {
+                const status = getTopicStatus(topic, maxDestinations);
+                const ratio = maxDestinations > 0 ? (topic.total_destinations / maxDestinations) * 100 : 0;
                 return (
-                  <TableRow
-                    key={topic.id}
-                    className="group transition-colors hover:bg-slate-50/80"
-                  >
-                    <TableCell className="font-mono text-xs text-slate-400">
-                      {topic.id}
-                    </TableCell>
+                  <TableRow key={topic.id} className="hover:bg-slate-50/80">
+                    <TableCell className="font-mono text-xs font-bold text-slate-400">{topic.id}</TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-2">
-                        <span
-                          className="inline-block w-2.5 h-2.5 rounded-full shrink-0"
-                          style={{ background: getColor(idx).border }}
-                        />
-                        <span className={`font-medium ${isUnnamed ? 'text-amber-600 italic' : 'text-slate-800'}`}>
+                      <div className="max-w-[18rem]">
+                        <p className={`truncate font-black ${status.label === 'Perlu nama AI' ? 'text-amber-700' : 'text-slate-900'}`}>
                           {topic.topic_name}
-                        </span>
-                        {isUnnamed && (
-                          <span className="text-[10px] bg-amber-100 text-amber-700 rounded-full px-1.5 py-0.5 font-medium">
-                            perlu nama AI
-                          </span>
-                        )}
+                        </p>
+                        <p className="mt-1 text-xs font-bold text-slate-500">{topic.keywords?.length || 0} keyword pendukung</p>
                       </div>
                     </TableCell>
                     <TableCell>
-                      <div className="flex flex-wrap gap-1 max-w-md">
-                        {(topic.keywords || []).slice(0, 5).map((kw, j) => (
-                          <span
-                            key={j}
-                            className="inline-block rounded-md px-2 py-0.5 text-[11px] font-medium bg-slate-100 text-slate-600 border border-slate-200"
-                          >
-                            {kw}
+                      <StatusBadge status={status} />
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex max-w-md flex-wrap gap-1.5">
+                        {(topic.keywords || []).slice(0, 5).map((keyword, index) => (
+                          <span key={`${topic.id}-keyword-${index}-${keyword || 'empty'}`} className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-bold text-slate-600">
+                            {keyword}
                           </span>
                         ))}
                         {(topic.keywords || []).length > 5 && (
-                          <span className="text-[11px] text-slate-400">
+                          <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-black text-slate-500">
                             +{topic.keywords.length - 5}
                           </span>
+                        )}
+                        {(!topic.keywords || topic.keywords.length === 0) && (
+                          <span className="rounded-full bg-rose-50 px-2.5 py-1 text-xs font-black text-rose-700">Tanpa keyword</span>
                         )}
                       </div>
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-2">
-                        <div className="flex-1 h-1.5 rounded-full bg-slate-100 overflow-hidden max-w-20">
-                          <div
-                            className="h-full rounded-full transition-all duration-500"
-                            style={{
-                              width: `${Math.min(100, (topic.total_destinations / Math.max(maxDest, 1)) * 100)}%`,
-                              background: getColor(idx).border,
-                            }}
-                          />
+                      <div className="flex items-center gap-3">
+                        <div className="h-2 w-20 overflow-hidden rounded-full bg-slate-100">
+                          <div className="h-full rounded-full bg-primary" style={{ width: `${Math.min(100, ratio)}%` }} />
                         </div>
-                        <span className="text-sm font-semibold text-slate-700 tabular-nums">
-                          {topic.total_destinations}
-                        </span>
+                        <span className="text-sm font-black tabular-nums text-slate-800">{topic.total_destinations}</span>
                       </div>
                     </TableCell>
                     <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 hover:bg-blue-50 hover:text-blue-600 cursor-pointer"
-                          title="Rename topik"
-                          onClick={() => {
-                            setRenameTarget(topic);
-                            setRenameValue(topic.topic_name);
-                          }}
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          type="button"
+                          aria-label={`Rename topik ${topic.topic_name}`}
+                          onClick={() => onRename(topic)}
+                          className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 transition hover:border-sky-200 hover:bg-sky-50 hover:text-[#2D82B5] focus:outline-none focus:ring-4 focus:ring-primary/15"
                         >
-                          <Pencil className="h-3.5 w-3.5" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 hover:bg-red-50 hover:text-red-600 cursor-pointer"
-                          title="Hapus topik"
-                          onClick={() => setDeleteTarget(topic)}
+                          <Pencil className="h-4 w-4" />
+                        </button>
+                        <button
+                          type="button"
+                          aria-label={`Hapus topik ${topic.topic_name}`}
+                          onClick={() => onDelete(topic)}
+                          className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 transition hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600 focus:outline-none focus:ring-4 focus:ring-rose-100"
                         >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </Button>
+                          <Trash2 className="h-4 w-4" />
+                        </button>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -389,147 +922,281 @@ export function TopicsClient() {
             )}
           </TableBody>
         </Table>
-
-        {!isLoading && filtered.length > 0 && (
-          <div className="px-4 py-3 border-t border-slate-100 bg-slate-50/50 text-sm text-slate-500">
-            Menampilkan {filtered.length} dari {topics.length} topik
-          </div>
-        )}
       </div>
 
-      {/* ─── Rename Dialog ─── */}
-      <Dialog open={!!renameTarget} onOpenChange={(open) => !open && setRenameTarget(null)}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Rename Topik</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-2">
-            <div>
-              <label className="text-sm font-medium text-slate-600 mb-1.5 block">
-                Nama Topik Saat Ini
-              </label>
-              <p className="text-sm text-slate-400 italic">{renameTarget?.topic_name}</p>
-            </div>
-            <div>
-              <label className="text-sm font-medium text-slate-600 mb-1.5 block">
-                Kata Kunci
-              </label>
-              <div className="flex flex-wrap gap-1">
-                {(renameTarget?.keywords || []).map((kw, j) => (
-                  <span
-                    key={j}
-                    className="inline-block rounded-md px-2 py-0.5 text-[11px] bg-slate-100 text-slate-600 border border-slate-200"
-                  >
-                    {kw}
-                  </span>
-                ))}
-              </div>
-            </div>
-            <div>
-              <label htmlFor="rename-input" className="text-sm font-medium text-slate-600 mb-1.5 block">
-                Nama Baru
-              </label>
-              <Input
-                id="rename-input"
-                value={renameValue}
-                onChange={(e) => setRenameValue(e.target.value)}
-                placeholder="Masukkan nama topik baru..."
-                autoFocus
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setRenameTarget(null)}>
-              Batal
-            </Button>
-            <Button
-              onClick={() => {
-                if (renameTarget && renameValue.trim()) {
-                  renameMutation.mutate({ id: renameTarget.id, name: renameValue.trim() });
-                }
-              }}
-              disabled={!renameValue.trim() || renameMutation.isPending}
-            >
-              {renameMutation.isPending ? (
-                <Loader2 className="h-4 w-4 animate-spin mr-2" />
-              ) : (
-                <Pencil className="h-4 w-4 mr-2" />
-              )}
-              Simpan
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <div className="flex flex-col gap-4 border-t border-slate-100 bg-slate-50/70 p-4 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+          <span className="text-sm font-black text-slate-700">
+            Baris per halaman
+          </span>
+          <NativeSelect
+            aria-label="Pilih jumlah baris tabel topik"
+            value={String(pageSize)}
+            onValueChange={(value) => onPageSizeChange(Number(value))}
+            options={[
+              { value: '10', label: '10 baris' },
+              { value: '20', label: '20 baris' },
+              { value: '50', label: '50 baris' },
+            ]}
+            wrapperClassName="w-36"
+            className="min-h-10 bg-white"
+          />
+          <span className="text-sm font-bold text-slate-500">
+            Halaman {page} dari {totalPages}
+          </span>
+        </div>
 
-      {/* ─── Delete Confirmation Dialog ─── */}
-      <Dialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-red-600">
-              <AlertTriangle className="h-5 w-5" />
-              Hapus Topik
-            </DialogTitle>
-          </DialogHeader>
-          <div className="py-2 space-y-3">
-            <p className="text-sm text-slate-600">
-              Apakah Anda yakin ingin menghapus topik berikut? Semua relasi destinasi dan ulasan akan ikut terhapus.
-            </p>
-            <div className="rounded-lg bg-red-50 border border-red-100 p-3">
-              <p className="font-semibold text-slate-800">{deleteTarget?.topic_name}</p>
-              <p className="text-xs text-slate-500 mt-1">
-                {deleteTarget?.total_destinations} destinasi terkait akan kehilangan topik ini
-              </p>
+        <nav className="flex flex-wrap items-center gap-2" aria-label="Pagination tabel topik">
+          <button
+            type="button"
+            onClick={() => onPageChange(Math.max(1, page - 1))}
+            disabled={page <= 1}
+            className="min-h-10 rounded-full border border-slate-200 bg-white px-4 text-sm font-black text-slate-700 transition hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            Sebelumnya
+          </button>
+          {visiblePages.map((item, index) => {
+            const previous = visiblePages[index - 1];
+            const hasGap = previous && item - previous > 1;
+            return (
+              <React.Fragment key={item}>
+                {hasGap && <span className="px-1 text-sm font-black text-slate-400">...</span>}
+                <button
+                  type="button"
+                  onClick={() => onPageChange(item)}
+                  aria-current={page === item ? 'page' : undefined}
+                  className={`flex h-10 min-w-10 items-center justify-center rounded-full border px-3 text-sm font-black transition ${
+                    page === item
+                      ? 'border-primary bg-orange-50 text-primary'
+                      : 'border-slate-200 bg-white text-slate-700 hover:border-primary hover:text-primary'
+                  }`}
+                >
+                  {item}
+                </button>
+              </React.Fragment>
+            );
+          })}
+          <button
+            type="button"
+            onClick={() => onPageChange(Math.min(totalPages, page + 1))}
+            disabled={page >= totalPages}
+            className="min-h-10 rounded-full border border-slate-200 bg-white px-4 text-sm font-black text-slate-700 transition hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            Berikutnya
+          </button>
+        </nav>
+      </div>
+    </section>
+  );
+}
+
+function RenameTopicDialog({
+  topic,
+  value,
+  pending,
+  onValueChange,
+  onClose,
+  onSubmit,
+}: {
+  topic: TopicItem | null;
+  value: string;
+  pending: boolean;
+  onValueChange: (value: string) => void;
+  onClose: () => void;
+  onSubmit: () => void;
+}) {
+  return (
+    <Dialog open={Boolean(topic)} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Rename Topik</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4 py-2">
+          <div>
+            <label className="mb-1.5 block text-sm font-bold text-slate-700">Nama Topik Saat Ini</label>
+            <p className="text-sm font-semibold italic text-slate-500">{topic?.topic_name}</p>
+          </div>
+          <div>
+            <label className="mb-1.5 block text-sm font-bold text-slate-700">Kata Kunci</label>
+            <div className="flex flex-wrap gap-1">
+              {(topic?.keywords || []).map((keyword, index) => (
+                <span key={`${topic?.id || 'topic'}-dialog-keyword-${index}-${keyword || 'empty'}`} className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-bold text-slate-600">
+                  {keyword}
+                </span>
+              ))}
             </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteTarget(null)}>
-              Batal
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={() => {
-                if (deleteTarget) deleteMutation.mutate(deleteTarget.id);
-              }}
-              disabled={deleteMutation.isPending}
-            >
-              {deleteMutation.isPending ? (
-                <Loader2 className="h-4 w-4 animate-spin mr-2" />
-              ) : (
-                <Trash2 className="h-4 w-4 mr-2" />
-              )}
-              Hapus Topik
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          <div>
+            <label htmlFor="rename-input" className="mb-1.5 block text-sm font-bold text-slate-700">Nama Baru</label>
+            <Input
+              id="rename-input"
+              value={value}
+              onChange={(event) => onValueChange(event.target.value)}
+              placeholder="Masukkan nama topik baru..."
+              autoFocus
+            />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>Batal</Button>
+          <Button onClick={onSubmit} disabled={!value.trim() || pending}>
+            {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Pencil className="h-4 w-4" />}
+            Simpan
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function DeleteTopicDialog({
+  topic,
+  pending,
+  onClose,
+  onSubmit,
+}: {
+  topic: TopicItem | null;
+  pending: boolean;
+  onClose: () => void;
+  onSubmit: () => void;
+}) {
+  return (
+    <Dialog open={Boolean(topic)} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2 text-rose-600">
+            <AlertTriangle className="h-5 w-5" />
+            Hapus Topik
+          </DialogTitle>
+        </DialogHeader>
+        <div className="space-y-3 py-2">
+          <p className="text-sm font-semibold leading-6 text-slate-600">
+            Apakah Anda yakin ingin menghapus topik berikut? Relasi destinasi dan review terkait akan kehilangan taxonomy ini.
+          </p>
+          <div className="rounded-2xl border border-rose-100 bg-rose-50 p-4">
+            <p className="font-black text-slate-900">{topic?.topic_name}</p>
+            <p className="mt-1 text-xs font-bold text-rose-700">{topic?.total_destinations || 0} destinasi terkait</p>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>Batal</Button>
+          <Button variant="destructive" onClick={onSubmit} disabled={pending}>
+            {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+            Hapus Topik
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function HeroInsightCard({ icon: Icon, label, value, helper, tone }: { icon: React.ElementType; label: string; value: string; helper: string; tone: Tone }) {
+  const toneClass = getToneClass(tone);
+  return (
+    <div className={`rounded-3xl border p-4 shadow-sm ${toneClass}`}>
+      <Icon className="mb-3 h-5 w-5" />
+      <p className="text-xs font-black uppercase tracking-[0.14em] opacity-80">{label}</p>
+      <p className="mt-1 text-2xl font-black text-slate-950">{value}</p>
+      <p className="mt-1 text-xs font-bold opacity-80">{helper}</p>
     </div>
   );
 }
 
-/* ─── Summary card component ─── */
-function SummaryCard({
-  icon,
-  label,
-  value,
-  accent,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: number | string;
-  accent: string;
-}) {
+function MetricCard({ icon: Icon, label, value, helper, tone }: { icon: React.ElementType; label: string; value: string; helper: string; tone: Tone }) {
+  const toneClass = getToneClass(tone);
   return (
-    <div
-      className="rounded-xl border border-slate-200 p-4 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md"
-      style={{ borderLeftColor: accent, borderLeftWidth: 3 }}
-    >
-      <div className="flex items-center gap-2 mb-2">
-        <div className="p-1.5 rounded-lg" style={{ background: `${accent}15`, color: accent }}>
-          {icon}
+    <article className={`rounded-[1.5rem] border p-5 shadow-sm ${toneClass}`}>
+      <Icon className="mb-4 h-5 w-5" />
+      <p className="text-xs font-black uppercase tracking-[0.14em] opacity-80">{label}</p>
+      <p className="mt-2 text-2xl font-black leading-none text-slate-950">{value}</p>
+      <p className="mt-2 text-xs font-bold leading-5 opacity-80">{helper}</p>
+    </article>
+  );
+}
+
+function ChartShell({ title, description, icon: Icon, children }: { title: string; description: string; icon: React.ElementType; children: React.ReactNode }) {
+  return (
+    <section className="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
+      <div className="mb-5 flex items-start justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-orange-50 text-primary">
+              <Icon className="h-5 w-5" />
+            </div>
+            <h3 className="font-black text-slate-950">{title}</h3>
+          </div>
+          <p className="mt-2 text-sm font-semibold leading-6 text-slate-500">{description}</p>
         </div>
-        <span className="text-xs font-medium text-slate-500 uppercase tracking-wide">{label}</span>
       </div>
-      <p className="text-2xl font-bold text-slate-800 tabular-nums">{value}</p>
+      <p className="sr-only">{title} adalah visualisasi untuk membantu admin membaca kualitas taxonomy topik.</p>
+      {children}
+    </section>
+  );
+}
+
+function StatusBadge({ status }: { status: TopicStatus }) {
+  const toneClass = getToneClass(status.tone);
+  return (
+    <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-black ${toneClass}`}>
+      {status.label}
+    </span>
+  );
+}
+
+function SortButton({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`inline-flex min-h-9 items-center gap-1 rounded-full px-2 text-xs font-black uppercase tracking-[0.08em] transition hover:text-primary focus:outline-none focus:ring-4 focus:ring-primary/15 ${
+        active ? 'text-primary' : 'text-slate-500'
+      }`}
+    >
+      {children}
+      <ArrowUpDown className="h-3 w-3" />
+    </button>
+  );
+}
+
+function EmptyTopicsState() {
+  return (
+    <section className="flex min-h-[26rem] flex-col items-center justify-center rounded-[1.75rem] border border-dashed border-slate-200 bg-white p-8 text-center">
+      <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-orange-50 text-primary">
+        <Tags className="h-8 w-8" />
+      </div>
+      <h2 className="text-xl font-black text-slate-950">Belum ada topik tersedia</h2>
+      <p className="mt-2 max-w-md text-sm font-semibold leading-7 text-slate-500">
+        Jalankan proses NLP/topic modelling terlebih dahulu agar taxonomy topik muncul dan bisa dikelola admin.
+      </p>
+    </section>
+  );
+}
+
+function TopicsSkeleton() {
+  return (
+    <div className="space-y-6" aria-label="Memuat manajemen topik">
+      <div className="h-44 animate-pulse rounded-[2rem] bg-orange-100/70" />
+      <div className="h-28 animate-pulse rounded-[1.75rem] bg-white ring-1 ring-slate-200" />
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        {[1, 2, 3, 4].map((item) => (
+          <div key={item} className="h-32 animate-pulse rounded-[1.5rem] bg-white ring-1 ring-slate-200" />
+        ))}
+      </div>
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(22rem,0.85fr)]">
+        <div className="h-[32rem] animate-pulse rounded-[1.75rem] bg-white ring-1 ring-slate-200" />
+        <div className="h-[32rem] animate-pulse rounded-[1.75rem] bg-white ring-1 ring-slate-200" />
+      </div>
     </div>
   );
+}
+
+function getToneClass(tone: Tone) {
+  return {
+    orange: 'border-orange-100 bg-orange-50 text-primary',
+    blue: 'border-sky-100 bg-sky-50 text-[#2D82B5]',
+    emerald: 'border-emerald-100 bg-emerald-50 text-emerald-700',
+    amber: 'border-amber-100 bg-amber-50 text-amber-700',
+    rose: 'border-rose-100 bg-rose-50 text-rose-700',
+    slate: 'border-slate-200 bg-white text-slate-700',
+  }[tone];
 }

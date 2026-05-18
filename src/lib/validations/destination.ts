@@ -8,8 +8,21 @@ export const destinationSchema = z.object({
   latitude: z.coerce.number().min(-90).max(90),
   longitude: z.coerce.number().min(-180).max(180),
   googleMapsUrl: z.string().url("Format URL tidak valid").optional().or(z.literal('')),
-  googlePlaceId: z.string().optional().or(z.literal('')),
   youtubeUrl: z.string().url("Format URL tidak valid").optional().or(z.literal('')),
+  googleRating: z.preprocess(
+    (val) => (val === '' || val === undefined || val === null ? undefined : Number(val)),
+    z.number()
+      .min(1, "Rating minimal 1.0")
+      .max(5, "Rating maksimal 5.0")
+      .optional()
+  ),
+  googleReviewCount: z.preprocess(
+    (val) => (val === '' || val === undefined || val === null ? undefined : Number(val)),
+    z.number()
+      .int("Jumlah ulasan harus bilangan bulat")
+      .min(0, "Jumlah ulasan tidak boleh negatif")
+      .optional()
+  ),
 });
 
 export type DestinationFormValues = z.infer<typeof destinationSchema>;

@@ -7,20 +7,42 @@ export const metadata: Metadata = {
   description: "Kelola data master destinasi wisata",
 };
 
-export default function AdminDestinationsPage() {
-  return (
-    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-      <div className="flex items-center justify-between space-y-2">
-        <h2 className="text-3xl font-bold tracking-tight">Destinasi Wisata</h2>
-      </div>
-      
-      <p className="text-muted-foreground">
-        Kelola semua data destinasi, lokasi, dan galeri yang akan ditampilkan kepada pengguna.
-      </p>
+type AdminDestinationsPageProps = {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+};
 
-      <div className="mt-6">
-        <DestinationsTable />
+function getParamValue(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+export default async function AdminDestinationsPage({ searchParams }: AdminDestinationsPageProps) {
+  const params = searchParams ? await searchParams : {};
+  const initialFilters = {
+    search: getParamValue(params.search) || "",
+    page: Number(getParamValue(params.page) || 1),
+    city: getParamValue(params.city) || "all",
+    quality: getParamValue(params.quality) || "all",
+    sort: getParamValue(params.sort) || "newest",
+    rating: getParamValue(params.rating) || "all",
+  };
+
+  return (
+    <div className="flex-1 space-y-6">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+        <div className="space-y-1">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-orange-600">
+            Admin Workspace
+          </p>
+          <h2 className="text-2xl font-semibold tracking-tight text-slate-950 md:text-3xl">
+            Destinasi Wisata
+          </h2>
+          <p className="max-w-3xl text-sm text-slate-600">
+            Kelola kualitas data destinasi, media, lokasi, dan tindakan operasional dari satu halaman.
+          </p>
+        </div>
       </div>
+
+      <DestinationsTable initialFilters={initialFilters} />
     </div>
   );
 }

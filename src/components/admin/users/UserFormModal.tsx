@@ -1,25 +1,25 @@
 "use client";
 
 import React, { useState } from "react";
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Check, KeyRound, Shield, User } from "lucide-react";
+import { useForm, useWatch } from "react-hook-form";
+import { toast } from "sonner";
 import * as z from "zod";
+
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
-  DialogDescription,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { toast } from "sonner";
 import { adminUserService, AdminUser } from "@/services/admin/user.service";
-import { User, Shield, KeyRound, Check } from "lucide-react";
 
-// Zod schema
 const userFormSchema = z.object({
   name: z.string().min(2, "Nama minimal 2 karakter"),
   email: z.string().email("Format email tidak valid"),
@@ -37,17 +37,16 @@ interface UserFormModalProps {
   initialData?: AdminUser | null;
 }
 
-const STEPS = [
-  { label: "Informasi Dasar", icon: User },
-  { label: "Role & Status", icon: Shield },
+const steps = [
+  { label: "Profil", icon: User },
+  { label: "Akses", icon: Shield },
   { label: "Keamanan", icon: KeyRound },
 ];
 
 export function UserFormModal({ open, onOpenChange, onSuccess, initialData }: UserFormModalProps) {
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const isEditing = !!initialData;
+  const isEditing = Boolean(initialData);
 
   const {
     register,
@@ -55,8 +54,8 @@ export function UserFormModal({ open, onOpenChange, onSuccess, initialData }: Us
     formState: { errors },
     trigger,
     reset,
-    watch,
     setValue,
+    control,
   } = useForm<UserFormValues>({
     resolver: zodResolver(userFormSchema),
     defaultValues: {
@@ -68,61 +67,57 @@ export function UserFormModal({ open, onOpenChange, onSuccess, initialData }: Us
     },
   });
 
-  const selectedRole = watch("role");
-  const selectedStatus = watch("status");
+  const selectedRole = useWatch({ control, name: "role" });
+  const selectedStatus = useWatch({ control, name: "status" });
+  const watchedName = useWatch({ control, name: "name" });
+  const watchedEmail = useWatch({ control, name: "email" });
+  const watchedPassword = useWatch({ control, name: "password" });
 
   React.useEffect(() => {
-    if (open) {
-      if (initialData) {
-        reset({
-          name: initialData.name,
-          email: initialData.email,
-          role: initialData.role,
-          status: initialData.status as "active" | "suspended",
-          password: "",
-        });
-      } else {
-        reset({
-          name: "",
-          email: "",
-          role: "USER",
-          status: "active",
-          password: "",
-        });
-      }
-      setStep(1);
+    if (!open) return;
+    if (initialData) {
+      reset({
+        name: initialData.name,
+        email: initialData.email,
+        role: initialData.role,
+        status: initialData.status as "active" | "suspended",
+        password: "",
+      });
+    } else {
+      reset({
+        name: "",
+        email: "",
+        role: "USER",
+        status: "active",
+        password: "",
+      });
     }
-  }, [open, initialData, reset]);
+  }, [initialData, open, reset]);
 
   const nextStep = async () => {
-    let isValid = false;
-    if (step === 1) {
-      isValid = await trigger(["name", "email"]);
-    } else if (step === 2) {
-      isValid = await trigger(["role", "status"]);
-    }
-    if (isValid) {
-      setStep((prev) => prev + 1);
-    }
-  };
-
-  const prevStep = () => {
-    setStep((prev) => prev - 1);
+    const fieldsToValidate =
+      step === 1 ? (["name", "email"] as const) : step === 2 ? (["role", "status"] as const) : [];
+    const valid = fieldsToValidate.length === 0 || (await trigger(fieldsToValidate));
+    if (valid) setStep((current) => Math.min(3, current + 1));
   };
 
   const onSubmit = async (data: UserFormValues) => {
     try {
       setIsSubmitting(true);
-
-      const payload: Record<string, string | undefined> = {
+      const payload: {
+        name: string;
+        email: string;
+        role: "ADMIN" | "USER";
+        status: "active" | "suspended";
+        password?: string;
+      } = {
         name: data.name,
         email: data.email,
         role: data.role,
         status: data.status,
       };
 
-      // Only include password if user entered one
-      if (data.password && data.password.length > 0) {
+      if (data.password) {
         payload.password = data.password;
       }
 
@@ -140,7 +135,7 @@ export function UserFormModal({ open, onOpenChange, onSuccess, initialData }: Us
     } catch (error: unknown) {
       const errMsg =
         (error as { response?: { data?: { message?: string } } })?.response?.data?.message ||
-        "Terjadi kesalahan";
+        "Terjadi kesalahan saat menyimpan pengguna";
       toast.error(errMsg);
     } finally {
       setIsSubmitting(false);
@@ -148,260 +143,298 @@ export function UserFormModal({ open, onOpenChange, onSuccess, initialData }: Us
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[520px] max-h-[85vh] overflow-y-auto">
+    <Dialog
+      open={open}
+      onOpenChange={(nextOpen) => {
+        onOpenChange(nextOpen);
+        if (!nextOpen) setStep(1);
+      }}
+    >
+      <DialogContent className="max-h-[88vh] overflow-y-auto sm:max-w-[680px]">
         <DialogHeader>
           <DialogTitle>{isEditing ? "Edit Pengguna" : "Tambah Pengguna"}</DialogTitle>
           <DialogDescription>
-            Langkah {step} dari 3: {STEPS[step - 1]?.label}
+            {isEditing
+              ? "Perbarui profil, role, status, atau password pengguna."
+              : "Buat akun baru dengan role dan status akses yang sesuai."}
           </DialogDescription>
         </DialogHeader>
 
-        {/* Step Indicator */}
-        <div className="flex items-center justify-center gap-2 py-2">
-          {STEPS.map((s, i) => {
-            const StepIcon = s.icon;
-            const stepNum = i + 1;
-            const isActive = step === stepNum;
-            const isCompleted = step > stepNum;
-
-            return (
-              <React.Fragment key={stepNum}>
-                {i > 0 && (
-                  <div
-                    className={`h-px w-8 transition-colors ${
-                      isCompleted ? "bg-primary" : "bg-muted"
-                    }`}
-                  />
-                )}
+        <div className="rounded-[1.5rem] border border-orange-200 bg-[#fff3ea] p-4">
+          <div className="grid gap-3 sm:grid-cols-3">
+            {steps.map((item, index) => {
+              const stepNumber = index + 1;
+              const Icon = item.icon;
+              const active = step === stepNumber;
+              const completed = step > stepNumber;
+              return (
                 <div
-                  className={`flex items-center justify-center h-9 w-9 rounded-full border-2 transition-all ${
-                    isActive
-                      ? "border-primary bg-primary text-primary-foreground"
-                      : isCompleted
-                      ? "border-primary bg-primary/10 text-primary"
-                      : "border-muted bg-muted/50 text-muted-foreground"
+                  key={item.label}
+                  className={`rounded-2xl border p-3 transition ${
+                    active
+                      ? "border-[#ff7b54] bg-white shadow-sm"
+                      : "border-white/80 bg-white/60"
                   }`}
                 >
-                  {isCompleted ? (
-                    <Check className="h-4 w-4" />
-                  ) : (
-                    <StepIcon className="h-4 w-4" />
+                  <div className="flex items-center gap-3">
+                    <div
+                      className={`flex h-9 w-9 items-center justify-center rounded-full ${
+                        active || completed
+                          ? "bg-[#ff7b54] text-white"
+                          : "bg-slate-100 text-slate-500"
+                      }`}
+                    >
+                      {completed ? <Check className="h-4 w-4" /> : <Icon className="h-4 w-4" />}
+                    </div>
+                    <div>
+                      <p className="text-xs font-black uppercase tracking-[0.12em] text-slate-500">
+                        Langkah {stepNumber}
+                      </p>
+                      <p className="text-sm font-extrabold text-slate-950">{item.label}</p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="space-y-5 py-2">
+          {step === 1 && (
+            <div className="grid gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="name">Nama lengkap</Label>
+                <Input
+                  id="name"
+                  {...register("name")}
+                  className="h-12 rounded-2xl border-slate-200 focus-visible:ring-[#ff7b54]"
+                  placeholder="Contoh: Siti Rahma"
+                />
+                {errors.name && <p className="text-sm font-medium text-rose-600">{errors.name.message}</p>}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  {...register("email")}
+                  className="h-12 rounded-2xl border-slate-200 focus-visible:ring-[#ff7b54]"
+                  placeholder="nama@email.com"
+                />
+                {errors.email && <p className="text-sm font-medium text-rose-600">{errors.email.message}</p>}
+              </div>
+            </div>
+          )}
+
+          {step === 2 && (
+            <div className="space-y-5">
+              <FieldGroup title="Role" description="Pilih level akses yang dibutuhkan pengguna.">
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <ChoiceCard
+                    selected={selectedRole === "USER"}
+                    title="User"
+                    description="Akses fitur publik seperti eksplorasi, favorit, dan ulasan."
+                    tone="blue"
+                    onClick={() => setValue("role", "USER")}
+                  />
+                  <ChoiceCard
+                    selected={selectedRole === "ADMIN"}
+                    title="Admin"
+                    description="Akses penuh ke dashboard operasional dan data platform."
+                    tone="orange"
+                    onClick={() => setValue("role", "ADMIN")}
+                  />
+                </div>
+              </FieldGroup>
+
+              <FieldGroup title="Status akun" description="Atur apakah akun dapat login ke platform.">
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <ChoiceCard
+                    selected={selectedStatus === "active"}
+                    title="Aktif"
+                    description="Pengguna bisa login dan memakai fitur platform."
+                    tone="emerald"
+                    onClick={() => setValue("status", "active")}
+                  />
+                  <ChoiceCard
+                    selected={selectedStatus === "suspended"}
+                    title="Ditangguhkan"
+                    description="Akun dinonaktifkan sementara dari akses platform."
+                    tone="rose"
+                    onClick={() => setValue("status", "suspended")}
+                  />
+                </div>
+              </FieldGroup>
+            </div>
+          )}
+
+          {step === 3 && (
+            <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_16rem]">
+              <div className="rounded-[1.5rem] border border-slate-200 bg-white p-4">
+                <div className="mb-4 flex items-start gap-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-orange-50 text-[#ff7b54]">
+                    <KeyRound className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h4 className="font-black text-slate-950">
+                      {isEditing ? "Reset password" : "Set password"}
+                    </h4>
+                    <p className="mt-1 text-sm font-medium leading-6 text-slate-500">
+                      {isEditing
+                        ? "Kosongkan field ini jika password tidak perlu diubah."
+                        : "Password wajib minimal 6 karakter untuk akun baru."}
+                    </p>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="password">Password baru</Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    {...register("password")}
+                    className="h-12 rounded-2xl border-slate-200 focus-visible:ring-[#ff7b54]"
+                    placeholder="Minimal 6 karakter"
+                  />
+                  {errors.password && (
+                    <p className="text-sm font-medium text-rose-600">{errors.password.message}</p>
                   )}
                 </div>
-              </React.Fragment>
-            );
-          })}
+              </div>
+
+              <div className="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-4">
+                <p className="text-xs font-black uppercase tracking-[0.16em] text-[#ff7b54]">
+                  Ringkasan
+                </p>
+                <div className="mt-4 space-y-3 text-sm">
+                  <SummaryRow label="Nama" value={watchedName || "-"} />
+                  <SummaryRow label="Email" value={watchedEmail || "-"} />
+                  <SummaryRow label="Role" value={selectedRole === "ADMIN" ? "Admin" : "User"} />
+                  <SummaryRow
+                    label="Status"
+                    value={selectedStatus === "active" ? "Aktif" : "Ditangguhkan"}
+                  />
+                  <SummaryRow label="Password" value={watchedPassword ? "Diubah" : "Tidak diubah"} />
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
-        <div className="space-y-6 py-4">
-          {/* STEP 1 — Basic Info */}
-          <div className={step === 1 ? "space-y-4" : "hidden"}>
-            <div className="space-y-2">
-              <Label htmlFor="name">
-                Nama Lengkap <span className="text-destructive">*</span>
-              </Label>
-              <Input
-                id="name"
-                {...register("name")}
-                placeholder="Contoh: John Doe"
-              />
-              {errors.name && (
-                <p className="text-sm text-destructive">{errors.name.message}</p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="email">
-                Email <span className="text-destructive">*</span>
-              </Label>
-              <Input
-                id="email"
-                type="email"
-                {...register("email")}
-                placeholder="contoh@email.com"
-              />
-              {errors.email && (
-                <p className="text-sm text-destructive">{errors.email.message}</p>
-              )}
-            </div>
-          </div>
-
-          {/* STEP 2 — Role & Status */}
-          <div className={step === 2 ? "space-y-4" : "hidden"}>
-            {/* Role Selection */}
-            <div className="space-y-2">
-              <Label>Role</Label>
-              <div className="grid grid-cols-2 gap-3">
-                {(["USER", "ADMIN"] as const).map((role) => (
-                  <button
-                    key={role}
-                    type="button"
-                    onClick={() => setValue("role", role)}
-                    className={`rounded-lg border-2 p-4 text-left transition-all cursor-pointer ${
-                      selectedRole === role
-                        ? "border-primary bg-primary/5"
-                        : "border-muted hover:border-muted-foreground/30"
-                    }`}
-                  >
-                    <div className="flex items-center gap-2">
-                      <div
-                        className={`h-3 w-3 rounded-full ${
-                          role === "ADMIN" ? "bg-purple-500" : "bg-blue-500"
-                        }`}
-                      />
-                      <span className="font-semibold text-sm">{role}</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {role === "ADMIN"
-                        ? "Akses penuh ke semua fitur admin"
-                        : "Akses pengguna biasa"}
-                    </p>
-                  </button>
-                ))}
-              </div>
-              {errors.role && (
-                <p className="text-sm text-destructive">{errors.role.message}</p>
-              )}
-            </div>
-
-            {/* Status Selection */}
-            <div className="space-y-2">
-              <Label>Status Akun</Label>
-              <div className="grid grid-cols-2 gap-3">
-                {(
-                  [
-                    { value: "active", label: "Aktif", color: "bg-green-500" },
-                    { value: "suspended", label: "Ditangguhkan", color: "bg-red-500" },
-                  ] as const
-                ).map((opt) => (
-                  <button
-                    key={opt.value}
-                    type="button"
-                    onClick={() => setValue("status", opt.value)}
-                    className={`rounded-lg border-2 p-4 text-left transition-all cursor-pointer ${
-                      selectedStatus === opt.value
-                        ? "border-primary bg-primary/5"
-                        : "border-muted hover:border-muted-foreground/30"
-                    }`}
-                  >
-                    <div className="flex items-center gap-2">
-                      <div className={`h-3 w-3 rounded-full ${opt.color}`} />
-                      <span className="font-semibold text-sm">{opt.label}</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {opt.value === "active"
-                        ? "Pengguna dapat login dan mengakses platform"
-                        : "Akun dinonaktifkan, tidak dapat login"}
-                    </p>
-                  </button>
-                ))}
-              </div>
-              {errors.status && (
-                <p className="text-sm text-destructive">{errors.status.message}</p>
-              )}
-            </div>
-          </div>
-
-          {/* STEP 3 — Security (Password) */}
-          <div className={step === 3 ? "space-y-4" : "hidden"}>
-            <div className="p-4 bg-muted/50 rounded-lg border">
-              <h4 className="font-medium mb-1 flex items-center gap-2">
-                <KeyRound className="h-4 w-4" />
-                {isEditing ? "Reset Password" : "Set Password"}
-              </h4>
-              <p className="text-xs text-muted-foreground mb-3">
-                {isEditing
-                  ? "Kosongkan jika tidak ingin mengubah password."
-                  : "Masukkan password untuk akun baru (minimal 6 karakter)."}
-              </p>
-              <div className="space-y-2">
-                <Label htmlFor="password">Password Baru</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  {...register("password")}
-                  placeholder="Minimal 6 karakter"
-                />
-                {errors.password && (
-                  <p className="text-sm text-destructive">{errors.password.message}</p>
-                )}
-              </div>
-            </div>
-
-            {/* Summary Preview */}
-            <div className="p-4 bg-muted/50 rounded-lg border">
-              <h4 className="font-medium mb-3">Ringkasan</h4>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Nama</span>
-                  <span className="font-medium">{watch("name") || "-"}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Email</span>
-                  <span className="font-medium">{watch("email") || "-"}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Role</span>
-                  <span
-                    className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold ${
-                      selectedRole === "ADMIN"
-                        ? "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300"
-                        : "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
-                    }`}
-                  >
-                    {selectedRole}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Status</span>
-                  <span
-                    className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold ${
-                      selectedStatus === "active"
-                        ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300"
-                        : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300"
-                    }`}
-                  >
-                    {selectedStatus === "active" ? "Aktif" : "Ditangguhkan"}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Password</span>
-                  <span className="font-medium text-muted-foreground">
-                    {watch("password") ? "••••••" : "Tidak diubah"}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Footer */}
-          <DialogFooter className="flex justify-between sm:justify-between items-center w-full">
-            <div className="flex gap-2">
-              <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
-                Batal
+        <DialogFooter className="flex-col-reverse gap-2 sm:flex-row sm:justify-between">
+          <Button
+            type="button"
+            variant="outline"
+            className="rounded-full"
+            onClick={() => onOpenChange(false)}
+            disabled={isSubmitting}
+          >
+            Batal
+          </Button>
+          <div className="flex gap-2">
+            {step > 1 && (
+              <Button
+                type="button"
+                variant="outline"
+                className="rounded-full"
+                onClick={() => setStep((current) => Math.max(1, current - 1))}
+                disabled={isSubmitting}
+              >
+                Kembali
               </Button>
-            </div>
-            <div className="flex gap-2">
-              {step > 1 && (
-                <Button variant="outline" onClick={prevStep} disabled={isSubmitting}>
-                  Kembali
-                </Button>
-              )}
-              {step < 3 ? (
-                <Button onClick={nextStep}>Selanjutnya</Button>
-              ) : (
-                <Button
-                  onClick={handleSubmit(onSubmit)}
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? "Menyimpan..." : "Simpan Pengguna"}
-                </Button>
-              )}
-            </div>
-          </DialogFooter>
-        </div>
+            )}
+            {step < 3 ? (
+              <Button
+                type="button"
+                className="rounded-full bg-[#ff7b54] text-white hover:bg-[#f0653f]"
+                onClick={nextStep}
+              >
+                Selanjutnya
+              </Button>
+            ) : (
+              <Button
+                type="button"
+                className="rounded-full bg-[#ff7b54] text-white hover:bg-[#f0653f]"
+                onClick={handleSubmit(onSubmit)}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Menyimpan..." : "Simpan Pengguna"}
+              </Button>
+            )}
+          </div>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+function FieldGroup({
+  title,
+  description,
+  children,
+}: {
+  title: string;
+  description: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-[1.5rem] border border-slate-200 bg-white p-4">
+      <h4 className="font-black text-slate-950">{title}</h4>
+      <p className="mt-1 text-sm font-medium text-slate-500">{description}</p>
+      <div className="mt-4">{children}</div>
+    </div>
+  );
+}
+
+function ChoiceCard({
+  selected,
+  title,
+  description,
+  tone,
+  onClick,
+}: {
+  selected: boolean;
+  title: string;
+  description: string;
+  tone: "orange" | "blue" | "emerald" | "rose";
+  onClick: () => void;
+}) {
+  const color = {
+    orange: "bg-[#ff7b54]",
+    blue: "bg-[#2d82b5]",
+    emerald: "bg-emerald-500",
+    rose: "bg-rose-500",
+  }[tone];
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`min-h-[7rem] rounded-3xl border p-4 text-left transition focus:outline-none focus:ring-2 focus:ring-[#ff7b54]/30 ${
+        selected ? "border-[#ff7b54] bg-orange-50/70 shadow-sm" : "border-slate-200 bg-white hover:bg-slate-50"
+      }`}
+    >
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <span className={`h-3 w-3 rounded-full ${color}`} />
+          <span className="font-black text-slate-950">{title}</span>
+        </div>
+        {selected && (
+          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#ff7b54] text-white">
+            <Check className="h-3.5 w-3.5" />
+          </span>
+        )}
+      </div>
+      <p className="mt-3 text-sm font-medium leading-6 text-slate-500">{description}</p>
+    </button>
+  );
+}
+
+function SummaryRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-start justify-between gap-3">
+      <span className="text-slate-500">{label}</span>
+      <span className="max-w-[9rem] truncate text-right font-extrabold text-slate-900">{value}</span>
+    </div>
   );
 }

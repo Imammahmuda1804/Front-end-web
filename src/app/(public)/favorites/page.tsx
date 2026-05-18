@@ -1,5 +1,12 @@
-import { redirect } from 'next/navigation';
+import { Metadata } from 'next';
+
+import ProfileClient from '@/components/profile/ProfileClient';
+
+export const metadata: Metadata = {
+  title: 'Favorit Saya - RANAHINSIGHT',
+  description: 'Kelola dan bandingkan destinasi favorit Anda',
+};
 
 export default function FavoritesPage() {
-  redirect('/profile');
+  return <ProfileClient initialView="favorites" />;
 }

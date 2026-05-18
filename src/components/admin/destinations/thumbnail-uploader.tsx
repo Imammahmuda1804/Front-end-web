@@ -1,6 +1,7 @@
 import React, { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { X, UploadCloud, Link as LinkIcon } from "lucide-react";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -13,16 +14,8 @@ interface ThumbnailUploaderProps {
 export function ThumbnailUploader({ onFileChange, onUrlChange, currentThumbnailUrl }: ThumbnailUploaderProps) {
   const [preview, setPreview] = useState<string | null>(currentThumbnailUrl || null);
   const [fileName, setFileName] = useState<string | null>(null);
-  const [urlInput, setUrlInput] = useState<string>("");
+  const [urlInput, setUrlInput] = useState<string>(currentThumbnailUrl?.startsWith('http') ? currentThumbnailUrl : "");
   const [mode, setMode] = useState<"upload" | "url">("upload");
-
-  React.useEffect(() => {
-    setPreview(currentThumbnailUrl || null);
-    setFileName(null);
-    if (currentThumbnailUrl && currentThumbnailUrl.startsWith('http')) {
-      setUrlInput(currentThumbnailUrl);
-    }
-  }, [currentThumbnailUrl]);
 
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
@@ -82,19 +75,22 @@ export function ThumbnailUploader({ onFileChange, onUrlChange, currentThumbnailU
   return (
     <div className="space-y-3">
       {preview ? (
-        <div className="relative group rounded-lg overflow-hidden border bg-muted max-w-xs">
-          <img
+        <div className="relative group rounded-lg overflow-hidden border bg-muted max-w-xs h-48">
+          <Image
             src={getFullImageUrl(preview)}
             alt="Thumbnail preview"
-            className="w-full h-48 object-cover"
+            fill
+            sizes="320px"
+            className="object-cover"
           />
-          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+          <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
             <Button
               variant="destructive"
               size="icon"
-              className="h-8 w-8 rounded-full"
+              className="h-11 w-11 rounded-full"
               onClick={removeFile}
               type="button"
+              aria-label="Hapus thumbnail"
             >
               <X className="h-4 w-4" />
             </Button>
@@ -135,7 +131,7 @@ export function ThumbnailUploader({ onFileChange, onUrlChange, currentThumbnailU
                 isDragActive ? "border-primary bg-primary/10" : "border-border hover:border-primary/50"
               }`}
             >
-              <input {...getInputProps()} />
+              <input {...getInputProps({ "aria-label": "Upload thumbnail destinasi" })} />
               <UploadCloud className="mx-auto h-10 w-10 text-muted-foreground mb-3" />
               <p className="text-sm font-medium">Pilih gambar cover</p>
               <p className="text-xs text-muted-foreground mt-1">JPG, PNG, WEBP (1 gambar)</p>
@@ -151,6 +147,7 @@ export function ThumbnailUploader({ onFileChange, onUrlChange, currentThumbnailU
                   value={urlInput}
                   onChange={(e) => setUrlInput(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleUrlSubmit())}
+                  aria-label="URL thumbnail destinasi"
                 />
               </div>
               <Button type="button" size="sm" onClick={handleUrlSubmit} className="w-full">

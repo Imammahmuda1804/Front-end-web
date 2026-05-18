@@ -1,7 +1,7 @@
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Star, MapPin } from 'lucide-react';
+import { Star } from 'lucide-react';
 import Link from 'next/link';
 
 interface Destination {
@@ -19,16 +19,17 @@ interface TopDestinationsListProps {
 
 export default function TopDestinationsList({ destinations }: TopDestinationsListProps) {
   return (
-    <Card className="bg-white border-none shadow-sm rounded-[24px] overflow-hidden">
-      <CardHeader className="pb-4 flex flex-row items-center justify-between">
+    <Card className="overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white py-0 shadow-sm">
+      <CardHeader className="flex flex-row items-start justify-between border-b border-slate-100 p-6">
         <div>
-          <CardTitle className="text-lg font-bold text-slate-900">Top Destinations</CardTitle>
+          <CardTitle className="text-lg font-black text-slate-950">Destinasi Teratas</CardTitle>
+          <CardDescription className="mt-1 font-semibold">Ranking berdasarkan skor rekomendasi.</CardDescription>
         </div>
-        <Link href="/admin/destinations" className="text-xs font-semibold text-slate-500 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-full transition-colors flex items-center gap-1">
-          All List
+        <Link href="/admin/destinations" className="flex min-h-9 items-center gap-1 rounded-full bg-slate-100 px-3 text-xs font-black text-slate-600 transition-colors hover:bg-primary hover:text-white">
+          Semua
         </Link>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-6">
         {destinations && destinations.length > 0 ? (
           <div className="space-y-4">
             {destinations.map((dest, i) => (
@@ -42,9 +43,9 @@ export default function TopDestinationsList({ destinations }: TopDestinationsLis
                     <Link href={`/admin/destinations/${dest.id}`} className="font-bold text-slate-800 group-hover:text-primary transition-colors text-sm line-clamp-1">
                       {dest.name}
                     </Link>
-                    <div className="flex items-center gap-1.5 text-xs text-emerald-600 font-medium mt-0.5">
+                    <div className="mt-0.5 flex items-center gap-1.5 text-xs font-bold text-emerald-600">
                       <Star className="w-3 h-3 fill-emerald-600" />
-                      {(dest.recommendationScore ?? 0).toFixed(1)} Score
+                      {Math.round((dest.recommendationScore ?? 0) * 100)} skor
                     </div>
                   </div>
                 </div>
@@ -55,8 +56,8 @@ export default function TopDestinationsList({ destinations }: TopDestinationsLis
             ))}
           </div>
         ) : (
-          <div className="py-8 text-center text-slate-400 text-sm">
-            No destination data available
+          <div className="rounded-3xl border border-dashed border-slate-200 py-8 text-center text-sm font-bold text-slate-400">
+            Data destinasi belum tersedia.
           </div>
         )}
       </CardContent>

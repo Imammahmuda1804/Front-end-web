@@ -11,16 +11,13 @@ interface TopTopicsChartProps {
 }
 
 export default function TopTopicsChart({ topics }: TopTopicsChartProps) {
-  // Define a nice color palette for the bars
-  const colors = ['#f97316', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6'];
-
   return (
-    <Card className="bg-white border-none shadow-sm rounded-[24px]">
-      <CardHeader className="pb-6">
-        <CardTitle className="text-lg font-bold text-slate-900">Top Topic Clusters</CardTitle>
-        <CardDescription>Most frequently discussed topics across all destinations</CardDescription>
+    <Card className="rounded-[1.75rem] border border-slate-200 bg-white py-0 shadow-sm">
+      <CardHeader className="border-b border-slate-100 p-6">
+        <CardTitle className="text-xl font-black text-slate-950">Topik Paling Sering Dibahas</CardTitle>
+        <CardDescription className="mt-1 font-semibold">Topik dominan dari ulasan lintas destinasi.</CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-6">
         {topics && topics.length > 0 ? (
           <div className="h-[250px] w-full">
             <ResponsiveContainer width="100%" height="100%">
@@ -36,12 +33,12 @@ export default function TopTopicsChart({ topics }: TopTopicsChartProps) {
                   type="category" 
                   axisLine={false} 
                   tickLine={false}
-                  tick={{ fill: '#64748b', fontSize: 13, fontWeight: 500 }}
+                  tick={{ fill: '#334155', fontSize: 12, fontWeight: 800 }}
                   width={100}
                 />
                 <Tooltip 
                   cursor={{ fill: '#f8fafc' }}
-                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                  contentStyle={{ borderRadius: '14px', border: '1px solid #e2e8f0', boxShadow: '0 18px 35px -25px rgb(15 23 42 / 0.35)', fontSize: '12px' }}
                 />
                 <Bar dataKey="count" radius={[12, 12, 12, 12]} barSize={20}>
                   {topics.map((entry, index) => (
@@ -52,8 +49,8 @@ export default function TopTopicsChart({ topics }: TopTopicsChartProps) {
             </ResponsiveContainer>
           </div>
         ) : (
-          <div className="h-[250px] flex items-center justify-center text-slate-400 text-sm">
-            No topic data available
+          <div className="flex h-[250px] items-center justify-center rounded-3xl border border-dashed border-slate-200 text-sm font-bold text-slate-400">
+            Data topik belum tersedia.
           </div>
         )}
       </CardContent>

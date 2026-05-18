@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import { isAxiosError } from 'axios';
 import { api } from '@/lib/axios';
 import { toast } from 'sonner';
 
@@ -17,6 +18,19 @@ const registerSchema = z.object({
 });
 
 type RegisterFormValues = z.infer<typeof registerSchema>;
+
+interface ApiErrorResponse {
+  message?: string | string[];
+}
+
+function getErrorMessage(error: unknown, fallback: string) {
+  if (!isAxiosError<ApiErrorResponse>(error)) {
+    return fallback;
+  }
+
+  const message = error.response?.data?.message;
+  return Array.isArray(message) ? message.join(', ') : message || fallback;
+}
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -41,12 +55,7 @@ export default function RegisterPage() {
       toast.success('Pendaftaran berhasil! Silakan login untuk memulai.');
       router.push('/login');
     } catch (error: unknown) {
-      const err = error as any;
-      const messages = err.response?.data?.message;
-      const errorMsg = Array.isArray(messages) 
-        ? messages.join(', ') 
-        : (messages || 'Gagal mendaftar. Silakan coba lagi.');
-      toast.error(errorMsg);
+      toast.error(getErrorMessage(error, 'Gagal mendaftar. Silakan coba lagi.'));
     } finally {
       setIsLoading(false);
     }
@@ -178,10 +187,13 @@ export default function RegisterPage() {
       {/* Kanan: Image Section */}
       <section className="hidden lg:block lg:w-1/2 relative z-10 pb-16">
         <div className="w-full h-full relative rounded-bl-[100px] overflow-hidden shadow-2xl">
-          <img
-            className="w-full h-full object-cover"
+          <Image
+            className="object-cover"
             alt="Ilustrasi Wisata Sumatera Barat"
             src="/images/auth-bg.jpg"
+            fill
+            sizes="50vw"
+            priority
           />
           
           {/* Overlay Logo */}
@@ -192,7 +204,7 @@ export default function RegisterPage() {
 
           {/* AI Info Cards */}
           <div className="absolute bottom-24 right-10 z-20 bg-white border border-slate-200 p-5 rounded-2xl shadow-xl">
-            <p className="text-slate-500 font-bold text-xs uppercase tracking-wider mb-1">Sentimen Positif</p>
+            <p className="text-slate-500 font-bold text-xs uppercase tracking-wider mb-1">Contoh Sentimen</p>
             <div className="flex items-center justify-end gap-3">
               <p className="text-slate-700 font-medium text-sm max-w-[100px] text-right leading-tight">Wisatawan sangat puas</p>
               <div className="w-12 h-12 rounded-full border-4 border-primary border-t-transparent flex items-center justify-center bg-white shadow-sm">
@@ -202,7 +214,7 @@ export default function RegisterPage() {
           </div>
           
           <div className="absolute top-1/3 left-10 z-20 bg-white border border-slate-200 p-5 rounded-2xl shadow-xl text-left">
-             <p className="text-slate-500 font-bold text-xs uppercase tracking-wider mb-1">Topik Populer</p>
+             <p className="text-slate-500 font-bold text-xs uppercase tracking-wider mb-1">Contoh Topik</p>
              <p className="text-slate-900 font-black text-xl mb-1">Alam & Budaya</p>
              <p className="text-slate-600 font-medium text-sm">Rekomendasi AI teratas</p>
           </div>

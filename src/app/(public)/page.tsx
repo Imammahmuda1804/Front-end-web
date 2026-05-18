@@ -6,9 +6,13 @@ import { BentoGrid } from '@/components/home/BentoGrid';
 // Revalidate this page every 60 seconds
 export const revalidate = 60;
 
+function getServerApiUrl() {
+  return process.env.API_INTERNAL_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+}
+
 async function getRecommendations() {
   try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+    const apiUrl = getServerApiUrl();
     const res = await fetch(`${apiUrl}/api/destinations/recommendations?limit=7`, {
       next: { revalidate: 60 },
     });

@@ -2,18 +2,37 @@
 
 import * as React from 'react';
 import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { MapPin, Star, Sparkles, Navigation, ArrowLeft, Image as ImageIcon, MessageSquare, TrendingUp, ThumbsUp, Heart } from 'lucide-react';
+import { motion, useReducedMotion } from 'framer-motion';
+import {
+  ArrowLeft,
+  AlertTriangle,
+  CheckCircle2,
+  ExternalLink,
+  Heart,
+  Image as ImageIcon,
+  Images,
+  MapPin,
+  MessageSquare,
+  Navigation,
+  PlayCircle,
+  Route,
+  Sparkles,
+  Star,
+  ThumbsUp,
+  TrendingUp,
+} from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import {
-  AreaChart,
-  Area,
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Legend,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer
 } from 'recharts';
 import dayjs from 'dayjs';
 import 'dayjs/locale/id';
@@ -21,6 +40,9 @@ import 'dayjs/locale/id';
 import { api } from '@/lib/axios';
 import { useAuthStore } from '@/store/auth.store';
 import { getImageUrl } from '@/lib/utils';
+import TopicInsightSection from './TopicInsightSection';
+import ReviewFormSection from './ReviewFormSection';
+import { toast } from 'sonner';
 
 dayjs.locale('id');
 
@@ -40,17 +62,18 @@ interface SentimentTrend {
 
 interface DestinationTopic {
   id: number;
+  totalReviews?: number;
   topic: {
     id: number;
-    topic_name: string;
-    keywords: string[];
+    topicName: string;
+    keywords: string[] | null;
   };
 }
 
 interface UserReview {
   id: number;
   rating: number;
-  content: string;
+  reviewText: string | null;
   createdAt: string;
   user: {
     id: number;
@@ -69,9 +92,11 @@ interface DestinationDetail {
   latitude: number;
   longitude: number;
   googleMapsUrl: string;
+  youtubeUrl?: string | null;
   thumbnailUrl: string;
   thumbnail_url?: string;
   googleRating: number | null;
+  googleReviewCount: number | null;
   userRating: number | null;
   positiveRatio: number | null;
   recommendationScore: number | null;
@@ -83,442 +108,805 @@ interface DestinationDetail {
   totalUserReviews: number;
   scrapedAverageRating: number | null;
   scrapedReviewCount: number | null;
+  topicSentimentBreakdown?: Record<number, { positive: number; negative: number; neutral: number }>;
 }
 
 interface Props {
   destination: DestinationDetail;
 }
 
+type ChartRow = {
+  name: string;
+  Positif: number;
+  Netral: number;
+  Negatif: number;
+  total: number;
+};
+
+function getYouTubeEmbedUrl(url?: string | null) {
+  if (!url) return null;
+
+  try {
+    const parsed = new URL(url);
+    const host = parsed.hostname.replace(/^www\./, '');
+    let videoId = '';
+
+    if (host === 'youtu.be') {
+      videoId = parsed.pathname.split('/').filter(Boolean)[0] || '';
+    } else if (host === 'youtube.com' || host === 'm.youtube.com' || host === 'music.youtube.com') {
+      if (parsed.pathname.startsWith('/watch')) {
+        videoId = parsed.searchParams.get('v') || '';
+      } else if (parsed.pathname.startsWith('/shorts/') || parsed.pathname.startsWith('/embed/')) {
+        videoId = parsed.pathname.split('/').filter(Boolean)[1] || '';
+      }
+    }
+
+    return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
+  } catch {
+    return null;
+  }
+}
+
+function cleanTopicName(name?: string) {
+  const cleaned = name?.replace(/^Topic \d+:\s*/, '').trim();
+  return cleaned || 'Topik perjalanan';
+}
+
+function formatPercent(value: number | null) {
+  return value !== null ? `${Math.round(value * 100)}%` : 'N/A';
+}
+
+function formatScore(value: number | null) {
+  return value !== null ? Math.round(value * 100) : null;
+}
+
+function ratingText(value: number | null | undefined) {
+  return value ? value.toFixed(1) : '-';
+}
+
 export default function DestinationDetailClient({ destination }: Props) {
-  const [activeTab, setActiveTab] = useState<'overview' | 'gallery' | 'reviews'>('overview');
   const [isFavorite, setIsFavorite] = useState(false);
   const [savingFavorite, setSavingFavorite] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const [activeSection, setActiveSection] = useState('ringkasan');
+  const [galleryOpen, setGalleryOpen] = useState(false);
   const { isAuthenticated } = useAuthStore();
+  const router = useRouter();
+  const reduceMotion = useReducedMotion();
 
   React.useEffect(() => {
-    if (isAuthenticated) {
-      checkFavoriteStatus();
-    }
-  }, [isAuthenticated, destination.id]);
+    if (!isAuthenticated) return;
 
-  const checkFavoriteStatus = async () => {
-    try {
-      const res = await api.get('/api/favorites?limit=100');
-      const favorites = res.data.data;
-      const found = favorites.some((f: any) => f.destination.id === destination.id);
-      setIsFavorite(found);
-    } catch (error) {
-      console.error('Failed to check favorite status', error);
-    }
-  };
+    let cancelled = false;
+    void (async () => {
+      try {
+        const res = await api.get(`/api/favorites/check/${destination.id}`);
+        if (!cancelled) {
+          setIsFavorite(res.data.data?.isFavorite || res.data.isFavorite || false);
+        }
+      } catch (error) {
+        console.error('Failed to check favorite status', error);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isAuthenticated, destination.id]);
 
   const toggleFavorite = async () => {
     if (!isAuthenticated) {
-      window.location.href = '/login';
+      router.push('/login');
       return;
     }
-    
+
     setSavingFavorite(true);
     try {
       if (isFavorite) {
         await api.delete(`/api/favorites/${destination.id}`);
         setIsFavorite(false);
+        toast.success('Destinasi dihapus dari favorit');
       } else {
         await api.post(`/api/favorites/${destination.id}`);
         setIsFavorite(true);
+        toast.success('Destinasi ditambahkan ke favorit');
       }
     } catch (error) {
       console.error('Failed to toggle favorite', error);
+      toast.error('Gagal memperbarui favorit');
     } finally {
       setSavingFavorite(false);
     }
   };
 
-  // Format tags
-  const tags = destination.destinationTopics.map(dt => {
+  const tags = destination.destinationTopics.map((dt) => {
+    const name = cleanTopicName(dt.topic.topicName);
+    if (name !== 'Topik perjalanan') return name;
     if (dt.topic.keywords && dt.topic.keywords.length > 0) {
       return dt.topic.keywords.slice(0, 2).join(', ');
     }
-    return dt.topic.topic_name.replace(/Topic \d+: /, '');
+    return name;
   });
 
-  // Safe Image Array including Thumbnail
-  const thumbUrl = destination.thumbnailUrl || destination.thumbnail_url ? getImageUrl(destination.thumbnailUrl || destination.thumbnail_url) : null;
+  const thumbUrl = destination.thumbnailUrl || destination.thumbnail_url
+    ? getImageUrl(destination.thumbnailUrl || destination.thumbnail_url)
+    : null;
+
   const allImages = React.useMemo(() => {
-    const list = [...destination.images.map(img => getImageUrl(img.imageUrl))];
+    const list = destination.images.map((img) => getImageUrl(img.imageUrl));
     if (thumbUrl && !list.includes(thumbUrl)) {
       list.unshift(thumbUrl);
     }
     return list;
   }, [destination.images, thumbUrl]);
 
-  // Format Sentiment Data for Chart
-  const chartData = destination.sentimentTrends.map(trend => ({
-    date: dayjs(trend.date).format('DD MMM'),
-    ratio: Number((trend.positiveRatio * 100).toFixed(0)),
-    positive: trend.positiveCount,
-    negative: trend.negativeCount
-  }));
+  const barChartData: ChartRow[] = Object.entries(destination.topicSentimentBreakdown || {})
+    .map(([topicId, data]) => {
+      const topic = destination.destinationTopics.find((dt) => dt.topic?.id?.toString() === topicId)?.topic;
+      const name = cleanTopicName(topic?.topicName).split(' ').slice(0, 2).join(' ');
+      const total = data.positive + data.negative + data.neutral;
+      if (total === 0) return null;
 
-  // Stats
+      return {
+        name,
+        Positif: Math.round((data.positive / total) * 100),
+        Netral: Math.round((data.neutral / total) * 100),
+        Negatif: Math.round((data.negative / total) * 100),
+        total,
+      };
+    })
+    .filter((item): item is ChartRow => Boolean(item))
+    .sort((a, b) => b.total - a.total)
+    .slice(0, 6);
+
   const googleRating = destination.googleRating || 0;
   const googleCount = destination.googleReviewCount || 0;
-  
-  const scrapedRating = destination.scrapedAverageRating || 0;
-  const scrapedCount = destination.scrapedReviewCount || 0;
+  const platformRating = destination.averageUserRating ?? destination.userRating ?? 0;
+  const platformCount = destination.totalUserReviews ?? 0;
+  const positivePercentage = formatPercent(destination.positiveRatio);
+  const aiScore = formatScore(destination.recommendationScore);
+  const youtubeEmbedUrl = getYouTubeEmbedUrl(destination.youtubeUrl);
+  const reviewPreview = destination.userReviews.slice(0, 3);
+  const hasMapsUrl = Boolean(destination.googleMapsUrl?.trim());
+  const heroDescription = destination.description
+    || 'Deskripsi belum tersedia untuk destinasi ini. Gunakan insight ulasan, galeri, dan lokasi untuk membantu memilih rencana perjalanan.';
+  const navItems = React.useMemo<[string, string][]>(() => [
+    ['#ringkasan', 'Ringkasan'],
+    ['#vibe', 'Vibe & Sentimen'],
+    ...(destination.youtubeUrl ? ([['#trailer', 'Trailer']] as [string, string][]) : []),
+    ['#galeri', 'Galeri'],
+    ['#ulasan', 'Ulasan'],
+  ], [destination.youtubeUrl]);
 
-  const positivePercentage = destination.positiveRatio !== null ? (destination.positiveRatio * 100).toFixed(0) : 'N/A';
+  const topicHighlights = React.useMemo(() => {
+    const rows = Object.entries(destination.topicSentimentBreakdown || {})
+      .map(([topicId, data]) => {
+        const topic = destination.destinationTopics.find((dt) => dt.topic?.id?.toString() === topicId);
+        const total = data.positive + data.negative + data.neutral;
+        const positiveRatio = total > 0 ? data.positive / total : 0;
+        const negativeRatio = total > 0 ? data.negative / total : 0;
+
+        return {
+          name: cleanTopicName(topic?.topic.topicName),
+          total,
+          positiveRatio,
+          negativeRatio,
+        };
+      })
+      .filter((row) => row.total > 0);
+
+    return {
+      topPositive: [...rows].sort((a, b) => b.positiveRatio - a.positiveRatio || b.total - a.total)[0],
+      mostDiscussed: [...rows].sort((a, b) => b.total - a.total)[0],
+      needsCheck: [...rows].sort((a, b) => b.negativeRatio - a.negativeRatio || b.total - a.total)[0],
+    };
+  }, [destination.destinationTopics, destination.topicSentimentBreakdown]);
+
+  React.useEffect(() => {
+    const sectionIds = navItems.map(([href]) => href.replace('#', ''));
+    const sections = sectionIds
+      .map((id) => document.getElementById(id))
+      .filter((section): section is HTMLElement => Boolean(section));
+
+    if (sections.length === 0) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+
+        if (visible?.target.id) {
+          setActiveSection(visible.target.id);
+        }
+      },
+      { rootMargin: '-35% 0px -55% 0px', threshold: [0.1, 0.35, 0.6] },
+    );
+
+    sections.forEach((section) => observer.observe(section));
+
+    return () => observer.disconnect();
+  }, [navItems]);
+
+  const motionProps = reduceMotion
+    ? { initial: false, animate: undefined, transition: undefined }
+    : { initial: { opacity: 0, y: 18 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.45 } };
 
   return (
-    <div className="min-h-screen bg-slate-50 pt-20 pb-24">
-      {/* Container */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        {/* Navigation Bar */}
-        <motion.div 
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="py-6 flex items-center justify-between"
+    <main id="main-content" className="min-h-screen bg-slate-50 pt-20 pb-20">
+      <div className="mx-auto max-w-[100rem] px-4 sm:px-6 lg:px-8">
+        <motion.nav
+          {...motionProps}
+          className="flex flex-col gap-3 py-6 sm:flex-row sm:items-center sm:justify-between"
+          aria-label="Navigasi detail destinasi"
         >
-          <Link href="/search" className="inline-flex items-center text-sm font-bold text-slate-500 hover:text-primary transition-colors bg-white px-4 py-2 rounded-full shadow-sm border border-slate-100">
-            <ArrowLeft className="w-4 h-4 mr-2" />
+          <Link
+            href="/search"
+            className="inline-flex min-h-11 w-fit items-center gap-2 rounded-full border border-orange-200 bg-white px-4 py-2 text-sm font-extrabold text-slate-700 shadow-sm shadow-orange-100/50 transition-all hover:-translate-y-0.5 hover:border-primary hover:text-primary focus:outline-none focus:ring-4 focus:ring-primary/15"
+          >
+            <ArrowLeft className="h-4 w-4" />
             Kembali ke Pencarian
           </Link>
-          
-          <div className="flex gap-2">
-            <button 
-              onClick={toggleFavorite}
-              disabled={savingFavorite}
-              className={`p-2 rounded-full shadow-sm border transition-colors ${
-                isFavorite 
-                  ? 'bg-red-50 border-red-100 text-red-500' 
-                  : 'bg-white border-slate-100 text-slate-400 hover:text-red-500 hover:bg-red-50'
-              }`}
-            >
-              <Heart className={`w-5 h-5 ${isFavorite ? 'fill-red-500' : ''}`} />
-            </button>
-            <button className="bg-white p-2 rounded-full shadow-sm border border-slate-100 hover:text-primary transition-colors">
-              <Star className="w-5 h-5 text-slate-400" />
-            </button>
-          </div>
-        </motion.div>
 
-        {/* Hero Section */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="relative h-[60vh] min-h-[400px] rounded-3xl overflow-hidden shadow-2xl mb-8 group"
+          <button
+            onClick={toggleFavorite}
+            disabled={savingFavorite}
+            aria-label={isFavorite ? 'Hapus dari favorit' : 'Tambahkan ke favorit'}
+            className={`inline-flex min-h-11 w-fit items-center gap-2 rounded-full border px-4 py-2 text-sm font-extrabold shadow-sm transition-all focus:outline-none focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60 ${
+              isFavorite
+                ? 'border-red-200 bg-red-50 text-red-600'
+                : 'border-slate-200 bg-white text-slate-600 hover:-translate-y-0.5 hover:border-red-200 hover:bg-red-50 hover:text-red-500'
+            }`}
+          >
+            <Heart className={`h-4 w-4 ${isFavorite ? 'fill-red-500' : ''}`} />
+            {isFavorite ? 'Favorit' : 'Simpan'}
+          </button>
+        </motion.nav>
+
+        <motion.section
+          {...motionProps}
+          className="overflow-hidden rounded-[2rem] border border-orange-200 bg-orange-50/60 shadow-xl shadow-orange-100/50"
+          aria-labelledby="destination-title"
         >
-          <Image 
-            src={thumbUrl || '/images/auth-bg.jpg'} 
-            alt={destination.name}
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover transform group-hover:scale-105 transition-transform duration-1000 ease-out"
-          />
-          {/* Gradient Overlays */}
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/40 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-r from-slate-900/50 to-transparent" />
-          
-          {/* AI Match Badge */}
-          {destination.recommendationScore !== null && (
-            <div className="absolute top-6 left-6 bg-primary/90 px-4 py-2 rounded-full flex items-center shadow-lg">
-              <Sparkles className="w-4 h-4 text-orange-300 mr-2" />
-              <span className="text-white font-bold text-sm tracking-wide">
-                AI MATCH SCORE <span className="ml-2 bg-white text-slate-900 px-2 py-0.5 rounded-full">{(destination.recommendationScore * 100).toFixed(0)}</span>
-              </span>
-            </div>
-          )}
-
-          {/* Hero Content */}
-          <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12">
-            <div className="flex flex-wrap gap-2 mb-4">
-              {tags.slice(0, 3).map((tag, idx) => (
-                <span key={idx} className="bg-primary/90 text-white text-xs font-bold px-3 py-1 rounded-md uppercase tracking-wider">
-                  #{tag}
-                </span>
-              ))}
-            </div>
-            <h1 className="text-4xl md:text-6xl font-black text-white mb-2 leading-tight">
-              {destination.name}
-            </h1>
-            <p className="flex items-center text-lg md:text-xl text-slate-200 font-medium">
-              <MapPin className="w-5 h-5 mr-2 text-primary" />
-              {destination.city}, {destination.province}
-            </p>
-          </div>
-        </motion.div>
-
-        {/* Quick Stats Bar */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-12"
-        >
-          {/* Google Maps Rating */}
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex items-center justify-between">
-            <div>
-              <p className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-1">Google Maps</p>
-              <div className="flex items-end">
-                <span className="text-3xl font-black text-slate-900 mr-2">{googleRating.toFixed(1)}</span>
-                <span className="text-sm font-medium text-slate-500 mb-1">/ 5.0</span>
-              </div>
-              <p className="text-xs text-slate-400 mt-1">{googleCount} ulasan asli</p>
-            </div>
-            <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center">
-              <Star className="w-6 h-6 text-blue-500 fill-blue-500" />
-            </div>
-          </div>
-
-          {/* Scraped Rating */}
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex items-center justify-between">
-            <div>
-              <p className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-1">Rating Scraping</p>
-              <div className="flex items-end">
-                <span className="text-3xl font-black text-slate-900 mr-2">{scrapedRating.toFixed(1)}</span>
-                <span className="text-sm font-medium text-slate-500 mb-1">/ 5.0</span>
-              </div>
-              <p className="text-xs text-slate-400 mt-1">{scrapedCount} ulasan dianalisis</p>
-            </div>
-            <div className="w-12 h-12 rounded-full bg-orange-50 flex items-center justify-center">
-              <Star className="w-6 h-6 text-orange-500 fill-orange-500" />
-            </div>
-          </div>
-
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex items-center justify-between">
-            <div>
-              <p className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-1">Rasio Positif</p>
-              <div className="flex items-end">
-                <span className="text-3xl font-black text-emerald-500 mr-2">{positivePercentage}%</span>
+          <div className="grid gap-0 lg:grid-cols-[minmax(0,1.12fr)_minmax(26rem,0.88fr)]">
+            <div className="relative min-h-[21rem] overflow-hidden bg-slate-200 sm:min-h-[28rem] lg:min-h-[35rem]">
+              <Image
+                src={thumbUrl || '/images/auth-bg.jpg'}
+                alt={destination.name}
+                fill
+                priority
+                sizes="(max-width: 1024px) 100vw, 58vw"
+                className="object-cover"
+              />
+              <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-slate-950/45 to-transparent" />
+              <div className="absolute bottom-5 left-5 flex flex-wrap gap-2">
+                {tags.slice(0, 3).map((tag) => (
+                  <span key={tag} className="rounded-full bg-white px-3 py-1.5 text-xs font-extrabold text-slate-800 shadow-sm">
+                    {tag}
+                  </span>
+                ))}
               </div>
             </div>
-            <div className="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center">
-              <ThumbsUp className="w-6 h-6 text-emerald-500" />
+
+            <div className="flex flex-col justify-between gap-8 p-6 sm:p-8 lg:p-10">
+              <div className="space-y-5">
+                <div className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-xs font-black uppercase tracking-[0.18em] text-white shadow-lg shadow-orange-200">
+                  <Sparkles className="h-4 w-4" />
+                  Destination Dossier
+                </div>
+
+                <div className="max-w-2xl">
+                  <h1 id="destination-title" className="text-4xl font-black leading-[0.98] tracking-tight text-slate-950 sm:text-5xl lg:text-6xl">
+                    {destination.name}
+                  </h1>
+                  <p className="mt-4 flex items-center gap-2 text-base font-bold text-slate-600 sm:text-lg">
+                    <MapPin className="h-5 w-5 text-primary" />
+                    {destination.city}, {destination.province}
+                  </p>
+                </div>
+
+                <p className="line-clamp-2 max-w-2xl text-base font-medium leading-8 text-slate-700">
+                  {heroDescription}
+                </p>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-3">
+                <MetricCard label="Skor AI" value={aiScore !== null ? String(aiScore) : 'N/A'} tone="orange" suffix={aiScore !== null ? '/100' : undefined} />
+                <MetricCard label="Sentimen positif" value={positivePercentage} tone="emerald" />
+                <MetricCard label="Rating Google" value={ratingText(googleRating)} tone="blue" suffix="/5" />
+              </div>
+
+              <div className="flex flex-col gap-3 sm:flex-row">
+                {hasMapsUrl ? (
+                  <a
+                    href={destination.googleMapsUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-black text-white shadow-lg shadow-orange-200 transition-all hover:-translate-y-0.5 hover:bg-primary/90 focus:outline-none focus:ring-4 focus:ring-primary/20"
+                  >
+                    <Navigation className="h-4 w-4" />
+                    Buka Google Maps
+                  </a>
+                ) : (
+                  <div className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-full border border-slate-200 bg-slate-100 px-6 py-3 text-center text-sm font-black text-slate-500">
+                    <AlertTriangle className="h-4 w-4" />
+                    Maps belum tersedia
+                  </div>
+                )}
+                {destination.youtubeUrl && (
+                  <a
+                    href="#trailer"
+                    className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-sky-200 bg-white px-6 py-3 text-sm font-black text-[#2D82B5] shadow-sm transition-all hover:-translate-y-0.5 hover:border-[#2D82B5] focus:outline-none focus:ring-4 focus:ring-sky-100"
+                  >
+                    <PlayCircle className="h-4 w-4" />
+                    Lihat Trailer
+                  </a>
+                )}
+              </div>
             </div>
           </div>
+        </motion.section>
 
-          <a href={destination.googleMapsUrl} target="_blank" rel="noopener noreferrer" className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex items-center justify-between group hover:border-primary/50 transition-colors">
-            <div>
-              <p className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-1">Lokasi</p>
-              <span className="text-lg font-bold text-slate-900 group-hover:text-primary transition-colors">Buka Google Maps</span>
-            </div>
-            <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center group-hover:bg-primary/10 transition-colors">
-              <Navigation className="w-6 h-6 text-blue-500 group-hover:text-primary" />
-            </div>
-          </a>
-        </motion.div>
-
-        {/* Main Content Tabs */}
-        <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
-          <div role="tablist" className="flex border-b border-slate-100 overflow-x-auto hide-scrollbar">
-            <button 
-              role="tab"
-              aria-selected={activeTab === 'overview'}
-              aria-controls="panel-overview"
-              onClick={() => setActiveTab('overview')}
-              className={`flex-shrink-0 px-8 py-5 text-sm font-bold uppercase tracking-wider border-b-2 transition-colors ${activeTab === 'overview' ? 'border-primary text-primary' : 'border-transparent text-slate-500 hover:text-slate-900'}`}
-            >
-              Overview
-            </button>
-            <button 
-              role="tab"
-              aria-selected={activeTab === 'gallery'}
-              aria-controls="panel-gallery"
-              onClick={() => setActiveTab('gallery')}
-              className={`flex-shrink-0 flex items-center px-8 py-5 text-sm font-bold uppercase tracking-wider border-b-2 transition-colors ${activeTab === 'gallery' ? 'border-primary text-primary' : 'border-transparent text-slate-500 hover:text-slate-900'}`}
-            >
-              <ImageIcon className="w-4 h-4 mr-2" />
-              Galeri ({allImages.length})
-            </button>
-            <button 
-              role="tab"
-              aria-selected={activeTab === 'reviews'}
-              aria-controls="panel-reviews"
-              onClick={() => setActiveTab('reviews')}
-              className={`flex-shrink-0 flex items-center px-8 py-5 text-sm font-bold uppercase tracking-wider border-b-2 transition-colors ${activeTab === 'reviews' ? 'border-primary text-primary' : 'border-transparent text-slate-500 hover:text-slate-900'}`}
-            >
-              <MessageSquare className="w-4 h-4 mr-2" />
-              Ulasan ({destination.totalUserReviews})
-            </button>
-          </div>
-
-          <div className="p-8 md:p-12">
-            
-            {/* OVERVIEW TAB */}
-            {activeTab === 'overview' && (
-              <motion.div id="panel-overview" role="tabpanel" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-                
-                {/* Description */}
-                <div className="lg:col-span-2 space-y-8">
-                  <div>
-                    <h3 className="text-2xl font-black text-slate-900 mb-4">Tentang Destinasi</h3>
-                    <p className="text-slate-600 leading-relaxed text-lg">
-                      {destination.description || 'Deskripsi belum tersedia untuk destinasi ini. Kami terus memperbarui data untuk memberikan informasi terbaik bagi perjalanan Anda.'}
-                    </p>
-                  </div>
-
-                  <div>
-                    <h3 className="text-2xl font-black text-slate-900 mb-4">Vibe & Suasana</h3>
-                    <div className="flex flex-wrap gap-3">
-                      {destination.destinationTopics.map(dt => (
-                        <div key={dt.id} className="bg-slate-50 border border-slate-200 px-4 py-2 rounded-xl">
-                          <span className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Topik</span>
-                          <span className="text-slate-800 font-bold capitalize">
-                            {dt.topic.keywords && dt.topic.keywords.length > 0 ? dt.topic.keywords.join(', ') : dt.topic.topic_name}
-                          </span>
-                        </div>
-                      ))}
-                      {destination.destinationTopics.length === 0 && (
-                        <p className="text-slate-500 italic">Belum ada topik khusus yang teridentifikasi.</p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Sentiment Trend Sidebar */}
-                <div className="lg:col-span-1">
-                  <div className="bg-slate-50 rounded-3xl p-6 border border-slate-100">
-                    <div className="flex items-center mb-6">
-                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mr-3">
-                        <TrendingUp className="w-5 h-5 text-primary" />
-                      </div>
-                      <div>
-                        <h3 className="font-black text-slate-900">Tren Sentimen</h3>
-                        <p className="text-xs text-slate-500 font-medium">30 Hari Terakhir</p>
-                      </div>
-                    </div>
-                    
-                    {chartData.length > 0 ? (
-                      <div className="h-48 w-full">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <AreaChart data={chartData} margin={{ top: 5, right: 0, left: -20, bottom: 0 }}>
-                            <defs>
-                              <linearGradient id="colorRatio" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
-                                <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
-                              </linearGradient>
-                            </defs>
-                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                            <XAxis 
-                              dataKey="date" 
-                              axisLine={false} 
-                              tickLine={false} 
-                              tick={{ fontSize: 10, fill: '#94a3b8', fontWeight: 600 }} 
-                              minTickGap={15}
-                            />
-                            <YAxis 
-                              axisLine={false} 
-                              tickLine={false} 
-                              tick={{ fontSize: 10, fill: '#94a3b8', fontWeight: 600 }} 
-                              domain={[0, 100]}
-                              tickFormatter={(val) => `${val}%`}
-                            />
-                            <Tooltip 
-                              contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                              labelStyle={{ fontWeight: 'bold', color: '#0f172a', marginBottom: '4px' }}
-                            />
-                            <Area 
-                              type="monotone" 
-                              dataKey="ratio" 
-                              name="Positif (%)" 
-                              stroke="#10b981" 
-                              strokeWidth={3}
-                              fillOpacity={1} 
-                              fill="url(#colorRatio)" 
-                            />
-                          </AreaChart>
-                        </ResponsiveContainer>
-                      </div>
-                    ) : (
-                      <div className="h-48 w-full flex items-center justify-center border-2 border-dashed border-slate-200 rounded-2xl">
-                        <p className="text-sm text-slate-400 font-medium">Data tren belum tersedia</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </motion.div>
-            )}
-
-            {/* GALLERY TAB */}
-            {activeTab === 'gallery' && (
-              <motion.div id="panel-gallery" role="tabpanel" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 grid-rows-[auto]">
-                  {allImages.length > 0 ? allImages.map((img, idx) => (
-                    <div key={idx} className={`relative rounded-2xl overflow-hidden group shadow-sm ${idx === 0 ? 'md:col-span-2 md:row-span-2 aspect-video' : 'aspect-square'}`}>
-                      <Image 
-                        src={img} 
-                        alt={`${destination.name} ${idx + 1}`}
-                        fill
-                        sizes={idx === 0 ? '(max-width: 768px) 100vw, 66vw' : '(max-width: 768px) 100vw, 33vw'}
-                        className="object-cover transform group-hover:scale-110 transition-transform duration-700"
-                      />
-                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300" />
-                    </div>
-                  )) : (
-                    <div className="col-span-full py-12 text-center">
-                      <ImageIcon className="w-12 h-12 text-slate-300 mx-auto mb-4" />
-                      <p className="text-slate-500 font-medium">Belum ada foto tambahan untuk destinasi ini.</p>
-                    </div>
-                  )}
-                </div>
-              </motion.div>
-            )}
-
-            {/* REVIEWS TAB */}
-            {activeTab === 'reviews' && (
-              <motion.div id="panel-reviews" role="tabpanel" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="max-w-3xl mx-auto">
-                <div className="flex items-center justify-between mb-8">
-                  <h3 className="text-2xl font-black text-slate-900">Ulasan Wisatawan</h3>
-                  <div className="bg-slate-100 px-4 py-2 rounded-full font-bold text-slate-700">
-                    {destination.totalUserReviews} Ulasan
-                  </div>
-                </div>
-
-                <div className="space-y-6">
-                  {destination.userReviews.length > 0 ? destination.userReviews.map(review => (
-                    <div key={review.id} className="bg-slate-50 rounded-2xl p-6 border border-slate-100">
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center">
-                          <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold mr-3 overflow-hidden">
-                            {review.user.profilePicture ? (
-                              <Image src={review.user.profilePicture} alt={review.user.name} width={40} height={40} className="w-full h-full object-cover" />
-                            ) : (
-                              review.user.name.charAt(0).toUpperCase()
-                            )}
-                          </div>
-                          <div>
-                            <p className="font-bold text-slate-900">{review.user.name}</p>
-                            <p className="text-xs text-slate-500 font-medium">{dayjs(review.createdAt).format('DD MMMM YYYY')}</p>
-                          </div>
-                        </div>
-                        <div className="flex">
-                          {[...Array(5)].map((_, i) => (
-                            <Star key={i} className={`w-4 h-4 ${i < review.rating ? 'text-orange-400 fill-orange-400' : 'text-slate-300 fill-slate-300'}`} />
-                          ))}
-                        </div>
-                      </div>
-                      <p className="text-slate-700 leading-relaxed">
-                        {review.content}
-                      </p>
-                    </div>
-                  )) : (
-                    <div className="py-12 text-center bg-slate-50 rounded-3xl border border-dashed border-slate-200">
-                      <MessageSquare className="w-12 h-12 text-slate-300 mx-auto mb-4" />
-                      <h4 className="text-lg font-bold text-slate-900 mb-2">Belum ada ulasan</h4>
-                      <p className="text-slate-500 font-medium">Jadilah yang pertama mengulas destinasi ini!</p>
-                    </div>
-                  )}
-                </div>
-              </motion.div>
-            )}
-
+        <div className="sticky top-16 z-20 -mx-4 mt-5 border-y border-orange-100 bg-slate-50 px-4 py-3 sm:top-20 sm:mx-0 sm:rounded-full sm:border sm:bg-white sm:px-5 sm:shadow-sm">
+          <div className="flex gap-2 overflow-x-auto">
+            {navItems.map(([href, label]) => {
+              const isActive = activeSection === href.replace('#', '');
+              return (
+              <a
+                key={href}
+                href={href}
+                aria-current={isActive ? 'true' : undefined}
+                className={`inline-flex min-h-10 shrink-0 items-center rounded-full px-4 text-sm font-extrabold transition-colors focus:outline-none focus:ring-4 focus:ring-primary/15 ${
+                  isActive
+                    ? 'bg-orange-100 text-primary'
+                    : 'text-slate-600 hover:bg-orange-50 hover:text-primary'
+                }`}
+              >
+                {label}
+              </a>
+              );
+            })}
           </div>
         </div>
 
+        <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
+          <div className="space-y-6">
+            <section id="ringkasan" className="scroll-mt-32 rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+              <SectionHeader
+                eyebrow="Kenapa cocok dikunjungi"
+                title="Sinyal praktis sebelum menentukan rute"
+                description={heroDescription}
+              />
+
+              <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                <InfoTile icon={Star} label="Trust rating" value={`${googleRating.toFixed(1)} / 5`} helper={`${googleCount} ulasan Google`} tone="blue" />
+                <InfoTile icon={Sparkles} label="Vibe dominan" value={positivePercentage} helper="Porsi sentimen positif" tone="emerald" />
+                <InfoTile icon={ThumbsUp} label="Social proof" value={platformRating ? `${platformRating.toFixed(1)} / 5` : '-'} helper={`${platformCount} ulasan pengguna`} tone="orange" />
+                <InfoTile icon={Route} label="Akses lokasi" value={hasMapsUrl ? 'Siap dibuka' : 'Perlu dicek'} helper={`${destination.city}, ${destination.province}`} tone="slate" />
+              </div>
+            </section>
+
+            <section id="vibe" className="scroll-mt-32 rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+              <SectionHeader
+                eyebrow="Vibe Intelligence"
+                title="Topik yang paling sering muncul"
+                description="Lihat aspek yang sering dibicarakan wisatawan, lalu buka contoh ulasan untuk membaca konteksnya."
+              />
+              <div className="mt-6">
+                <TopicInsightSection
+                  destinationId={destination.id}
+                  topics={destination.destinationTopics.map((dt) => ({
+                    id: dt.id,
+                    totalReviews: dt.totalReviews || 0,
+                    topic: {
+                      id: dt.topic.id,
+                      topicName: dt.topic.topicName,
+                      keywords: dt.topic.keywords as string[] | null,
+                    },
+                  }))}
+                  sentimentBreakdown={destination.topicSentimentBreakdown || {}}
+                />
+              </div>
+            </section>
+
+            {destination.youtubeUrl && (
+              <section id="trailer" className="scroll-mt-32 overflow-hidden rounded-[1.75rem] border border-orange-200 bg-orange-50/70 shadow-sm">
+                <div className="flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
+                  <SectionHeader
+                    eyebrow="Trailer"
+                    title="Tonton gambaran suasana destinasi"
+                    description="Gunakan video sebagai preview cepat sebelum membuka maps atau menyusun rute."
+                  />
+                  <a
+                    href={destination.youtubeUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-full border border-orange-200 bg-white px-5 py-2.5 text-sm font-black text-primary shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary focus:outline-none focus:ring-4 focus:ring-primary/15"
+                  >
+                    Buka YouTube
+                    <ExternalLink className="h-4 w-4" />
+                  </a>
+                </div>
+
+                {youtubeEmbedUrl ? (
+                  <div className="aspect-video w-full bg-slate-900">
+                    <iframe
+                      src={youtubeEmbedUrl}
+                      title={`Trailer ${destination.name}`}
+                      className="h-full w-full"
+                      loading="lazy"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      allowFullScreen
+                    />
+                  </div>
+                ) : (
+                  <div className="border-t border-orange-100 bg-white/70 px-6 py-8 text-center">
+                    <p className="text-sm font-semibold text-slate-600">
+                      Video tidak dapat ditampilkan langsung, tetapi tautan YouTube tetap tersedia.
+                    </p>
+                  </div>
+                )}
+              </section>
+            )}
+
+            <section id="galeri" className="scroll-mt-32 rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+              <SectionHeader
+                eyebrow="Galeri"
+                title="Preview visual destinasi"
+                description="Foto membantu membaca suasana, akses, dan karakter tempat secara cepat."
+              />
+
+              <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                {allImages.length > 0 ? allImages.slice(0, 5).map((img, idx) => (
+                  <div
+                    key={`${img}-${idx}`}
+                    className={`group relative overflow-hidden rounded-3xl border border-slate-200 bg-slate-100 shadow-sm ${
+                      idx === 0 ? 'aspect-[16/10] sm:col-span-2 lg:row-span-2 lg:aspect-auto' : 'aspect-[4/3]'
+                    }`}
+                  >
+                    <Image
+                      src={img}
+                      alt={`${destination.name} ${idx + 1}`}
+                      fill
+                      sizes={idx === 0 ? '(max-width: 1024px) 100vw, 50vw' : '(max-width: 1024px) 50vw, 25vw'}
+                      className="object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                    {idx === 4 && allImages.length > 5 && (
+                      <button
+                        type="button"
+                        onClick={() => setGalleryOpen(true)}
+                        className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-slate-950/55 text-white transition-colors hover:bg-slate-950/65 focus:outline-none focus:ring-4 focus:ring-primary/30"
+                        aria-label={`Lihat semua ${allImages.length} foto ${destination.name}`}
+                      >
+                        <Images className="h-7 w-7" />
+                        <span className="text-sm font-black">Lihat semua foto</span>
+                        <span className="text-xs font-bold text-white/80">+{allImages.length - 5} foto lain</span>
+                      </button>
+                    )}
+                  </div>
+                )) : (
+                  <div className="col-span-full rounded-3xl border border-dashed border-slate-200 bg-slate-50 py-12 text-center">
+                    <ImageIcon className="mx-auto mb-3 h-10 w-10 text-slate-300" />
+                    <p className="font-bold text-slate-500">Belum ada foto tambahan untuk destinasi ini.</p>
+                  </div>
+                )}
+              </div>
+
+              {galleryOpen && (
+                <div className="mt-6 rounded-3xl border border-orange-100 bg-orange-50/60 p-4">
+                  <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <h3 className="text-lg font-black text-slate-950">Semua foto</h3>
+                      <p className="text-sm font-semibold text-slate-500">{allImages.length} foto tersedia</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setGalleryOpen(false)}
+                      className="inline-flex min-h-11 w-fit items-center justify-center rounded-full border border-orange-200 bg-white px-5 text-sm font-black text-primary focus:outline-none focus:ring-4 focus:ring-primary/15"
+                    >
+                      Tutup galeri
+                    </button>
+                  </div>
+                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                    {allImages.map((img, idx) => (
+                      <div key={`expanded-${img}-${idx}`} className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-white bg-slate-100">
+                        <Image
+                          src={img}
+                          alt={`${destination.name} galeri ${idx + 1}`}
+                          fill
+                          sizes="(max-width: 1024px) 50vw, 33vw"
+                          className="object-cover"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </section>
+
+            <section id="ulasan" className="scroll-mt-32 rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+              <SectionHeader
+                eyebrow="Ulasan"
+                title="Cerita wisatawan"
+                description="Baca pengalaman terbaru dan tambahkan ulasan Anda jika pernah mengunjungi destinasi ini."
+              />
+
+              <div className="mt-6 grid gap-4 lg:grid-cols-3">
+                {reviewPreview.length > 0 ? reviewPreview.map((review) => (
+                  <ReviewCard key={review.id} review={review} />
+                )) : (
+                  <div className="rounded-3xl border border-dashed border-slate-200 bg-slate-50 p-8 text-center lg:col-span-3">
+                    <MessageSquare className="mx-auto mb-3 h-10 w-10 text-slate-300" />
+                    <h3 className="text-lg font-black text-slate-900">Belum ada ulasan</h3>
+                    <p className="mt-1 text-sm font-semibold text-slate-500">Jadilah yang pertama mengulas destinasi ini.</p>
+                  </div>
+                )}
+              </div>
+
+              <ReviewFormSection
+                key={refreshKey}
+                destinationId={destination.id}
+                isAuthenticated={isAuthenticated}
+                onSuccess={async () => {
+                  await fetch('/api/revalidate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ tag: `destination-${destination.slug}` }),
+                  });
+                  setRefreshKey((prev) => prev + 1);
+                  router.refresh();
+                }}
+              />
+            </section>
+          </div>
+
+          <aside className="space-y-6 xl:sticky xl:top-32 xl:self-start">
+            <div className="rounded-[1.75rem] border border-sky-100 bg-white p-6 shadow-sm">
+              <div className="flex items-center gap-3">
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-sky-50 text-[#2D82B5]">
+                  <TrendingUp className="h-5 w-5" />
+                </div>
+                <div>
+                  <h2 className="font-black text-slate-950">Sentimen per topik</h2>
+                  <p className="text-xs font-bold text-slate-500">Insight cepat dari ulasan</p>
+                </div>
+              </div>
+
+              <div className="mt-5 space-y-3">
+                <InsightPill
+                  icon={CheckCircle2}
+                  label="Topik paling positif"
+                  value={topicHighlights.topPositive?.name || 'Belum tersedia'}
+                  helper={topicHighlights.topPositive ? `${Math.round(topicHighlights.topPositive.positiveRatio * 100)}% positif` : 'Butuh lebih banyak ulasan'}
+                  tone="emerald"
+                />
+                <InsightPill
+                  icon={MessageSquare}
+                  label="Paling dibahas"
+                  value={topicHighlights.mostDiscussed?.name || 'Belum tersedia'}
+                  helper={topicHighlights.mostDiscussed ? `${topicHighlights.mostDiscussed.total} ulasan terkait` : 'Topik belum cukup kuat'}
+                  tone="blue"
+                />
+                <InsightPill
+                  icon={AlertTriangle}
+                  label="Perlu dicek"
+                  value={topicHighlights.needsCheck?.name || 'Belum tersedia'}
+                  helper={topicHighlights.needsCheck ? `${Math.round(topicHighlights.needsCheck.negativeRatio * 100)}% catatan negatif` : 'Tidak ada catatan menonjol'}
+                  tone="amber"
+                />
+              </div>
+
+              {barChartData.length > 0 ? (
+                <>
+                  <h3 className="mt-6 text-sm font-black text-slate-900">Detail sentimen</h3>
+                  <p className="sr-only">
+                    Grafik menampilkan persentase sentimen positif, netral, dan negatif untuk topik utama destinasi.
+                  </p>
+                  <div className="mt-5 h-72 w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={barChartData} layout="vertical" margin={{ top: 0, right: 8, left: 0, bottom: 0 }} barSize={14}>
+                        <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e2e8f0" />
+                        <XAxis
+                          type="number"
+                          domain={[0, 100]}
+                          axisLine={false}
+                          tickLine={false}
+                          tick={{ fontSize: 10, fill: '#64748b', fontWeight: 700 }}
+                          tickFormatter={(val) => `${val}%`}
+                        />
+                        <YAxis
+                          type="category"
+                          dataKey="name"
+                          axisLine={false}
+                          tickLine={false}
+                          tick={{ fontSize: 11, fill: '#334155', fontWeight: 800 }}
+                          width={82}
+                        />
+                        <Tooltip
+                          contentStyle={{ borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 18px 35px -25px rgb(15 23 42 / 0.35)', fontSize: '12px' }}
+                          formatter={(value) => [`${value}%`]}
+                          cursor={{ fill: 'rgba(255, 123, 84, 0.08)' }}
+                        />
+                        <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: '11px', paddingTop: '8px', fontWeight: 700 }} />
+                        <Bar dataKey="Positif" stackId="a" fill="#10b981" />
+                        <Bar dataKey="Netral" stackId="a" fill="#94a3b8" />
+                        <Bar dataKey="Negatif" stackId="a" fill="#f43f5e" radius={[0, 6, 6, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </>
+              ) : (
+                <div className="mt-5 rounded-3xl border border-dashed border-slate-200 bg-slate-50 p-8 text-center">
+                  <TrendingUp className="mx-auto mb-3 h-8 w-8 text-slate-300" />
+                  <p className="text-sm font-bold text-slate-500">Data sentimen belum tersedia.</p>
+                </div>
+              )}
+            </div>
+
+            <div className="rounded-[1.75rem] border border-orange-200 bg-orange-50/70 p-6 shadow-sm">
+              <h2 className="text-lg font-black text-slate-950">Aksi cepat</h2>
+              <p className="mt-1 text-sm font-semibold leading-6 text-slate-600">
+                Buka lokasi, simpan destinasi, atau baca ulang insight yang paling relevan.
+              </p>
+              <div className="mt-5 space-y-3">
+                {hasMapsUrl ? (
+                  <a
+                    href={destination.googleMapsUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-black text-white shadow-lg shadow-orange-200 transition-all hover:-translate-y-0.5 focus:outline-none focus:ring-4 focus:ring-primary/20"
+                  >
+                    <Navigation className="h-4 w-4" />
+                    Google Maps
+                  </a>
+                ) : (
+                  <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-center text-sm font-black text-slate-500">
+                    Link Google Maps belum tersedia untuk destinasi ini.
+                  </div>
+                )}
+                <button
+                  onClick={toggleFavorite}
+                  disabled={savingFavorite}
+                  aria-label={isFavorite ? 'Hapus destinasi dari favorit' : 'Simpan destinasi ke favorit'}
+                  className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full border border-orange-200 bg-white px-5 py-3 text-sm font-black text-slate-700 transition-all hover:-translate-y-0.5 hover:text-primary focus:outline-none focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  <Heart className={`h-4 w-4 ${isFavorite ? 'fill-red-500 text-red-500' : ''}`} />
+                  {isFavorite ? 'Tersimpan' : 'Simpan destinasi'}
+                </button>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </main>
+  );
+}
+
+function SectionHeader({ eyebrow, title, description }: { eyebrow: string; title: string; description: string }) {
+  return (
+    <div className="max-w-3xl">
+      <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">{eyebrow}</p>
+      <h2 className="mt-2 text-2xl font-black tracking-tight text-slate-950 sm:text-3xl">{title}</h2>
+      <p className="mt-2 text-sm font-semibold leading-7 text-slate-600 sm:text-base">{description}</p>
+    </div>
+  );
+}
+
+function MetricCard({ label, value, suffix, tone }: { label: string; value: string; suffix?: string; tone: 'orange' | 'blue' | 'emerald' }) {
+  const toneClass = {
+    orange: 'border-orange-200 bg-white text-primary',
+    blue: 'border-sky-200 bg-white text-[#2D82B5]',
+    emerald: 'border-emerald-200 bg-white text-emerald-600',
+  }[tone];
+
+  return (
+    <div className={`rounded-3xl border p-4 shadow-sm ${toneClass}`}>
+      <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">{label}</p>
+      <div className="mt-2 flex items-end gap-1">
+        <span className="text-3xl font-black leading-none">{value}</span>
+        {suffix && <span className="text-sm font-black text-slate-500">{suffix}</span>}
       </div>
     </div>
+  );
+}
+
+function InfoTile({
+  icon: Icon,
+  label,
+  value,
+  helper,
+  tone,
+}: {
+  icon: React.ElementType;
+  label: string;
+  value: string;
+  helper: string;
+  tone: 'orange' | 'blue' | 'emerald' | 'slate';
+}) {
+  const toneClass = {
+    orange: 'bg-orange-50 text-primary border-orange-100',
+    blue: 'bg-sky-50 text-[#2D82B5] border-sky-100',
+    emerald: 'bg-emerald-50 text-emerald-600 border-emerald-100',
+    slate: 'bg-slate-50 text-slate-600 border-slate-200',
+  }[tone];
+
+  return (
+    <div className="rounded-3xl border border-slate-200 bg-slate-50/60 p-5">
+      <div className={`mb-4 flex h-11 w-11 items-center justify-center rounded-2xl border ${toneClass}`}>
+        <Icon className="h-5 w-5" />
+      </div>
+      <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">{label}</p>
+      <p className="mt-2 text-2xl font-black text-slate-950">{value}</p>
+      <p className="mt-1 text-xs font-bold text-slate-500">{helper}</p>
+    </div>
+  );
+}
+
+function InsightPill({
+  icon: Icon,
+  label,
+  value,
+  helper,
+  tone,
+}: {
+  icon: React.ElementType;
+  label: string;
+  value: string;
+  helper: string;
+  tone: 'emerald' | 'blue' | 'amber';
+}) {
+  const toneClass = {
+    emerald: 'bg-emerald-50 text-emerald-700 border-emerald-100',
+    blue: 'bg-sky-50 text-[#2D82B5] border-sky-100',
+    amber: 'bg-amber-50 text-amber-700 border-amber-100',
+  }[tone];
+
+  return (
+    <div className={`rounded-2xl border p-3 ${toneClass}`}>
+      <div className="flex items-start gap-3">
+        <Icon className="mt-0.5 h-4 w-4 shrink-0" />
+        <div className="min-w-0">
+          <p className="text-[11px] font-black uppercase tracking-[0.14em] opacity-80">{label}</p>
+          <p className="mt-1 truncate text-sm font-black text-slate-950">{value}</p>
+          <p className="text-xs font-bold opacity-80">{helper}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ReviewCard({ review }: { review: UserReview }) {
+  const profileSrc = review.user.profilePicture
+    ? review.user.profilePicture.startsWith('http')
+      ? review.user.profilePicture
+      : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}${review.user.profilePicture.startsWith('/') ? '' : '/'}${review.user.profilePicture}`
+    : null;
+
+  return (
+    <article className="rounded-3xl border border-slate-200 bg-slate-50/70 p-5">
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-orange-100 text-sm font-black text-primary">
+            {profileSrc ? (
+              <Image src={profileSrc} alt={review.user.name} width={44} height={44} className="h-full w-full object-cover" />
+            ) : (
+              review.user.name.charAt(0).toUpperCase()
+            )}
+          </div>
+          <div className="min-w-0">
+            <p className="truncate font-black text-slate-950">{review.user.name}</p>
+            <p className="text-xs font-bold text-slate-500">{dayjs(review.createdAt).format('DD MMMM YYYY')}</p>
+          </div>
+        </div>
+        <div className="flex shrink-0">
+          {[...Array(5)].map((_, i) => (
+            <Star key={i} className={`h-4 w-4 ${i < review.rating ? 'fill-orange-400 text-orange-400' : 'fill-slate-200 text-slate-200'}`} />
+          ))}
+        </div>
+      </div>
+      <p className="mt-4 line-clamp-4 text-sm font-medium leading-7 text-slate-700">
+        {review.reviewText || 'Pengguna memberikan rating tanpa menulis ulasan.'}
+      </p>
+    </article>
   );
 }

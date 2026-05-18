@@ -1,95 +1,115 @@
 'use client';
 
 import * as React from 'react';
-import { motion } from 'framer-motion';
-import { Sparkles, Map, ArrowRight } from 'lucide-react';
+import { motion, useReducedMotion } from 'framer-motion';
+import { ArrowRight, Compass, GitCompare, Map, UserPlus } from 'lucide-react';
 import Link from 'next/link';
 
+const easeOutExpo = [0.16, 1, 0.3, 1] as const;
+
+const reveal = {
+  hidden: { opacity: 0, y: 28 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.62, ease: easeOutExpo },
+  },
+};
+
+const stagger = {
+  hidden: {},
+  visible: {
+    transition: { staggerChildren: 0.1 },
+  },
+};
+
+const ctaPanels = [
+  {
+    icon: GitCompare,
+    title: 'Bandingkan vibe',
+    body: 'Letakkan beberapa destinasi berdampingan untuk melihat perbedaan sentimen dan topik utama.',
+  },
+  {
+    icon: Map,
+    title: 'Susun shortlist',
+    body: 'Gunakan hasil eksplorasi untuk memilih tempat yang paling cocok dengan gaya perjalanan Anda.',
+  },
+];
+
 export function BentoGrid() {
+  const prefersReduced = useReducedMotion();
+
   return (
-    <section className="py-32 bg-slate-900 text-white relative overflow-hidden">
-      {/* Decorative Background Elements */}
-      <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-primary/20 rounded-full blur-[120px] -mr-40 -mt-40 pointer-events-none will-change-transform"></div>
-      <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-secondary/20 rounded-full blur-[100px] -ml-20 -mb-20 pointer-events-none will-change-transform"></div>
-
-      <div className="max-w-7xl mx-auto px-6 md:px-12 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-[280px]">
-          
-          {/* Main Large Bento Box */}
-          <motion.div 
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="md:col-span-2 md:row-span-2 bg-gradient-to-br from-primary to-orange-700 rounded-[2.5rem] p-12 relative overflow-hidden flex flex-col justify-end group shadow-2xl"
+    <section className="bg-[#F7F8FA] py-24 md:py-32">
+      <div className="mx-auto max-w-7xl px-6 md:px-12">
+        <motion.div
+          variants={stagger}
+          initial={prefersReduced ? false : 'hidden'}
+          whileInView={prefersReduced ? undefined : 'visible'}
+          viewport={{ once: true, margin: '-80px' }}
+          className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]"
+        >
+          <motion.div
+            variants={reveal}
+            whileHover={prefersReduced ? undefined : { y: -4 }}
+            className="rounded-[2rem] border-4 border-white bg-slate-950 p-6 text-white shadow-2xl shadow-slate-900/15 md:p-10 lg:p-12"
           >
-            <div className="absolute top-10 right-10 opacity-20 transform group-hover:scale-110 group-hover:rotate-12 transition-transform duration-700">
-              <Sparkles className="w-48 h-48" strokeWidth={1} />
+            <div className="mb-8 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-slate-950">
+              <Compass className="h-7 w-7" />
             </div>
-            <div className="relative z-10">
-              <h4 className="text-5xl md:text-6xl font-black mb-6 tracking-tight leading-tight">Eksplorasi<br/>Tanpa Batas</h4>
-              <p className="text-white/80 text-xl max-w-md leading-relaxed">
-                Database kami mencakup ratusan destinasi tersembunyi dengan skor sentimen positif yang telah diverifikasi oleh AI.
-              </p>
+            <p className="mb-4 text-sm font-black uppercase tracking-[0.18em] text-primary">Mulai eksplorasi</p>
+            <h2 className="max-w-3xl text-4xl font-black leading-none tracking-tight text-white md:text-6xl">
+              Temukan destinasi yang cocok dengan rasa perjalanan Anda
+            </h2>
+            <p className="mt-6 max-w-2xl text-base font-semibold leading-8 text-slate-300 md:text-lg">
+              Baca pola ulasan, bandingkan vibe, lalu pilih destinasi yang cocok tanpa perlu
+              membuka terlalu banyak tab dan komentar satu per satu.
+            </p>
+
+            <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+              <Link
+                href="/search"
+                className="group inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-primary px-7 py-3 text-sm font-black text-slate-950 shadow-sm shadow-primary/20 transition-all hover:bg-primary/90 hover:shadow-md"
+              >
+                Mulai eksplorasi
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </Link>
+              <Link
+                href="/register"
+                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border-2 border-white bg-white px-7 py-3 text-sm font-black text-slate-900 transition-colors hover:bg-orange-50 hover:text-primary"
+              >
+                <UserPlus className="h-4 w-4" />
+                Buat akun
+              </Link>
             </div>
           </motion.div>
 
-          {/* Vibe Topics Box */}
-          <motion.div 
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="bg-slate-800/50 rounded-[2.5rem] p-10 flex flex-col justify-center border border-white/10 shadow-xl group hover:bg-slate-800 transition-colors"
-          >
-            <p className="font-bold text-slate-400 uppercase tracking-widest text-xs mb-4">Vibe Tersedia</p>
-            <div className="flex flex-wrap gap-2">
-              {['Culture', 'Nature', 'Gastronomy', 'Adventure', 'Healing'].map((vibe) => (
-                <span key={vibe} className="px-3 py-1.5 bg-white/10 border border-white/10 rounded-full text-sm font-bold text-white/80 hover:bg-primary/30 hover:text-white transition-colors cursor-default">
-                  #{vibe}
-                </span>
-              ))}
-            </div>
-          </motion.div>
+          <div className="grid gap-6">
+            {ctaPanels.map((panel, index) => {
+              const Icon = panel.icon;
 
-          {/* Map Link Box */}
-          <Link 
-            href="/search"
-            className="bg-white text-slate-900 rounded-[2.5rem] p-10 flex flex-col justify-between shadow-xl group hover:-translate-y-2 transition-transform duration-300"
-          >
-            <div className="w-16 h-16 bg-orange-100 rounded-2xl flex items-center justify-center text-primary mb-6 group-hover:scale-110 transition-transform">
-              <Map className="w-8 h-8" />
-            </div>
-            <div>
-              <h5 className="text-2xl font-black mb-4">Jelajahi Vibe</h5>
-              <span className="flex items-center gap-2 text-primary font-bold text-lg group-hover:gap-4 transition-all">
-                Mulai Pencarian <ArrowRight className="w-5 h-5" />
-              </span>
-            </div>
-          </Link>
-
-          {/* Call to Action Box */}
-          <motion.div 
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="md:col-span-3 bg-secondary rounded-[2.5rem] p-10 flex flex-col md:flex-row items-center justify-between shadow-2xl relative overflow-hidden"
-          >
-            <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent mix-blend-overlay"></div>
-            <div className="relative z-10 mb-8 md:mb-0">
-              <h4 className="text-3xl md:text-4xl font-black mb-2">Siap Temukan Vibe Anda?</h4>
-              <p className="text-white/80 text-lg">Mulai perjalanan emosional Anda hari ini.</p>
-            </div>
-            <Link 
-              href="/register"
-              className="relative z-10 bg-white text-secondary px-10 py-5 rounded-full font-black text-lg hover:bg-slate-100 hover:scale-105 transition-all shadow-xl"
-            >
-              Daftar Sekarang
-            </Link>
-          </motion.div>
-
-        </div>
+              return (
+                <motion.div
+                  key={panel.title}
+                  variants={reveal}
+                  whileHover={prefersReduced ? undefined : { y: -4, boxShadow: '0 18px 45px rgba(15, 23, 42, 0.10)' }}
+                  transition={{ duration: 0.32, delay: prefersReduced ? 0 : 0.05 * index, ease: easeOutExpo }}
+                  className={`rounded-[2rem] border-4 border-white p-6 shadow-xl md:p-8 ${
+                    index === 0 ? 'bg-primary text-slate-950 shadow-orange-900/10' : 'bg-secondary text-white shadow-blue-900/10'
+                  }`}
+                >
+                  <div className={`mb-6 flex h-12 w-12 items-center justify-center rounded-2xl ${
+                    index === 0 ? 'bg-slate-950 text-primary' : 'bg-white text-secondary'
+                  }`}>
+                    <Icon className="h-6 w-6" />
+                  </div>
+                  <h3 className="text-2xl font-black leading-none tracking-tight">{panel.title}</h3>
+                  <p className={`mt-4 text-sm font-semibold leading-7 ${index === 0 ? 'text-slate-800' : 'text-blue-50'}`}>{panel.body}</p>
+                </motion.div>
+              );
+            })}
+          </div>
+        </motion.div>
       </div>
     </section>
   );

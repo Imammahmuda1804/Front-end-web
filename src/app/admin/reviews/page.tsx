@@ -7,20 +7,46 @@ export const metadata: Metadata = {
     description: 'Kelola review dan lihat hasil analisis sentimen destinasi wisata',
 };
 
-export default function AdminReviewsPage() {
+type AdminReviewsPageProps = {
+    searchParams?: Promise<Record<string, string | string[] | undefined>>;
+};
+
+function getParamValue(value: string | string[] | undefined) {
+    return Array.isArray(value) ? value[0] : value;
+}
+
+export default async function AdminReviewsPage({ searchParams }: AdminReviewsPageProps) {
+    const params = searchParams ? await searchParams : {};
+    const initialFilters = {
+        destinationId: Number(getParamValue(params.destinationId) || 0) || null,
+        tab: getParamValue(params.tab) || 'reviews',
+        page: Number(getParamValue(params.page) || 1),
+        sentiment: getParamValue(params.sentiment) || '',
+        nlpStatus: getParamValue(params.nlp_status) || 'all',
+        dateFrom: getParamValue(params.date_from) || '',
+        dateTo: getParamValue(params.date_to) || '',
+        sort: getParamValue(params.sort) || 'newest',
+        topicId: getParamValue(params.topic_id) || '',
+        query: getParamValue(params.query) || '',
+    };
+
     return (
-        <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-            <div className="flex items-center justify-between space-y-2">
-                <h2 className="text-3xl font-bold tracking-tight">Manajemen Review & Analisis</h2>
+        <div className="flex-1 space-y-6">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                <div className="space-y-1">
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-orange-600">
+                        Admin Moderation
+                    </p>
+                    <h2 className="text-2xl font-semibold tracking-tight text-slate-950 md:text-3xl">
+                        Manajemen Review & Analisis
+                    </h2>
+                    <p className="max-w-3xl text-sm text-slate-600">
+                        Kelola review hasil scraping, pahami prioritas moderasi, dan baca analitik sentimen per destinasi.
+                    </p>
+                </div>
             </div>
 
-            <p className="text-muted-foreground">
-                Kelola data review yang telah di-scrape dan lihat hasil visualisasi analisis sentimen serta topik berdasarkan destinasi.
-            </p>
-
-            <div className="mt-6">
-                <AdminReviewsClient />
-            </div>
+            <AdminReviewsClient initialFilters={initialFilters} />
         </div>
     );
 }

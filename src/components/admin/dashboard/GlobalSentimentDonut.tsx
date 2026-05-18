@@ -13,20 +13,21 @@ interface GlobalSentimentDonutProps {
 
 export default function GlobalSentimentDonut({ distribution }: GlobalSentimentDonutProps) {
   const data = [
-    { name: 'Positive', value: distribution.positive, color: '#10b981' },
-    { name: 'Negative', value: distribution.negative, color: '#ef4444' },
-    { name: 'Neutral', value: distribution.neutral, color: '#cbd5e1' },
+    { name: 'Positif', value: distribution.positive, color: '#10b981' },
+    { name: 'Negatif', value: distribution.negative, color: '#f43f5e' },
+    { name: 'Netral', value: distribution.neutral, color: '#94a3b8' },
   ].filter(item => item.value > 0);
 
   const total = data.reduce((acc, curr) => acc + curr.value, 0);
+  const positiveRatio = total > 0 ? Math.round((distribution.positive / total) * 100) : 0;
 
   return (
-    <Card className="bg-white border-none shadow-sm rounded-[24px]">
-      <CardHeader className="pb-2 text-center lg:text-left">
-        <CardTitle className="text-lg font-bold text-slate-900">Global Sentiment</CardTitle>
-        <CardDescription>Overall breakdown of all processed reviews</CardDescription>
+    <Card className="rounded-[1.75rem] border border-slate-200 bg-white py-0 shadow-sm">
+      <CardHeader className="border-b border-slate-100 p-6 text-center lg:text-left">
+        <CardTitle className="text-lg font-black text-slate-950">Sentimen Global</CardTitle>
+        <CardDescription className="mt-1 font-semibold">Komposisi seluruh ulasan yang sudah diproses.</CardDescription>
       </CardHeader>
-      <CardContent className="flex flex-col items-center justify-center relative mt-4">
+      <CardContent className="relative flex flex-col items-center justify-center p-6">
         {data.length > 0 ? (
           <>
             <div className="h-[250px] w-full relative">
@@ -50,20 +51,19 @@ export default function GlobalSentimentDonut({ distribution }: GlobalSentimentDo
                   <Tooltip 
                     contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)' }}
                   />
-                  <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: '13px', paddingTop: '20px' }} />
+                  <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: '12px', paddingTop: '20px', fontWeight: 700 }} />
                 </PieChart>
               </ResponsiveContainer>
-              {/* Center Text */}
               <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none -mt-8">
-                <span className="text-xs text-slate-400 font-medium tracking-wide">TOTAL</span>
-                <span className="text-3xl font-bold text-slate-800 leading-tight">{total.toLocaleString()}</span>
-                <span className="text-[10px] text-slate-400">Reviews</span>
+                <span className="text-xs font-black tracking-[0.14em] text-slate-400">POSITIF</span>
+                <span className="text-3xl font-black leading-tight text-slate-950">{positiveRatio}%</span>
+                <span className="text-[10px] font-bold text-slate-400">{total.toLocaleString()} ulasan</span>
               </div>
             </div>
           </>
         ) : (
-          <div className="h-[220px] flex items-center justify-center text-slate-400 text-sm">
-            No sentiment data
+          <div className="flex h-[220px] items-center justify-center rounded-3xl border border-dashed border-slate-200 text-sm font-bold text-slate-400">
+            Data sentimen belum tersedia.
           </div>
         )}
       </CardContent>

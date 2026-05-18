@@ -1,6 +1,6 @@
 'use client';
 
-import { Users, MapPin, MessageSquare, Briefcase, ArrowRight } from 'lucide-react';
+import { ArrowRight, Briefcase, MapPin, MessageSquare, Users } from 'lucide-react';
 import Link from 'next/link';
 
 interface SummaryCardsProps {
@@ -12,6 +12,41 @@ interface SummaryCardsProps {
   reviewsBreakdown: { scraped: number; user_submitted: number };
 }
 
+const cards = [
+  {
+    key: 'users',
+    label: 'Total Pengguna',
+    helper: 'Akun terdaftar',
+    href: '/admin/users',
+    icon: Users,
+    tone: 'orange',
+  },
+  {
+    key: 'destinations',
+    label: 'Destinasi',
+    helper: 'Destinasi aktif',
+    href: '/admin/destinations',
+    icon: MapPin,
+    tone: 'blue',
+  },
+  {
+    key: 'reviews',
+    label: 'Total Ulasan',
+    helper: 'Scraped + pengguna',
+    href: '/admin/reviews',
+    icon: MessageSquare,
+    tone: 'emerald',
+  },
+  {
+    key: 'jobs',
+    label: 'Scraping Jobs',
+    helper: 'Tugas pipeline data',
+    href: '/admin/scraper',
+    icon: Briefcase,
+    tone: 'slate',
+  },
+] as const;
+
 export default function SummaryCards({
   totalUsers,
   totalDestinations,
@@ -20,97 +55,45 @@ export default function SummaryCards({
   destinationsBreakdown,
   reviewsBreakdown,
 }: SummaryCardsProps) {
+  const values = {
+    users: { value: totalUsers, meta: 'Aktif terdaftar' },
+    destinations: { value: totalDestinations, meta: `${destinationsBreakdown.deleted} diarsipkan` },
+    reviews: { value: totalReviews, meta: `${reviewsBreakdown.scraped.toLocaleString()} scraping, ${reviewsBreakdown.user_submitted.toLocaleString()} pengguna` },
+    jobs: { value: totalJobs, meta: 'Total pekerjaan dibuat' },
+  };
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      
-      {/* Total Users - Yellow */}
-      <div className="bg-[#FEF08A] rounded-[24px] p-5 flex flex-col justify-between shadow-sm relative overflow-hidden group">
-        <div className="flex justify-between items-center mb-6">
-          <div className="flex items-center gap-2">
-            <Users className="w-5 h-5 text-yellow-900" />
-            <h3 className="font-semibold text-yellow-950">Total Users</h3>
-          </div>
-        </div>
-        
-        <div>
-          <div className="flex items-baseline gap-3 mb-2">
-            <span className="text-4xl font-bold text-yellow-950">{totalUsers.toLocaleString()}</span>
-          </div>
-          <div className="flex justify-between items-end">
-            <p className="text-sm text-yellow-900/80">Registered accounts</p>
-            <Link href="/admin/users" className="bg-white/80 hover:bg-white text-yellow-950 text-xs font-medium px-3 py-1.5 rounded-full flex items-center transition-colors">
-              See Details <ArrowRight className="w-3 h-3 ml-1" />
-            </Link>
-          </div>
-        </div>
-      </div>
+    <section className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4" aria-label="Ringkasan metrik admin">
+      {cards.map((card) => {
+        const Icon = card.icon;
+        const toneClass = {
+          orange: 'border-orange-100 bg-orange-50 text-primary',
+          blue: 'border-sky-100 bg-sky-50 text-[#2D82B5]',
+          emerald: 'border-emerald-100 bg-emerald-50 text-emerald-700',
+          slate: 'border-slate-200 bg-white text-slate-700',
+        }[card.tone];
+        const metric = values[card.key];
 
-      {/* Destinations - Pink */}
-      <div className="bg-[#FECDD3] rounded-[24px] p-5 flex flex-col justify-between shadow-sm relative overflow-hidden group">
-        <div className="flex justify-between items-center mb-6">
-          <div className="flex items-center gap-2">
-            <MapPin className="w-5 h-5 text-rose-900" />
-            <h3 className="font-semibold text-rose-950">Destinations</h3>
-          </div>
-        </div>
-        
-        <div>
-          <div className="flex items-baseline gap-3 mb-2">
-            <span className="text-4xl font-bold text-rose-950">{totalDestinations.toLocaleString()}</span>
-          </div>
-          <div className="flex justify-between items-end">
-            <p className="text-sm text-rose-900/80">{destinationsBreakdown.active} active</p>
-            <Link href="/admin/destinations" className="bg-white/80 hover:bg-white text-rose-950 text-xs font-medium px-3 py-1.5 rounded-full flex items-center transition-colors">
-              See Details <ArrowRight className="w-3 h-3 ml-1" />
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      {/* Reviews - Purple */}
-      <div className="bg-[#E9D5FF] rounded-[24px] p-5 flex flex-col justify-between shadow-sm relative overflow-hidden group">
-        <div className="flex justify-between items-center mb-6">
-          <div className="flex items-center gap-2">
-            <MessageSquare className="w-5 h-5 text-purple-900" />
-            <h3 className="font-semibold text-purple-950">Total Reviews</h3>
-          </div>
-        </div>
-        
-        <div>
-          <div className="flex items-baseline gap-3 mb-2">
-            <span className="text-4xl font-bold text-purple-950">{totalReviews.toLocaleString()}</span>
-          </div>
-          <div className="flex justify-between items-end">
-            <p className="text-sm text-purple-900/80">{reviewsBreakdown.scraped.toLocaleString()} scraped</p>
-            <Link href="/admin/scraper" className="bg-white/80 hover:bg-white text-purple-950 text-xs font-medium px-3 py-1.5 rounded-full flex items-center transition-colors">
-              See Details <ArrowRight className="w-3 h-3 ml-1" />
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      {/* Jobs - Blue/Cyan */}
-      <div className="bg-[#BAE6FD] rounded-[24px] p-5 flex flex-col justify-between shadow-sm relative overflow-hidden group">
-        <div className="flex justify-between items-center mb-6">
-          <div className="flex items-center gap-2">
-            <Briefcase className="w-5 h-5 text-sky-900" />
-            <h3 className="font-semibold text-sky-950">Scraping Jobs</h3>
-          </div>
-        </div>
-        
-        <div>
-          <div className="flex items-baseline gap-3 mb-2">
-            <span className="text-4xl font-bold text-sky-950">{totalJobs.toLocaleString()}</span>
-          </div>
-          <div className="flex justify-between items-end">
-            <p className="text-sm text-sky-900/80">Tasks processed</p>
-            <Link href="/admin/scraper" className="bg-white/80 hover:bg-white text-sky-950 text-xs font-medium px-3 py-1.5 rounded-full flex items-center transition-colors">
-              See Details <ArrowRight className="w-3 h-3 ml-1" />
-            </Link>
-          </div>
-        </div>
-      </div>
-
-    </div>
+        return (
+          <article key={card.key} className={`rounded-[1.5rem] border p-5 shadow-sm ${toneClass}`}>
+            <div className="mb-6 flex items-start justify-between gap-4">
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/80 shadow-sm">
+                <Icon className="h-5 w-5" />
+              </div>
+              <Link
+                href={card.href}
+                className="inline-flex min-h-9 items-center gap-1 rounded-full bg-white px-3 text-xs font-black text-slate-700 shadow-sm transition-colors hover:text-primary focus:outline-none focus:ring-4 focus:ring-primary/15"
+              >
+                Detail
+                <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            </div>
+            <p className="text-xs font-black uppercase tracking-[0.14em] opacity-80">{card.label}</p>
+            <p className="mt-2 text-4xl font-black leading-none text-slate-950">{metric.value.toLocaleString()}</p>
+            <p className="mt-3 text-sm font-semibold leading-6 text-slate-600">{metric.meta || card.helper}</p>
+          </article>
+        );
+      })}
+    </section>
   );
 }

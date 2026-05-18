@@ -7,6 +7,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import { isAxiosError } from 'axios';
 import { api } from '@/lib/axios';
 import { useAuthStore } from '@/store/auth.store';
 import { toast } from 'sonner';
@@ -17,6 +18,19 @@ const loginSchema = z.object({
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
+
+interface ApiErrorResponse {
+  message?: string | string[];
+}
+
+function getErrorMessage(error: unknown, fallback: string) {
+  if (!isAxiosError<ApiErrorResponse>(error)) {
+    return fallback;
+  }
+
+  const message = error.response?.data?.message;
+  return Array.isArray(message) ? message.join(', ') : message || fallback;
+}
 
 function LoginContent() {
   const router = useRouter();
@@ -39,9 +53,9 @@ function LoginContent() {
       setIsLoading(true);
       const response = await api.post('/api/auth/login', data);
       
-      const { user, access_token } = response.data.data;
+      const { user, access_token, refresh_token } = response.data.data;
       
-      setAuth(user, access_token);
+      setAuth(user, access_token, refresh_token);
       
       toast.success('Login berhasil! Selamat datang.');
       
@@ -49,9 +63,7 @@ function LoginContent() {
         router.push(callbackUrl);
       }, 500);
     } catch (error: unknown) {
-      const err = error as any;
-      const message = err.response?.data?.message || 'Gagal login. Periksa email dan password Anda.';
-      toast.error(message);
+      toast.error(getErrorMessage(error, 'Gagal login. Periksa email dan password Anda.'));
     } finally {
       setIsLoading(false);
     }
@@ -71,7 +83,7 @@ function LoginContent() {
                 RANAH<span className="text-primary">INSIGHT</span>
               </h1>
             </div>
-            <p className="text-sm text-slate-500 font-medium max-w-70 mx-auto leading-relaxed">
+            <p className="text-sm text-slate-500 font-medium max-w-[280px] mx-auto leading-relaxed">
               Temukan dan jelajahi wisata terbaik Sumatera Barat dengan AI & Data Insight
             </p>
           </div>
@@ -171,10 +183,13 @@ function LoginContent() {
       {/* Kiri: Image Section */}
       <section className="hidden lg:block lg:w-1/2 relative z-10 pb-16">
         <div className="w-full h-full relative rounded-br-[100px] overflow-hidden shadow-2xl">
-          <img
-            className="w-full h-full object-cover"
+          <Image
+            className="object-cover"
             alt="Ilustrasi Wisata Sumatera Barat"
             src="/images/auth-bg.jpg"
+            fill
+            sizes="50vw"
+            priority
           />
           
           {/* Overlay Logo */}
@@ -185,7 +200,7 @@ function LoginContent() {
 
           {/* AI Info Cards */}
           <div className="absolute bottom-24 left-10 z-20 bg-white border border-slate-200 p-5 rounded-2xl shadow-xl">
-            <p className="text-slate-500 font-bold text-xs uppercase tracking-wider mb-1">Sentimen Positif</p>
+            <p className="text-slate-500 font-bold text-xs uppercase tracking-wider mb-1">Contoh Sentimen</p>
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-full border-4 border-primary border-t-transparent flex items-center justify-center bg-white shadow-sm">
                  <span className="text-primary font-bold text-sm">85%</span>
@@ -195,7 +210,7 @@ function LoginContent() {
           </div>
           
           <div className="absolute top-1/3 right-10 z-20 bg-white border border-slate-200 p-5 rounded-2xl shadow-xl text-right">
-             <p className="text-slate-500 font-bold text-xs uppercase tracking-wider mb-1">Topik Populer</p>
+             <p className="text-slate-500 font-bold text-xs uppercase tracking-wider mb-1">Contoh Topik</p>
              <p className="text-slate-900 font-black text-xl mb-1">Alam & Budaya</p>
              <p className="text-slate-600 font-medium text-sm">Rekomendasi AI teratas</p>
           </div>

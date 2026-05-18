@@ -1,6 +1,7 @@
 import React, { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { X, UploadCloud } from "lucide-react";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 
 export interface ExistingImage {
@@ -77,7 +78,7 @@ export function GalleryUploader({
             isDragActive ? "border-primary bg-primary/10" : "border-border hover:border-primary/50"
           } ${remainingSlots <= 0 ? "opacity-50 cursor-not-allowed" : ""}`}
         >
-          <input {...getInputProps()} />
+          <input {...getInputProps({ "aria-label": "Upload gambar galeri destinasi" })} />
           <UploadCloud className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
           <p className="text-sm font-medium">
             Drag & drop gambar di sini, atau klik untuk memilih file
@@ -93,24 +94,26 @@ export function GalleryUploader({
           
           {/* Render Existing Images */}
           {existingImages.map((img) => (
-            <div key={img.id} className="relative group rounded-lg overflow-hidden border bg-muted">
-              <img
+            <div key={img.id} className="relative group rounded-lg overflow-hidden border bg-muted h-32">
+              <Image
                 src={getFullImageUrl(img.imageUrl)}
                 alt="Existing gallery image"
-                className="w-full h-32 object-cover"
+                fill
+                sizes="320px"
+                className="object-cover"
               />
               <div className="absolute top-2 left-2 bg-black/60 text-white text-xs px-2 py-1 rounded">
                 Tersimpan
               </div>
               {onDeleteExisting && (
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
                   <Button
                     type="button"
                     variant="destructive"
                     size="icon"
-                    className="h-8 w-8 rounded-full"
+                    className="h-11 w-11 rounded-full"
                     onClick={() => onDeleteExisting(img.id)}
-                    title="Hapus gambar ini"
+                    aria-label="Hapus gambar tersimpan ini"
                   >
                     <X className="h-4 w-4" />
                   </Button>
@@ -121,11 +124,13 @@ export function GalleryUploader({
 
           {/* Render New Upload Files */}
           {files.map((file) => (
-            <div key={file.name} className="relative group rounded-lg overflow-hidden border border-primary/50 bg-muted">
-              <img
+            <div key={file.name} className="relative group rounded-lg overflow-hidden border border-primary/50 bg-muted h-32">
+              <Image
                 src={file.preview}
                 alt={file.name}
-                className="w-full h-32 object-cover"
+                fill
+                sizes="320px"
+                className="object-cover"
                 onLoad={() => {
                   URL.revokeObjectURL(file.preview);
                 }}
@@ -133,13 +138,14 @@ export function GalleryUploader({
               <div className="absolute top-2 left-2 bg-primary/80 text-white text-xs px-2 py-1 rounded">
                 Baru
               </div>
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+              <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
                 <Button
                   type="button"
                   variant="destructive"
                   size="icon"
-                  className="h-8 w-8 rounded-full"
+                  className="h-11 w-11 rounded-full"
                   onClick={() => removeNewFile(file)}
+                  aria-label={`Hapus gambar ${file.name}`}
                 >
                   <X className="h-4 w-4" />
                 </Button>

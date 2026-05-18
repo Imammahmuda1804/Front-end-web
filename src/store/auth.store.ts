@@ -12,10 +12,31 @@ export interface User {
 interface AuthState {
   user: User | null;
   accessToken: string | null;
+  refreshToken: string | null;
   isAuthenticated: boolean;
-  setAuth: (user: User, token: string) => void;
+  setAuth: (user: User, accessToken: string, refreshToken: string) => void;
   updateUser: (user: Partial<User>) => void;
+  setAccessToken: (token: string) => void;
   logout: () => void;
+}
+
+function authCookieAttributes() {
+  const secure = typeof window !== 'undefined' && window.location.protocol === 'https:';
+  return `path=/; max-age=86400; SameSite=Lax${secure ? '; Secure' : ''}`;
+}
+
+export function writeAuthCookie(user: User | null, isAuthenticated: boolean) {
+  if (typeof document === 'undefined') return;
+
+  const cookieValue = JSON.stringify({ state: { isAuthenticated, user } });
+  document.cookie = `auth-storage=${encodeURIComponent(cookieValue)}; ${authCookieAttributes()}`;
+}
+
+export function clearAuthCookie() {
+  if (typeof document === 'undefined') return;
+
+  const secure = typeof window !== 'undefined' && window.location.protocol === 'https:';
+  document.cookie = `auth-storage=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax${secure ? '; Secure' : ''}`;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -23,29 +44,25 @@ export const useAuthStore = create<AuthState>()(
     (set) => ({
       user: null,
       accessToken: null,
+      refreshToken: null,
       isAuthenticated: false,
-      setAuth: (user, token) => {
-        set({ user, accessToken: token, isAuthenticated: true });
-        if (typeof document !== 'undefined') {
-          const cookieValue = JSON.stringify({ state: { isAuthenticated: true, user } });
-          document.cookie = `auth-storage=${encodeURIComponent(cookieValue)}; path=/; max-age=86400`;
-        }
+      setAuth: (user, accessToken, refreshToken) => {
+        set({ user, accessToken, refreshToken, isAuthenticated: true });
+        writeAuthCookie(user, true);
       },
       updateUser: (updatedUser) => {
         set((state) => {
           const newUser = state.user ? { ...state.user, ...updatedUser } : null;
-          if (typeof document !== 'undefined') {
-            const cookieValue = JSON.stringify({ state: { isAuthenticated: state.isAuthenticated, user: newUser } });
-            document.cookie = `auth-storage=${encodeURIComponent(cookieValue)}; path=/; max-age=86400`;
-          }
+          writeAuthCookie(newUser, state.isAuthenticated);
           return { user: newUser };
         });
       },
+      setAccessToken: (token: string) => {
+        set({ accessToken: token });
+      },
       logout: () => {
-        set({ user: null, accessToken: null, isAuthenticated: false });
-        if (typeof document !== 'undefined') {
-          document.cookie = 'auth-storage=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-        }
+        set({ user: null, accessToken: null, refreshToken: null, isAuthenticated: false });
+        clearAuthCookie();
       },
     }),
     {

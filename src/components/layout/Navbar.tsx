@@ -4,9 +4,8 @@ import * as React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { useAuthStore } from '@/store/auth.store';
+import { useAuthStore, writeAuthCookie } from '@/store/auth.store';
 import { getImageUrl } from '@/lib/utils';
-import { Button, buttonVariants } from '@/components/ui/button';
 import { Menu, User, LogOut } from 'lucide-react';
 import {
   DropdownMenu,
@@ -17,17 +16,22 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 
+const subscribeToHydration = () => () => {};
+const getHydratedSnapshot = () => true;
+const getServerHydratedSnapshot = () => false;
+
 export function Navbar() {
   const { isAuthenticated, user, logout } = useAuthStore();
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = React.useState(false);
+  const hasMounted = React.useSyncExternalStore(subscribeToHydration, getHydratedSnapshot, getServerHydratedSnapshot);
+  const showAuthenticatedUi = hasMounted && isAuthenticated && user;
 
   // Auto-sync cookie for users who were already logged in via localStorage
   React.useEffect(() => {
     if (isAuthenticated && user) {
       if (typeof document !== 'undefined' && !document.cookie.includes('auth-storage=')) {
-        const cookieValue = JSON.stringify({ state: { isAuthenticated: true, user } });
-        document.cookie = `auth-storage=${encodeURIComponent(cookieValue)}; path=/; max-age=86400`;
+        writeAuthCookie(user, true);
       }
     }
   }, [isAuthenticated, user]);
@@ -38,26 +42,26 @@ export function Navbar() {
   };
 
   const navLinks = [
-    { href: '/', label: 'Home' },
+    { href: '/', label: 'Beranda' },
     { href: '/search', label: 'Eksplorasi' },
     { href: '/compare', label: 'Bandingkan' },
   ];
 
   return (
-    <nav aria-label="Navigasi Utama" className="fixed top-0 left-0 right-0 z-50 w-full bg-white border-b border-slate-200 shadow-sm transition-all duration-300">
+    <nav aria-label="Navigasi Utama" className="fixed top-0 left-0 right-0 z-50 w-full border-b border-slate-200 bg-white shadow-sm transition-all duration-300">
       <div className="container mx-auto px-6 lg:px-12 flex h-16 items-center justify-between">
         <div className="flex items-center gap-8 md:gap-12">
           <Link href="/" className="flex items-center space-x-3 group">
             <Image src="/images/logo-icon.png" alt="RanahInsight Logo" width={36} height={36} className="object-contain drop-shadow-sm group-hover:scale-105 transition-transform" />
-            <span className="font-black text-slate-900 tracking-tight text-xl">RANAHINSIGHT</span>
+            <span className="font-black text-slate-900 tracking-tight text-lg sm:text-xl">RANAHINSIGHT</span>
           </Link>
           <div className="hidden md:flex gap-8">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className={`text-[15px] font-semibold transition-all hover:text-primary relative py-2 ${
-                  pathname === link.href ? 'text-primary after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-primary after:rounded-t-md' : 'text-slate-600'
+                className={`relative rounded-full px-3 py-2 text-[15px] font-bold transition-all hover:bg-orange-50 hover:text-primary ${
+                  pathname === link.href ? 'bg-orange-50 text-primary' : 'text-slate-600'
                 }`}
               >
                 {link.label}
@@ -67,7 +71,7 @@ export function Navbar() {
         </div>
 
         <div className="flex items-center gap-4">
-          {isAuthenticated && user ? (
+          {showAuthenticatedUi ? (
             <DropdownMenu>
               <DropdownMenuTrigger className="relative h-10 w-10 rounded-full flex items-center justify-center bg-slate-100 border border-slate-200 text-slate-700 hover:bg-slate-200 focus:outline-none transition-colors overflow-hidden">
                 {user.profilePicture ? (
@@ -106,8 +110,8 @@ export function Navbar() {
             </DropdownMenu>
           ) : (
             <div className="hidden md:flex gap-3 items-center">
-              <Link href="/login" className="text-slate-700 font-bold hover:text-primary px-4 py-2 transition-colors">Masuk</Link>
-              <Link href="/register" className="bg-primary text-white hover:bg-primary/90 hover:shadow-md hover:shadow-primary/20 transition-all font-bold px-6 py-2.5 rounded-full shadow-sm text-sm">Daftar Sekarang</Link>
+              <Link href="/login" className="px-4 py-2 font-bold text-slate-700 transition-colors hover:text-primary">Masuk</Link>
+              <Link href="/register" className="rounded-full bg-primary px-6 py-2.5 text-sm font-black text-white shadow-sm shadow-primary/20 transition-all hover:bg-primary/90 hover:shadow-md">Daftar</Link>
             </div>
           )}
 
@@ -133,10 +137,10 @@ export function Navbar() {
                     {link.label}
                   </Link>
                 ))}
-                {!isAuthenticated && (
+                {(!hasMounted || !isAuthenticated) && (
                   <div className="flex flex-col gap-3 mt-4">
                     <Link href="/login" onClick={() => setMobileOpen(false)} className="text-center font-bold text-slate-700 bg-slate-100 py-3 rounded-xl hover:bg-slate-200 transition-colors">Masuk</Link>
-                    <Link href="/register" onClick={() => setMobileOpen(false)} className="text-center font-bold text-white bg-primary py-3 rounded-xl hover:bg-primary/90 transition-colors shadow-md shadow-primary/20">Daftar Sekarang</Link>
+                    <Link href="/register" onClick={() => setMobileOpen(false)} className="text-center font-bold text-white bg-primary py-3 rounded-xl hover:bg-primary/90 transition-colors shadow-md shadow-primary/20">Daftar</Link>
                   </div>
                 )}
               </div>

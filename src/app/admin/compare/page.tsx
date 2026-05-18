@@ -2,8 +2,8 @@ import { CompareClient } from '@/components/admin/compare/CompareClient';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Compare Analytics | VibeTravel Admin',
-  description: 'Analyze and compare sentiment trends, review volume, and key performance metrics across multiple destinations.',
+  title: 'Compare Analytics | RANAHINSIGHT Admin',
+  description: 'Analisis dan perbandingan tren sentimen, volume ulasan, dan metrik performa destinasi.',
 };
 
 export default function ComparePage() {
