@@ -78,7 +78,7 @@ export default function MonthlySentimentChart() {
               Grafik area bertumpuk menampilkan jumlah ulasan positif, netral, negatif, dan garis total per periode.
             </p>
             <div className="h-[320px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
                 <AreaChart data={trends} margin={{ top: 8, right: 8, left: -12, bottom: 0 }}>
                   <CartesianGrid vertical={false} stroke="#e2e8f0" strokeDasharray="4 4" />
                   <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b', fontWeight: 700 }} dy={10} />

@@ -42,23 +42,23 @@ export default function TopicRiskMatrix({ topics }: Props) {
         ) : (
           <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_18rem]">
             <div className="h-80">
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
                 <BarChart data={data} layout="vertical" margin={{ top: 0, right: 24, left: 12, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e2e8f0" />
                   <XAxis type="number" domain={[0, 100]} tickFormatter={(value) => `${value}%`} axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b', fontWeight: 700 }} />
                   <YAxis dataKey="topic_name" type="category" width={118} axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#334155', fontWeight: 800 }} />
                   <Tooltip formatter={(value) => [`${value}%`, 'Risiko negatif']} contentStyle={{ borderRadius: '14px', border: '1px solid #e2e8f0', fontSize: '12px' }} />
                   <Bar dataKey="risk_percent" radius={[0, 10, 10, 0]} barSize={18}>
-                    {data.map((entry) => (
-                      <Cell key={entry.topic_name} fill={entry.risk_percent >= 35 ? '#f43f5e' : entry.risk_percent >= 20 ? '#f59e0b' : '#94a3b8'} />
+                    {data.map((entry, index) => (
+                      <Cell key={`${entry.topic_name}-${index}`} fill={entry.risk_percent >= 35 ? '#f43f5e' : entry.risk_percent >= 20 ? '#f59e0b' : '#94a3b8'} />
                     ))}
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>
             </div>
             <div className="space-y-3">
-              {data.slice(0, 5).map((topic) => (
-                <div key={topic.topic_name} className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+              {data.slice(0, 5).map((topic, index) => (
+                <div key={`${topic.topic_name}-${index}`} className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
                   <div className="flex items-center justify-between gap-3">
                     <p className="truncate text-sm font-black text-slate-950">{topic.topic_name}</p>
                     <span className="text-sm font-black text-rose-600">{topic.risk_percent}%</span>

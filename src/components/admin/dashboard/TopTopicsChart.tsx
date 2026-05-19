@@ -20,7 +20,7 @@ export default function TopTopicsChart({ topics }: TopTopicsChartProps) {
       <CardContent className="p-6">
         {topics && topics.length > 0 ? (
           <div className="h-[250px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
               <BarChart
                 data={topics}
                 layout="vertical"

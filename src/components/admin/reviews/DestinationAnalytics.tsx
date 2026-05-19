@@ -114,7 +114,7 @@ export function DestinationAnalytics({ destinationId }: DestinationAnalyticsProp
                     {totalReviewsAnalyzed === 0 ? (
                         <ChartEmptyState label="Belum ada data sentimen" />
                     ) : (
-                        <ResponsiveContainer width="100%" height={260}>
+                        <ResponsiveContainer width="100%" height={260} minWidth={1} minHeight={1}>
                             <PieChart>
                                 <Pie data={sentimentData} cx="50%" cy="50%" innerRadius={62} outerRadius={84} paddingAngle={5} dataKey="value">
                                     {sentimentData.map((entry) => (
@@ -135,7 +135,7 @@ export function DestinationAnalytics({ destinationId }: DestinationAnalyticsProp
                     {(!topics || topics.length === 0) ? (
                         <ChartEmptyState label="Belum ada data topik" />
                     ) : (
-                        <ResponsiveContainer width="100%" height={260}>
+                        <ResponsiveContainer width="100%" height={260} minWidth={1} minHeight={1}>
                             <BarChart data={topics.slice(0, 7)} layout="vertical" margin={{ top: 0, right: 24, left: 44, bottom: 0 }}>
                                 <CartesianGrid strokeDasharray="3 3" horizontal vertical={false} stroke="#e2e8f0" />
                                 <XAxis type="number" hide />
@@ -155,7 +155,7 @@ export function DestinationAnalytics({ destinationId }: DestinationAnalyticsProp
                     {formattedTrends.length === 0 ? (
                         <ChartEmptyState label="Belum ada data tren" />
                     ) : (
-                        <ResponsiveContainer width="100%" height={320}>
+                        <ResponsiveContainer width="100%" height={320} minWidth={1} minHeight={1}>
                             <LineChart data={formattedTrends} margin={{ top: 10, right: 24, left: 0, bottom: 0 }}>
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                                 <XAxis dataKey="dateFormatted" axisLine={false} tickLine={false} tick={{ fontSize: 12 }} dy={10} />

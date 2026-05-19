@@ -575,7 +575,7 @@ function TopicCoverageParetoChart({ topics, maxDestinations }: { topics: TopicIt
   return (
     <ChartShell title="Topic Coverage Pareto" description="Topik dengan relasi destinasi terbesar. Gunakan untuk menemukan topik yang terlalu dominan." icon={BarChart3}>
       <div className="h-[24rem]">
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
           <BarChart data={data} layout="vertical" margin={{ top: 4, right: 24, left: 20, bottom: 4 }}>
             <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e2e8f0" />
             <XAxis type="number" domain={[0, Math.max(maxDestinations, 1)]} axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12, fontWeight: 700 }} />
@@ -593,7 +593,7 @@ function CoverageDistributionChart({ data }: { data: DistributionBucket[] }) {
   return (
     <ChartShell title="Coverage Distribution" description="Sebaran jumlah destinasi per topik untuk melihat topik kecil dan besar." icon={Layers3}>
       <div className="h-72">
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
           <BarChart data={data} margin={{ top: 8, right: 12, left: -12, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
             <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12, fontWeight: 800 }} />

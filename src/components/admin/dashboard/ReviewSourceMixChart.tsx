@@ -29,7 +29,7 @@ export default function ReviewSourceMixChart({ breakdown }: Props) {
           <p className="mt-1 text-sm font-semibold text-slate-600">Dari total {total.toLocaleString()} ulasan</p>
         </div>
         <div className="h-52">
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
             <BarChart data={data} layout="vertical" margin={{ top: 8, right: 18, left: 18, bottom: 0 }}>
               <XAxis type="number" hide />
               <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#334155', fontWeight: 800 }} width={88} />

@@ -424,7 +424,7 @@ function StatusDistributionChart({ data }: { data: Array<{ status: string; name:
       ) : (
         <div className="grid gap-4 sm:grid-cols-[12rem_minmax(0,1fr)] sm:items-center">
           <div className="relative h-56">
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
               <PieChart>
                 <Pie data={data} dataKey="value" innerRadius={58} outerRadius={86} paddingAngle={3} stroke="none">
                   {data.map((entry) => <Cell key={entry.status} fill={entry.color} />)}
@@ -461,7 +461,7 @@ function ReviewYieldChart({ data }: { data: Array<{ name: string; reviews: numbe
         <ChartEmpty label="Belum ada job selesai dengan review." />
       ) : (
         <div className="h-72">
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
             <BarChart data={data} layout="vertical" margin={{ top: 8, right: 20, left: 8, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e2e8f0" />
               <XAxis type="number" axisLine={false} tickLine={false} tick={{ fill: "#64748b", fontSize: 12 }} />

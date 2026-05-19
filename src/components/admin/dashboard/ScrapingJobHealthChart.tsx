@@ -51,7 +51,7 @@ export default function ScrapingJobHealthChart({ breakdown }: Props) {
         ) : (
           <div className="grid gap-4 sm:grid-cols-[12rem_minmax(0,1fr)] sm:items-center">
             <div className="relative h-52">
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
                 <PieChart>
                   <Pie data={data} dataKey="value" innerRadius={58} outerRadius={86} paddingAngle={3} stroke="none">
                     {data.map((entry) => <Cell key={entry.status} fill={entry.color} />)}

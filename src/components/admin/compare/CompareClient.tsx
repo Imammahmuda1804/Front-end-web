@@ -693,7 +693,7 @@ function SingleAnalysisView({
 
       <div className="grid gap-6 xl:grid-cols-[minmax(18rem,0.6fr)_minmax(0,1.4fr)]">
         <ChartCard title="Distribusi Sentimen" icon={Heart}>
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
             <PieChart>
               <Pie data={pieData} cx="50%" cy="50%" innerRadius={68} outerRadius={92} paddingAngle={5} dataKey="value">
                 {pieData.map((entry, index) => <Cell key={entry.name} fill={SENTIMENT_COLORS[index % SENTIMENT_COLORS.length]} />)}
@@ -705,7 +705,7 @@ function SingleAnalysisView({
         </ChartCard>
 
         <ChartCard title="Topik Teratas" icon={Tags}>
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
             <BarChart data={topicData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
               <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12, fontWeight: 700 }} dy={10} />
@@ -718,7 +718,7 @@ function SingleAnalysisView({
       </div>
 
       <ChartCard title="Tren Sentimen Bulanan" icon={TrendingUp} heightClass="h-[22rem]">
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
           <AreaChart data={trendData} margin={{ top: 10, right: 16, left: -12, bottom: 0 }}>
             <defs>
               <linearGradient id="adminSingleTrend" x1="0" y1="0" x2="0" y2="1">
@@ -876,10 +876,10 @@ function TopicPriorityPanel({ topics }: { topics: Array<{ name: string; Percenta
         <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-6 text-sm font-bold text-slate-500">Belum ada topik yang bisa diprioritaskan.</div>
       ) : (
         <div className="space-y-3">
-          {topics.map((topic) => {
+          {topics.map((topic, index) => {
             const priority = topic.Percentage >= 25 ? 'Prioritas tinggi' : topic.Percentage >= 12 ? 'Prioritas sedang' : 'Long-tail';
             return (
-              <div key={topic.name} className="rounded-2xl border border-slate-100 bg-slate-50/70 p-4">
+              <div key={`${topic.name}-${index}`} className="rounded-2xl border border-slate-100 bg-slate-50/70 p-4">
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                   <p className="font-black text-slate-900">{topic.name}</p>
                   <span className="w-fit rounded-full bg-white px-3 py-1 text-xs font-black text-primary shadow-sm">{priority}</span>
@@ -1010,7 +1010,7 @@ function CompareAnalysisView({
 
       <div className="grid gap-6 xl:grid-cols-[minmax(20rem,0.7fr)_minmax(0,1.3fr)]">
         <ChartCard title="Radar Performa" icon={Target}>
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
             <RadarChart cx="50%" cy="50%" outerRadius="70%" data={radarData}>
               <PolarGrid stroke="#e2e8f0" />
               <PolarAngleAxis dataKey="subject" tick={{ fill: '#64748b', fontSize: 12, fontWeight: 700 }} />
@@ -1024,7 +1024,7 @@ function CompareAnalysisView({
         </ChartCard>
 
         <ChartCard title="Sentimen 100% Stacked" icon={Heart}>
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
             <BarChart data={sentimentCompareData} layout="vertical" margin={{ top: 10, right: 20, left: 20, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e2e8f0" />
               <XAxis type="number" domain={[0, 100]} tickFormatter={(value) => `${value}%`} axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
@@ -1041,7 +1041,7 @@ function CompareAnalysisView({
 
       <div className="grid gap-6 xl:grid-cols-2">
         <ChartCard title="Topic Overlap" icon={Tags}>
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
             <BarChart layout="vertical" data={mergedTopicData} margin={{ top: 10, right: 16, left: 10, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e2e8f0" />
               <XAxis type="number" domain={[0, 100]} axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
@@ -1055,7 +1055,7 @@ function CompareAnalysisView({
         </ChartCard>
 
         <ChartCard title="Tren Rasio Positif" icon={TrendingUp}>
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
             <AreaChart data={mergedTrendData} margin={{ top: 10, right: 16, left: -12, bottom: 0 }}>
               <defs>
                 <linearGradient id="compareA" x1="0" y1="0" x2="0" y2="1">
