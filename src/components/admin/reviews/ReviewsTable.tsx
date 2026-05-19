@@ -13,6 +13,7 @@ import {
     Download,
     Eye,
     FileText,
+    Gauge,
     Hash,
     Loader2,
     MessageSquare,
@@ -122,13 +123,30 @@ function sentimentClass(sentiment: string | null) {
     return 'border-slate-200 bg-slate-50 text-slate-500';
 }
 
+function formatConfidence(confidence: number | null) {
+    if (typeof confidence !== 'number') return '-';
+    return `${Math.round(confidence * 100)}%`;
+}
+
+function confidenceLevel(confidence: number | null) {
+    if (typeof confidence !== 'number') return { label: 'Belum ada', className: 'border-slate-200 bg-slate-50 text-slate-500', width: 0 };
+    if (confidence >= 0.8) return { label: 'Tinggi', className: 'border-emerald-200 bg-emerald-50 text-emerald-700', width: Math.round(confidence * 100) };
+    if (confidence >= 0.65) return { label: 'Sedang', className: 'border-amber-200 bg-amber-50 text-amber-700', width: Math.round(confidence * 100) };
+    return { label: 'Rendah', className: 'border-rose-200 bg-rose-50 text-rose-700', width: Math.round(confidence * 100) };
+}
+
+function hasLowConfidence(review: Review) {
+    return typeof review.sentimentConfidence === 'number' && review.sentimentConfidence < 0.65;
+}
+
 function exportReviewsCsv(reviews: Review[]) {
-    const headers = ['ID', 'Reviewer', 'Rating', 'Sentiment', 'Topic', 'Review Date', 'Review Text', 'Cleaned Text'];
+    const headers = ['ID', 'Reviewer', 'Rating', 'Sentiment', 'Confidence', 'Topic', 'Review Date', 'Review Text', 'Cleaned Text'];
     const rows = reviews.map((review) => [
         review.id,
         review.reviewerName,
         review.rating ?? '',
         review.sentiment ?? '',
+        formatConfidence(review.sentimentConfidence),
         review.topic?.topicName ?? '',
         review.reviewDate ?? '',
         review.reviewText ?? '',
@@ -403,6 +421,7 @@ function ReviewHealthOverviewCards({ reviews, total }: { reviews: Review[]; tota
         const negative = reviews.filter((review) => review.sentiment === 'negative').length;
         const unprocessed = reviews.filter((review) => !isProcessed(review)).length;
         const noText = reviews.filter((review) => !review.reviewText).length;
+        const lowConfidence = reviews.filter(hasLowConfidence).length;
         const rated = reviews.filter((review) => typeof review.rating === 'number');
         const avgRating = rated.length
             ? (rated.reduce((sum, review) => sum + (review.rating || 0), 0) / rated.length).toFixed(1)
@@ -413,12 +432,13 @@ function ReviewHealthOverviewCards({ reviews, total }: { reviews: Review[]; tota
             { label: 'Negatif', value: negative, hint: 'Prioritas moderasi', icon: AlertTriangle, tone: 'text-rose-700 bg-rose-50' },
             { label: 'Belum NLP', value: unprocessed, hint: 'Belum punya cleaned text/topik', icon: FileText, tone: 'text-amber-700 bg-amber-50' },
             { label: 'Tanpa teks', value: noText, hint: 'Rating saja atau data kosong', icon: Hash, tone: 'text-sky-700 bg-sky-50' },
+            { label: 'Confidence rendah', value: lowConfidence, hint: 'Perlu validasi manual', icon: Gauge, tone: 'text-violet-700 bg-violet-50' },
             { label: 'Rating avg', value: avgRating, hint: 'Rata-rata halaman ini', icon: Star, tone: 'text-orange-700 bg-orange-50' },
         ];
     }, [reviews, total]);
 
     return (
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-6">
             {stats.map((stat) => {
                 const Icon = stat.icon;
                 return (
@@ -444,7 +464,7 @@ function ReviewPriorityQueue({ reviews, onPreview }: { reviews: Review[]; onPrev
     const priorityReviews = React.useMemo(
         () =>
             reviews
-                .filter((review) => review.sentiment === 'negative' || (review.rating || 0) <= 2 || !isProcessed(review) || !review.reviewText)
+                .filter((review) => review.sentiment === 'negative' || (review.rating || 0) <= 2 || !isProcessed(review) || !review.reviewText || hasLowConfidence(review))
                 .slice(0, 4),
         [reviews],
     );
@@ -496,6 +516,7 @@ function ReviewLegendPanel() {
         { label: 'Negatif', description: 'Prioritas cek', icon: AlertTriangle, className: 'border-rose-200 bg-rose-50 text-rose-700' },
         { label: 'Netral', description: 'Nada campuran', icon: CircleHelp, className: 'border-sky-200 bg-sky-50 text-sky-700' },
         { label: 'Belum NLP', description: 'Cleaned text/topik kosong', icon: FileText, className: 'border-amber-200 bg-amber-50 text-amber-700' },
+        { label: 'Confidence', description: 'Keyakinan model sentimen', icon: Gauge, className: 'border-violet-200 bg-violet-50 text-violet-700' },
         { label: 'Dibalas', description: 'Owner reply tersedia', icon: MessageSquare, className: 'border-indigo-200 bg-indigo-50 text-indigo-700' },
         { label: 'Rating', description: 'Skor Google Maps', icon: Star, className: 'border-orange-200 bg-orange-50 text-orange-700' },
     ];
@@ -507,7 +528,7 @@ function ReviewLegendPanel() {
                     <h3 className="text-sm font-semibold text-slate-950">Legenda review</h3>
                     <p className="mt-1 text-sm text-slate-500">Arti badge yang muncul di tabel dan preview drawer.</p>
                 </div>
-                <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+                <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-7">
                     {items.map((item) => {
                         const Icon = item.icon;
                         return (
@@ -819,9 +840,12 @@ function ReviewDataTable({
                                     </p>
                                 </TableCell>
                                 <TableCell>
-                                    <span className={`rounded-full border px-2.5 py-1 text-xs font-semibold ${sentimentClass(review.sentiment)}`}>
-                                        {getSentimentLabel(review.sentiment)}
-                                    </span>
+                                    <div className="space-y-2">
+                                        <span className={`rounded-full border px-2.5 py-1 text-xs font-semibold ${sentimentClass(review.sentiment)}`}>
+                                            {getSentimentLabel(review.sentiment)}
+                                        </span>
+                                        <ConfidenceBadge confidence={review.sentimentConfidence} />
+                                    </div>
                                 </TableCell>
                                 <TableCell>
                                     <div className="flex justify-end gap-1">
@@ -849,6 +873,26 @@ function SmallPill({ label, icon, tone = 'slate' }: { label: string; icon?: Reac
             {icon}
             {label}
         </span>
+    );
+}
+
+function ConfidenceBadge({ confidence }: { confidence: number | null }) {
+    const level = confidenceLevel(confidence);
+    return (
+        <div className="min-w-28 space-y-1">
+            <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-1 text-xs font-semibold ${level.className}`}>
+                <Gauge className="h-3 w-3" />
+                {formatConfidence(confidence)}
+            </span>
+            {typeof confidence === 'number' && (
+                <div className="h-1.5 overflow-hidden rounded-full bg-slate-100" aria-label={`Confidence sentimen ${formatConfidence(confidence)}`}>
+                    <div
+                        className={`h-full rounded-full ${confidence < 0.65 ? 'bg-rose-500' : confidence < 0.8 ? 'bg-amber-500' : 'bg-emerald-500'}`}
+                        style={{ width: `${level.width}%` }}
+                    />
+                </div>
+            )}
+        </div>
     );
 }
 
@@ -910,11 +954,33 @@ function ReviewPreviewDrawer({
                     </SheetDescription>
                 </SheetHeader>
                 <div className="space-y-5 p-4">
-                    <div className="grid gap-3 sm:grid-cols-3">
+                    <div className="grid gap-3 sm:grid-cols-4">
                         <PreviewMetric label="Sentimen" value={getSentimentLabel(review.sentiment)} />
+                        <PreviewMetric label="Confidence" value={`${formatConfidence(review.sentimentConfidence)} ${confidenceLevel(review.sentimentConfidence).label}`} />
                         <PreviewMetric label="NLP" value={isProcessed(review) ? 'Processed' : 'Belum NLP'} />
                         <PreviewMetric label="Topik" value={review.topic?.topicName || '-'} />
                     </div>
+                    {typeof review.sentimentConfidence === 'number' && (
+                        <section className="rounded-2xl border border-violet-100 bg-violet-50/60 p-4">
+                            <div className="flex items-start gap-3">
+                                <div className="rounded-full bg-white p-2 text-violet-700">
+                                    <Gauge className="h-4 w-4" />
+                                </div>
+                                <div>
+                                    <h4 className="font-semibold text-slate-950">Kualitas prediksi sentimen</h4>
+                                    <p className="mt-1 text-sm text-slate-600">
+                                        Confidence menunjukkan seberapa yakin model terhadap label sentimen. Review dengan confidence rendah sebaiknya dicek manual sebelum dipakai sebagai dasar keputusan.
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="mt-3 h-2 overflow-hidden rounded-full bg-white">
+                                <div
+                                    className={`h-full rounded-full ${review.sentimentConfidence < 0.65 ? 'bg-rose-500' : review.sentimentConfidence < 0.8 ? 'bg-amber-500' : 'bg-emerald-500'}`}
+                                    style={{ width: `${Math.round(review.sentimentConfidence * 100)}%` }}
+                                />
+                            </div>
+                        </section>
+                    )}
                     <PreviewBlock title="Teks asli" value={review.reviewText || 'Teks ulasan kosong.'} />
                     <PreviewBlock title="Cleaned text" value={review.cleanedText || 'Cleaned text belum tersedia.'} />
                     {review.ownerReply && <PreviewBlock title="Balasan pemilik" value={review.ownerReply} />}

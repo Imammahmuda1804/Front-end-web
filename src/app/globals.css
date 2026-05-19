@@ -72,9 +72,9 @@
   --color-error: #EF4444;
   --color-on-error: #ffffff;
 
-  --font-sans: var(--font-plus-jakarta-sans), sans-serif;
-  --font-heading: var(--font-plus-jakarta-sans), sans-serif;
-  --font-body: var(--font-plus-jakarta-sans), sans-serif;
+  --font-sans: "Plus Jakarta Sans", "Inter", "Segoe UI", Arial, sans-serif;
+  --font-heading: "Plus Jakarta Sans", "Inter", "Segoe UI", Arial, sans-serif;
+  --font-body: "Plus Jakarta Sans", "Inter", "Segoe UI", Arial, sans-serif;
 
   --radius-sm: 0.375rem;
   --radius-md: 0.5rem;

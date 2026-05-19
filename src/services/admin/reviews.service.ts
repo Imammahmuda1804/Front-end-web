@@ -12,6 +12,7 @@ export interface Review {
     likesCount: number | null;
     ownerReply: string | null;
     sentiment: string | null;
+    sentimentConfidence: number | null;
     topicId: number | null;
     scrapingJobId: number | null;
     createdAt: string;
