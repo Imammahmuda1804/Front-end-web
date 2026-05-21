@@ -27,6 +27,7 @@ export interface AiRenameResult {
   total: number;
 }
 
+// Service API untuk manajemen topik dan topic group.
 class AdminTopicService {
   async getTopics(): Promise<TopicItem[]> {
     const response = await api.get('/api/topics');

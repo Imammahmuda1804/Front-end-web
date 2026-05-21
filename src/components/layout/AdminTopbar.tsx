@@ -15,6 +15,7 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import Link from 'next/link';
 import Image from 'next/image';
 
+// Menu admin yang ditampilkan pada drawer mobile.
 const mobileAdminLinks = [
   { href: '/admin', label: 'Dashboard' },
   { href: '/admin/destinations', label: 'Destinations' },
@@ -26,6 +27,7 @@ const mobileAdminLinks = [
   { href: '/admin/users', label: 'Users' },
 ];
 
+// Topbar admin untuk navigasi mobile, profil, dan logout.
 export function AdminTopbar() {
   const { user, logout } = useAuthStore();
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -65,7 +67,7 @@ export function AdminTopbar() {
       </Sheet>
 
       <div className="flex flex-1 items-center justify-end gap-x-4 lg:gap-x-6">
-          {/* Profile dropdown */}
+          
           <DropdownMenu>
             <DropdownMenuTrigger className={buttonVariants({ variant: "ghost", className: "-m-1.5 flex items-center p-1.5" })}>
               <span className="sr-only">Open user menu</span>

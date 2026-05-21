@@ -43,12 +43,13 @@ export interface GetAdminReviewsParams {
     nlp_status?: 'all' | 'processed' | 'unprocessed';
 }
 
+// Service API untuk review admin dan operasi bulk.
 export const adminReviewsService = {
     async getReviewsByDestination(
         destinationId: number,
         params?: GetAdminReviewsParams,
     ): Promise<GetAdminReviewsResponse> {
-        // Clean up empty parameters so they are not sent to the backend
+        // Hapus parameter kosong sebelum request.
         const cleanParams: Record<string, unknown> = { ...params };
         if (cleanParams['sentiment'] === '') delete cleanParams['sentiment'];
         if (cleanParams['topic_id'] === '') delete cleanParams['topic_id'];

@@ -233,7 +233,7 @@ export default function DestinationSelect({
                       id={`${listboxId}-option-${destination.id}`}
                       type="button"
                       role="option"
-                      aria-selected={isSelected}
+                      aria-selected={isSelected ? 'true' : 'false'}
                       onClick={() => handleSelect(destination.id)}
                       className={`mb-1 flex min-h-14 w-full items-center justify-between rounded-2xl px-3 py-2.5 text-left transition-colors ${
                         isHighlighted

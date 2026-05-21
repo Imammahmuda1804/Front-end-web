@@ -53,12 +53,14 @@ type FileTooLargeError = Error & {
   successCount: number;
 };
 
+// Mengambil status HTTP dari error upload/API.
 function getHttpStatus(error: unknown) {
   if (typeof error !== "object" || error === null) return undefined;
   const maybeError = error as { response?: { status?: number }; status?: number };
   return maybeError.response?.status || maybeError.status;
 }
 
+// Service API untuk CRUD destinasi dan upload media admin.
 export const adminDestinationService = {
   getDestinations: async (params?: DestinationQueryParams): Promise<DestinationListResponse> => {
     const { data } = await api.get("/api/admin/destinations", { params });
@@ -80,7 +82,7 @@ export const adminDestinationService = {
     return data;
   },
 
-  // Upload thumbnail (cover) — single file → updates destination.thumbnailUrl
+  // Upload thumbnail destinasi.
   uploadThumbnail: async (id: number | string, file: File) => {
     const formData = new FormData();
     formData.append("file", file);
@@ -90,7 +92,7 @@ export const adminDestinationService = {
     return data;
   },
 
-  // Upload gallery image — single file → creates DestinationImage record
+  // Upload gambar galeri destinasi.
   uploadGalleryImage: async (id: number | string, file: File) => {
     const formData = new FormData();
     formData.append("file", file);
@@ -100,7 +102,7 @@ export const adminDestinationService = {
     return data;
   },
 
-  // Upload multiple gallery images
+  // Upload beberapa gambar galeri.
   uploadGalleryImages: async (id: number | string, files: File[]) => {
     const results = [];
     const failedFiles: string[] = [];

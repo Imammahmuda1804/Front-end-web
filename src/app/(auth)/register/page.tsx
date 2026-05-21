@@ -64,7 +64,7 @@ export default function RegisterPage() {
   return (
     <main className="min-h-screen w-full flex bg-white relative overflow-hidden">
 
-      {/* Kiri: Form Section */}
+      
       <section className="w-full lg:w-1/2 flex flex-col justify-center px-8 sm:px-16 md:px-24 xl:px-32 relative z-10 pb-16">
         <div className="max-w-md w-full mx-auto">
           <div className="mb-10 text-center">
@@ -81,7 +81,7 @@ export default function RegisterPage() {
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-            {/* Name Field */}
+            
             <div className="space-y-1.5">
               <label className="text-sm font-bold text-slate-700 ml-2">Nama Lengkap</label>
               <div className="relative">
@@ -104,7 +104,7 @@ export default function RegisterPage() {
               )}
             </div>
 
-            {/* Email Field */}
+            
             <div className="space-y-1.5">
               <label className="text-sm font-bold text-slate-700 ml-2">Email</label>
               <div className="relative">
@@ -126,7 +126,7 @@ export default function RegisterPage() {
               )}
             </div>
 
-            {/* Password Field */}
+            
             <div className="space-y-1.5">
               <label className="text-sm font-bold text-slate-700 ml-2">Password</label>
               <div className="relative">
@@ -164,7 +164,7 @@ export default function RegisterPage() {
               )}
             </div>
 
-            {/* Action Button */}
+            
             <div className="pt-4">
               <button 
                 className="btn-joy" 
@@ -176,7 +176,7 @@ export default function RegisterPage() {
             </div>
           </form>
 
-          {/* Footer Link */}
+          
           <p className="text-slate-500 text-center font-semibold mt-8">
             Sudah punya akun? 
             <Link className="text-primary font-bold hover:underline ml-1" href="/login">Masuk di sini</Link>
@@ -184,7 +184,7 @@ export default function RegisterPage() {
         </div>
       </section>
 
-      {/* Kanan: Image Section */}
+      
       <section className="hidden lg:block lg:w-1/2 relative z-10 pb-16">
         <div className="w-full h-full relative rounded-bl-[100px] overflow-hidden shadow-2xl">
           <Image
@@ -196,13 +196,13 @@ export default function RegisterPage() {
             priority
           />
           
-          {/* Overlay Logo */}
+          
           <div className="absolute top-10 right-10 z-20 flex items-center gap-3 bg-white px-6 py-3 rounded-full border border-slate-200 shadow-lg">
             <span className="text-slate-900 font-black tracking-tight text-xl">RANAHINSIGHT</span>
             <Image src="/images/logo-icon.png" alt="RanahInsight" width={40} height={40} className="object-contain drop-shadow-sm" />
           </div>
 
-          {/* AI Info Cards */}
+          
           <div className="absolute bottom-24 right-10 z-20 bg-white border border-slate-200 p-5 rounded-2xl shadow-xl">
             <p className="text-slate-500 font-bold text-xs uppercase tracking-wider mb-1">Contoh Sentimen</p>
             <div className="flex items-center justify-end gap-3">
@@ -219,7 +219,7 @@ export default function RegisterPage() {
              <p className="text-slate-600 font-medium text-sm">Rekomendasi AI teratas</p>
           </div>
 
-          {/* Overlay gradient */}
+          
           <div className="absolute inset-0 bg-gradient-to-tl from-primary/50 via-primary/10 to-transparent pointer-events-none z-10"></div>
         </div>
       </section>

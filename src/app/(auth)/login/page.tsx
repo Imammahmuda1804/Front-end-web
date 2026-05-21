@@ -72,7 +72,7 @@ function LoginContent() {
   return (
     <main className="min-h-screen w-full flex bg-white flex-row-reverse relative overflow-hidden">
 
-      {/* Kanan: Form Section */}
+      
       <section className="w-full lg:w-1/2 flex flex-col justify-center px-8 sm:px-16 md:px-24 xl:px-32 relative z-10 pb-16">
         <div className="max-w-md w-full mx-auto">
           <div className="mb-10 text-center">
@@ -89,7 +89,7 @@ function LoginContent() {
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-            {/* Email Field */}
+            
             <div className="space-y-1.5">
               <label className="text-sm font-bold text-slate-700 ml-2">Email</label>
               <div className="relative">
@@ -112,7 +112,7 @@ function LoginContent() {
               )}
             </div>
 
-            {/* Password Field */}
+            
             <div className="space-y-1.5">
               <label className="text-sm font-bold text-slate-700 ml-2">Password</label>
               <div className="relative">
@@ -150,17 +150,17 @@ function LoginContent() {
               )}
             </div>
 
-            {/* Remember Me & Forgot Password */}
+            
             <div className="flex justify-between items-center pt-2">
               <label className="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" className="w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary" />
                 <span className="text-sm font-semibold text-slate-600">Ingat saya</span>
               </label>
-              {/* Link disabled until /forgot-password is implemented */}
+              
               <span className="text-sm font-bold text-slate-400 cursor-not-allowed">Lupa password?</span>
             </div>
 
-            {/* Action Button */}
+            
             <div className="pt-4">
               <button 
                 className="btn-joy" 
@@ -172,7 +172,7 @@ function LoginContent() {
             </div>
           </form>
 
-          {/* Footer Link */}
+          
           <p className="text-slate-500 text-center font-semibold mt-8">
             Belum punya akun? 
             <Link className="text-primary font-bold hover:underline ml-1" href="/register">Daftar sekarang</Link>
@@ -180,7 +180,7 @@ function LoginContent() {
         </div>
       </section>
 
-      {/* Kiri: Image Section */}
+      
       <section className="hidden lg:block lg:w-1/2 relative z-10 pb-16">
         <div className="w-full h-full relative rounded-br-[100px] overflow-hidden shadow-2xl">
           <Image
@@ -192,13 +192,13 @@ function LoginContent() {
             priority
           />
           
-          {/* Overlay Logo */}
+          
           <div className="absolute top-10 left-10 z-20 flex items-center gap-3 bg-white px-6 py-3 rounded-full border border-slate-200 shadow-lg">
             <Image src="/images/logo-icon.png" alt="RanahInsight" width={40} height={40} className="object-contain drop-shadow-sm" />
             <span className="text-slate-900 font-black tracking-tight text-xl">RANAHINSIGHT</span>
           </div>
 
-          {/* AI Info Cards */}
+          
           <div className="absolute bottom-24 left-10 z-20 bg-white border border-slate-200 p-5 rounded-2xl shadow-xl">
             <p className="text-slate-500 font-bold text-xs uppercase tracking-wider mb-1">Contoh Sentimen</p>
             <div className="flex items-center gap-3">
@@ -215,7 +215,7 @@ function LoginContent() {
              <p className="text-slate-600 font-medium text-sm">Rekomendasi AI teratas</p>
           </div>
 
-          {/* Overlay gradient */}
+          
           <div className="absolute inset-0 bg-gradient-to-tr from-primary/50 via-primary/10 to-transparent pointer-events-none z-10"></div>
         </div>
       </section>

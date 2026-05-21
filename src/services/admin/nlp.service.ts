@@ -1,7 +1,5 @@
 import { api } from '@/lib/axios';
 
-// ─── Upload & NLP Processing ─────────────────────────────────────────────────
-
 export interface NlpUploadResponse {
   message: string;
   destination_name: string;
@@ -15,8 +13,7 @@ export interface NlpUploadResponse {
   };
 }
 
-// ─── Service ──────────────────────────────────────────────────────────────────
-
+// Service API untuk upload file dan proses NLP admin.
 class AdminNlpService {
   private static instance: AdminNlpService;
 
@@ -29,10 +26,7 @@ class AdminNlpService {
     return AdminNlpService.instance;
   }
 
-  /**
-   * Upload file Excel/CSV dan proses NLP untuk destinasi tertentu.
-   * Mengembalikan hasil ringkasan NLP dan rating rata-rata scraping.
-   */
+  // Upload file review dan proses NLP.
   async uploadAndProcess(
     file: File,
     destinationId: number,
@@ -43,7 +37,7 @@ class AdminNlpService {
 
     const res = await api.post('/api/admin/nlp/upload', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
-      timeout: 300000, // 5 minutes — NLP processing can be slow
+      timeout: 300000, // Timeout panjang untuk proses NLP.
     });
 
     return res.data?.data ?? res.data;

@@ -48,6 +48,7 @@ export interface AdminUpdateUserData {
   status?: string;
 }
 
+// Service API untuk manajemen user admin.
 export const adminUserService = {
   getUsers: async (params?: { page?: number; limit?: number; search?: string }) => {
     const { data } = await api.get("/api/admin/users", { params });
@@ -56,7 +57,7 @@ export const adminUserService = {
 
   getUserDetail: async (id: number): Promise<AdminUserDetail> => {
     const { data } = await api.get(`/api/admin/users/${id}`);
-    // Handle TransformInterceptor: data may already be the user object
+    // Menangani response user yang sudah dibuka interceptor.
     return data?.data || data;
   },
 

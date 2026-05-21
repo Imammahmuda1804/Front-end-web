@@ -1,17 +1,19 @@
 import axios from 'axios';
 import { useAuthStore } from '@/store/auth.store';
 
+// Menentukan base URL API dari env atau localhost.
 export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL && process.env.NEXT_PUBLIC_API_URL !== 'undefined'
     ? process.env.NEXT_PUBLIC_API_URL
     : 'http://localhost:3000';
 
+// Instance Axios utama untuk seluruh request web.
 export const api = axios.create({
   baseURL: API_BASE_URL,
-  // withCredentials: true, // Enable if using cookies for refresh token
+  // Aktifkan jika refresh token memakai cookie.
 });
 
-// Request interceptor
+// Interceptor request API.
 api.interceptors.request.use(
   (config) => {
     const token = useAuthStore.getState().accessToken;
@@ -31,6 +33,7 @@ type FailedRequest = {
 let isRefreshing = false;
 let failedQueue: FailedRequest[] = [];
 
+// Menyelesaikan request yang tertahan saat token sedang direfresh.
 const processQueue = (error: unknown, token: string | null = null) => {
   failedQueue.forEach(prom => {
     if (error) {
@@ -42,13 +45,13 @@ const processQueue = (error: unknown, token: string | null = null) => {
   failedQueue = [];
 };
 
-// Response interceptor
+// Interceptor response API.
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
 
-    // Handle 401 Unauthorized globally
+    // Tangani 401 secara global.
     if (error.response?.status === 401 && !originalRequest._retry) {
       if (isRefreshing) {
         return new Promise(function(resolve, reject) {
@@ -79,16 +82,13 @@ api.interceptors.response.use(
           refresh_token: refreshToken
         });
 
-        // Tergantung TransformInterceptor backend, biasanya di data.data
+        // Ambil data dari response backend.
         const newAccessToken = data.data?.access_token || data.access_token;
         const newRefreshToken = data.data?.refresh_token || data.refresh_token;
 
         if (newAccessToken) {
-          // Update store
+          // Memperbarui auth store.
           useAuthStore.getState().setAccessToken(newAccessToken);
-          
-          // Juga update user & refreshToken dengan setAuth jika butuh update refresh token
-          // Namun store tidak punya setRefreshToken terpisah, jadi bisa pakai getState().user
           const currentUser = useAuthStore.getState().user;
           if (currentUser && newRefreshToken) {
             useAuthStore.getState().setAuth(currentUser, newAccessToken, newRefreshToken);

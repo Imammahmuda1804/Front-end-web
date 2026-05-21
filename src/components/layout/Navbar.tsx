@@ -27,7 +27,7 @@ export function Navbar() {
   const hasMounted = React.useSyncExternalStore(subscribeToHydration, getHydratedSnapshot, getServerHydratedSnapshot);
   const showAuthenticatedUi = hasMounted && isAuthenticated && user;
 
-  // Auto-sync cookie for users who were already logged in via localStorage
+  // Sinkronkan cookie dari sesi localStorage.
   React.useEffect(() => {
     if (isAuthenticated && user) {
       if (typeof document !== 'undefined' && !document.cookie.includes('auth-storage=')) {
@@ -115,7 +115,7 @@ export function Navbar() {
             </div>
           )}
 
-          {/* Mobile menu */}
+          
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
             <SheetTrigger className="md:hidden flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-700 hover:bg-slate-200 focus:outline-none transition-colors">
               <Menu className="h-5 w-5" />

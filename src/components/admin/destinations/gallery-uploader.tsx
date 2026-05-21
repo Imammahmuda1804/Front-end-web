@@ -24,7 +24,7 @@ export function GalleryUploader({
 }: GalleryUploaderProps) {
   const [files, setFiles] = useState<(File & { preview: string })[]>([]);
 
-  // Count how many total images we have (existing + new)
+  // Hitung total gambar lama dan baru.
   const totalImagesCount = existingImages.length + files.length;
   const remainingSlots = maxFiles - totalImagesCount;
 
@@ -92,7 +92,7 @@ export function GalleryUploader({
       {(existingImages.length > 0 || files.length > 0) && (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
           
-          {/* Render Existing Images */}
+          
           {existingImages.map((img) => (
             <div key={img.id} className="relative group rounded-lg overflow-hidden border bg-muted h-32">
               <Image
@@ -122,7 +122,7 @@ export function GalleryUploader({
             </div>
           ))}
 
-          {/* Render New Upload Files */}
+          
           {files.map((file) => (
             <div key={file.name} className="relative group rounded-lg overflow-hidden border border-primary/50 bg-muted h-32">
               <Image

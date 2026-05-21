@@ -43,7 +43,7 @@ export function ThumbnailUploader({ onFileChange, onUrlChange, currentThumbnailU
 
   const removeFile = () => {
     if (preview && !currentThumbnailUrl) {
-      // only revoke if it's a blob
+      // Revoke hanya untuk URL blob.
       if (preview.startsWith('blob:')) {
         URL.revokeObjectURL(preview);
       }

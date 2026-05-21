@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-// Protected routes
+// Route yang butuh autentikasi.
 const protectedRoutes = ['/profile', '/favorites'];
 const adminRoutes = ['/admin'];
 const authRoutes = ['/login', '/register'];
@@ -25,13 +25,13 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  // 1. Redirect authenticated users away from auth pages
+  // Arahkan user login keluar dari halaman auth.
   const isAuthRoute = authRoutes.some((route) => pathname.startsWith(route));
   if (isAuthRoute && isAuthenticated) {
     return NextResponse.redirect(new URL('/', request.url));
   }
 
-  // 2. Protect user routes
+  // Lindungi route user.
   const isProtectedRoute = protectedRoutes.some((route) =>
     pathname.startsWith(route),
   );
@@ -41,7 +41,7 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // 3. Protect admin routes
+  // Lindungi route admin.
   const isAdminRoute = adminRoutes.some((route) => pathname.startsWith(route));
   if (isAdminRoute) {
     if (!isAuthenticated) {

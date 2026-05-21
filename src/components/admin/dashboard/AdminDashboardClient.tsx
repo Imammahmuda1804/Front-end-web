@@ -1,22 +1,49 @@
 'use client';
 
 import { useMemo } from 'react';
+import dynamic from 'next/dynamic';
 import { useQuery } from '@tanstack/react-query';
 import { AlertTriangle, Clock, Database, ShieldCheck } from 'lucide-react';
 
 import { api } from '@/lib/axios';
 import SummaryCards from './SummaryCards';
-import MonthlySentimentChart from './MonthlySentimentChart';
-import TopTopicsChart from './TopTopicsChart';
-import GlobalSentimentDonut from './GlobalSentimentDonut';
 import TopDestinationsList from './TopDestinationsList';
 import RecentActivityFeed, { type ActivityData } from './RecentActivityFeed';
-import ScrapingJobHealthChart from './ScrapingJobHealthChart';
-import ReviewSourceMixChart from './ReviewSourceMixChart';
-import TopicRiskMatrix from './TopicRiskMatrix';
-import DestinationQualityMatrix from './DestinationQualityMatrix';
 import DataFreshnessPanel from './DataFreshnessPanel';
 import AdminActionQueue from './AdminActionQueue';
+
+const DashboardChartSkeleton = ({ height = 'h-80' }: { height?: string }) => (
+  <div className={`${height} animate-pulse rounded-[1.75rem] bg-white ring-1 ring-slate-200`} />
+);
+
+const MonthlySentimentChart = dynamic(() => import('./MonthlySentimentChart'), {
+  ssr: false,
+  loading: () => <DashboardChartSkeleton height="h-[25rem]" />,
+});
+const TopTopicsChart = dynamic(() => import('./TopTopicsChart'), {
+  ssr: false,
+  loading: () => <DashboardChartSkeleton />,
+});
+const GlobalSentimentDonut = dynamic(() => import('./GlobalSentimentDonut'), {
+  ssr: false,
+  loading: () => <DashboardChartSkeleton />,
+});
+const ScrapingJobHealthChart = dynamic(() => import('./ScrapingJobHealthChart'), {
+  ssr: false,
+  loading: () => <DashboardChartSkeleton />,
+});
+const ReviewSourceMixChart = dynamic(() => import('./ReviewSourceMixChart'), {
+  ssr: false,
+  loading: () => <DashboardChartSkeleton />,
+});
+const TopicRiskMatrix = dynamic(() => import('./TopicRiskMatrix'), {
+  ssr: false,
+  loading: () => <DashboardChartSkeleton />,
+});
+const DestinationQualityMatrix = dynamic(() => import('./DestinationQualityMatrix'), {
+  ssr: false,
+  loading: () => <DashboardChartSkeleton height="h-[25rem]" />,
+});
 
 type DashboardSummary = {
   total_users: number;
@@ -80,6 +107,7 @@ function sentimentRatio(distribution: DashboardSummary['sentiment_distribution']
   return total > 0 ? Math.round((distribution.positive / total) * 100) : 0;
 }
 
+// Mengambil data dashboard admin dan menyusun panel analytics.
 export function AdminDashboardClient() {
   const { data: summary, isLoading: loadingSummary, isError: summaryError } = useQuery<DashboardSummary>({
     queryKey: ['admin', 'dashboard', 'summary'],

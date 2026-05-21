@@ -43,6 +43,7 @@ function sentimentPercent(value: number, total: number) {
   return total > 0 ? Math.round((value / total) * 100) : 0;
 }
 
+// Mengelola upload file review dan proses NLP manual dari admin.
 export default function NlpProcessingClient() {
   const [destinations, setDestinations] = useState<AdminDestination[]>([]);
   const [selectedDestination, setSelectedDestination] = useState("");

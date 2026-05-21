@@ -4,21 +4,16 @@ import * as React from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import Image from 'next/image';
-import Link from 'next/link';
 import {
   AlertCircle,
-  ArrowRight,
   Brain,
   CheckCircle2,
   History,
-  ImageIcon,
   Landmark,
   MapPin,
   RotateCcw,
   Search,
   Sparkles,
-  Star,
   Type,
   Utensils,
   Waves,
@@ -27,36 +22,12 @@ import {
 import { toast } from 'sonner';
 
 import { api } from '@/lib/axios';
-import { getImageUrl } from '@/lib/utils';
 import { useAuthStore } from '@/store/auth.store';
 import { NativeSelect } from '@/components/ui/native-select';
 import { DESTINATION_CATEGORIES, getDestinationCategoryLabel } from '@/lib/destination-categories';
+import SearchResultCard, { getDestinationMatch, type SearchDestination } from './SearchResultCard';
 
-interface DestinationTopic {
-  id: number;
-  name?: string;
-  topic_name?: string;
-}
-
-interface Destination {
-  id: number;
-  name: string;
-  slug: string;
-  city: string;
-  category?: string | null;
-  description?: string;
-  short_description?: string;
-  shortDescription?: string;
-  thumbnail_url?: string;
-  thumbnailUrl?: string;
-  hybrid_score?: number;
-  similarity?: number;
-  positive_ratio?: number;
-  positiveRatio?: number;
-  recommendation_score?: number;
-  recommendationScore?: number;
-  topics?: DestinationTopic[];
-}
+type Destination = SearchDestination;
 
 interface SearchHistoryItem {
   keyword: string;
@@ -81,6 +52,7 @@ const railMotion = {
   hidden: { opacity: 0, x: -18 },
   visible: { opacity: 1, x: 0 },
 };
+// Prompt cepat untuk memulai pencarian semantik.
 const quickPrompts = [
   { label: 'Pantai tenang', query: 'pantai tenang untuk keluarga', mode: 'semantic', icon: Waves, tone: 'text-ai bg-ai-container border-ai/15' },
   { label: 'Wisata budaya', query: 'wisata budaya Minangkabau', mode: 'semantic', icon: Landmark, tone: 'text-explore bg-explore-container border-explore/15' },
@@ -93,30 +65,7 @@ const getServerHydratedSnapshot = () => false;
 const isSearchMode = (value: string | null): value is SearchMode => value === 'keyword' || value === 'semantic';
 const isSemanticSort = (value: string | null): value is SemanticSort => value === 'relevance' || value === 'hybrid';
 
-const getDestinationImage = (destination: Destination) =>
-  destination.thumbnail_url || destination.thumbnailUrl ? getImageUrl(destination.thumbnail_url || destination.thumbnailUrl) : '/images/auth-bg.jpg';
-
-const getDestinationPositiveRatio = (destination: Destination) => destination.positive_ratio ?? destination.positiveRatio;
-const getDestinationScore = (destination: Destination) => destination.recommendation_score ?? destination.recommendationScore;
-const getDestinationMatch = (destination: Destination) => destination.hybrid_score ?? destination.similarity;
-
-const getDestinationTopicLabel = (topic: DestinationTopic) =>
-  topic.topic_name?.replace(/Topic \d+: /, '') || topic.name || 'Vibe';
-
-const getDestinationDescription = (destination: Destination) => {
-  const rawDescription = destination.short_description || destination.shortDescription || destination.description;
-  const cleanDescription = rawDescription?.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
-
-  if (cleanDescription) return cleanDescription;
-
-  const topicNames = destination.topics?.slice(0, 2).map(getDestinationTopicLabel).join(' dan ');
-  return topicNames
-    ? `${destination.name} berada di ${destination.city}, cocok untuk pencarian dengan nuansa ${topicNames.toLowerCase()}.`
-    : `${destination.name} berada di ${destination.city}, cocok untuk dijelajahi lebih lanjut berdasarkan pola ulasan dan relevansi pencarian Anda.`;
-};
-
-const formatPercent = (value?: number) => (value !== undefined ? `${(value * 100).toFixed(0)}%` : 'N/A');
-
+// Mengelola state pencarian, filter, history, dan hasil destinasi.
 export default function SearchClient() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -186,6 +135,7 @@ export default function SearchClient() {
     fetchHistory();
   }, [isAuthenticated]);
 
+  // Menjalankan keyword search atau semantic search sesuai mode aktif.
   const executeSearch = useCallback(
     async (searchQuery: string, city: string, category: string, mode: SearchMode, sort: SemanticSort = 'hybrid') => {
       setIsLoading(true);
@@ -765,7 +715,7 @@ export default function SearchClient() {
               className="space-y-5"
             >
               {shouldFeatureFirstResult && (
-                <ResultCard
+                <SearchResultCard
                   destination={results[0]}
                   index={0}
                   searchMode={searchMode}
@@ -776,7 +726,7 @@ export default function SearchClient() {
               {(shouldFeatureFirstResult ? results.length > 1 : results.length > 0) && (
                 <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
                   {(shouldFeatureFirstResult ? results.slice(1) : results).map((destination, index) => (
-                    <ResultCard
+                    <SearchResultCard
                       key={destination.id}
                       destination={destination}
                       index={shouldFeatureFirstResult ? index + 1 : index}
@@ -826,128 +776,5 @@ export default function SearchClient() {
         </section>
       </div>
     </div>
-  );
-}
-
-function ResultCard({
-  destination,
-  index,
-  searchMode,
-  prefersReduced,
-  featured = false,
-}: {
-  destination: Destination;
-  index: number;
-  searchMode: SearchMode;
-  prefersReduced: boolean;
-  featured?: boolean;
-}) {
-  const positiveRatio = getDestinationPositiveRatio(destination);
-  const recommendationScore = getDestinationScore(destination);
-  const matchScore = getDestinationMatch(destination);
-  const isFeatured = featured;
-  const description = getDestinationDescription(destination);
-  const topTopics = destination.topics?.slice(0, 3) || [];
-
-  return (
-    <motion.article
-      initial={prefersReduced ? false : { opacity: 0, y: 18 }}
-      animate={prefersReduced ? undefined : { opacity: 1, y: 0 }}
-      transition={{ duration: 0.32, delay: Math.min(index * 0.04, 0.16), ease: easeOutExpo }}
-      className={`group overflow-hidden rounded-2xl border bg-white shadow-sm shadow-slate-200/60 transition-all duration-300 motion-safe:hover:-translate-y-0.5 hover:border-orange-200 hover:shadow-md hover:shadow-slate-200/70 ${
-        isFeatured ? 'border-explore/20 bg-surface-warm' : 'border-slate-200'
-      }`}
-    >
-      <Link href={`/destinations/${destination.slug}`} className="block h-full">
-        <div className={`${isFeatured ? 'xl:grid xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] xl:items-stretch' : 'grid h-full min-h-48 grid-cols-[9rem_minmax(0,1fr)] md:grid-cols-[11rem_minmax(0,1fr)] xl:min-h-52'}`}>
-          <div className={`relative overflow-hidden ${isFeatured ? 'h-56 xl:h-full xl:min-h-[300px]' : 'min-h-48 xl:min-h-52'}`}>
-            <Image
-              src={getDestinationImage(destination)}
-              alt={destination.name}
-              fill
-              sizes={isFeatured ? '(max-width: 1280px) 100vw, 55vw' : '(max-width: 768px) 35vw, 12vw'}
-              className="object-cover transition-transform duration-700 motion-safe:group-hover:scale-105"
-            />
-            {!isFeatured && (
-              <div className="absolute inset-x-2 bottom-2 rounded-full bg-white/95 px-2 py-1 text-center text-[11px] font-black text-ai shadow-sm">
-                {searchMode === 'semantic' && matchScore !== undefined ? `${formatPercent(matchScore)} sesuai` : 'Detail'}
-              </div>
-            )}
-            <div className={`absolute flex flex-wrap gap-2 ${isFeatured ? 'left-4 top-4' : 'left-2 top-2'}`}>
-              {isFeatured && (
-                <span className="inline-flex items-center gap-1.5 rounded-full border-2 border-white bg-explore px-3 py-1.5 text-xs font-black text-white shadow-sm">
-                  {searchMode === 'semantic' ? <Sparkles className="h-3.5 w-3.5" /> : <Star className="h-3.5 w-3.5 fill-white" />}
-                  {searchMode === 'semantic' ? 'Paling sesuai' : 'Hasil teratas'}
-                </span>
-              )}
-              {searchMode === 'semantic' && matchScore !== undefined && (
-                <span className="inline-flex items-center gap-1.5 rounded-full border-2 border-white bg-ai px-3 py-1.5 text-xs font-black text-white shadow-sm">
-                  <Sparkles className="h-3.5 w-3.5 text-white" />
-                  {(matchScore * 100).toFixed(0)}% sesuai
-                </span>
-              )}
-            </div>
-          </div>
-
-          <div className={`min-w-0 flex flex-1 flex-col ${isFeatured ? 'p-5 md:p-6 xl:min-h-[300px]' : 'p-4 md:p-5'}`}>
-            <div className={`${isFeatured ? 'mb-3' : 'mb-2'} flex items-start justify-between gap-3`}>
-              <div className="min-w-0">
-                <h3 className={`line-clamp-2 font-black leading-tight tracking-tight text-slate-900 ${isFeatured ? 'text-2xl md:text-3xl' : 'text-lg md:text-xl'}`}>
-                  {destination.name}
-                </h3>
-                <p className="mt-1 flex items-center gap-1.5 text-sm font-semibold text-slate-500">
-                  <MapPin className="h-4 w-4 shrink-0 text-slate-400" />
-                  <span className="truncate">{destination.city}</span>
-                </p>
-              </div>
-
-              {recommendationScore !== undefined && isFeatured && (
-                <div className="shrink-0 rounded-xl bg-ai-container px-2.5 py-1.5 text-right text-ai">
-                  <span className="block text-[10px] font-black uppercase tracking-[0.14em] text-ai/75">Skor AI</span>
-                  <span className={`${isFeatured ? 'text-2xl' : 'text-xl'} font-black leading-none text-ai`}>{(recommendationScore * 100).toFixed(0)}</span>
-                </div>
-              )}
-            </div>
-
-            <div className={`${isFeatured ? 'mb-4' : 'mb-3'} flex flex-wrap gap-1.5`}>
-              <span className="rounded-full border border-explore/15 bg-explore-container px-2.5 py-1 text-[11px] font-black text-explore">
-                {getDestinationCategoryLabel(destination.category)}
-              </span>
-              {topTopics.map((topic, topicIndex) => (
-                <span key={`${destination.id}-top-topic-${topic.id}-${topicIndex}`} className="max-w-full truncate rounded-full border border-ai/15 bg-ai-container px-2.5 py-1 text-[11px] font-extrabold text-ai">
-                  {topicIndex === 0 ? 'Top topik: ' : ''}
-                  {getDestinationTopicLabel(topic)}
-                </span>
-              ))}
-            </div>
-
-            {isFeatured && (
-              <p className="mb-4 line-clamp-4 text-sm font-semibold leading-7 text-slate-600 md:text-[15px]">
-                {description}
-              </p>
-            )}
-
-            <div className={`${isFeatured ? 'border-t border-slate-100 pt-3' : ''} mt-auto flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between`}>
-              <div className="flex items-center gap-2 text-sm font-bold text-slate-600">
-                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-success-container">
-                  <Star className="h-3.5 w-3.5 fill-success text-success" />
-                </div>
-                <span>
-                  Positif:{' '}
-                  <span className="font-black text-slate-900">
-                    {formatPercent(positiveRatio)}
-                  </span>
-                </span>
-              </div>
-              <span className="inline-flex min-h-11 shrink-0 items-center justify-center gap-1 rounded-full bg-ai px-3.5 text-sm font-black text-white transition-colors group-hover:bg-explore group-hover:text-white">
-                <ImageIcon className="h-4 w-4" />
-                {isFeatured ? 'Lihat detail' : 'Buka'}
-                <ArrowRight className="h-4 w-4 transition-transform motion-safe:group-hover:translate-x-1" />
-              </span>
-            </div>
-          </div>
-        </div>
-      </Link>
-    </motion.article>
   );
 }

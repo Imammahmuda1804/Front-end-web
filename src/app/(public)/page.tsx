@@ -3,7 +3,7 @@ import { TrendingCarousel } from '@/components/home/TrendingCarousel';
 import { InfoSection } from '@/components/home/InfoSection';
 import { BentoGrid } from '@/components/home/BentoGrid';
 
-// Revalidate this page every 60 seconds
+// Revalidasi halaman setiap 60 detik.
 export const revalidate = 60;
 
 function getServerApiUrl() {
@@ -37,7 +37,7 @@ export default async function Home() {
     <main className="flex min-h-screen flex-col bg-white">
       <HeroSection />
       
-      {/* Hanya tampilkan carousel jika data tersedia */}
+      
       {destinations && destinations.length > 0 && (
         <TrendingCarousel destinations={destinations} />
       )}

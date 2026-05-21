@@ -88,6 +88,7 @@ function numberOrNull(value: number | null | undefined) {
   return typeof value === 'number' && Number.isFinite(value) ? value : null;
 }
 
+// Membuka response backend yang bisa terbungkus interceptor.
 function unwrapApiData<T>(payload: T | ApiEnvelope<T>): T {
   if (
     payload &&
@@ -124,6 +125,7 @@ function normalizeDestinationAnalytics(payload: RawDestinationAnalytics): Destin
   };
 }
 
+// Service API untuk dashboard dan analytics destinasi admin.
 class AdminAnalyticsService {
   async getSummary(): Promise<AnalyticsSummary> {
     const response = await api.get('/api/admin/dashboard/summary');

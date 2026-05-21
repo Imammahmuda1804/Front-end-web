@@ -123,7 +123,7 @@ export function DestinationFormModal({ open, onOpenChange, onSuccess, initialDat
       
       let destinationId = initialData?.id;
 
-      // Clean up empty string values for optional fields
+      // Hapus nilai kosong pada field opsional.
       const payload = {
         ...data,
         googleMapsUrl: data.googleMapsUrl?.trim() || undefined,
@@ -143,7 +143,7 @@ export function DestinationFormModal({ open, onOpenChange, onSuccess, initialDat
         toast.success("Destinasi berhasil ditambahkan");
       }
 
-      // Upload thumbnail if selected (file upload → updates thumbnailUrl)
+      // Upload thumbnail jika dipilih.
       if (thumbnailFile && destinationId) {
         try {
           await adminDestinationService.uploadThumbnail(destinationId, thumbnailFile);
@@ -159,7 +159,7 @@ export function DestinationFormModal({ open, onOpenChange, onSuccess, initialDat
         }
       }
 
-      // Upload gallery images if any (file upload → creates destination_images records)
+      // Upload gambar galeri destinasi.
       if (galleryFiles.length > 0 && destinationId) {
         try {
           await adminDestinationService.uploadGalleryImages(destinationId, galleryFiles);
@@ -177,7 +177,7 @@ export function DestinationFormModal({ open, onOpenChange, onSuccess, initialDat
         }
       }
 
-      // Revalidate cache for this destination slug if available
+      // Revalidasi cache destinasi jika slug tersedia.
       const slug = initialData?.slug || data?.name?.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
       if (slug) {
         try {
@@ -220,7 +220,7 @@ export function DestinationFormModal({ open, onOpenChange, onSuccess, initialDat
           </DialogDescription>
         </DialogHeader>
 
-        {/* Step Indicator */}
+        
         <div className="flex items-center justify-center gap-2 py-2">
           {STEPS.map((s, i) => {
             const StepIcon = s.icon;
@@ -267,7 +267,7 @@ export function DestinationFormModal({ open, onOpenChange, onSuccess, initialDat
         </div>
 
         <div className="space-y-6 py-4">
-          {/* STEP 1 - Basic Info */}
+          
           <div className={step === 1 ? "space-y-4" : "hidden"}>
             <div className="space-y-2">
               <Label htmlFor="name">
@@ -320,9 +320,9 @@ export function DestinationFormModal({ open, onOpenChange, onSuccess, initialDat
             </div>
           </div>
 
-          {/* STEP 2 - Location & Media */}
+          
           <div className={step === 2 ? "space-y-4" : "hidden"}>
-            {/* Coordinates Section */}
+            
             <div className="p-4 bg-muted/30 rounded-lg border space-y-4">
               <h4 className="font-medium text-sm flex items-center gap-2">
                 <Navigation className="h-4 w-4 text-primary" />
@@ -342,7 +342,7 @@ export function DestinationFormModal({ open, onOpenChange, onSuccess, initialDat
               </div>
             </div>
 
-            {/* External Links Section */}
+            
             <div className="p-4 bg-muted/30 rounded-lg border space-y-4">
               <h4 className="font-medium text-sm flex items-center gap-2">
                 <Globe className="h-4 w-4 text-primary" />
@@ -365,7 +365,7 @@ export function DestinationFormModal({ open, onOpenChange, onSuccess, initialDat
               </div>
             </div>
 
-            {/* Google Maps Rating Section */}
+            
             <div className="p-4 bg-muted/30 rounded-lg border space-y-4">
               <h4 className="font-medium text-sm flex items-center gap-2">
                 <Star className="h-4 w-4 text-yellow-500" />
@@ -404,9 +404,9 @@ export function DestinationFormModal({ open, onOpenChange, onSuccess, initialDat
             </div>
           </div>
 
-          {/* STEP 3 - Images: Thumbnail (cover) + Gallery + Summary */}
+          
           <div className={step === 3 ? "space-y-5" : "hidden"}>
-            {/* Thumbnail / Cover Image */}
+            
             <div className="p-4 bg-muted/30 rounded-lg border">
               <h4 className="font-medium mb-1 flex items-center gap-2 text-sm">
                 <ImageIcon className="h-4 w-4 text-primary" />
@@ -423,7 +423,7 @@ export function DestinationFormModal({ open, onOpenChange, onSuccess, initialDat
               />
             </div>
 
-            {/* Gallery Images */}
+            
             <div className="p-4 bg-muted/30 rounded-lg border">
               <h4 className="font-medium mb-1 flex items-center gap-2 text-sm">
                 <ImageIcon className="h-4 w-4 text-primary" />
@@ -440,7 +440,7 @@ export function DestinationFormModal({ open, onOpenChange, onSuccess, initialDat
               />
             </div>
 
-            {/* Summary Preview */}
+            
             <div className="p-4 bg-muted/30 rounded-lg border">
               <h4 className="font-medium mb-3 flex items-center gap-2 text-sm">
                 <Check className="h-4 w-4 text-primary" />

@@ -1,7 +1,5 @@
 import { api } from '@/lib/axios';
 
-// ─── Place search result ──────────────────────────────────────────────────────
-
 export interface PlaceResult {
   title?: string;
   address?: string;
@@ -11,13 +9,11 @@ export interface PlaceResult {
   url?: string;
 }
 
-// ─── Start scraping ───────────────────────────────────────────────────────────
-
-/** Fields available to the admin. Filters (sort / stars / hasText) are locked server-side. */
+// Field yang bisa diatur admin.
 export interface StartScrapingRequest {
   destination_id: number;
   max_reviews?: number;
-  /** Optional — overrides the Google Maps URL stored in the destination record. */
+  // URL Maps opsional dari form.
   maps_url?: string;
 }
 
@@ -29,21 +25,19 @@ export interface StartScrapingResponse {
   message: string;
 }
 
-// ─── Job model ────────────────────────────────────────────────────────────────
-
 export type JobStatus =
   | 'pending'
   | 'running'
   | 'completed'
   | 'failed'
-  | 'scraping'        // legacy — kept for backward compat
-  | 'nlp_processing'; // legacy — kept for backward compat
+  | 'scraping'        // Status lama untuk kompatibilitas.
+  | 'nlp_processing'; // Status lama untuk kompatibilitas.
 
 export interface ScrapingJob {
   id: number;
   destinationId: number;
   status: JobStatus;
-  /** Total reviews saved after scraping completes. */
+  // Total review hasil scraping.
   totalReviews?: number | null;
   startedAt?: string | null;
   finishedAt?: string | null;
@@ -57,8 +51,6 @@ export interface ScrapingJob {
   };
 }
 
-// ─── Pagination wrapper ───────────────────────────────────────────────────────
-
 export interface PaginatedResponse<T> {
   data: T[];
   meta: {
@@ -69,8 +61,7 @@ export interface PaginatedResponse<T> {
   };
 }
 
-// ─── Service ──────────────────────────────────────────────────────────────────
-
+// Service API untuk pencarian Maps, job scraping, history, dan download.
 class AdminScraperService {
   private static instance: AdminScraperService;
 
@@ -83,26 +74,26 @@ class AdminScraperService {
     return AdminScraperService.instance;
   }
 
-  /** Search Google Maps by name or URL. */
+  // Mencari tempat di Google Maps.
   async searchMaps(query: string): Promise<PlaceResult[]> {
     const res = await api.get('/api/admin/scraper/search', { params: { q: query } });
-    // Handle both wrapped { data: [...] } and raw array responses
+    // Dukung response array langsung atau terbungkus.
     return res.data?.data ?? res.data ?? [];
   }
 
-  /** Start a new scraping job. Filter params are locked server-side. */
+  // Memulai job scraping baru.
   async startScraping(data: StartScrapingRequest): Promise<StartScrapingResponse> {
     const res = await api.post('/api/admin/scraper/start', data);
     return res.data?.data ?? res.data;
   }
 
-  /** Poll the status of a specific job. */
+  // Mengecek status job scraping.
   async getJobStatus(jobId: number): Promise<ScrapingJob> {
     const res = await api.get(`/api/admin/scraper/status/${jobId}`);
     return res.data?.data ?? res.data;
   }
 
-  /** List all scraping jobs, paginated. */
+  // Mengambil daftar job scraping.
   async getAllJobs(
     page = 1,
     limit = 20,
@@ -114,7 +105,7 @@ class AdminScraperService {
     return res.data?.data ?? res.data;
   }
 
-  /** Get scraping history for a destination. */
+  // Mengambil riwayat scraping destinasi.
   async getHistory(
     page = 1,
     limit = 10,
@@ -126,7 +117,7 @@ class AdminScraperService {
     return res.data?.data ?? res.data;
   }
 
-  /** Download a completed job's results as an Excel file (.xlsx). */
+  // Mengunduh hasil scraping.
   async downloadResults(jobId: number): Promise<Blob> {
     const res = await api.get(`/api/admin/scraper/download/${jobId}`, {
       responseType: 'blob',

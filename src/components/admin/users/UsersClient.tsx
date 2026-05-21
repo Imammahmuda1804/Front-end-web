@@ -88,6 +88,7 @@ function getResponseData(data: unknown): { users: AdminUser[]; meta: UsersMeta }
   };
 }
 
+// Mengelola daftar user, filter, create, edit, suspend, dan delete.
 export function UsersClient() {
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");

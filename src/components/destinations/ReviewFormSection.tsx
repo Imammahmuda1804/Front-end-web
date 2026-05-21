@@ -54,7 +54,7 @@ export default function ReviewFormSection({ destinationId, isAuthenticated, onSu
       setRating(0);
       setReviewText('');
       onSuccess?.();
-      // Auto-hide success message after 4s
+      // Sembunyikan pesan sukses otomatis.
       setTimeout(() => setSubmitted(false), 4000);
     } catch (err: unknown) {
       setError(getSubmitErrorMessage(err));

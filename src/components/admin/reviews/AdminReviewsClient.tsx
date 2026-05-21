@@ -34,6 +34,7 @@ function isReviewTab(value: string | null): value is ReviewTab {
     return value === 'reviews' || value === 'analytics';
 }
 
+// Mengatur tab review admin dan sinkronisasi filter ke URL.
 export function AdminReviewsClient({ initialFilters }: AdminReviewsClientProps) {
     const router = useRouter();
     const pathname = usePathname();
@@ -133,7 +134,7 @@ export function AdminReviewsClient({ initialFilters }: AdminReviewsClientProps) 
                                 <button
                                     type="button"
                                     role="tab"
-                                    aria-selected={activeTab === 'reviews'}
+                                    aria-selected={activeTab === 'reviews' ? 'true' : 'false'}
                                     onClick={() => updateQuery({ tab: 'reviews' })}
                                     className={`flex min-h-10 items-center justify-center gap-2 rounded-xl px-4 text-sm font-semibold transition-all ${
                                         activeTab === 'reviews'
@@ -147,7 +148,7 @@ export function AdminReviewsClient({ initialFilters }: AdminReviewsClientProps) 
                                 <button
                                     type="button"
                                     role="tab"
-                                    aria-selected={activeTab === 'analytics'}
+                                    aria-selected={activeTab === 'analytics' ? 'true' : 'false'}
                                     onClick={() => updateQuery({ tab: 'analytics' })}
                                     className={`flex min-h-10 items-center justify-center gap-2 rounded-xl px-4 text-sm font-semibold transition-all ${
                                         activeTab === 'analytics'

@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { useState } from 'react';
+import dynamic from 'next/dynamic';
 import { motion, useReducedMotion } from 'framer-motion';
 import {
   ArrowLeft,
@@ -9,8 +10,6 @@ import {
   CheckCircle2,
   ExternalLink,
   Heart,
-  Image as ImageIcon,
-  Images,
   MapPin,
   MessageSquare,
   Navigation,
@@ -24,16 +23,6 @@ import {
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Legend,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from 'recharts';
 import dayjs from 'dayjs';
 import 'dayjs/locale/id';
 
@@ -42,9 +31,16 @@ import { useAuthStore } from '@/store/auth.store';
 import { getImageUrl } from '@/lib/utils';
 import TopicInsightSection from './TopicInsightSection';
 import ReviewFormSection from './ReviewFormSection';
+import DestinationGallerySection from './DestinationGallerySection';
 import { toast } from 'sonner';
+import { ChartLoadingPanel } from '@/components/charts/ChartPanel';
 
 dayjs.locale('id');
+
+const DestinationTopicSentimentChart = dynamic(() => import('./DestinationTopicSentimentChart'), {
+  ssr: false,
+  loading: () => <ChartLoadingPanel icon={TrendingUp} title="Detail sentimen" minHeight="h-72" />,
+});
 
 interface DestinationImage {
   id: number;
@@ -136,6 +132,7 @@ type ChartRow = {
   total: number;
 };
 
+// Mengubah URL YouTube menjadi URL embed yang aman ditampilkan.
 function getYouTubeEmbedUrl(url?: string | null) {
   if (!url) return null;
 
@@ -160,6 +157,7 @@ function getYouTubeEmbedUrl(url?: string | null) {
   }
 }
 
+// Membersihkan nama topik dari label teknis model.
 function cleanTopicName(name?: string) {
   const cleaned = name?.replace(/^Topic \d+:\s*/, '').trim();
   return cleaned || 'Topik perjalanan';
@@ -177,6 +175,7 @@ function ratingText(value: number | null | undefined) {
   return value ? value.toFixed(1) : '-';
 }
 
+// Menampilkan detail destinasi, favorit, galeri, topik, chart, dan review.
 export default function DestinationDetailClient({ destination }: Props) {
   const [isFavorite, setIsFavorite] = useState(false);
   const [savingFavorite, setSavingFavorite] = useState(false);
@@ -563,80 +562,20 @@ export default function DestinationDetailClient({ destination }: Props) {
               </section>
             )}
 
-            <section id="galeri" className="scroll-mt-32 rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-              <SectionHeader
-                eyebrow="Galeri"
-                title="Preview visual destinasi"
-                description="Foto membantu membaca suasana, akses, dan karakter tempat secara cepat."
-              />
-
-              <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                {allImages.length > 0 ? allImages.slice(0, 5).map((img, idx) => (
-                  <div
-                    key={`${img}-${idx}`}
-                    className={`group relative overflow-hidden rounded-3xl border border-slate-200 bg-slate-100 shadow-sm ${
-                      idx === 0 ? 'aspect-[16/10] sm:col-span-2 lg:row-span-2 lg:aspect-auto' : 'aspect-[4/3]'
-                    }`}
-                  >
-                    <Image
-                      src={img}
-                      alt={`${destination.name} ${idx + 1}`}
-                      fill
-                      sizes={idx === 0 ? '(max-width: 1024px) 100vw, 50vw' : '(max-width: 1024px) 50vw, 25vw'}
-                      className="object-cover transition-transform duration-700 group-hover:scale-105"
-                    />
-                    {idx === 4 && allImages.length > 5 && (
-                      <button
-                        type="button"
-                        onClick={() => setGalleryOpen(true)}
-                        className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-slate-950/55 text-white transition-colors hover:bg-slate-950/65 focus:outline-none focus:ring-4 focus:ring-primary/30"
-                        aria-label={`Lihat semua ${allImages.length} foto ${destination.name}`}
-                      >
-                        <Images className="h-7 w-7" />
-                        <span className="text-sm font-black">Lihat semua foto</span>
-                        <span className="text-xs font-bold text-white/80">+{allImages.length - 5} foto lain</span>
-                      </button>
-                    )}
-                  </div>
-                )) : (
-                  <div className="col-span-full rounded-3xl border border-dashed border-slate-200 bg-slate-50 py-12 text-center">
-                    <ImageIcon className="mx-auto mb-3 h-10 w-10 text-slate-300" />
-                    <p className="font-bold text-slate-500">Belum ada foto tambahan untuk destinasi ini.</p>
-                  </div>
-                )}
-              </div>
-
-              {galleryOpen && (
-                <div className="mt-6 rounded-3xl border border-orange-100 bg-orange-50/60 p-4">
-                  <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                      <h3 className="text-lg font-black text-slate-950">Semua foto</h3>
-                      <p className="text-sm font-semibold text-slate-500">{allImages.length} foto tersedia</p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setGalleryOpen(false)}
-                      className="inline-flex min-h-11 w-fit items-center justify-center rounded-full border border-orange-200 bg-white px-5 text-sm font-black text-primary focus:outline-none focus:ring-4 focus:ring-primary/15"
-                    >
-                      Tutup galeri
-                    </button>
-                  </div>
-                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                    {allImages.map((img, idx) => (
-                      <div key={`expanded-${img}-${idx}`} className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-white bg-slate-100">
-                        <Image
-                          src={img}
-                          alt={`${destination.name} galeri ${idx + 1}`}
-                          fill
-                          sizes="(max-width: 1024px) 50vw, 33vw"
-                          className="object-cover"
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </div>
+            <DestinationGallerySection
+              destinationName={destination.name}
+              images={allImages}
+              galleryOpen={galleryOpen}
+              onOpenGallery={() => setGalleryOpen(true)}
+              onCloseGallery={() => setGalleryOpen(false)}
+              sectionHeader={(
+                <SectionHeader
+                  eyebrow="Galeri"
+                  title="Preview visual destinasi"
+                  description="Foto membantu membaca suasana, akses, dan karakter tempat secara cepat."
+                />
               )}
-            </section>
+            />
 
             <section id="ulasan" className="scroll-mt-32 rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
               <SectionHeader
@@ -717,36 +656,7 @@ export default function DestinationDetailClient({ destination }: Props) {
                     Grafik menampilkan persentase sentimen positif, netral, dan negatif untuk topik utama destinasi.
                   </p>
                   <div className="mt-5 h-72 w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={barChartData} layout="vertical" margin={{ top: 0, right: 8, left: 0, bottom: 0 }} barSize={14}>
-                        <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e2e8f0" />
-                        <XAxis
-                          type="number"
-                          domain={[0, 100]}
-                          axisLine={false}
-                          tickLine={false}
-                          tick={{ fontSize: 10, fill: '#64748b', fontWeight: 700 }}
-                          tickFormatter={(val) => `${val}%`}
-                        />
-                        <YAxis
-                          type="category"
-                          dataKey="name"
-                          axisLine={false}
-                          tickLine={false}
-                          tick={{ fontSize: 11, fill: '#334155', fontWeight: 800 }}
-                          width={82}
-                        />
-                        <Tooltip
-                          contentStyle={{ borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 18px 35px -25px rgb(15 23 42 / 0.35)', fontSize: '12px' }}
-                          formatter={(value) => [`${value}%`]}
-                          cursor={{ fill: 'rgba(255, 123, 84, 0.08)' }}
-                        />
-                        <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: '11px', paddingTop: '8px', fontWeight: 700 }} />
-                        <Bar dataKey="Positif" stackId="a" fill="#10b981" />
-                        <Bar dataKey="Netral" stackId="a" fill="#94a3b8" />
-                        <Bar dataKey="Negatif" stackId="a" fill="#f43f5e" radius={[0, 6, 6, 0]} />
-                      </BarChart>
-                    </ResponsiveContainer>
+                    <DestinationTopicSentimentChart data={barChartData} />
                   </div>
                 </>
               ) : (

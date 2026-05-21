@@ -194,7 +194,7 @@ export function NativeSelect({
                     id={`${listboxId}-option-${option.value || 'empty'}-${index}`}
                     type="button"
                     role="option"
-                    aria-selected={isSelected}
+                    aria-selected={isSelected ? 'true' : 'false'}
                     onMouseEnter={() => setHighlightedIndex(index)}
                     onClick={() => handleSelect(option.value)}
                     className={cn(
