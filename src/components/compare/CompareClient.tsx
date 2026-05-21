@@ -42,8 +42,8 @@ import DestinationSelect from './DestinationSelect';
 import { getImageUrl } from '@/lib/utils';
 
 const CHART_COLORS = {
-  dest1: '#FF7B54',
-  dest2: '#2D82B5',
+  dest1: 'var(--explore)',
+  dest2: 'var(--ai)',
   positive: '#10b981',
   neutral: '#94a3b8',
   negative: '#ef4444',
@@ -288,8 +288,8 @@ export default function CompareClient({ availableDestinations }: CompareClientPr
           className="relative z-30 overflow-visible rounded-[2rem] border border-orange-200 bg-orange-50/70 p-6 shadow-xl shadow-orange-100/50 md:p-8 lg:p-10"
           aria-labelledby="compare-title"
         >
-          <div className="grid gap-8 xl:grid-cols-[minmax(0,0.9fr)_minmax(34rem,1.1fr)] xl:items-end">
-            <div>
+          <div className="grid gap-8 xl:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] xl:items-end">
+            <div className="min-w-0">
               <span className="mb-4 inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-xs font-black uppercase tracking-[0.18em] text-white shadow-sm shadow-orange-900/10">
                 <ArrowRightLeft className="h-3.5 w-3.5" />
                 Compare Command
@@ -315,8 +315,8 @@ export default function CompareClient({ availableDestinations }: CompareClientPr
               </div>
             </div>
 
-            <div className="rounded-[1.75rem] border border-orange-200 bg-white p-4 shadow-sm md:p-5">
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-[1fr_auto_1fr] md:items-center">
+            <div className="min-w-0 rounded-[1.75rem] border border-orange-200 bg-white p-4 shadow-sm md:p-5">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] md:items-center">
                 <DestinationSelect
                   label="Destinasi A"
                   placeholder="Pilih destinasi pertama..."
@@ -332,7 +332,7 @@ export default function CompareClient({ availableDestinations }: CompareClientPr
                   onClick={handleSwap}
                   disabled={!dest1Id && !dest2Id}
                   aria-label="Tukar destinasi yang dibandingkan"
-                  className="mx-auto inline-flex h-12 w-12 items-center justify-center rounded-full border border-sky-200 bg-sky-50 text-[#2D82B5] transition-all hover:-translate-y-0.5 hover:border-[#2D82B5] disabled:cursor-not-allowed disabled:opacity-40 md:mt-7"
+                  className="mx-auto inline-flex h-12 w-12 items-center justify-center rounded-full border border-sky-200 bg-sky-50 text-ai transition-all hover:-translate-y-0.5 hover:border-ai disabled:cursor-not-allowed disabled:opacity-40 md:mt-7"
                 >
                   <ArrowRightLeft className="h-5 w-5" />
                 </button>
@@ -436,11 +436,11 @@ export default function CompareClient({ availableDestinations }: CompareClientPr
               </div>
 
               <div className="rounded-[1.75rem] border border-sky-100 bg-white p-6 shadow-sm">
-                <p className="text-xs font-black uppercase tracking-[0.18em] text-[#2D82B5]">Cocok untuk</p>
+                <p className="text-xs font-black uppercase tracking-[0.18em] text-ai">Cocok untuk</p>
                 <div className="mt-4 space-y-4">
                   {[compareData.destination1, compareData.destination2].map((dest, idx) => (
                     <div key={dest.id}>
-                      <p className={`mb-2 text-sm font-black ${idx === 0 ? 'text-primary' : 'text-[#2D82B5]'}`}>{dest.name}</p>
+                      <p className={`mb-2 text-sm font-black ${idx === 0 ? 'text-primary' : 'text-ai'}`}>{dest.name}</p>
                       <div className="flex flex-wrap gap-2">
                         {topicChips(dest).length > 0 ? topicChips(dest).map((topic) => (
                           <span key={topic} className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-black text-slate-700">
@@ -527,8 +527,9 @@ function SectionHeader({ eyebrow, title, description }: { eyebrow: string; title
 }
 
 function DestinationResultCard({ dest, fallback, tone, label }: { dest: ComparedDestination; fallback: DestinationMinimal | null; tone: 'orange' | 'blue'; label: string }) {
-  const accent = tone === 'orange' ? 'text-primary bg-orange-50 border-orange-200' : 'text-[#2D82B5] bg-sky-50 border-sky-200';
-  const detailHref = dest.slug ? `/destinations/${dest.slug}` : `/search?q=${encodeURIComponent(dest.name)}`;
+  const accent = tone === 'orange' ? 'text-primary bg-orange-50 border-orange-200' : 'text-ai bg-sky-50 border-sky-200';
+  const detailTarget = dest.slug || fallback?.slug || String(dest.id);
+  const detailHref = `/destinations/${detailTarget}`;
   const thumbnailSource = imageUrl({ ...fallback, ...dest });
 
   return (
@@ -557,7 +558,7 @@ function DestinationResultCard({ dest, fallback, tone, label }: { dest: Compared
           <Link
             href={detailHref}
             className={`inline-flex min-h-10 items-center rounded-full px-4 text-sm font-black transition-colors ${
-              tone === 'orange' ? 'bg-primary text-white hover:bg-primary/90' : 'bg-[#2D82B5] text-white hover:bg-[#2D82B5]/90'
+              tone === 'orange' ? 'bg-primary text-white hover:bg-primary/90' : 'bg-ai text-white hover:bg-ai/90'
             }`}
           >
             Lihat detail
@@ -592,7 +593,7 @@ function ChartPanel({ icon: Icon, title, children }: { icon: React.ElementType; 
 }
 
 function VibeCard({ dest, tone }: { dest: ComparedDestination; tone: 'orange' | 'blue' }) {
-  const accent = tone === 'orange' ? 'text-primary bg-orange-50 border-orange-200' : 'text-[#2D82B5] bg-sky-50 border-sky-200';
+  const accent = tone === 'orange' ? 'text-primary bg-orange-50 border-orange-200' : 'text-ai bg-sky-50 border-sky-200';
 
   return (
     <article className="rounded-3xl border border-slate-200 bg-slate-50/70 p-5">

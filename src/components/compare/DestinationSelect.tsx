@@ -60,12 +60,12 @@ export default function DestinationSelect({
         text: 'text-primary',
       }
     : {
-        label: 'text-[#2D82B5]',
+        label: 'text-ai',
         ring: 'focus:ring-sky-100',
         border: 'border-sky-200',
-        active: 'border-[#2D82B5] ring-4 ring-sky-100',
+        active: 'border-ai ring-4 ring-sky-100',
         bg: 'bg-sky-50',
-        text: 'text-[#2D82B5]',
+        text: 'text-ai',
       };
 
   const filteredDestinations = destinations.filter((destination) => {
@@ -145,7 +145,7 @@ export default function DestinationSelect({
   }, [filteredDestinations, handleSelect, highlightedIndex, isOpen]);
 
   return (
-    <div className="relative w-full" ref={wrapperRef} onKeyDown={handleKeyDown}>
+    <div className="relative min-w-0 w-full" ref={wrapperRef} onKeyDown={handleKeyDown}>
       <label className={`mb-2 block text-xs font-black uppercase tracking-[0.16em] ${accent.label}`}>
         {label}
       </label>
@@ -156,11 +156,11 @@ export default function DestinationSelect({
         aria-expanded={isOpen}
         aria-haspopup="listbox"
         aria-controls={isOpen ? listboxId : undefined}
-        className={`flex min-h-24 w-full items-center justify-between gap-4 rounded-3xl border bg-white p-4 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md focus:outline-none ${accent.ring} ${
+        className={`flex min-h-24 w-full min-w-0 items-center justify-between gap-3 overflow-hidden rounded-3xl border bg-white p-4 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md focus:outline-none ${accent.ring} ${
           isOpen ? accent.active : accent.border
         }`}
       >
-        <div className="flex min-w-0 items-center gap-4">
+        <div className="flex min-w-0 flex-1 items-center gap-3">
           {selectedDest ? (
             <>
               <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl bg-slate-100">
@@ -172,11 +172,11 @@ export default function DestinationSelect({
                   className="object-cover"
                 />
               </div>
-              <div className="min-w-0">
-                <p className="truncate text-lg font-black text-slate-950">{selectedDest.name}</p>
-                <p className="mt-1 flex items-center text-sm font-bold text-slate-500">
-                  <MapPin className="mr-1 h-4 w-4" />
-                  {selectedDest.city}
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-base font-black text-slate-950 md:text-lg">{selectedDest.name}</p>
+                <p className="mt-1 flex min-w-0 items-center text-sm font-bold text-slate-500">
+                  <MapPin className="mr-1 h-4 w-4 shrink-0" />
+                  <span className="truncate">{selectedDest.city}</span>
                 </p>
               </div>
             </>

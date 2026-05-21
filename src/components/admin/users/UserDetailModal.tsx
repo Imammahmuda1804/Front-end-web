@@ -113,16 +113,16 @@ export function UserDetailModal({ userId, open, onOpenChange }: UserDetailModalP
           <EmptyState icon={UserRound} title="Pengguna tidak ditemukan" />
         ) : (
           <div className="space-y-6 py-2">
-            <section className="rounded-[1.75rem] border border-orange-200 bg-[#fff3ea] p-5">
+            <section className="rounded-[1.75rem] border border-explore/20 bg-explore-container p-5">
               <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                 <div className="flex gap-4">
-                  <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-3xl bg-white text-2xl font-black text-[#ff7b54] ring-1 ring-orange-200">
+                  <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-3xl bg-white text-2xl font-black text-explore ring-1 ring-orange-200">
                     {getInitial(user.name)}
                   </div>
                   <div className="min-w-0">
                     <h3 className="truncate text-2xl font-black text-slate-950">{user.name}</h3>
                     <p className="mt-2 flex items-center gap-2 text-sm font-semibold text-slate-600">
-                      <Mail className="h-4 w-4 text-[#2d82b5]" />
+                      <Mail className="h-4 w-4 text-ai" />
                       <span className="truncate">{user.email}</span>
                     </p>
                     <div className="mt-3 flex flex-wrap gap-2">
@@ -136,7 +136,7 @@ export function UserDetailModal({ userId, open, onOpenChange }: UserDetailModalP
                   </div>
                 </div>
                 <div className="rounded-3xl border border-white/80 bg-white/80 p-4 md:w-56">
-                  <p className="text-xs font-black uppercase tracking-[0.16em] text-[#ff7b54]">
+                  <p className="text-xs font-black uppercase tracking-[0.16em] text-explore">
                     Aktivitas terakhir
                   </p>
                   <p className="mt-2 text-sm font-extrabold text-slate-900">{latestActivity}</p>
@@ -168,7 +168,7 @@ export function UserDetailModal({ userId, open, onOpenChange }: UserDetailModalP
                       onClick={() => setActiveTab(tab.key)}
                       className={`flex min-h-11 items-center gap-2 rounded-full px-4 text-sm font-extrabold transition ${
                         isActive
-                          ? "bg-[#ff7b54] text-white shadow-sm"
+                          ? "bg-explore text-white shadow-sm"
                           : "bg-slate-50 text-slate-600 hover:bg-slate-100"
                       }`}
                     >
@@ -265,7 +265,7 @@ export function UserDetailModal({ userId, open, onOpenChange }: UserDetailModalP
                               <p className="mt-1 line-clamp-1 text-xs font-semibold text-slate-500">
                                 {favorite.destination?.city}, {favorite.destination?.province}
                               </p>
-                              <p className="mt-2 text-xs font-bold text-[#ff7b54]">
+                              <p className="mt-2 text-xs font-bold text-explore">
                                 Disimpan {formatDate(favorite.createdAt)}
                               </p>
                             </div>
@@ -286,7 +286,7 @@ export function UserDetailModal({ userId, open, onOpenChange }: UserDetailModalP
                           key={log.id}
                           className="flex min-h-14 items-center gap-3 rounded-2xl border border-slate-200 px-4"
                         >
-                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-sky-50 text-[#2d82b5]">
+                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-sky-50 text-ai">
                             <Search className="h-4 w-4" />
                           </div>
                           <p className="min-w-0 flex-1 truncate text-sm font-extrabold text-slate-800">
@@ -327,9 +327,9 @@ function OverviewCard({
   tone: "orange" | "rose" | "blue" | "emerald";
 }) {
   const toneClass = {
-    orange: "bg-orange-50 text-[#ff7b54]",
+    orange: "bg-orange-50 text-explore",
     rose: "bg-rose-50 text-rose-700",
-    blue: "bg-sky-50 text-[#2d82b5]",
+    blue: "bg-sky-50 text-ai",
     emerald: "bg-emerald-50 text-emerald-700",
   }[tone];
 
@@ -349,8 +349,8 @@ function RoleBadge({ role }: { role: AdminUserDetail["role"] }) {
     <span
       className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-extrabold ${
         role === "ADMIN"
-          ? "bg-orange-50 text-[#ff7b54] ring-1 ring-orange-200"
-          : "bg-sky-50 text-[#2d82b5] ring-1 ring-sky-200"
+          ? "bg-orange-50 text-explore ring-1 ring-orange-200"
+          : "bg-sky-50 text-ai ring-1 ring-sky-200"
       }`}
     >
       <Shield className="h-3.5 w-3.5" />

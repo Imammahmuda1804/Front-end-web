@@ -188,10 +188,10 @@ export function UsersClient() {
 
   return (
     <div className="mx-auto w-full max-w-[100rem] space-y-6">
-      <section className="overflow-hidden rounded-[1.75rem] border border-orange-200 bg-[#fff3ea] shadow-sm">
+      <section className="overflow-hidden rounded-[1.75rem] border border-explore/20 bg-explore-container shadow-sm">
         <div className="grid gap-6 p-6 md:p-8 xl:grid-cols-[minmax(0,1.25fr)_minmax(360px,0.75fr)]">
           <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 rounded-full bg-[#ff7b54] px-4 py-2 text-xs font-extrabold uppercase tracking-[0.18em] text-white shadow-sm">
+            <div className="inline-flex items-center gap-2 rounded-full bg-explore px-4 py-2 text-xs font-extrabold uppercase tracking-[0.18em] text-white shadow-sm">
               <Sparkles className="h-4 w-4" />
               User Operations
             </div>
@@ -264,7 +264,7 @@ export function UsersClient() {
             <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
               <div className="grid flex-1 gap-3 md:grid-cols-[minmax(0,1fr)_11rem_12rem]">
                 <div className="space-y-2">
-                  <label htmlFor="user-search" className="text-xs font-black uppercase tracking-[0.18em] text-[#ff7b54]">
+                  <label htmlFor="user-search" className="text-xs font-black uppercase tracking-[0.18em] text-explore">
                     Cari pengguna
                   </label>
                   <div className="relative">
@@ -272,7 +272,7 @@ export function UsersClient() {
                     <Input
                       id="user-search"
                       placeholder="Nama atau email pengguna"
-                      className="h-12 rounded-2xl border-slate-200 pl-11 font-semibold shadow-none focus-visible:ring-[#ff7b54]"
+                      className="h-12 rounded-2xl border-slate-200 pl-11 font-semibold shadow-none focus-visible:ring-[var(--explore)]"
                       value={searchTerm}
                       onChange={(event) => setSearchTerm(event.target.value)}
                     />
@@ -315,7 +315,7 @@ export function UsersClient() {
                 </Button>
                 <Button
                   type="button"
-                  className="h-12 rounded-full bg-[#ff7b54] px-5 font-extrabold text-white shadow-sm hover:bg-[#f0653f]"
+                  className="h-12 rounded-full bg-explore px-5 font-extrabold text-white shadow-sm hover:bg-explore/90"
                   onClick={openAdd}
                 >
                   <Plus className="mr-2 h-4 w-4" />
@@ -328,7 +328,7 @@ export function UsersClient() {
           <div className="overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white shadow-sm">
             <div className="flex flex-col gap-3 border-b border-slate-100 px-5 py-4 md:flex-row md:items-center md:justify-between">
               <div>
-                <p className="text-xs font-black uppercase tracking-[0.18em] text-[#ff7b54]">
+                <p className="text-xs font-black uppercase tracking-[0.18em] text-explore">
                   User Directory
                 </p>
                 <h2 className="mt-1 text-xl font-black text-slate-950">
@@ -336,7 +336,7 @@ export function UsersClient() {
                 </h2>
               </div>
               <div className="flex items-center gap-2 rounded-full bg-slate-50 px-3 py-2 text-xs font-bold text-slate-600">
-                <Filter className="h-4 w-4 text-[#2d82b5]" />
+                <Filter className="h-4 w-4 text-ai" />
                 {hasFilters ? "Filter aktif" : "Semua data halaman"}
               </div>
             </div>
@@ -393,7 +393,7 @@ export function UsersClient() {
                       <TableRow key={user.id} className="hover:bg-orange-50/40">
                         <TableCell className="px-5 py-4">
                           <div className="flex items-center gap-3">
-                            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#fff3ea] text-sm font-black text-[#ff7b54] ring-1 ring-orange-200">
+                            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-explore-container text-sm font-black text-explore ring-1 ring-explore/20">
                               {getInitial(user.name)}
                             </div>
                             <div className="min-w-0">
@@ -421,10 +421,10 @@ export function UsersClient() {
                               label={`Lihat detail ${user.name}`}
                               onClick={() => setDetailUserId(user.id)}
                             >
-                              <Eye className="h-4 w-4 text-[#2d82b5]" />
+                              <Eye className="h-4 w-4 text-ai" />
                             </IconAction>
                             <IconAction label={`Edit ${user.name}`} onClick={() => openEdit(user)}>
-                              <Edit className="h-4 w-4 text-[#ff7b54]" />
+                              <Edit className="h-4 w-4 text-explore" />
                             </IconAction>
                             <IconAction
                               label={
@@ -491,13 +491,13 @@ export function UsersClient() {
             description="Pantau jumlah admin agar akses tetap terkendali."
             firstLabel="Admin"
             firstValue={adminCount}
-            firstColor="bg-[#ff7b54]"
+            firstColor="bg-explore"
             secondLabel="User"
             secondValue={userCount}
-            secondColor="bg-[#2d82b5]"
+            secondColor="bg-ai"
           />
           <div className="rounded-[1.75rem] border border-slate-200 bg-white p-5 shadow-sm">
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-[#ff7b54]">
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-explore">
               Action Queue
             </p>
             <div className="mt-4 space-y-3">
@@ -565,7 +565,7 @@ export function UsersClient() {
               Batal
             </Button>
             <Button
-              className="rounded-full bg-[#ff7b54] text-white hover:bg-[#f0653f]"
+              className="rounded-full bg-explore text-white hover:bg-explore/90"
               onClick={confirmStatusChange}
               disabled={isStatusSubmitting}
             >
@@ -590,9 +590,9 @@ function HeroMetric({
   tone: "orange" | "emerald" | "blue";
 }) {
   const toneClass = {
-    orange: "bg-orange-100 text-[#ff7b54]",
+    orange: "bg-orange-100 text-explore",
     emerald: "bg-emerald-100 text-emerald-700",
-    blue: "bg-sky-100 text-[#2d82b5]",
+    blue: "bg-sky-100 text-ai",
   }[tone];
 
   return (
@@ -620,10 +620,10 @@ function HealthCard({
   tone: "orange" | "emerald" | "rose" | "blue";
 }) {
   const toneClass = {
-    orange: "bg-orange-50 text-[#ff7b54]",
+    orange: "bg-orange-50 text-explore",
     emerald: "bg-emerald-50 text-emerald-700",
     rose: "bg-rose-50 text-rose-700",
-    blue: "bg-sky-50 text-[#2d82b5]",
+    blue: "bg-sky-50 text-ai",
   }[tone];
 
   return (
@@ -655,7 +655,7 @@ function FilterSelect({
 }) {
   return (
     <div className="space-y-2">
-      <span className="text-xs font-black uppercase tracking-[0.18em] text-[#ff7b54]">
+      <span className="text-xs font-black uppercase tracking-[0.18em] text-explore">
         {label}
       </span>
       <NativeSelect
@@ -675,8 +675,8 @@ function RoleBadge({ role }: { role: AdminUser["role"] }) {
     <span
       className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-extrabold ${
         isAdmin
-          ? "bg-orange-50 text-[#ff7b54] ring-1 ring-orange-200"
-          : "bg-sky-50 text-[#2d82b5] ring-1 ring-sky-200"
+          ? "bg-orange-50 text-explore ring-1 ring-orange-200"
+          : "bg-sky-50 text-ai ring-1 ring-sky-200"
       }`}
     >
       {isAdmin ? "Admin" : "User"}
@@ -786,9 +786,9 @@ function QueueItem({
   tone: "orange" | "rose" | "blue";
 }) {
   const toneClass = {
-    orange: "bg-orange-50 text-[#ff7b54]",
+    orange: "bg-orange-50 text-explore",
     rose: "bg-rose-50 text-rose-700",
-    blue: "bg-sky-50 text-[#2d82b5]",
+    blue: "bg-sky-50 text-ai",
   }[tone];
 
   return (

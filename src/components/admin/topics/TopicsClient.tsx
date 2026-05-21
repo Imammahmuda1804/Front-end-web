@@ -49,7 +49,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { NativeSelect } from '@/components/ui/native-select';
-import { adminTopicService, TopicItem } from '@/services/admin/topic.service';
+import { adminTopicService, TopicGroupItem, TopicItem } from '@/services/admin/topic.service';
 
 type SortKey = 'name' | 'destinations' | 'id';
 type SortDir = 'asc' | 'desc';
@@ -75,8 +75,8 @@ type ActionItem = {
   onClick?: () => void;
 };
 
-const DEST_A_COLOR = '#FF7B54';
-const DEST_B_COLOR = '#2D82B5';
+const DEST_A_COLOR = 'var(--explore)';
+const DEST_B_COLOR = 'var(--ai)';
 
 function isUnnamed(topic: TopicItem) {
   return topic.topic_name.trim().toLowerCase().startsWith('topic ');
@@ -116,6 +116,7 @@ export function TopicsClient() {
   const [sortKey, setSortKey] = useState<SortKey>('destinations');
   const [sortDir, setSortDir] = useState<SortDir>('desc');
   const [quickFilter, setQuickFilter] = useState<QuickFilter>('all');
+  const [groupFilter, setGroupFilter] = useState('all');
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [renameTarget, setRenameTarget] = useState<TopicItem | null>(null);
@@ -130,6 +131,11 @@ export function TopicsClient() {
   } = useQuery({
     queryKey: ['admin-topics'],
     queryFn: () => adminTopicService.getTopics(),
+  });
+
+  const { data: topicGroups = [] } = useQuery({
+    queryKey: ['admin-topic-groups'],
+    queryFn: () => adminTopicService.getTopicGroups(),
   });
 
   const aiRenameMutation = useMutation({
@@ -161,6 +167,31 @@ export function TopicsClient() {
     onError: () => toast.error('Gagal menghapus topik'),
   });
 
+  const settingsMutation = useMutation({
+    mutationFn: ({
+      id,
+      groupId,
+      isSearchVisible,
+      isDetailVisible,
+    }: {
+      id: number;
+      groupId?: number | null;
+      isSearchVisible?: boolean;
+      isDetailVisible?: boolean;
+    }) =>
+      adminTopicService.updateTopicSettings(id, {
+        groupId,
+        isSearchVisible,
+        isDetailVisible,
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-topics'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-topic-groups'] });
+      toast.success('Pengaturan topik diperbarui');
+    },
+    onError: () => toast.error('Gagal memperbarui pengaturan topik'),
+  });
+
   const maxDestinations = useMemo(
     () => Math.max(...topics.map((topic) => topic.total_destinations), 0),
     [topics],
@@ -172,8 +203,12 @@ export function TopicsClient() {
       const matchesSearch =
         query.length === 0 ||
         topic.topic_name.toLowerCase().includes(query) ||
+        topic.group_name?.toLowerCase().includes(query) ||
         topic.keywords?.some((keyword) => keyword.toLowerCase().includes(query));
-      return matchesSearch && topicMatchesFilter(topic, quickFilter, maxDestinations);
+      const matchesGroup =
+        groupFilter === 'all' ||
+        (groupFilter === 'none' ? !topic.group_id : String(topic.group_id) === groupFilter);
+      return matchesSearch && matchesGroup && topicMatchesFilter(topic, quickFilter, maxDestinations);
     });
 
     return [...result].sort((a, b) => {
@@ -183,7 +218,7 @@ export function TopicsClient() {
       else comparison = a.id - b.id;
       return sortDir === 'asc' ? comparison : -comparison;
     });
-  }, [maxDestinations, quickFilter, search, sortDir, sortKey, topics]);
+  }, [groupFilter, maxDestinations, quickFilter, search, sortDir, sortKey, topics]);
 
   const metrics = useMemo(() => {
     const unnamed = topics.filter(isUnnamed);
@@ -279,6 +314,7 @@ export function TopicsClient() {
   const clearControls = () => {
     setSearch('');
     setQuickFilter('all');
+    setGroupFilter('all');
     setSortKey('destinations');
     setSortDir('desc');
   };
@@ -324,6 +360,8 @@ export function TopicsClient() {
             sortKey={sortKey}
             sortDir={sortDir}
             quickFilter={quickFilter}
+            groupFilter={groupFilter}
+            groups={topicGroups}
             unnamedCount={metrics.unnamed.length}
             aiRenamePending={aiRenameMutation.isPending}
             onSearchChange={(value) => {
@@ -340,6 +378,10 @@ export function TopicsClient() {
             }}
             onQuickFilterChange={(value) => {
               setQuickFilter(value);
+              setPage(1);
+            }}
+            onGroupFilterChange={(value) => {
+              setGroupFilter(value);
               setPage(1);
             }}
             onAiRename={() => aiRenameMutation.mutate()}
@@ -366,6 +408,16 @@ export function TopicsClient() {
               setRenameValue(topic.topic_name);
             }}
             onDelete={setDeleteTarget}
+            groups={topicGroups}
+            onGroupChange={(topic, groupId) =>
+              settingsMutation.mutate({ id: topic.id, groupId })
+            }
+            onVisibilityChange={(topic, key, value) =>
+              settingsMutation.mutate({
+                id: topic.id,
+                [key]: value,
+              })
+            }
           />
 
           <div className="grid gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(22rem,0.85fr)]">
@@ -453,12 +505,15 @@ function TopicCommandPanel({
   sortKey,
   sortDir,
   quickFilter,
+  groupFilter,
+  groups,
   unnamedCount,
   aiRenamePending,
   onSearchChange,
   onSortKeyChange,
   onSortDirChange,
   onQuickFilterChange,
+  onGroupFilterChange,
   onAiRename,
   onReset,
 }: {
@@ -466,12 +521,15 @@ function TopicCommandPanel({
   sortKey: SortKey;
   sortDir: SortDir;
   quickFilter: QuickFilter;
+  groupFilter: string;
+  groups: TopicGroupItem[];
   unnamedCount: number;
   aiRenamePending: boolean;
   onSearchChange: (value: string) => void;
   onSortKeyChange: (value: SortKey) => void;
   onSortDirChange: (value: SortDir) => void;
   onQuickFilterChange: (value: QuickFilter) => void;
+  onGroupFilterChange: (value: string) => void;
   onAiRename: () => void;
   onReset: () => void;
 }) {
@@ -486,7 +544,7 @@ function TopicCommandPanel({
   return (
     <section className="sticky top-4 z-20 rounded-[1.75rem] border border-slate-200 bg-white/95 p-4 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-white/85">
       <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
-        <div className="grid flex-1 gap-3 lg:grid-cols-[minmax(18rem,1fr)_11rem_10rem]">
+        <div className="grid flex-1 gap-3 lg:grid-cols-[minmax(18rem,1fr)_11rem_10rem_13rem]">
           <label className="min-w-0">
             <span className="mb-2 block text-xs font-black uppercase tracking-[0.16em] text-primary">Cari topik</span>
             <span className="relative block">
@@ -523,6 +581,23 @@ function TopicCommandPanel({
               options={[
                 { value: 'desc', label: 'Terbesar', description: 'Nilai tinggi lebih dulu' },
                 { value: 'asc', label: 'Terkecil', description: 'Nilai rendah lebih dulu' },
+              ]}
+            />
+          </label>
+
+          <label>
+            <span className="mb-2 block text-xs font-black uppercase tracking-[0.16em] text-slate-500">Group</span>
+            <NativeSelect
+              aria-label="Filter group topik"
+              value={groupFilter}
+              onValueChange={onGroupFilterChange}
+              options={[
+                { value: 'all', label: 'Semua group' },
+                { value: 'none', label: 'Belum dipetakan' },
+                ...groups.map((group) => ({
+                  value: String(group.id),
+                  label: group.group_name,
+                })),
               ]}
             />
           </label>
@@ -626,7 +701,7 @@ function TopicCloud({ topics, maxDestinations, onSelectTopic }: { topics: TopicI
               onClick={() => onSelectTopic(topic.topic_name)}
               title={`${topic.topic_name} (${topic.total_destinations} destinasi)`}
               className={`flex flex-col items-center justify-center rounded-2xl border text-center transition hover:-translate-y-0.5 focus:outline-none focus:ring-4 focus:ring-primary/15 ${
-                isOrange ? 'border-orange-200 bg-orange-50 text-primary' : 'border-sky-200 bg-sky-50 text-[#2D82B5]'
+                isOrange ? 'border-orange-200 bg-orange-50 text-primary' : 'border-sky-200 bg-sky-50 text-ai'
               }`}
               style={{ width: size + 34, height: size }}
             >
@@ -685,10 +760,10 @@ function TopicActionQueue({ items }: { items: ActionItem[] }) {
     <section className="rounded-[1.75rem] border border-slate-200 bg-white p-5 shadow-sm">
       <div className="mb-4 flex items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-black uppercase tracking-[0.16em] text-[#2D82B5]">Action queue</p>
+          <p className="text-xs font-black uppercase tracking-[0.16em] text-ai">Action queue</p>
           <h3 className="mt-1 text-xl font-black text-slate-950">Prioritas admin</h3>
         </div>
-        <Target className="h-5 w-5 text-[#2D82B5]" />
+        <Target className="h-5 w-5 text-ai" />
       </div>
       <div className="space-y-3">
         {items.map((item) => (
@@ -702,7 +777,7 @@ function TopicActionQueue({ items }: { items: ActionItem[] }) {
 function ActionQueueItem({ item }: { item: ActionItem }) {
   const toneClass = {
     orange: 'border-orange-100 bg-orange-50 text-primary',
-    blue: 'border-sky-100 bg-sky-50 text-[#2D82B5]',
+    blue: 'border-sky-100 bg-sky-50 text-ai',
     emerald: 'border-emerald-100 bg-emerald-50 text-emerald-700',
     amber: 'border-amber-100 bg-amber-50 text-amber-700',
     rose: 'border-rose-100 bg-rose-50 text-rose-700',
@@ -790,6 +865,9 @@ function TaxonomyTable({
   onPageSizeChange,
   onRename,
   onDelete,
+  groups,
+  onGroupChange,
+  onVisibilityChange,
 }: {
   topics: TopicItem[];
   totalTopics: number;
@@ -804,6 +882,13 @@ function TaxonomyTable({
   onPageSizeChange: (pageSize: number) => void;
   onRename: (topic: TopicItem) => void;
   onDelete: (topic: TopicItem) => void;
+  groups: TopicGroupItem[];
+  onGroupChange: (topic: TopicItem, groupId: number | null) => void;
+  onVisibilityChange: (
+    topic: TopicItem,
+    key: 'isSearchVisible' | 'isDetailVisible',
+    value: boolean,
+  ) => void;
 }) {
   const startItem = filteredCount === 0 ? 0 : (page - 1) * pageSize + 1;
   const endItem = Math.min(page * pageSize, filteredCount);
@@ -836,6 +921,8 @@ function TaxonomyTable({
                 <SortButton active={sortKey === 'name'} onClick={() => onSort('name')}>Nama Topik</SortButton>
               </TableHead>
               <TableHead>Status</TableHead>
+              <TableHead>Group</TableHead>
+              <TableHead>Visibilitas</TableHead>
               <TableHead>Kata Kunci</TableHead>
               <TableHead className="w-36">
                 <SortButton active={sortKey === 'destinations'} onClick={() => onSort('destinations')}>
@@ -848,7 +935,7 @@ function TaxonomyTable({
           <TableBody>
             {topics.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="h-40 text-center">
+                <TableCell colSpan={8} className="h-40 text-center">
                   <p className="font-black text-slate-700">Tidak ada topik yang cocok</p>
                   <p className="mt-1 text-sm font-semibold text-slate-500">Ubah pencarian atau filter cepat untuk melihat topik lain.</p>
                 </TableCell>
@@ -870,6 +957,48 @@ function TaxonomyTable({
                     </TableCell>
                     <TableCell>
                       <StatusBadge status={status} />
+                    </TableCell>
+                    <TableCell>
+                      <NativeSelect
+                        aria-label={`Pilih group untuk topik ${topic.topic_name}`}
+                        value={topic.group_id ? String(topic.group_id) : 'none'}
+                        onValueChange={(value) =>
+                          onGroupChange(topic, value === 'none' ? null : Number(value))
+                        }
+                        options={[
+                          { value: 'none', label: 'Belum dipetakan' },
+                          ...groups.map((group) => ({
+                            value: String(group.id),
+                            label: group.group_name,
+                          })),
+                        ]}
+                        wrapperClassName="min-w-48"
+                        className="min-h-10 bg-white"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-col gap-1.5">
+                        <label className="flex items-center gap-2 text-xs font-black text-slate-600">
+                          <input
+                            type="checkbox"
+                            checked={topic.is_search_visible !== false}
+                            onChange={(event) =>
+                              onVisibilityChange(topic, 'isSearchVisible', event.target.checked)
+                            }
+                          />
+                          Search
+                        </label>
+                        <label className="flex items-center gap-2 text-xs font-black text-slate-600">
+                          <input
+                            type="checkbox"
+                            checked={topic.is_detail_visible !== false}
+                            onChange={(event) =>
+                              onVisibilityChange(topic, 'isDetailVisible', event.target.checked)
+                            }
+                          />
+                          Detail
+                        </label>
+                      </div>
                     </TableCell>
                     <TableCell>
                       <div className="flex max-w-md flex-wrap gap-1.5">
@@ -902,7 +1031,7 @@ function TaxonomyTable({
                           type="button"
                           aria-label={`Rename topik ${topic.topic_name}`}
                           onClick={() => onRename(topic)}
-                          className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 transition hover:border-sky-200 hover:bg-sky-50 hover:text-[#2D82B5] focus:outline-none focus:ring-4 focus:ring-primary/15"
+                          className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 transition hover:border-sky-200 hover:bg-sky-50 hover:text-ai focus:outline-none focus:ring-4 focus:ring-primary/15"
                         >
                           <Pencil className="h-4 w-4" />
                         </button>
@@ -1193,7 +1322,7 @@ function TopicsSkeleton() {
 function getToneClass(tone: Tone) {
   return {
     orange: 'border-orange-100 bg-orange-50 text-primary',
-    blue: 'border-sky-100 bg-sky-50 text-[#2D82B5]',
+    blue: 'border-sky-100 bg-sky-50 text-ai',
     emerald: 'border-emerald-100 bg-emerald-50 text-emerald-700',
     amber: 'border-amber-100 bg-amber-50 text-amber-700',
     rose: 'border-rose-100 bg-rose-50 text-rose-700',

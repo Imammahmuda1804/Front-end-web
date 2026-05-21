@@ -11,8 +11,8 @@ interface Props {
 export default function ReviewSourceMixChart({ breakdown }: Props) {
   const total = breakdown.scraped + breakdown.user_submitted;
   const data = [
-    { name: 'Google Maps', value: breakdown.scraped, color: '#2D82B5' },
-    { name: 'Pengguna', value: breakdown.user_submitted, color: '#FF7B54' },
+    { name: 'Google Maps', value: breakdown.scraped, color: 'var(--ai)' },
+    { name: 'Pengguna', value: breakdown.user_submitted, color: 'var(--explore)' },
   ];
   const userRatio = total > 0 ? Math.round((breakdown.user_submitted / total) * 100) : 0;
 

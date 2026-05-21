@@ -16,8 +16,8 @@ const STATUS_META: Record<string, { label: string; color: string }> = {
   failed: { label: 'Gagal', color: '#f43f5e' },
   PENDING: { label: 'Menunggu', color: '#f59e0b' },
   pending: { label: 'Menunggu', color: '#f59e0b' },
-  RUNNING: { label: 'Berjalan', color: '#2D82B5' },
-  running: { label: 'Berjalan', color: '#2D82B5' },
+  RUNNING: { label: 'Berjalan', color: 'var(--ai)' },
+  running: { label: 'Berjalan', color: 'var(--ai)' },
 };
 
 export default function ScrapingJobHealthChart({ breakdown }: Props) {

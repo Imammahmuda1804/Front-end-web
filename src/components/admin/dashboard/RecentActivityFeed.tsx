@@ -79,7 +79,7 @@ export default function RecentActivityFeed({ activity }: RecentActivityFeedProps
   ].sort((a, b) => b.date.getTime() - a.date.getTime()).slice(0, 8);
 
   const getIcon = (type: string, status: string) => {
-    if (type === 'registration') return <UserPlus className="h-4 w-4 text-[#2D82B5]" />;
+    if (type === 'registration') return <UserPlus className="h-4 w-4 text-ai" />;
     if (type === 'user_review') return <MessageSquareText className="h-4 w-4 text-emerald-600" />;
     if (type === 'job') {
       if (status === 'COMPLETED' || status === 'completed') return <CheckCircle2 className="h-4 w-4 text-emerald-600" />;

@@ -66,6 +66,7 @@ import {
 } from "@/services/admin/destination.service";
 
 import { DestinationFormModal } from "./destination-form-modal";
+import { getDestinationCategoryLabel } from "@/lib/destination-categories";
 
 type QualityFilter = "all" | "complete" | "missing-media" | "missing-location" | "missing-rating";
 type SortFilter = "newest" | "name" | "city" | "google-rating" | "user-rating";
@@ -973,7 +974,7 @@ function DestinationsDataTable({
       <Table>
         <TableHeader className="bg-slate-50">
           <TableRow>
-            <TableHead colSpan={7} className="h-auto px-4 py-3">
+            <TableHead colSpan={8} className="h-auto px-4 py-3">
               <div className="flex flex-col gap-2 text-xs font-normal text-slate-500 lg:flex-row lg:items-center lg:justify-between">
                 <span>
                   Klik nama atau tombol mata untuk membuka preview. Checkbox mengaktifkan aksi massal.
@@ -1003,6 +1004,7 @@ function DestinationsDataTable({
               />
             </TableHead>
             <TableHead>Destinasi</TableHead>
+            <TableHead>Kategori</TableHead>
             <TableHead>Kualitas</TableHead>
             <TableHead>Media</TableHead>
             <TableHead>Lokasi</TableHead>
@@ -1015,7 +1017,7 @@ function DestinationsDataTable({
             <SkeletonRows />
           ) : destinations.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={7}>
+              <TableCell colSpan={8}>
                 <EmptyState hasActiveFilters={hasActiveFilters} onReset={onReset} />
               </TableCell>
             </TableRow>
@@ -1055,6 +1057,11 @@ function DestinationsDataTable({
                         <span className="mt-1 block truncate text-xs text-slate-500">ID {destination.id} {destination.slug ? `, ${destination.slug}` : ""}</span>
                       </span>
                     </button>
+                  </TableCell>
+                  <TableCell>
+                    <span className="inline-flex rounded-full border border-orange-100 bg-orange-50 px-2.5 py-1 text-xs font-black text-primary">
+                      {getDestinationCategoryLabel(destination.category)}
+                    </span>
                   </TableCell>
                   <TableCell>
                     <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-semibold ${statusClass(quality.tone)}`}>
@@ -1115,7 +1122,7 @@ function SkeletonRows() {
     <>
       {Array.from({ length: 6 }).map((_, index) => (
         <TableRow key={index}>
-          <TableCell colSpan={7}>
+          <TableCell colSpan={8}>
             <div className="h-14 animate-pulse rounded-xl bg-slate-100" />
           </TableCell>
         </TableRow>

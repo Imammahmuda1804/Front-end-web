@@ -82,7 +82,7 @@ export default function DestinationQualityMatrix({ destinations }: Props) {
                       );
                     }}
                   />
-                  <Scatter data={data} fill="#FF7B54" fillOpacity={0.72} stroke="#ea580c" />
+                  <Scatter data={data} fill="var(--explore)" fillOpacity={0.72} stroke="var(--minang-rust)" />
                 </ScatterChart>
               </ResponsiveContainer>
             </div>

@@ -71,8 +71,8 @@ type MetricRow = {
   icon: ElementType;
 };
 
-const DEST_A_COLOR = '#FF7B54';
-const DEST_B_COLOR = '#2D82B5';
+const DEST_A_COLOR = 'var(--explore)';
+const DEST_B_COLOR = 'var(--ai)';
 const SENTIMENT_COLORS = ['#10b981', '#94a3b8', '#ef4444'];
 
 function percent(value: number | null | undefined) {
@@ -396,7 +396,7 @@ export function CompareClient() {
                   onClick={handleSwap}
                   disabled={!destA && !destB}
                   aria-label="Tukar destinasi pembanding"
-                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-sky-200 bg-sky-50 px-4 text-sm font-black text-[#2D82B5] transition-all hover:-translate-y-0.5 hover:border-[#2D82B5] disabled:cursor-not-allowed disabled:opacity-40"
+                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-sky-200 bg-sky-50 px-4 text-sm font-black text-ai transition-all hover:-translate-y-0.5 hover:border-ai disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   <ArrowRightLeft className="h-4 w-4" />
                   Tukar
@@ -521,7 +521,7 @@ function ComparisonHeroPanel({
 function HeroInsightCard({ icon: Icon, label, value, helper, tone }: { icon: ElementType; label: string; value: string; helper: string; tone: 'orange' | 'blue' | 'emerald' }) {
   const toneClass = {
     orange: 'border-orange-100 bg-white text-primary',
-    blue: 'border-sky-100 bg-sky-50 text-[#2D82B5]',
+    blue: 'border-sky-100 bg-sky-50 text-ai',
     emerald: 'border-emerald-100 bg-emerald-50 text-emerald-700',
   }[tone];
 
@@ -554,7 +554,7 @@ function ModeButton({ mode, activeTab, onClick, icon: Icon, label }: { mode: Mod
 }
 
 function DestinationSelect({ label, value, destinations, tone, onChange }: { label: string; value: number | ''; destinations: DestinationOption[]; tone: 'orange' | 'blue'; onChange: (value: number | '') => void }) {
-  const accent = tone === 'orange' ? 'text-primary' : 'text-[#2D82B5]';
+  const accent = tone === 'orange' ? 'text-primary' : 'text-ai';
   const options = destinations.map((destination) => ({
     value: String(destination.id),
     label: destination.name,
@@ -813,7 +813,7 @@ function SentimentRiskPanel({
     <div className="rounded-[1.5rem] border border-slate-200 bg-slate-50/70 p-5">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <p className="text-xs font-black uppercase tracking-[0.16em] text-[#2D82B5]">Sentiment risk</p>
+          <p className="text-xs font-black uppercase tracking-[0.16em] text-ai">Sentiment risk</p>
           <h3 className="mt-2 text-2xl font-black text-slate-950">{label}</h3>
           <p className="mt-1 text-sm font-semibold text-slate-600">Komposisi sentimen untuk prioritas monitoring admin.</p>
         </div>
@@ -839,7 +839,7 @@ function SentimentRiskPanel({
 function TrendDeltaCard({ label, value, delta, tone }: { label: string; value: string; delta: string; tone: Tone }) {
   const toneClass = {
     orange: 'border-orange-100 bg-orange-50 text-primary',
-    blue: 'border-sky-100 bg-sky-50 text-[#2D82B5]',
+    blue: 'border-sky-100 bg-sky-50 text-ai',
     emerald: 'border-emerald-100 bg-emerald-50 text-emerald-700',
     amber: 'border-amber-100 bg-amber-50 text-amber-700',
     rose: 'border-rose-100 bg-rose-50 text-rose-700',
@@ -901,7 +901,7 @@ function TopicPriorityPanel({ topics }: { topics: Array<{ name: string; Percenta
 
 function AdminActionChecklist({ items }: { items: ActionItem[] }) {
   const toneClass = {
-    blue: 'border-sky-100 bg-sky-50 text-[#2D82B5]',
+    blue: 'border-sky-100 bg-sky-50 text-ai',
     emerald: 'border-emerald-100 bg-emerald-50 text-emerald-700',
     amber: 'border-amber-100 bg-amber-50 text-amber-700',
     rose: 'border-rose-100 bg-rose-50 text-rose-700',
@@ -911,11 +911,11 @@ function AdminActionChecklist({ items }: { items: ActionItem[] }) {
     <section className="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
       <div className="mb-5 flex items-start justify-between gap-4">
         <div>
-          <p className="text-xs font-black uppercase tracking-[0.16em] text-[#2D82B5]">Action checklist</p>
+          <p className="text-xs font-black uppercase tracking-[0.16em] text-ai">Action checklist</p>
           <h3 className="mt-1 text-xl font-black text-slate-950">Prioritas tindakan admin</h3>
           <p className="mt-2 text-sm font-semibold leading-6 text-slate-600">Checklist ini merangkum tindak lanjut yang paling masuk akal dari sinyal analitik tunggal.</p>
         </div>
-        <Target className="h-5 w-5 text-[#2D82B5]" />
+        <Target className="h-5 w-5 text-ai" />
       </div>
       <div className="space-y-3">
         {items.map((item) => (
@@ -999,7 +999,7 @@ function CompareAnalysisView({
 
         {biggestDelta && (
           <div className="mt-5 rounded-3xl border border-sky-100 bg-sky-50 p-5">
-            <p className="text-xs font-black uppercase tracking-[0.16em] text-[#2D82B5]">Selisih terbesar</p>
+            <p className="text-xs font-black uppercase tracking-[0.16em] text-ai">Selisih terbesar</p>
             <p className="mt-1 text-xl font-black text-slate-950">{biggestDelta.label}</p>
             <p className="mt-1 text-sm font-semibold text-slate-600">
               {selectedA?.name || dA.name}: {formatMetric(biggestDelta.a, biggestDelta.format)} / {selectedB?.name || dB.name}: {formatMetric(biggestDelta.b, biggestDelta.format)}
@@ -1086,7 +1086,7 @@ function CompareAnalysisView({
 function MetricCard({ icon: Icon, label, value, helper, tone }: { icon: ElementType; label: string; value: string; helper: string; tone: Tone }) {
   const toneClass = {
     orange: 'border-orange-100 bg-orange-50 text-primary',
-    blue: 'border-sky-100 bg-sky-50 text-[#2D82B5]',
+    blue: 'border-sky-100 bg-sky-50 text-ai',
     emerald: 'border-emerald-100 bg-emerald-50 text-emerald-700',
     amber: 'border-amber-100 bg-amber-50 text-amber-700',
     rose: 'border-rose-100 bg-rose-50 text-rose-700',
@@ -1135,7 +1135,7 @@ function ActionableVarianceTable({ rows, nameA, nameB }: { rows: MetricRow[]; na
             <tr>
               <th className="sticky left-0 bg-slate-50 p-4">Metrik</th>
               <th className="p-4 text-primary">{nameA}</th>
-              <th className="p-4 text-[#2D82B5]">{nameB}</th>
+              <th className="p-4 text-ai">{nameB}</th>
               <th className="p-4 text-right">Delta</th>
               <th className="p-4 text-right">Pemenang</th>
             </tr>
@@ -1157,11 +1157,11 @@ function ActionableVarianceTable({ rows, nameA, nameB }: { rows: MetricRow[]; na
                   </td>
                   <td className="p-4 font-bold text-slate-700">{formatMetric(row.a, row.format)}</td>
                   <td className="p-4 font-bold text-slate-700">{formatMetric(row.b, row.format)}</td>
-                  <td className={`p-4 text-right font-black ${delta >= 0 ? 'text-primary' : 'text-[#2D82B5]'}`}>
+                  <td className={`p-4 text-right font-black ${delta >= 0 ? 'text-primary' : 'text-ai'}`}>
                     {delta > 0 ? '+' : ''}{formatMetric(delta, row.format)}
                   </td>
                   <td className="p-4 text-right">
-                    <span className={`rounded-full px-3 py-1 text-xs font-black ${delta >= 0 ? 'bg-orange-50 text-primary' : 'bg-sky-50 text-[#2D82B5]'}`}>
+                    <span className={`rounded-full px-3 py-1 text-xs font-black ${delta >= 0 ? 'bg-orange-50 text-primary' : 'bg-sky-50 text-ai'}`}>
                       {winner}
                     </span>
                   </td>

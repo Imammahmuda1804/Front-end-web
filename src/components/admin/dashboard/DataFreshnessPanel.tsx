@@ -80,7 +80,7 @@ function FreshnessRow({
     emerald: 'bg-emerald-50 text-emerald-700 border-emerald-100',
     rose: 'bg-rose-50 text-rose-700 border-rose-100',
     amber: 'bg-amber-50 text-amber-700 border-amber-100',
-    blue: 'bg-sky-50 text-[#2D82B5] border-sky-100',
+    blue: 'bg-sky-50 text-ai border-sky-100',
   }[tone];
 
   return (

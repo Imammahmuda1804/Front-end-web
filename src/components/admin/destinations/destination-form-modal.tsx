@@ -8,7 +8,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { NativeSelect } from "@/components/ui/native-select";
 import { destinationSchema, DestinationFormValues } from "@/lib/validations/destination";
+import { DESTINATION_CATEGORIES } from "@/lib/destination-categories";
 import { ThumbnailUploader } from "./thumbnail-uploader";
 import { GalleryUploader, ExistingImage } from "./gallery-uploader";
 import { toast } from "sonner";
@@ -59,13 +61,14 @@ export function DestinationFormModal({ open, onOpenChange, onSuccess, initialDat
 
   const isEditing = !!initialData;
 
-  const { register, handleSubmit, formState: { errors }, trigger, control } = useForm<DestinationFormValues>({
+  const { register, handleSubmit, formState: { errors }, trigger, control, setValue } = useForm<DestinationFormValues>({
     resolver: zodResolver(destinationSchema) as Resolver<DestinationFormValues>,
-    defaultValues: initialData || {
+    defaultValues: initialData ? { ...initialData, category: initialData.category || "alam" } : {
       name: "",
       description: "",
       city: "",
       province: "",
+      category: "alam",
       latitude: 0,
       longitude: 0,
       googleMapsUrl: "",
@@ -100,7 +103,7 @@ export function DestinationFormModal({ open, onOpenChange, onSuccess, initialDat
   const nextStep = async () => {
     let isValid = false;
     if (step === 1) {
-      isValid = await trigger(["name", "description", "city", "province"]);
+      isValid = await trigger(["name", "description", "city", "province", "category"]);
     } else if (step === 2) {
       isValid = await trigger(["latitude", "longitude", "googleMapsUrl", "youtubeUrl", "googleRating", "googleReviewCount"]);
     }
@@ -297,6 +300,23 @@ export function DestinationFormModal({ open, onOpenChange, onSuccess, initialDat
                 <Input id="province" {...register("province")} placeholder="Contoh: Sumatera Barat" />
                 {errors.province && <p className="text-sm text-destructive">{errors.province.message}</p>}
               </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="category">
+                Kategori <span className="text-destructive">*</span>
+              </Label>
+              <NativeSelect
+                aria-label="Pilih kategori destinasi"
+                value={watchedValues.category || "alam"}
+                onValueChange={(value) => setValue("category", value, { shouldDirty: true, shouldValidate: true })}
+                options={DESTINATION_CATEGORIES.map((category) => ({
+                  value: category.value,
+                  label: category.label,
+                }))}
+                className="min-h-11"
+              />
+              {errors.category && <p className="text-sm text-destructive">{errors.category.message}</p>}
             </div>
           </div>
 

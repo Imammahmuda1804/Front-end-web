@@ -109,6 +109,19 @@ interface DestinationDetail {
   scrapedAverageRating: number | null;
   scrapedReviewCount: number | null;
   topicSentimentBreakdown?: Record<number, { positive: number; negative: number; neutral: number }>;
+  topicGroups?: TopicGroupData[];
+}
+
+interface TopicGroupData {
+  groupId: number;
+  groupName: string;
+  totalReviews: number;
+  sentimentBreakdown: { positive: number; negative: number; neutral: number };
+  topics: Array<{
+    id: number;
+    topicName: string;
+    totalReviews: number;
+  }>;
 }
 
 interface Props {
@@ -436,7 +449,7 @@ export default function DestinationDetailClient({ destination }: Props) {
                 {destination.youtubeUrl && (
                   <a
                     href="#trailer"
-                    className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-sky-200 bg-white px-6 py-3 text-sm font-black text-[#2D82B5] shadow-sm transition-all hover:-translate-y-0.5 hover:border-[#2D82B5] focus:outline-none focus:ring-4 focus:ring-sky-100"
+                    className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-sky-200 bg-white px-6 py-3 text-sm font-black text-ai shadow-sm transition-all hover:-translate-y-0.5 hover:border-ai focus:outline-none focus:ring-4 focus:ring-sky-100"
                   >
                     <PlayCircle className="h-4 w-4" />
                     Lihat Trailer
@@ -447,7 +460,7 @@ export default function DestinationDetailClient({ destination }: Props) {
           </div>
         </motion.section>
 
-        <div className="sticky top-16 z-20 -mx-4 mt-5 border-y border-orange-100 bg-slate-50 px-4 py-3 sm:top-20 sm:mx-0 sm:rounded-full sm:border sm:bg-white sm:px-5 sm:shadow-sm">
+        <div className="-mx-4 mt-5 border-y border-orange-100 bg-slate-50 px-4 py-3 sm:mx-0 sm:rounded-full sm:border sm:bg-white sm:px-5 sm:shadow-sm">
           <div className="flex gap-2 overflow-x-auto">
             {navItems.map(([href, label]) => {
               const isActive = activeSection === href.replace('#', '');
@@ -495,6 +508,7 @@ export default function DestinationDetailClient({ destination }: Props) {
               <div className="mt-6">
                 <TopicInsightSection
                   destinationId={destination.id}
+                  topicGroups={destination.topicGroups}
                   topics={destination.destinationTopics.map((dt) => ({
                     id: dt.id,
                     totalReviews: dt.totalReviews || 0,
@@ -663,7 +677,7 @@ export default function DestinationDetailClient({ destination }: Props) {
           <aside className="space-y-6 xl:sticky xl:top-32 xl:self-start">
             <div className="rounded-[1.75rem] border border-sky-100 bg-white p-6 shadow-sm">
               <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-sky-50 text-[#2D82B5]">
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-sky-50 text-ai">
                   <TrendingUp className="h-5 w-5" />
                 </div>
                 <div>
@@ -795,7 +809,7 @@ function SectionHeader({ eyebrow, title, description }: { eyebrow: string; title
 function MetricCard({ label, value, suffix, tone }: { label: string; value: string; suffix?: string; tone: 'orange' | 'blue' | 'emerald' }) {
   const toneClass = {
     orange: 'border-orange-200 bg-white text-primary',
-    blue: 'border-sky-200 bg-white text-[#2D82B5]',
+    blue: 'border-sky-200 bg-white text-ai',
     emerald: 'border-emerald-200 bg-white text-emerald-600',
   }[tone];
 
@@ -825,7 +839,7 @@ function InfoTile({
 }) {
   const toneClass = {
     orange: 'bg-orange-50 text-primary border-orange-100',
-    blue: 'bg-sky-50 text-[#2D82B5] border-sky-100',
+    blue: 'bg-sky-50 text-ai border-sky-100',
     emerald: 'bg-emerald-50 text-emerald-600 border-emerald-100',
     slate: 'bg-slate-50 text-slate-600 border-slate-200',
   }[tone];
@@ -857,7 +871,7 @@ function InsightPill({
 }) {
   const toneClass = {
     emerald: 'bg-emerald-50 text-emerald-700 border-emerald-100',
-    blue: 'bg-sky-50 text-[#2D82B5] border-sky-100',
+    blue: 'bg-sky-50 text-ai border-sky-100',
     amber: 'bg-amber-50 text-amber-700 border-amber-100',
   }[tone];
 

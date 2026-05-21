@@ -68,7 +68,7 @@ export default function SummaryCards({
         const Icon = card.icon;
         const toneClass = {
           orange: 'border-orange-100 bg-orange-50 text-primary',
-          blue: 'border-sky-100 bg-sky-50 text-[#2D82B5]',
+          blue: 'border-sky-100 bg-sky-50 text-ai',
           emerald: 'border-emerald-100 bg-emerald-50 text-emerald-700',
           slate: 'border-slate-200 bg-white text-slate-700',
         }[card.tone];

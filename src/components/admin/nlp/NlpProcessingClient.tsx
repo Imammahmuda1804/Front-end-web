@@ -235,7 +235,7 @@ function NlpCommandPanel({
 
         <div>
           <span className="mb-2 flex items-center gap-2 text-xs font-black uppercase tracking-[0.16em] text-slate-600">
-            <FileSpreadsheet className="h-3.5 w-3.5 text-[#2D82B5]" />
+            <FileSpreadsheet className="h-3.5 w-3.5 text-ai" />
             File hasil scraping
           </span>
           {!file ? (
@@ -406,7 +406,7 @@ function PipelineActionPanel({ selectedDestinationId, negativeRatio }: { selecte
           </div>
         </div>
       </div>
-      <p className="mb-3 text-xs font-black uppercase tracking-[0.16em] text-[#2D82B5]">Next action</p>
+      <p className="mb-3 text-xs font-black uppercase tracking-[0.16em] text-ai">Next action</p>
       <div className="grid gap-3 md:grid-cols-3">
         {links.map((item) => {
           const Icon = item.icon;
@@ -467,7 +467,7 @@ function PipelineMetricCard({ icon: Icon, label, value, helper, tone }: { icon: 
 function getToneClass(tone: Tone) {
   return {
     orange: "border-orange-100 bg-orange-50 text-primary",
-    blue: "border-sky-100 bg-sky-50 text-[#2D82B5]",
+    blue: "border-sky-100 bg-sky-50 text-ai",
     emerald: "border-emerald-100 bg-emerald-50 text-emerald-700",
     amber: "border-amber-100 bg-amber-50 text-amber-700",
     rose: "border-rose-100 bg-rose-50 text-rose-700",

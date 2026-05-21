@@ -30,6 +30,17 @@ interface TopicData {
     topicName: string;
     keywords: string[] | null;
   };
+  isGroup?: boolean;
+  fineTopics?: Array<{ id: number; topicName: string; totalReviews: number }>;
+  groupSentimentBreakdown?: SentimentBreakdown;
+}
+
+interface TopicGroupData {
+  groupId: number;
+  groupName: string;
+  totalReviews: number;
+  sentimentBreakdown: SentimentBreakdown;
+  topics: Array<{ id: number; topicName: string; totalReviews: number }>;
 }
 
 interface SentimentBreakdown {
@@ -52,6 +63,7 @@ interface Props {
   destinationId: number;
   topics: TopicData[];
   sentimentBreakdown: Record<number, SentimentBreakdown>;
+  topicGroups?: TopicGroupData[];
 }
 
 function getSentimentColor(breakdown: SentimentBreakdown | undefined) {
@@ -102,7 +114,7 @@ function SentimentDot({ sentiment }: { sentiment: string | null }) {
   return <span className="inline-block h-2 w-2 rounded-full bg-amber-400" title="Netral" />;
 }
 
-export default function TopicInsightSection({ destinationId, topics, sentimentBreakdown }: Props) {
+export default function TopicInsightSection({ destinationId, topics, sentimentBreakdown, topicGroups }: Props) {
   const [expandedTopicId, setExpandedTopicId] = useState<number | null>(null);
   const [topicReviews, setTopicReviews] = useState<TopicReview[]>([]);
   const [loading, setLoading] = useState(false);
@@ -111,10 +123,13 @@ export default function TopicInsightSection({ destinationId, topics, sentimentBr
   const [showAllTopics, setShowAllTopics] = useState(false);
   const reduceMotion = useReducedMotion();
 
-  const loadReviews = useCallback(async (topicId: number, page = 1) => {
+  const loadReviews = useCallback(async (topicId: number, page = 1, mode: 'topic' | 'group' = 'topic') => {
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/api/destinations/${destinationId}/reviews-by-topic?topicId=${topicId}&page=${page}&limit=5`);
+      const endpoint = mode === 'group'
+        ? `${API_BASE}/api/destinations/${destinationId}/reviews-by-topic-group?groupId=${topicId}&page=${page}&limit=5`
+        : `${API_BASE}/api/destinations/${destinationId}/reviews-by-topic?topicId=${topicId}&page=${page}&limit=5`;
+      const res = await fetch(endpoint);
       const json = await res.json();
       const reviews = Array.isArray(json.data) ? json.data : [];
       const meta = json.meta || null;
@@ -131,7 +146,7 @@ export default function TopicInsightSection({ destinationId, topics, sentimentBr
     }
   }, [destinationId]);
 
-  const handleTopicClick = useCallback((topicId: number, keywords: string[] | null) => {
+  const handleTopicClick = useCallback((topicId: number, keywords: string[] | null, mode: 'topic' | 'group' = 'topic') => {
     if (expandedTopicId === topicId) {
       setExpandedTopicId(null);
       setTopicReviews([]);
@@ -141,10 +156,24 @@ export default function TopicInsightSection({ destinationId, topics, sentimentBr
 
     setExpandedTopicId(topicId);
     setActiveKeywords(keywords || []);
-    loadReviews(topicId, 1);
+    loadReviews(topicId, 1, mode);
   }, [expandedTopicId, loadReviews]);
 
-  const sorted = [...topics].sort((a, b) => (b.totalReviews || 0) - (a.totalReviews || 0));
+  const groupedTopics: TopicData[] = (topicGroups || []).map((group) => ({
+    id: group.groupId,
+    totalReviews: group.totalReviews,
+    topic: {
+      id: group.groupId,
+      topicName: group.groupName,
+      keywords: group.topics.map((topic) => cleanTopicName(topic.topicName)),
+    },
+    isGroup: true,
+    fineTopics: group.topics,
+    groupSentimentBreakdown: group.sentimentBreakdown,
+  }));
+
+  const sorted = (groupedTopics.length > 0 ? groupedTopics : topics)
+    .sort((a, b) => (b.totalReviews || 0) - (a.totalReviews || 0));
 
   if (sorted.length === 0) {
     return (
@@ -159,7 +188,7 @@ export default function TopicInsightSection({ destinationId, topics, sentimentBr
     <div>
       <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-sky-50 px-3 py-1.5 text-xs font-black uppercase tracking-[0.16em] text-[#2D82B5]">
+          <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-sky-50 px-3 py-1.5 text-xs font-black uppercase tracking-[0.16em] text-ai">
             <Sparkles className="h-3.5 w-3.5" />
             Peta Topik
           </div>
@@ -170,7 +199,7 @@ export default function TopicInsightSection({ destinationId, topics, sentimentBr
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         {(showAllTopics ? sorted : sorted.slice(0, 4)).map((dt) => {
-          const breakdown = sentimentBreakdown[dt.topic.id];
+          const breakdown = dt.groupSentimentBreakdown || sentimentBreakdown[dt.topic.id];
           const sentiment = getSentimentColor(breakdown);
           const percentages = getSentimentPercentages(breakdown);
           const SentimentIcon = sentiment.icon;
@@ -181,7 +210,7 @@ export default function TopicInsightSection({ destinationId, topics, sentimentBr
             <React.Fragment key={dt.id}>
               <button
                 type="button"
-                onClick={() => handleTopicClick(dt.topic.id, dt.topic.keywords)}
+                onClick={() => handleTopicClick(dt.topic.id, dt.topic.keywords, dt.isGroup ? 'group' : 'topic')}
                 aria-expanded={isExpanded}
                 className={`group w-full cursor-pointer rounded-3xl border p-5 text-left transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-primary/15 ${
                   isExpanded
@@ -197,14 +226,25 @@ export default function TopicInsightSection({ destinationId, topics, sentimentBr
                   </div>
                 </div>
 
-                {dt.topic.keywords && dt.topic.keywords.length > 0 && (
-                  <div className="mb-4 flex flex-wrap gap-1.5">
-                    {dt.topic.keywords.slice(0, 4).map((keyword) => (
-                      <span key={keyword} className="rounded-full bg-white px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-slate-600 ring-1 ring-slate-200">
-                        {keyword}
+                {dt.isGroup && dt.fineTopics && dt.fineTopics.length > 0 && (
+                  <div className="mb-4 flex min-w-0 flex-wrap items-center gap-1.5">
+                    {dt.fineTopics.slice(0, 3).map((topic) => (
+                      <span key={topic.id} className="max-w-full truncate rounded-full bg-sky-50 px-2.5 py-1 text-[10px] font-extrabold text-ai ring-1 ring-sky-100">
+                        {cleanTopicName(topic.topicName)}
                       </span>
                     ))}
+                    {dt.fineTopics.length > 3 && (
+                      <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-black text-slate-500">
+                        +{dt.fineTopics.length - 3} topik
+                      </span>
+                    )}
                   </div>
+                )}
+
+                {!dt.isGroup && dt.topic.keywords && dt.topic.keywords.length > 0 && (
+                  <p className="mb-4 line-clamp-1 text-xs font-semibold text-slate-500">
+                    Kata kunci: {dt.topic.keywords.slice(0, 3).join(', ')}
+                  </p>
                 )}
 
                 <div
@@ -293,7 +333,7 @@ export default function TopicInsightSection({ destinationId, topics, sentimentBr
                       {reviewMeta && reviewMeta.page < reviewMeta.totalPages && (
                         <button
                           type="button"
-                          onClick={() => loadReviews(dt.topic.id, reviewMeta.page + 1)}
+                          onClick={() => loadReviews(dt.topic.id, reviewMeta.page + 1, dt.isGroup ? 'group' : 'topic')}
                           disabled={loading}
                           aria-label={`Muat ulasan tambahan untuk topik ${topicLabel}`}
                           className="mt-3 min-h-11 w-full cursor-pointer rounded-full border border-orange-200 bg-orange-50 text-center text-xs font-black text-primary transition-colors hover:bg-orange-100 disabled:text-slate-400"

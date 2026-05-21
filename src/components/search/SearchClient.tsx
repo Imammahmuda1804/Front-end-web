@@ -10,15 +10,18 @@ import {
   AlertCircle,
   ArrowRight,
   Brain,
+  CheckCircle2,
   History,
   ImageIcon,
+  Landmark,
   MapPin,
   RotateCcw,
   Search,
-  SlidersHorizontal,
   Sparkles,
   Star,
   Type,
+  Utensils,
+  Waves,
   X,
 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -27,6 +30,7 @@ import { api } from '@/lib/axios';
 import { getImageUrl } from '@/lib/utils';
 import { useAuthStore } from '@/store/auth.store';
 import { NativeSelect } from '@/components/ui/native-select';
+import { DESTINATION_CATEGORIES, getDestinationCategoryLabel } from '@/lib/destination-categories';
 
 interface DestinationTopic {
   id: number;
@@ -39,6 +43,7 @@ interface Destination {
   name: string;
   slug: string;
   city: string;
+  category?: string | null;
   description?: string;
   short_description?: string;
   shortDescription?: string;
@@ -53,12 +58,6 @@ interface Destination {
   topics?: DestinationTopic[];
 }
 
-interface Topic {
-  id: number;
-  topic_name: string;
-  keywords?: string[];
-}
-
 interface SearchHistoryItem {
   keyword: string;
   createdAt?: string;
@@ -69,11 +68,10 @@ type SemanticSort = 'relevance' | 'hybrid';
 type DestinationSearchParams = {
   limit: number;
   search?: string;
-  topic_ids?: string;
   city?: string;
+  category?: string;
 };
 
-const MAX_VISIBLE_TOPICS = 8;
 const easeOutExpo = [0.16, 1, 0.3, 1] as const;
 const panelMotion = {
   hidden: { opacity: 0, y: 18 },
@@ -84,9 +82,9 @@ const railMotion = {
   visible: { opacity: 1, x: 0 },
 };
 const quickPrompts = [
-  { label: 'Pantai tenang', query: 'pantai tenang untuk keluarga', mode: 'semantic' },
-  { label: 'Wisata budaya', query: 'wisata budaya Minangkabau', mode: 'semantic' },
-  { label: 'Kuliner lokal', query: 'kuliner lokal yang ramai dibahas', mode: 'semantic' },
+  { label: 'Pantai tenang', query: 'pantai tenang untuk keluarga', mode: 'semantic', icon: Waves, tone: 'text-ai bg-ai-container border-ai/15' },
+  { label: 'Wisata budaya', query: 'wisata budaya Minangkabau', mode: 'semantic', icon: Landmark, tone: 'text-explore bg-explore-container border-explore/15' },
+  { label: 'Kuliner lokal', query: 'kuliner lokal yang ramai dibahas', mode: 'semantic', icon: Utensils, tone: 'text-success bg-success-container border-success/15' },
 ] as const;
 const subscribeToHydration = () => () => {};
 const getHydratedSnapshot = () => true;
@@ -119,12 +117,6 @@ const getDestinationDescription = (destination: Destination) => {
 
 const formatPercent = (value?: number) => (value !== undefined ? `${(value * 100).toFixed(0)}%` : 'N/A');
 
-const getTopicLabel = (topic: Topic) => {
-  if (topic.topic_name && !topic.topic_name.startsWith('Topic ')) return topic.topic_name;
-  if (topic.keywords?.length) return topic.keywords.slice(0, 2).join(', ');
-  return topic.topic_name?.replace(/Topic \d+: /, '') || 'Topik';
-};
-
 export default function SearchClient() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -141,15 +133,14 @@ export default function SearchClient() {
 
   const [query, setQuery] = useState(initialQuery);
   const [activeQuery, setActiveQuery] = useState(initialQuery);
-  const [selectedTopicIds, setSelectedTopicIds] = useState<number[]>([]);
   const [selectedCity, setSelectedCity] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('');
   const [searchMode, setSearchMode] = useState<SearchMode>(initialMode);
   const [semanticSort, setSemanticSort] = useState<SemanticSort>(initialSort);
   const [showModeInfo, setShowModeInfo] = useState(false);
-  const [showAllTopics, setShowAllTopics] = useState(false);
+  const [activePromptQuery, setActivePromptQuery] = useState('');
 
   const [results, setResults] = useState<Destination[]>([]);
-  const [topics, setTopics] = useState<Topic[]>([]);
   const [cities, setCities] = useState<string[]>([]);
   const [history, setHistory] = useState<SearchHistoryItem[]>([]);
   const [totalResults, setTotalResults] = useState(0);
@@ -157,17 +148,15 @@ export default function SearchClient() {
   const [isLoading, setIsLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
   const [searchError, setSearchError] = useState('');
+  const activePromptTimeout = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    const fetchTopics = async () => {
-      try {
-        const res = await api.get('/api/topics');
-        setTopics(res.data.data || []);
-      } catch (error) {
-        console.error('Failed to fetch topics', error);
-      }
+    return () => {
+      if (activePromptTimeout.current) clearTimeout(activePromptTimeout.current);
     };
+  }, []);
 
+  useEffect(() => {
     const fetchCities = async () => {
       try {
         const res = await api.get('/api/destinations/cities');
@@ -179,7 +168,6 @@ export default function SearchClient() {
       }
     };
 
-    fetchTopics();
     fetchCities();
   }, []);
 
@@ -199,22 +187,27 @@ export default function SearchClient() {
   }, [isAuthenticated]);
 
   const executeSearch = useCallback(
-    async (searchQuery: string, topicIds: number[], city: string, mode: SearchMode, sort: SemanticSort = 'hybrid') => {
+    async (searchQuery: string, city: string, category: string, mode: SearchMode, sort: SemanticSort = 'hybrid') => {
       setIsLoading(true);
       setHasSearched(true);
       setSearchError('');
 
       try {
         if (searchQuery && mode === 'semantic') {
-          const res = await api.post('/api/search', { query: searchQuery, sort });
+          const res = await api.post('/api/search', {
+            query: searchQuery,
+            sort,
+            ...(city ? { city } : {}),
+            ...(category ? { category } : {}),
+          });
           setResults(res.data.data || []);
           setTotalResults(res.data.data?.length || 0);
           setActiveQuery(searchQuery);
-        } else if (searchQuery || topicIds.length > 0 || city) {
+        } else if (searchQuery || city || category) {
           const params: DestinationSearchParams = { limit: 20 };
           if (searchQuery) params.search = searchQuery;
-          if (topicIds.length > 0) params.topic_ids = topicIds.join(',');
           if (city) params.city = city;
+          if (category) params.category = category;
 
           const res = await api.get('/api/destinations', { params });
           setResults(res.data.data || []);
@@ -243,7 +236,7 @@ export default function SearchClient() {
   useEffect(() => {
     if (initialQuery && !initialSearchDone.current) {
       initialSearchDone.current = true;
-      executeSearch(initialQuery, [], '', initialMode, initialSort);
+      executeSearch(initialQuery, '', '', initialMode, initialSort);
     }
   }, [initialQuery, initialMode, initialSort, executeSearch]);
 
@@ -255,33 +248,30 @@ export default function SearchClient() {
     const trimmed = query.trim();
     if (!trimmed) return;
 
-    executeSearch(trimmed, selectedTopicIds, selectedCity, searchMode, semanticSort);
+    executeSearch(trimmed, selectedCity, selectedCategory, searchMode, semanticSort);
     router.push(buildSearchUrl(trimmed, searchMode, semanticSort));
-  };
-
-  const handleTopicToggle = (topicId: number) => {
-    const newIds = selectedTopicIds.includes(topicId)
-      ? selectedTopicIds.filter((id) => id !== topicId)
-      : [...selectedTopicIds, topicId];
-    setSelectedTopicIds(newIds);
-    executeSearch(query.trim(), newIds, selectedCity, searchMode, semanticSort);
   };
 
   const handleCityChange = (city: string) => {
     setSelectedCity(city);
-    executeSearch(query.trim(), selectedTopicIds, city, searchMode, semanticSort);
+    executeSearch(query.trim(), city, selectedCategory, searchMode, semanticSort);
+  };
+
+  const handleCategoryChange = (category: string) => {
+    setSelectedCategory(category);
+    executeSearch(query.trim(), selectedCity, category, searchMode, semanticSort);
   };
 
   const handleHistoryClick = (historyQuery: string) => {
     setQuery(historyQuery);
-    executeSearch(historyQuery, selectedTopicIds, selectedCity, searchMode, semanticSort);
+    executeSearch(historyQuery, selectedCity, selectedCategory, searchMode, semanticSort);
     router.push(buildSearchUrl(historyQuery, searchMode, semanticSort));
   };
 
   const handleModeSwitch = (mode: SearchMode) => {
     setSearchMode(mode);
     if (activeQuery) {
-      executeSearch(activeQuery, selectedTopicIds, selectedCity, mode, semanticSort);
+      executeSearch(activeQuery, selectedCity, selectedCategory, mode, semanticSort);
       router.push(buildSearchUrl(activeQuery, mode, semanticSort));
     }
   };
@@ -289,23 +279,26 @@ export default function SearchClient() {
   const handleSortChange = (newSort: SemanticSort) => {
     setSemanticSort(newSort);
     if (activeQuery && searchMode === 'semantic') {
-      executeSearch(activeQuery, selectedTopicIds, selectedCity, 'semantic', newSort);
+      executeSearch(activeQuery, selectedCity, selectedCategory, 'semantic', newSort);
       router.push(buildSearchUrl(activeQuery, 'semantic', newSort));
     }
   };
 
   const handleQuickPrompt = (prompt: (typeof quickPrompts)[number]) => {
+    if (activePromptTimeout.current) clearTimeout(activePromptTimeout.current);
+    setActivePromptQuery(prompt.query);
+    activePromptTimeout.current = setTimeout(() => setActivePromptQuery(''), 900);
     setQuery(prompt.query);
     setSearchMode(prompt.mode);
-    executeSearch(prompt.query, selectedTopicIds, selectedCity, prompt.mode, semanticSort);
+    executeSearch(prompt.query, selectedCity, selectedCategory, prompt.mode, semanticSort);
     router.push(buildSearchUrl(prompt.query, prompt.mode, semanticSort));
   };
 
   const clearAllFilters = () => {
     setQuery('');
     setActiveQuery('');
-    setSelectedTopicIds([]);
     setSelectedCity('');
+    setSelectedCategory('');
     setResults([]);
     setTotalResults(0);
     setHasSearched(false);
@@ -314,14 +307,17 @@ export default function SearchClient() {
   };
 
   const retrySearch = () => {
-    executeSearch(activeQuery || query.trim(), selectedTopicIds, selectedCity, searchMode, semanticSort);
+    executeSearch(activeQuery || query.trim(), selectedCity, selectedCategory, searchMode, semanticSort);
   };
 
-  const visibleTopics = showAllTopics ? topics : topics.slice(0, MAX_VISIBLE_TOPICS);
-  const hiddenCount = Math.max(0, topics.length - MAX_VISIBLE_TOPICS);
-  const activeFilterCount = selectedTopicIds.length + (selectedCity ? 1 : 0) + (activeQuery ? 1 : 0);
+  const activeFilterCount = (selectedCategory ? 1 : 0) + (selectedCity ? 1 : 0) + (activeQuery ? 1 : 0);
 
   const resultSummary = totalResults > results.length ? `${results.length} dari ${totalResults}` : `${results.length}`;
+  const shouldFeatureFirstResult =
+    searchMode === 'semantic' &&
+    results[0] &&
+    (semanticSort === 'relevance' || (getDestinationMatch(results[0]) ?? 0) >= 0.7);
+  const ActiveModeIcon = searchMode === 'semantic' ? Brain : Type;
 
   return (
     <div className="space-y-6">
@@ -330,49 +326,58 @@ export default function SearchClient() {
         animate={shouldReduceMotion ? undefined : 'visible'}
         variants={panelMotion}
         transition={{ duration: 0.36, ease: easeOutExpo }}
-        className="relative overflow-hidden rounded-[2.25rem] border border-orange-200 bg-[#FFF3EC] p-5 text-slate-950 md:p-8"
+        className="relative overflow-hidden rounded-3xl border border-explore/15 bg-surface-warm p-4 text-slate-950 shadow-sm shadow-orange-900/5 md:p-6"
       >
-        <motion.div
-          initial={shouldReduceMotion ? false : { opacity: 0, x: 24, rotate: -10 }}
-          animate={shouldReduceMotion ? undefined : { opacity: 1, x: 0, rotate: -7 }}
-          transition={{ duration: 0.42, delay: 0.1, ease: easeOutExpo }}
-          className="pointer-events-none absolute -right-10 top-5 hidden rounded-[2rem] border border-orange-200 bg-primary px-10 py-5 text-6xl font-black tracking-tighter text-orange-950/20 shadow-xl shadow-orange-900/10 xl:block 2xl:right-4"
-        >
-          SEARCH
-        </motion.div>
-        <div className="relative z-10 mb-7 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute right-0 top-0 h-40 w-56 opacity-60"
+          style={{
+            backgroundImage:
+              'radial-gradient(circle at 1px 1px, rgba(255, 123, 84, 0.22) 1px, transparent 0)',
+            backgroundSize: '16px 16px',
+            maskImage: 'linear-gradient(135deg, black, transparent 72%)',
+          }}
+        />
+        <div className="mb-5 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-3xl">
-            <span className="mb-4 inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-xs font-black uppercase tracking-[0.18em] text-white shadow-sm shadow-orange-900/10">
-              <SlidersHorizontal className="h-3.5 w-3.5" />
-              Search command
-            </span>
-            <h1 className="max-w-3xl text-4xl font-black leading-none tracking-tight text-slate-950 md:text-6xl">Eksplorasi Destinasi</h1>
-            <p className="mt-4 max-w-2xl text-base font-semibold leading-7 text-slate-700">
-              Cari destinasi berdasarkan nama, kota, topik, atau deskripsi vibe yang Anda inginkan.
+            <p className="text-xs font-black uppercase tracking-[0.16em] text-explore">Pusat pencarian</p>
+            <h1 className="mt-2 max-w-3xl text-3xl font-black leading-tight tracking-tight text-slate-950 md:text-5xl">Eksplorasi Destinasi</h1>
+            <p className="mt-3 max-w-2xl text-sm font-semibold leading-6 text-slate-700 md:text-base">
+              Cari destinasi berdasarkan nama, kota, kategori, atau suasana perjalanan.
             </p>
           </div>
 
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <div className="flex rounded-full border border-orange-200 bg-white p-1 shadow-sm shadow-orange-900/5">
+            <div className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-full border px-4 text-sm font-black shadow-sm ${
+              searchMode === 'semantic'
+                ? 'border-ai/15 bg-ai-container text-ai shadow-blue-900/5'
+                : 'border-explore/15 bg-white text-explore shadow-orange-900/5'
+            }`}>
+              <ActiveModeIcon className="h-4 w-4" />
+              Mode aktif: {searchMode === 'semantic' ? 'Semantik' : 'Kata kunci'}
+            </div>
+            <div className="flex rounded-full border border-explore/15 bg-white p-1 shadow-sm shadow-orange-900/5">
               <button
                 type="button"
                 onClick={() => handleModeSwitch('keyword')}
+                aria-pressed={searchMode === 'keyword'}
                 className={`flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full px-4 text-sm font-black transition-colors sm:flex-none ${
-                  searchMode === 'keyword' ? 'bg-primary text-white shadow-sm shadow-orange-900/15' : 'text-slate-600 hover:bg-orange-50 hover:text-primary'
+                  searchMode === 'keyword' ? 'bg-explore text-white shadow-sm shadow-orange-900/15' : 'text-slate-600 hover:bg-explore-container hover:text-explore'
                 }`}
               >
                 <Type className="h-4 w-4" />
-                Biasa
+                Kata kunci
               </button>
               <button
                 type="button"
                 onClick={() => handleModeSwitch('semantic')}
+                aria-pressed={searchMode === 'semantic'}
                 className={`flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full px-4 text-sm font-black transition-colors sm:flex-none ${
-                  searchMode === 'semantic' ? 'bg-secondary text-white shadow-sm shadow-blue-900/15' : 'text-slate-600 hover:bg-blue-50 hover:text-secondary'
+                  searchMode === 'semantic' ? 'bg-ai text-white shadow-sm shadow-blue-900/15' : 'text-slate-600 hover:bg-ai-container hover:text-ai'
                 }`}
               >
                 <Brain className="h-4 w-4" />
-                Semantic
+                Semantik
               </button>
             </div>
             <motion.button
@@ -380,20 +385,20 @@ export default function SearchClient() {
               onClick={() => setShowModeInfo((value) => !value)}
               aria-label="Tampilkan informasi mode pencarian"
               whileTap={shouldReduceMotion ? undefined : { scale: 0.97 }}
-              className="flex min-h-11 items-center justify-center gap-2 rounded-full border border-orange-200 bg-white px-4 text-sm font-black text-slate-700 shadow-sm shadow-orange-900/5 transition-colors hover:bg-orange-50 hover:text-primary"
+              className="flex min-h-11 items-center justify-center gap-2 rounded-full border border-slate-200 bg-white px-4 text-sm font-black text-slate-700 shadow-sm transition-colors hover:border-explore/30 hover:bg-explore-container hover:text-explore"
             >
               <Sparkles className="h-4 w-4" />
-              Bantuan mode
+              Bedanya apa?
             </motion.button>
           </div>
         </div>
 
-        <form onSubmit={handleSearchSubmit} className="relative z-10">
+        <form onSubmit={handleSearchSubmit}>
           <label htmlFor="search-main" className="sr-only">Cari destinasi</label>
           <div className="grid gap-3 md:grid-cols-[1fr_auto] md:items-center">
             <div className="relative">
               {searchMode === 'semantic' ? (
-                <Brain className="pointer-events-none absolute left-5 top-1/2 h-5 w-5 -translate-y-1/2 text-secondary" />
+                <Brain className="pointer-events-none absolute left-5 top-1/2 h-5 w-5 -translate-y-1/2 text-ai" />
               ) : (
                 <Search className="pointer-events-none absolute left-5 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
               )}
@@ -401,7 +406,7 @@ export default function SearchClient() {
                 id="search-main"
                 type="text"
                 placeholder={searchMode === 'semantic' ? 'Contoh: pantai tenang untuk keluarga' : 'Contoh: Jam Gadang atau Bukittinggi'}
-                className="min-h-16 w-full rounded-2xl border-2 border-white bg-white py-3 pl-13 pr-4 text-base font-bold text-slate-900 outline-none transition-all placeholder:text-slate-400 focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/25"
+                className="min-h-16 w-full rounded-xl border-2 border-explore/15 bg-white py-3 pl-13 pr-4 text-base font-bold text-slate-900 outline-none transition-all placeholder:text-slate-400 focus:border-explore focus:bg-white focus:ring-4 focus:ring-explore/20"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
               />
@@ -410,7 +415,7 @@ export default function SearchClient() {
               type="submit"
               disabled={isLoading || !query.trim()}
               whileTap={shouldReduceMotion ? undefined : { scale: 0.98 }}
-              className="flex min-h-16 items-center justify-center gap-2 rounded-2xl bg-primary px-8 text-sm font-black text-white shadow-lg shadow-primary/25 transition-all motion-safe:hover:-translate-y-0.5 hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
+              className="flex min-h-16 items-center justify-center gap-2 rounded-xl bg-explore px-8 text-sm font-black text-white shadow-sm shadow-primary/20 transition-all motion-safe:hover:-translate-y-0.5 hover:bg-explore/90 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
             >
               <Search className="h-4 w-4" />
               Cari destinasi
@@ -422,30 +427,41 @@ export default function SearchClient() {
           initial={shouldReduceMotion ? false : { opacity: 0, y: 10 }}
           animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
           transition={{ duration: 0.28, delay: 0.12, ease: easeOutExpo }}
-          className="relative z-10 mt-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between"
+          className="mt-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between"
         >
           <div className="flex flex-wrap items-center gap-2">
-            <span className="inline-flex min-h-9 items-center gap-1.5 rounded-full border border-orange-200 bg-white px-3 text-xs font-black uppercase tracking-[0.12em] text-primary shadow-sm shadow-orange-900/5">
+            <span className="inline-flex min-h-9 items-center gap-1.5 rounded-full border border-explore/15 bg-white px-3 text-xs font-black uppercase tracking-[0.12em] text-explore shadow-sm shadow-orange-900/5">
               <Sparkles className="h-3.5 w-3.5" />
-              Coba cepat
+              Rekomendasi cepat
             </span>
-            {quickPrompts.map((prompt, index) => (
-              <motion.button
-                key={prompt.query}
-                type="button"
-                initial={shouldReduceMotion ? false : { opacity: 0, y: 8 }}
-                animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
-                transition={{ duration: 0.24, delay: 0.16 + index * 0.04, ease: easeOutExpo }}
-                whileTap={shouldReduceMotion ? undefined : { scale: 0.97 }}
-                onClick={() => handleQuickPrompt(prompt)}
-                className="inline-flex min-h-9 items-center rounded-full border border-orange-200 bg-white px-3 text-sm font-black text-slate-700 shadow-sm shadow-orange-900/5 transition-colors hover:border-primary hover:bg-orange-50 hover:text-primary"
-              >
-                {prompt.label}
-              </motion.button>
-            ))}
+            {quickPrompts.map((prompt, index) => {
+              const PromptIcon = prompt.icon;
+              const isActivePrompt = activePromptQuery === prompt.query;
+
+              return (
+                <motion.button
+                  key={prompt.query}
+                  type="button"
+                  initial={shouldReduceMotion ? false : { opacity: 0, y: 8 }}
+                  animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
+                  transition={{ duration: 0.24, delay: 0.16 + index * 0.04, ease: easeOutExpo }}
+                  whileTap={shouldReduceMotion ? undefined : { scale: 0.97 }}
+                  onClick={() => handleQuickPrompt(prompt)}
+                  aria-pressed={isActivePrompt}
+                  className={`inline-flex min-h-11 items-center gap-2 rounded-full border px-3 text-sm font-black shadow-sm transition-all ${
+                    isActivePrompt
+                      ? 'border-primary bg-primary text-white shadow-primary/20'
+                      : `text-slate-700 hover:border-explore hover:bg-explore-container hover:text-explore ${prompt.tone}`
+                  }`}
+                >
+                  {isActivePrompt ? <CheckCircle2 className="h-4 w-4" /> : <PromptIcon className="h-4 w-4" />}
+                  {prompt.label}
+                </motion.button>
+              );
+            })}
           </div>
           <p className="max-w-md text-sm font-semibold leading-6 text-slate-600 lg:text-right">
-            Pilih prompt, lalu sempurnakan kata kuncinya sesuai mood perjalanan Anda.
+            Pilih prompt, lalu sesuaikan kata kuncinya dengan mood perjalanan Anda.
           </p>
         </motion.div>
 
@@ -456,19 +472,19 @@ export default function SearchClient() {
               animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
               exit={shouldReduceMotion ? undefined : { opacity: 0, y: -8 }}
               transition={{ duration: 0.18, ease: easeOutExpo }}
-              className="relative z-10 mt-5 grid gap-3 rounded-2xl border border-orange-200 bg-white p-4 text-slate-900 shadow-sm shadow-orange-900/5 md:grid-cols-2"
+              className="mt-5 grid gap-3 rounded-2xl border border-slate-200 bg-white p-4 text-slate-900 shadow-sm shadow-slate-200/60 md:grid-cols-2"
             >
-              <div className="rounded-xl bg-orange-50 p-4">
+              <div className="rounded-xl bg-explore-container p-4">
                 <div className="mb-2 flex items-center gap-2 text-sm font-black text-slate-900">
                   <Type className="h-4 w-4 text-slate-600" />
-                  Pencarian Biasa
+                  Pencarian kata kunci
                 </div>
                 <p className="text-sm leading-6 text-slate-600">Cocok untuk nama destinasi atau kota yang sudah Anda tahu.</p>
               </div>
-              <div className="rounded-xl bg-blue-50 p-4">
+              <div className="rounded-xl bg-ai-container p-4">
                 <div className="mb-2 flex items-center gap-2 text-sm font-black text-slate-900">
-                  <Brain className="h-4 w-4 text-secondary" />
-                  Semantic Search
+                  <Brain className="h-4 w-4 text-ai" />
+                  Pencarian semantik
                 </div>
                 <p className="text-sm leading-6 text-slate-600">Cocok untuk mencari berdasarkan suasana, aktivitas, atau konteks perjalanan.</p>
               </div>
@@ -477,7 +493,7 @@ export default function SearchClient() {
         </AnimatePresence>
       </motion.section>
 
-      <div className="grid gap-6 lg:grid-cols-[20rem_minmax(0,1fr)] lg:items-start 2xl:grid-cols-[22rem_minmax(0,1fr)]">
+      <div className="grid gap-6 lg:grid-cols-[19rem_minmax(0,1fr)] lg:items-start 2xl:grid-cols-[20rem_minmax(0,1fr)]">
         <motion.aside
           initial={shouldReduceMotion ? false : 'hidden'}
           whileInView={shouldReduceMotion ? undefined : 'visible'}
@@ -486,14 +502,17 @@ export default function SearchClient() {
           transition={{ duration: 0.3, ease: easeOutExpo }}
           className="space-y-4 lg:sticky lg:top-24"
         >
-          <div className="rounded-[1.75rem] border border-orange-200 bg-[#FFF3EC] p-5 text-slate-950 shadow-xl shadow-orange-900/10">
-            <div className="mb-4 flex items-center justify-between gap-3">
-              <h2 className="text-sm font-black uppercase tracking-[0.16em] text-primary">Filter</h2>
+          <div className="rounded-2xl border border-slate-200 bg-white p-5 text-slate-950 shadow-sm shadow-slate-200/70">
+            <div className="mb-5 flex items-center justify-between gap-3 rounded-xl bg-explore-container px-3 py-2">
+              <h2 className="inline-flex items-center gap-2 text-sm font-black uppercase tracking-[0.16em] text-explore">
+                <Search className="h-4 w-4" />
+                Filter
+              </h2>
               {activeFilterCount > 0 && (
                 <button
                   type="button"
                   onClick={clearAllFilters}
-                  className="rounded-full bg-primary px-3 py-1.5 text-xs font-black text-white transition-colors hover:bg-primary/90"
+                  className="inline-flex min-h-11 items-center rounded-full bg-slate-100 px-3 text-xs font-black text-slate-700 transition-colors hover:bg-explore hover:text-white"
                 >
                   Reset
                 </button>
@@ -502,13 +521,18 @@ export default function SearchClient() {
 
             <div className="space-y-5">
               <div>
-                <label htmlFor="city-filter" className="mb-2 block text-sm font-black text-slate-950">Kota</label>
+                <label htmlFor="city-filter" className="mb-2 flex items-center gap-2 text-sm font-black text-slate-950">
+                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-ai-container text-ai">
+                    <MapPin className="h-3.5 w-3.5" />
+                  </span>
+                  Kota
+                </label>
                 <NativeSelect
                   aria-label="Filter kota"
                   value={selectedCity}
                   onValueChange={handleCityChange}
                   leftIcon={<MapPin className="h-4 w-4" />}
-                  className="border-orange-200 bg-white shadow-orange-100/50 focus:ring-primary/20"
+                  className="rounded-xl border-slate-200 bg-slate-50 focus:ring-primary/20"
                   options={[
                     { value: '', label: 'Semua Kota', description: 'Tampilkan semua lokasi' },
                     ...cities.map((city) => ({ value: city, label: city })),
@@ -517,57 +541,33 @@ export default function SearchClient() {
               </div>
 
               <div>
-                <div className="mb-3 flex items-center justify-between gap-3">
-                  <h3 className="text-sm font-black text-slate-950">Topik</h3>
-                  {selectedTopicIds.length > 0 && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setSelectedTopicIds([]);
-                        executeSearch(query.trim(), [], selectedCity, searchMode, semanticSort);
-                      }}
-                      className="rounded-full bg-white px-2 py-1 text-xs font-black text-primary transition-colors hover:bg-primary hover:text-white"
-                    >
-                      Hapus topik
-                    </button>
-                  )}
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {visibleTopics.map((topic) => {
-                    const isActive = selectedTopicIds.includes(topic.id);
-                    return (
-                      <button
-                        key={topic.id}
-                        type="button"
-                        onClick={() => handleTopicToggle(topic.id)}
-                        className={`inline-flex min-h-10 items-center gap-1.5 rounded-full border-2 px-3 text-sm font-black transition-all ${
-                          isActive
-                            ? 'border-primary bg-primary text-white shadow-sm'
-                            : 'border-orange-200 bg-white text-slate-800 hover:border-primary hover:text-primary'
-                        }`}
-                      >
-                        {isActive && <X className="h-3.5 w-3.5" />}
-                        {getTopicLabel(topic)}
-                      </button>
-                    );
-                  })}
-                  {hiddenCount > 0 && (
-                    <button
-                      type="button"
-                      onClick={() => setShowAllTopics((value) => !value)}
-                      className="inline-flex min-h-10 items-center rounded-full border border-orange-200 bg-white px-3 text-sm font-black text-slate-800 transition-colors hover:border-primary hover:text-primary"
-                    >
-                      {showAllTopics ? 'Sembunyikan' : `+${hiddenCount} lainnya`}
-                    </button>
-                  )}
-                </div>
+                <label htmlFor="category-filter" className="mb-2 flex items-center gap-2 text-sm font-black text-slate-950">
+                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-success-container text-success">
+                    <Type className="h-3.5 w-3.5" />
+                  </span>
+                  Kategori
+                </label>
+                <NativeSelect
+                  aria-label="Filter kategori destinasi"
+                  value={selectedCategory}
+                  onValueChange={handleCategoryChange}
+                  leftIcon={<Type className="h-4 w-4" />}
+                  className="rounded-xl border-slate-200 bg-slate-50 focus:ring-primary/20"
+                  options={[
+                    { value: '', label: 'Semua Kategori', description: 'Tampilkan semua jenis destinasi' },
+                    ...DESTINATION_CATEGORIES.map((category) => ({
+                      value: category.value,
+                      label: category.label,
+                    })),
+                  ]}
+                />
               </div>
             </div>
           </div>
 
           {hasMounted && isAuthenticated && (
-            <div className="rounded-[1.75rem] border border-blue-100 bg-blue-50 p-5 shadow-sm">
-              <h2 className="mb-4 text-sm font-black uppercase tracking-[0.16em] text-secondary">Riwayat</h2>
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-200/70">
+              <h2 className="mb-4 text-sm font-black uppercase tracking-[0.16em] text-slate-700">Riwayat</h2>
               {history.length > 0 ? (
                 <ul className="space-y-2">
                   {history.slice(0, 5).map((item, index) => (
@@ -575,9 +575,9 @@ export default function SearchClient() {
                       <button
                         type="button"
                         onClick={() => handleHistoryClick(item.keyword)}
-                        className="flex min-h-11 w-full items-center gap-3 rounded-xl px-2 text-left text-sm font-bold text-slate-700 transition-colors hover:bg-white hover:text-secondary"
+                        className="flex min-h-11 w-full items-center gap-3 rounded-xl px-2 text-left text-sm font-bold text-slate-700 transition-colors hover:bg-ai-container hover:text-ai"
                       >
-                        <History className="h-4 w-4 shrink-0 text-secondary" />
+                        <History className="h-4 w-4 shrink-0 text-ai" />
                         <span className="truncate">{item.keyword}</span>
                       </button>
                     </li>
@@ -596,7 +596,7 @@ export default function SearchClient() {
               initial={shouldReduceMotion ? false : { opacity: 0, y: -10 }}
               animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
               transition={{ duration: 0.22, ease: easeOutExpo }}
-              className="mb-5 flex flex-col gap-3 rounded-2xl border border-red-100 bg-red-50 p-4 text-sm font-semibold text-red-700 sm:flex-row sm:items-center sm:justify-between"
+              className="mb-5 flex flex-col gap-3 rounded-2xl border border-danger/15 bg-surface-danger p-4 text-sm font-semibold text-danger sm:flex-row sm:items-center sm:justify-between"
             >
               <div className="flex items-start gap-3">
                 <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" />
@@ -605,7 +605,7 @@ export default function SearchClient() {
               <button
                 type="button"
                 onClick={retrySearch}
-                className="inline-flex min-h-10 items-center justify-center gap-2 rounded-full bg-white px-4 text-sm font-black text-red-700 transition-colors hover:bg-red-100"
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-white px-4 text-sm font-black text-danger transition-colors hover:bg-danger-container"
               >
                 <RotateCcw className="h-4 w-4" />
                 Coba lagi
@@ -619,29 +619,30 @@ export default function SearchClient() {
               initial={shouldReduceMotion ? false : { opacity: 0, y: 14 }}
               animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
               transition={{ duration: 0.26, ease: easeOutExpo }}
-              className="mb-6 rounded-[1.75rem] border border-slate-200 bg-white p-4 shadow-lg shadow-slate-200/70 md:p-5"
+              className="mb-5 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/70"
             >
-              <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-                <div>
-                  <p className="text-xs font-black uppercase tracking-[0.16em] text-primary">Hasil pencarian</p>
-                  <h2 className="mt-1 text-3xl font-black leading-none tracking-tight text-slate-900 md:text-4xl">
-                    {activeQuery ? `"${activeQuery}"` : selectedCity || selectedTopicIds.length > 0 ? 'Filter aktif' : 'Belum ada query'}
+              <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+                <div className="min-w-0">
+                  <p className="text-xs font-black uppercase tracking-[0.16em] text-explore">Hasil pencarian</p>
+                  <h2 className="mt-1 truncate text-2xl font-black leading-tight tracking-tight text-slate-900 md:text-3xl">
+                    {activeQuery ? `"${activeQuery}"` : selectedCity || selectedCategory ? 'Filter aktif' : 'Belum ada query'}
                   </h2>
                   <p className="mt-1 flex items-center gap-2 text-sm font-semibold text-slate-500">
-                    {searchMode === 'semantic' ? <Brain className="h-4 w-4 text-secondary" /> : <Search className="h-4 w-4 text-slate-400" />}
-                    Menampilkan {resultSummary} hasil dengan mode {searchMode === 'semantic' ? 'semantic' : 'biasa'}.
+                    {searchMode === 'semantic' ? <Brain className="h-4 w-4 text-ai" /> : <Search className="h-4 w-4 text-slate-400" />}
+                    {resultSummary} hasil, mode {searchMode === 'semantic' ? 'semantik' : 'kata kunci'}.
                   </p>
                 </div>
 
                 {searchMode === 'semantic' && (
-                  <div className="w-full rounded-2xl border border-blue-100 bg-blue-50 p-2 shadow-lg shadow-blue-900/5 sm:w-auto">
-                    <span className="mb-2 block px-2 text-[11px] font-black uppercase tracking-[0.14em] text-secondary">Urutan hasil</span>
-                    <div className="grid grid-cols-2 gap-1" role="group" aria-label="Urutan hasil semantic">
+                  <div className="w-full rounded-xl border border-ai/15 bg-ai-container p-2 shadow-sm shadow-blue-900/5 sm:w-auto">
+                    <span className="mb-2 block px-2 text-[11px] font-black uppercase tracking-[0.14em] text-ai">Urutan hasil</span>
+                    <div className="grid grid-cols-2 gap-1" role="group" aria-label="Urutan hasil semantik">
                       <button
                         type="button"
                         onClick={() => handleSortChange('hybrid')}
-                        className={`min-h-10 rounded-xl px-3 text-sm font-black transition-colors ${
-                          semanticSort === 'hybrid' ? 'bg-primary text-white shadow-sm shadow-orange-900/15' : 'text-slate-700 hover:bg-white hover:text-primary'
+                        aria-pressed={semanticSort === 'hybrid'}
+                        className={`min-h-11 rounded-xl px-3 text-sm font-black transition-colors ${
+                          semanticSort === 'hybrid' ? 'bg-explore text-white shadow-sm shadow-orange-900/15' : 'text-slate-700 hover:bg-white hover:text-explore'
                         }`}
                       >
                         Rekomendasi
@@ -649,8 +650,9 @@ export default function SearchClient() {
                       <button
                         type="button"
                         onClick={() => handleSortChange('relevance')}
-                        className={`min-h-10 rounded-xl px-3 text-sm font-black transition-colors ${
-                          semanticSort === 'relevance' ? 'bg-secondary text-white shadow-sm shadow-blue-900/15' : 'text-slate-700 hover:bg-white hover:text-secondary'
+                        aria-pressed={semanticSort === 'relevance'}
+                        className={`min-h-11 rounded-xl px-3 text-sm font-black transition-colors ${
+                          semanticSort === 'relevance' ? 'bg-ai text-white shadow-sm shadow-blue-900/15' : 'text-slate-700 hover:bg-white hover:text-ai'
                         }`}
                       >
                         Paling sesuai
@@ -664,7 +666,7 @@ export default function SearchClient() {
                 <motion.div layout className="mt-4 flex flex-wrap items-center gap-2 border-t border-slate-100 pt-4">
                   <span className="text-sm font-bold text-slate-500">Filter aktif:</span>
                   {activeQuery && (
-                    <motion.span layout className="inline-flex min-h-9 items-center gap-1.5 rounded-full bg-orange-50 px-3 text-sm font-bold text-primary">
+                    <motion.span layout className="inline-flex min-h-11 items-center gap-1.5 rounded-full bg-explore-container px-3 text-sm font-bold text-explore">
                       {searchMode === 'semantic' && <Brain className="h-3.5 w-3.5" />}
                       {activeQuery}
                       <button
@@ -673,50 +675,47 @@ export default function SearchClient() {
                         onClick={() => {
                           setQuery('');
                           setActiveQuery('');
-                          executeSearch('', selectedTopicIds, selectedCity, searchMode, semanticSort);
+                          executeSearch('', selectedCity, selectedCategory, searchMode, semanticSort);
                           router.push('/search');
                         }}
-                        className="flex h-6 w-6 items-center justify-center rounded-full hover:bg-primary/10"
+                        className="-mr-3 flex h-11 w-11 items-center justify-center rounded-full hover:bg-explore/10"
                       >
                         <X className="h-3.5 w-3.5" />
                       </button>
                     </motion.span>
                   )}
                   {selectedCity && (
-                    <motion.span layout className="inline-flex min-h-9 items-center gap-1.5 rounded-full bg-blue-50 px-3 text-sm font-bold text-secondary">
+                    <motion.span layout className="inline-flex min-h-11 items-center gap-1.5 rounded-full bg-ai-container px-3 text-sm font-bold text-ai">
                       <MapPin className="h-3.5 w-3.5" />
                       {selectedCity}
                       <button
                         type="button"
                         aria-label="Hapus filter kota"
                         onClick={() => handleCityChange('')}
-                        className="flex h-6 w-6 items-center justify-center rounded-full hover:bg-secondary/10"
+                        className="-mr-3 flex h-11 w-11 items-center justify-center rounded-full hover:bg-ai/10"
                       >
                         <X className="h-3.5 w-3.5" />
                       </button>
                     </motion.span>
                   )}
-                  {selectedTopicIds.map((id) => {
-                    const topic = topics.find((item) => item.id === id);
-                    if (!topic) return null;
-                    return (
-                      <motion.span key={id} layout className="inline-flex min-h-9 items-center gap-1.5 rounded-full bg-slate-100 px-3 text-sm font-bold text-slate-700">
-                        {getTopicLabel(topic)}
-                        <button
-                          type="button"
-                          aria-label={`Hapus topik ${getTopicLabel(topic)}`}
-                          onClick={() => handleTopicToggle(id)}
-                          className="flex h-6 w-6 items-center justify-center rounded-full hover:bg-slate-200"
-                        >
-                          <X className="h-3.5 w-3.5" />
-                        </button>
-                      </motion.span>
-                    );
-                  })}
+                  {selectedCategory && (
+                    <motion.span layout className="inline-flex min-h-11 items-center gap-1.5 rounded-full bg-success-container px-3 text-sm font-bold text-success">
+                      <Type className="h-3.5 w-3.5" />
+                      {getDestinationCategoryLabel(selectedCategory)}
+                      <button
+                        type="button"
+                        aria-label="Hapus filter kategori"
+                        onClick={() => handleCategoryChange('')}
+                        className="-mr-3 flex h-11 w-11 items-center justify-center rounded-full hover:bg-success/10"
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </button>
+                    </motion.span>
+                  )}
                   <button
                     type="button"
                     onClick={clearAllFilters}
-                    className="min-h-9 rounded-full px-3 text-sm font-black text-slate-500 transition-colors hover:bg-slate-100 hover:text-red-600"
+                    className="min-h-11 rounded-full px-3 text-sm font-black text-slate-500 transition-colors hover:bg-slate-100 hover:text-danger"
                   >
                     Hapus semua
                   </button>
@@ -738,9 +737,13 @@ export default function SearchClient() {
                   initial={shouldReduceMotion ? false : { opacity: 0, y: 14 }}
                   animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
                   transition={{ duration: 0.24, delay: Math.min(item * 0.03, 0.12), ease: easeOutExpo }}
-                  className="grid min-h-48 grid-cols-[9rem_minmax(0,1fr)] overflow-hidden rounded-[1.5rem] border border-slate-200 bg-white shadow-lg shadow-slate-200/60 md:grid-cols-[11rem_minmax(0,1fr)] xl:min-h-52"
+                  className="grid min-h-48 grid-cols-[9rem_minmax(0,1fr)] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm shadow-slate-200/60 md:grid-cols-[11rem_minmax(0,1fr)] xl:min-h-52"
                 >
-                  <div className="h-full bg-slate-200 motion-safe:animate-pulse" />
+                  <div className={`h-full motion-safe:animate-pulse ${
+                    searchMode === 'semantic'
+                      ? item % 2 === 0 ? 'bg-ai-container' : 'bg-surface-cool'
+                      : item % 2 === 0 ? 'bg-explore-container' : 'bg-surface-warning'
+                  }`} />
                   <div className="space-y-3 p-4 md:p-5">
                     <div className="h-6 w-3/4 rounded bg-slate-200 motion-safe:animate-pulse" />
                     <div className="h-4 w-1/3 rounded bg-slate-200 motion-safe:animate-pulse" />
@@ -761,20 +764,22 @@ export default function SearchClient() {
               animate={shouldReduceMotion ? undefined : { opacity: 1 }}
               className="space-y-5"
             >
-              <ResultCard
-                destination={results[0]}
-                index={0}
-                searchMode={searchMode}
-                prefersReduced={shouldReduceMotion}
-                featured
-              />
-              {results.length > 1 && (
+              {shouldFeatureFirstResult && (
+                <ResultCard
+                  destination={results[0]}
+                  index={0}
+                  searchMode={searchMode}
+                  prefersReduced={shouldReduceMotion}
+                  featured
+                />
+              )}
+              {(shouldFeatureFirstResult ? results.length > 1 : results.length > 0) && (
                 <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
-                  {results.slice(1).map((destination, index) => (
+                  {(shouldFeatureFirstResult ? results.slice(1) : results).map((destination, index) => (
                     <ResultCard
                       key={destination.id}
                       destination={destination}
-                      index={index + 1}
+                      index={shouldFeatureFirstResult ? index + 1 : index}
                       searchMode={searchMode}
                       prefersReduced={shouldReduceMotion}
                     />
@@ -789,7 +794,7 @@ export default function SearchClient() {
               initial={shouldReduceMotion ? false : { opacity: 0, y: 16 }}
               animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
               transition={{ duration: 0.28, ease: easeOutExpo }}
-              className="rounded-[2rem] border border-orange-200 bg-[#FFF3EC] p-8 text-center text-slate-950 shadow-2xl shadow-orange-900/10 md:p-12"
+              className="rounded-3xl border border-explore/15 bg-surface-warm p-8 text-center text-slate-950 shadow-sm shadow-orange-900/5 md:p-12"
             >
               <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary text-white">
                 <Search className="h-8 w-8" />
@@ -802,7 +807,7 @@ export default function SearchClient() {
                 <button
                   type="button"
                   onClick={() => handleModeSwitch(searchMode === 'semantic' ? 'keyword' : 'semantic')}
-                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-primary px-5 text-sm font-black text-white transition-colors hover:bg-primary/90"
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-explore px-5 text-sm font-black text-white transition-colors hover:bg-explore/90"
                 >
                   {searchMode === 'semantic' ? <Type className="h-4 w-4" /> : <Brain className="h-4 w-4" />}
                   Ganti mode
@@ -810,7 +815,7 @@ export default function SearchClient() {
                 <button
                   type="button"
                   onClick={clearAllFilters}
-                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-orange-200 bg-white px-5 text-sm font-black text-slate-900 transition-colors hover:bg-orange-50"
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-explore/20 bg-white px-5 text-sm font-black text-slate-900 transition-colors hover:bg-explore-container"
                 >
                   <RotateCcw className="h-4 w-4" />
                   Reset filter
@@ -842,15 +847,15 @@ function ResultCard({
   const matchScore = getDestinationMatch(destination);
   const isFeatured = featured;
   const description = getDestinationDescription(destination);
-  const visibleTopics = destination.topics?.slice(0, isFeatured ? 5 : 2) || [];
+  const topTopics = destination.topics?.slice(0, 3) || [];
 
   return (
     <motion.article
       initial={prefersReduced ? false : { opacity: 0, y: 18 }}
       animate={prefersReduced ? undefined : { opacity: 1, y: 0 }}
       transition={{ duration: 0.32, delay: Math.min(index * 0.04, 0.16), ease: easeOutExpo }}
-      className={`group overflow-hidden rounded-[1.5rem] border bg-white shadow-lg shadow-slate-200/50 transition-all duration-300 motion-safe:hover:-translate-y-1 hover:shadow-xl hover:shadow-slate-200/70 ${
-        isFeatured ? 'border-orange-200 bg-[#FFFDFB]' : 'border-slate-200'
+      className={`group overflow-hidden rounded-2xl border bg-white shadow-sm shadow-slate-200/60 transition-all duration-300 motion-safe:hover:-translate-y-0.5 hover:border-orange-200 hover:shadow-md hover:shadow-slate-200/70 ${
+        isFeatured ? 'border-explore/20 bg-surface-warm' : 'border-slate-200'
       }`}
     >
       <Link href={`/destinations/${destination.slug}`} className="block h-full">
@@ -864,21 +869,21 @@ function ResultCard({
               className="object-cover transition-transform duration-700 motion-safe:group-hover:scale-105"
             />
             {!isFeatured && (
-              <div className="absolute inset-x-2 bottom-2 rounded-full bg-white/95 px-2 py-1 text-center text-[11px] font-black text-secondary shadow-sm">
-                {searchMode === 'semantic' && matchScore !== undefined ? `${formatPercent(matchScore)} match` : 'Detail'}
+              <div className="absolute inset-x-2 bottom-2 rounded-full bg-white/95 px-2 py-1 text-center text-[11px] font-black text-ai shadow-sm">
+                {searchMode === 'semantic' && matchScore !== undefined ? `${formatPercent(matchScore)} sesuai` : 'Detail'}
               </div>
             )}
             <div className={`absolute flex flex-wrap gap-2 ${isFeatured ? 'left-4 top-4' : 'left-2 top-2'}`}>
               {isFeatured && (
-                <span className="inline-flex items-center gap-1.5 rounded-full border-2 border-white bg-primary px-3 py-1.5 text-xs font-black text-white shadow-sm">
+                <span className="inline-flex items-center gap-1.5 rounded-full border-2 border-white bg-explore px-3 py-1.5 text-xs font-black text-white shadow-sm">
                   {searchMode === 'semantic' ? <Sparkles className="h-3.5 w-3.5" /> : <Star className="h-3.5 w-3.5 fill-white" />}
-                  {searchMode === 'semantic' ? 'Top Match' : 'Hasil Teratas'}
+                  {searchMode === 'semantic' ? 'Paling sesuai' : 'Hasil teratas'}
                 </span>
               )}
               {searchMode === 'semantic' && matchScore !== undefined && (
-                <span className="inline-flex items-center gap-1.5 rounded-full border-2 border-white bg-secondary px-3 py-1.5 text-xs font-black text-white shadow-sm">
+                <span className="inline-flex items-center gap-1.5 rounded-full border-2 border-white bg-ai px-3 py-1.5 text-xs font-black text-white shadow-sm">
                   <Sparkles className="h-3.5 w-3.5 text-white" />
-                  {(matchScore * 100).toFixed(0)}% match
+                  {(matchScore * 100).toFixed(0)}% sesuai
                 </span>
               )}
             </div>
@@ -897,16 +902,20 @@ function ResultCard({
               </div>
 
               {recommendationScore !== undefined && isFeatured && (
-                <div className="shrink-0 rounded-xl bg-orange-50 px-2.5 py-1.5 text-right text-primary">
-                  <span className="block text-[10px] font-black uppercase tracking-[0.14em] text-primary/75">Skor AI</span>
-                  <span className={`${isFeatured ? 'text-2xl' : 'text-xl'} font-black leading-none text-primary`}>{(recommendationScore * 100).toFixed(0)}</span>
+                <div className="shrink-0 rounded-xl bg-ai-container px-2.5 py-1.5 text-right text-ai">
+                  <span className="block text-[10px] font-black uppercase tracking-[0.14em] text-ai/75">Skor AI</span>
+                  <span className={`${isFeatured ? 'text-2xl' : 'text-xl'} font-black leading-none text-ai`}>{(recommendationScore * 100).toFixed(0)}</span>
                 </div>
               )}
             </div>
 
             <div className={`${isFeatured ? 'mb-4' : 'mb-3'} flex flex-wrap gap-1.5`}>
-              {visibleTopics.map((topic) => (
-                <span key={topic.id} className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-xs font-black capitalize text-slate-700">
+              <span className="rounded-full border border-explore/15 bg-explore-container px-2.5 py-1 text-[11px] font-black text-explore">
+                {getDestinationCategoryLabel(destination.category)}
+              </span>
+              {topTopics.map((topic, topicIndex) => (
+                <span key={`${destination.id}-top-topic-${topic.id}-${topicIndex}`} className="max-w-full truncate rounded-full border border-ai/15 bg-ai-container px-2.5 py-1 text-[11px] font-extrabold text-ai">
+                  {topicIndex === 0 ? 'Top topik: ' : ''}
                   {getDestinationTopicLabel(topic)}
                 </span>
               ))}
@@ -920,8 +929,8 @@ function ResultCard({
 
             <div className={`${isFeatured ? 'border-t border-slate-100 pt-3' : ''} mt-auto flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between`}>
               <div className="flex items-center gap-2 text-sm font-bold text-slate-600">
-                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-orange-50">
-                  <Star className="h-3.5 w-3.5 fill-primary text-primary" />
+                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-success-container">
+                  <Star className="h-3.5 w-3.5 fill-success text-success" />
                 </div>
                 <span>
                   Positif:{' '}
@@ -930,7 +939,7 @@ function ResultCard({
                   </span>
                 </span>
               </div>
-              <span className="inline-flex min-h-9 shrink-0 items-center justify-center gap-1 rounded-full bg-secondary px-3.5 text-sm font-black text-white transition-colors group-hover:bg-primary group-hover:text-white">
+              <span className="inline-flex min-h-11 shrink-0 items-center justify-center gap-1 rounded-full bg-ai px-3.5 text-sm font-black text-white transition-colors group-hover:bg-explore group-hover:text-white">
                 <ImageIcon className="h-4 w-4" />
                 {isFeatured ? 'Lihat detail' : 'Buka'}
                 <ArrowRight className="h-4 w-4 transition-transform motion-safe:group-hover:translate-x-1" />

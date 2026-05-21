@@ -54,9 +54,9 @@ type Tone = "orange" | "blue" | "emerald" | "amber" | "rose" | "slate";
 const STATUS_META: Record<string, { label: string; color: string; tone: Tone }> = {
   completed: { label: "Selesai", color: "#10b981", tone: "emerald" },
   pending: { label: "Menunggu", color: "#f59e0b", tone: "amber" },
-  running: { label: "Berjalan", color: "#2D82B5", tone: "blue" },
-  scraping: { label: "Scraping", color: "#2D82B5", tone: "blue" },
-  nlp_processing: { label: "NLP", color: "#FF7B54", tone: "orange" },
+  running: { label: "Berjalan", color: "var(--ai)", tone: "blue" },
+  scraping: { label: "Scraping", color: "var(--ai)", tone: "blue" },
+  nlp_processing: { label: "NLP", color: "var(--explore)", tone: "orange" },
   failed: { label: "Gagal", color: "#f43f5e", tone: "rose" },
 };
 
@@ -354,7 +354,7 @@ function ScraperCommandPanel({
 
         <label className="block">
           <span className="mb-2 flex items-center gap-2 text-xs font-black uppercase tracking-[0.16em] text-slate-600">
-            <LinkIcon className="h-3.5 w-3.5 text-[#2D82B5]" />
+            <LinkIcon className="h-3.5 w-3.5 text-ai" />
             URL Google Maps
           </span>
           <Input
@@ -467,7 +467,7 @@ function ReviewYieldChart({ data }: { data: Array<{ name: string; reviews: numbe
               <XAxis type="number" axisLine={false} tickLine={false} tick={{ fill: "#64748b", fontSize: 12 }} />
               <YAxis type="category" dataKey="name" width={110} axisLine={false} tickLine={false} tick={{ fill: "#334155", fontSize: 11, fontWeight: 800 }} />
               <Tooltip contentStyle={{ borderRadius: "14px", border: "1px solid #e2e8f0", fontSize: "12px" }} />
-              <Bar dataKey="reviews" name="Review" fill="#FF7B54" radius={[0, 10, 10, 0]} barSize={18} />
+              <Bar dataKey="reviews" name="Review" fill="var(--explore)" radius={[0, 10, 10, 0]} barSize={18} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -740,7 +740,7 @@ function PaginationFooter({ page, pageSize, totalPages, onPageChange, onPageSize
 function getToneClass(tone: Tone) {
   return {
     orange: "border-orange-100 bg-orange-50 text-primary",
-    blue: "border-sky-100 bg-sky-50 text-[#2D82B5]",
+    blue: "border-sky-100 bg-sky-50 text-ai",
     emerald: "border-emerald-100 bg-emerald-50 text-emerald-700",
     amber: "border-amber-100 bg-amber-50 text-amber-700",
     rose: "border-rose-100 bg-rose-50 text-rose-700",

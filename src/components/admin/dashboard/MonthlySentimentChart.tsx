@@ -89,7 +89,7 @@ export default function MonthlySentimentChart() {
                   <Area type="monotone" dataKey="positive" name="Positif" stackId="sentiment" stroke="#10b981" fill="#10b981" fillOpacity={0.28} strokeWidth={2} />
                   <Area type="monotone" dataKey="neutral" name="Netral" stackId="sentiment" stroke="#94a3b8" fill="#94a3b8" fillOpacity={0.24} strokeWidth={2} />
                   <Area type="monotone" dataKey="negative" name="Negatif" stackId="sentiment" stroke="#f43f5e" fill="#f43f5e" fillOpacity={0.24} strokeWidth={2} />
-                  <Area type="monotone" dataKey="total" name="Total" stroke="#2D82B5" fill="transparent" strokeWidth={3} />
+                  <Area type="monotone" dataKey="total" name="Total" stroke="var(--ai)" fill="transparent" strokeWidth={3} />
                 </AreaChart>
               </ResponsiveContainer>
             </div>

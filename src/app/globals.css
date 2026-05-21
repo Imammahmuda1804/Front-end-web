@@ -35,6 +35,23 @@
   --color-secondary: var(--secondary);
   --color-primary-foreground: var(--primary-foreground);
   --color-primary: var(--primary);
+  --color-explore: var(--explore);
+  --color-explore-container: var(--explore-container);
+  --color-ai: var(--ai);
+  --color-ai-container: var(--ai-container);
+  --color-success: var(--success);
+  --color-success-container: var(--success-container);
+  --color-warning: var(--warning);
+  --color-warning-container: var(--warning-container);
+  --color-danger: var(--danger);
+  --color-danger-container: var(--danger-container);
+  --color-surface-warm: var(--surface-warm);
+  --color-surface-cool: var(--surface-cool);
+  --color-surface-success: var(--surface-success);
+  --color-surface-warning: var(--surface-warning);
+  --color-surface-danger: var(--surface-danger);
+  --color-minang-gold: var(--minang-gold);
+  --color-minang-rust: var(--minang-rust);
   --color-popover-foreground: var(--popover-foreground);
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
@@ -48,12 +65,12 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 
   /* RANAHINSIGHT Theme Variables - Joy Vibes Minimalist */
-  --color-primary: #FF7B54;
+  --color-primary: var(--explore);
   --color-primary-foreground: #ffffff;
   --color-primary-container: #FFeedb;
   --color-on-primary-container: #cc3c00;
   
-  --color-secondary: #2D82B5;
+  --color-secondary: var(--ai);
   --color-secondary-foreground: #ffffff;
   --color-secondary-container: #d4eaf7;
   --color-on-secondary-container: #0b3d59;
@@ -71,6 +88,18 @@
 
   --color-error: #EF4444;
   --color-on-error: #ffffff;
+  --color-success: #10B981;
+  --color-warning: #F59E0B;
+  --color-danger: #E11D48;
+  --color-ai: var(--ai);
+  --color-explore: var(--explore);
+  --color-surface-warm: #FFF7F2;
+  --color-surface-cool: #EFF8FF;
+  --color-surface-success: #ECFDF5;
+  --color-surface-warning: #FFFBEB;
+  --color-surface-danger: #FFF1F2;
+  --color-minang-gold: #D99A2B;
+  --color-minang-rust: #A64A2A;
 
   --font-sans: "Plus Jakarta Sans", "Inter", "Segoe UI", Arial, sans-serif;
   --font-heading: "Plus Jakarta Sans", "Inter", "Segoe UI", Arial, sans-serif;
@@ -91,10 +120,27 @@
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.68 0.17 42); /* Tropical Orange #FF7B54 */
+  --primary: oklch(0.68 0.17 42); /* Tropical Orange */
   --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.55 0.1 240); /* Ocean Blue #2D82B5 */
+  --secondary: oklch(0.55 0.1 240); /* Ocean Blue */
   --secondary-foreground: oklch(0.985 0 0);
+  --explore: var(--primary);
+  --explore-container: oklch(0.97 0.035 55);
+  --ai: var(--secondary);
+  --ai-container: oklch(0.95 0.035 235);
+  --success: oklch(0.68 0.15 155);
+  --success-container: oklch(0.96 0.035 155);
+  --warning: oklch(0.76 0.16 75);
+  --warning-container: oklch(0.97 0.045 85);
+  --danger: oklch(0.59 0.21 18);
+  --danger-container: oklch(0.96 0.035 18);
+  --surface-warm: oklch(0.98 0.018 55);
+  --surface-cool: oklch(0.97 0.018 235);
+  --surface-success: oklch(0.97 0.025 155);
+  --surface-warning: oklch(0.98 0.032 85);
+  --surface-danger: oklch(0.97 0.026 18);
+  --minang-gold: oklch(0.72 0.13 75);
+  --minang-rust: oklch(0.55 0.13 42);
   --muted: oklch(0.97 0 0);
   --muted-foreground: oklch(0.556 0 0);
   --accent: oklch(0.97 0 0);
@@ -118,6 +164,23 @@
   --primary-foreground: oklch(0.985 0 0);
   --secondary: oklch(0.55 0.1 240);
   --secondary-foreground: oklch(0.985 0 0);
+  --explore: var(--primary);
+  --explore-container: oklch(0.24 0.045 45);
+  --ai: var(--secondary);
+  --ai-container: oklch(0.24 0.04 240);
+  --success: oklch(0.7 0.14 155);
+  --success-container: oklch(0.22 0.04 155);
+  --warning: oklch(0.78 0.14 75);
+  --warning-container: oklch(0.23 0.04 75);
+  --danger: oklch(0.68 0.18 18);
+  --danger-container: oklch(0.24 0.045 18);
+  --surface-warm: oklch(0.2 0.025 45);
+  --surface-cool: oklch(0.2 0.025 240);
+  --surface-success: oklch(0.2 0.025 155);
+  --surface-warning: oklch(0.2 0.025 75);
+  --surface-danger: oklch(0.2 0.025 18);
+  --minang-gold: oklch(0.76 0.12 75);
+  --minang-rust: oklch(0.66 0.13 42);
   --muted: oklch(0.269 0 0);
   --muted-foreground: oklch(0.708 0 0);
   --accent: oklch(0.269 0 0);
