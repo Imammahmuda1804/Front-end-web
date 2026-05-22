@@ -1,5 +1,5 @@
 import React from 'react';
-import { Hash, MapPin, Pencil, Trash2 } from 'lucide-react';
+import { Eye, Hash, MapPin, Pencil, Trash2 } from 'lucide-react';
 import { NativeSelect } from '@/components/ui/native-select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import type { TopicGroupItem, TopicItem } from '@/services/admin/topic.service';
@@ -19,6 +19,7 @@ export function TaxonomyTable({
   onPageSizeChange,
   onRename,
   onDelete,
+  onViewDestinations,
   groups,
   onGroupChange,
   onVisibilityChange,
@@ -36,6 +37,7 @@ export function TaxonomyTable({
   onPageSizeChange: (pageSize: number) => void;
   onRename: (topic: TopicItem) => void;
   onDelete: (topic: TopicItem) => void;
+  onViewDestinations: (topic: TopicItem) => void;
   groups: TopicGroupItem[];
   onGroupChange: (topic: TopicItem, groupId: number | null) => void;
   onVisibilityChange: (
@@ -181,6 +183,14 @@ export function TaxonomyTable({
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-2">
+                        <button
+                          type="button"
+                          aria-label={`Lihat destinasi topik ${topic.topic_name}`}
+                          onClick={() => onViewDestinations(topic)}
+                          className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700 focus:outline-none focus:ring-4 focus:ring-emerald-100"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </button>
                         <button
                           type="button"
                           aria-label={`Rename topik ${topic.topic_name}`}

@@ -12,11 +12,12 @@ import {
   Sparkles,
   Tags,
   Target,
+  X,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
-import { adminTopicService, TopicItem } from '@/services/admin/topic.service';
+import { adminTopicService, TopicDestinationItem, TopicItem } from '@/services/admin/topic.service';
 import { DeleteTopicDialog, RenameTopicDialog } from './topics-client.dialogs';
 import {
   EmptyTopicsState,
@@ -25,6 +26,7 @@ import {
   TopicActionQueue,
   TopicCloud,
   TopicCommandPanel,
+  TopicGroupManager,
   TopicHeroPanel,
   TopicQualityChecklist,
   TopicsSkeleton,
@@ -115,6 +117,10 @@ export function TopicsClient() {
   const [renameTarget, setRenameTarget] = useState<TopicItem | null>(null);
   const [renameValue, setRenameValue] = useState('');
   const [deleteTarget, setDeleteTarget] = useState<TopicItem | null>(null);
+  const [editingGroupId, setEditingGroupId] = useState<number | null>(null);
+  const [editingGroupName, setEditingGroupName] = useState('');
+  const [destinationTopic, setDestinationTopic] = useState<TopicItem | null>(null);
+  const [destinationPage, setDestinationPage] = useState(1);
 
   const {
     data: topics = [],
@@ -129,6 +135,15 @@ export function TopicsClient() {
   const { data: topicGroups = [] } = useQuery({
     queryKey: ['admin-topic-groups'],
     queryFn: () => adminTopicService.getTopicGroups(),
+  });
+
+  const {
+    data: topicDestinations,
+    isFetching: isFetchingTopicDestinations,
+  } = useQuery({
+    queryKey: ['admin-topic-destinations', destinationTopic?.id, destinationPage],
+    queryFn: () => adminTopicService.getTopicDestinations(destinationTopic!.id, destinationPage, 10),
+    enabled: Boolean(destinationTopic),
   });
 
   const aiRenameMutation = useMutation({
@@ -183,6 +198,19 @@ export function TopicsClient() {
       toast.success('Pengaturan topik diperbarui');
     },
     onError: () => toast.error('Gagal memperbarui pengaturan topik'),
+  });
+
+  const renameGroupMutation = useMutation({
+    mutationFn: ({ id, name }: { id: number; name: string }) =>
+      adminTopicService.renameGroup(id, name),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-topic-groups'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-topics'] });
+      setEditingGroupId(null);
+      setEditingGroupName('');
+      toast.success('Nama group berhasil diperbarui');
+    },
+    onError: () => toast.error('Gagal me-rename group'),
   });
 
   const maxDestinations = useMemo(
@@ -401,6 +429,10 @@ export function TopicsClient() {
               setRenameValue(topic.topic_name);
             }}
             onDelete={setDeleteTarget}
+            onViewDestinations={(topic) => {
+              setDestinationTopic(topic);
+              setDestinationPage(1);
+            }}
             groups={topicGroups}
             onGroupChange={(topic, groupId) =>
               settingsMutation.mutate({ id: topic.id, groupId })
@@ -411,6 +443,30 @@ export function TopicsClient() {
                 [key]: value,
               })
             }
+          />
+
+          <TopicGroupManager
+            groups={topicGroups}
+            editingGroupId={editingGroupId}
+            editingValue={editingGroupName}
+            pending={renameGroupMutation.isPending}
+            onEdit={(group) => {
+              setEditingGroupId(group.id);
+              setEditingGroupName(group.group_name);
+            }}
+            onValueChange={setEditingGroupName}
+            onCancel={() => {
+              setEditingGroupId(null);
+              setEditingGroupName('');
+            }}
+            onSubmit={() => {
+              if (editingGroupId && editingGroupName.trim()) {
+                renameGroupMutation.mutate({
+                  id: editingGroupId,
+                  name: editingGroupName.trim(),
+                });
+              }
+            }}
           />
 
           <div className="grid gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(22rem,0.85fr)]">
@@ -460,6 +516,114 @@ export function TopicsClient() {
           if (deleteTarget) deleteMutation.mutate(deleteTarget.id);
         }}
       />
+
+      <TopicDestinationsDrawer
+        topic={destinationTopic}
+        data={topicDestinations?.data || []}
+        meta={topicDestinations?.meta}
+        loading={isFetchingTopicDestinations}
+        page={destinationPage}
+        onPageChange={setDestinationPage}
+        onClose={() => setDestinationTopic(null)}
+      />
+    </div>
+  );
+}
+
+function TopicDestinationsDrawer({
+  topic,
+  data,
+  meta,
+  loading,
+  page,
+  onPageChange,
+  onClose,
+}: {
+  topic: TopicItem | null;
+  data: TopicDestinationItem[];
+  meta?: { page: number; limit: number; total: number; total_pages: number };
+  loading: boolean;
+  page: number;
+  onPageChange: (page: number) => void;
+  onClose: () => void;
+}) {
+  if (!topic) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 bg-slate-950/30">
+      <aside className="ml-auto flex h-full w-full max-w-lg flex-col bg-white shadow-2xl">
+        <div className="flex items-start justify-between gap-4 border-b border-slate-100 p-5">
+          <div className="min-w-0">
+            <p className="text-xs font-black uppercase tracking-[0.16em] text-primary">Destinasi topic</p>
+            <h2 className="mt-1 truncate text-2xl font-black text-slate-950">{topic.topic_name}</h2>
+            <p className="mt-1 text-sm font-bold text-slate-500">{meta?.total ?? topic.total_destinations} destinasi terkait</p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Tutup daftar destinasi topic"
+            className="flex h-11 w-11 items-center justify-center rounded-full bg-slate-100 text-slate-600 transition hover:bg-slate-200"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-5">
+          {loading ? (
+            <div className="space-y-3">
+              {Array.from({ length: 5 }).map((_, index) => (
+                <div key={index} className="h-20 animate-pulse rounded-2xl bg-slate-100" />
+              ))}
+            </div>
+          ) : data.length === 0 ? (
+            <div className="rounded-2xl border border-dashed border-slate-200 p-8 text-center text-sm font-bold text-slate-500">
+              Belum ada destinasi untuk topik ini.
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {data.map((destination) => (
+                <article key={destination.id} className="rounded-2xl border border-slate-200 p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="truncate font-black text-slate-950">{destination.name}</p>
+                      <p className="mt-1 text-sm font-bold text-slate-500">{destination.city || '-'}{destination.province ? `, ${destination.province}` : ''}</p>
+                    </div>
+                    <span className="rounded-full bg-orange-50 px-3 py-1 text-xs font-black text-primary">
+                      {destination.total_reviews_in_topic || 0} review
+                    </span>
+                  </div>
+                </article>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="flex items-center justify-between gap-3 border-t border-slate-100 p-5">
+          <p className="text-sm font-bold text-slate-500">
+            Halaman {page} dari {meta?.total_pages || 1}
+          </p>
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              className="rounded-full"
+              disabled={page <= 1 || loading}
+              onClick={() => onPageChange(Math.max(1, page - 1))}
+            >
+              Sebelumnya
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              className="rounded-full"
+              disabled={page >= (meta?.total_pages || 1) || loading}
+              onClick={() => onPageChange(page + 1)}
+            >
+              Berikutnya
+            </Button>
+          </div>
+        </div>
+      </aside>
     </div>
   );
 }

@@ -135,7 +135,9 @@ Contoh search:
 1. User membuka `/search`.
 2. `SearchClient` mengatur input dan filter.
 3. Request dikirim ke `POST /api/search`.
-4. Result ditampilkan dengan `SearchResultCard`.
+4. Jika user login, riwayat pencarian dimuat dari `GET /api/search/history`.
+5. User bisa menghapus satu history atau membersihkan semua history dari sidebar.
+6. Result ditampilkan dengan `SearchResultCard`.
 
 Contoh admin destinasi:
 
@@ -144,6 +146,19 @@ Contoh admin destinasi:
 3. Route `/admin/destinations` membuka table admin.
 4. `adminDestinationService` memanggil backend.
 5. Admin bisa create, update, delete, upload thumbnail, dan upload gallery.
+
+Contoh admin scraper:
+
+1. Admin membuka `/admin/scraper`.
+2. `ScraperClient` memuat destinasi dan job scraping.
+3. Admin bisa mencari tempat Maps, memilih hasil untuk mengisi URL, lalu memulai job.
+4. Job monitor bisa membuka detail status job, melihat history scraping, dan mengunduh Excel.
+
+Contoh admin topics:
+
+1. Admin membuka `/admin/topics`.
+2. `TopicsClient` memuat topic dan topic group.
+3. Admin bisa rename topic, rename group, mengatur visibility, dan melihat destinasi terkait topic.
 
 ## Auth dan Route Protection
 

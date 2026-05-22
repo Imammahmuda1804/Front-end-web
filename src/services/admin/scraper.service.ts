@@ -51,6 +51,23 @@ export interface ScrapingJob {
   };
 }
 
+export interface ScrapingHistoryItem {
+  id: number;
+  destinationId: number;
+  jobId: number;
+  totalReviews?: number | null;
+  reviewsCount?: number | null;
+  filePath?: string | null;
+  fileName?: string | null;
+  hasText?: boolean | null;
+  sort?: string | null;
+  createdAt: string;
+  destination?: {
+    name: string;
+  };
+  job?: ScrapingJob | null;
+}
+
 export interface PaginatedResponse<T> {
   data: T[];
   meta: {
@@ -110,7 +127,7 @@ class AdminScraperService {
     page = 1,
     limit = 10,
     destinationId?: number,
-  ): Promise<PaginatedResponse<unknown>> {
+  ): Promise<PaginatedResponse<ScrapingHistoryItem>> {
     const res = await api.get('/api/admin/scraper/history', {
       params: { page, limit, ...(destinationId ? { destination_id: destinationId } : {}) },
     });

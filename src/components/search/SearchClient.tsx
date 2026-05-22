@@ -14,6 +14,7 @@ import {
   RotateCcw,
   Search,
   Sparkles,
+  Trash2,
   Type,
   Utensils,
   Waves,
@@ -30,6 +31,7 @@ import SearchResultCard, { getDestinationMatch, type SearchDestination } from '.
 type Destination = SearchDestination;
 
 interface SearchHistoryItem {
+  id?: number;
   keyword: string;
   createdAt?: string;
 }
@@ -145,20 +147,25 @@ export default function SearchClient() {
     fetchCategories();
   }, []);
 
-  useEffect(() => {
-    if (!isAuthenticated) return;
+  const fetchHistory = useCallback(async () => {
+    if (!isAuthenticated) {
+      setHistory([]);
+      return;
+    }
 
-    const fetchHistory = async () => {
-      try {
-        const res = await api.get('/api/search/history');
-        setHistory(res.data.data || []);
-      } catch (error) {
-        console.error('Failed to fetch search history', error);
-      }
-    };
-
-    fetchHistory();
+    try {
+      const res = await api.get('/api/search/history');
+      setHistory(res.data.data || []);
+    } catch (error) {
+      console.error('Failed to fetch search history', error);
+    }
   }, [isAuthenticated]);
+
+  useEffect(() => {
+    queueMicrotask(() => {
+      void fetchHistory();
+    });
+  }, [fetchHistory]);
 
   // Menjalankan keyword search atau semantic search sesuai mode aktif.
   const executeSearch = useCallback(
@@ -241,6 +248,30 @@ export default function SearchClient() {
     setQuery(historyQuery);
     executeSearch(historyQuery, selectedCity, selectedCategory, searchMode, semanticSort);
     router.push(buildSearchUrl(historyQuery, searchMode, semanticSort));
+  };
+
+  const handleDeleteHistoryItem = async (item: SearchHistoryItem) => {
+    if (!item.id) return;
+
+    try {
+      await api.delete(`/api/search/history/${item.id}`);
+      setHistory((current) => current.filter((entry) => entry.id !== item.id));
+      toast.success('Riwayat dihapus');
+    } catch {
+      toast.error('Gagal menghapus riwayat');
+    }
+  };
+
+  const handleClearHistory = async () => {
+    if (!window.confirm('Hapus semua riwayat pencarian?')) return;
+
+    try {
+      await api.delete('/api/search/history');
+      setHistory([]);
+      toast.success('Riwayat pencarian dibersihkan');
+    } catch {
+      toast.error('Gagal membersihkan riwayat');
+    }
   };
 
   const handleModeSwitch = (mode: SearchMode) => {
@@ -542,11 +573,22 @@ export default function SearchClient() {
 
           {hasMounted && isAuthenticated && (
             <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-200/70">
-              <h2 className="mb-4 text-sm font-black uppercase tracking-[0.16em] text-slate-700">Riwayat</h2>
+              <div className="mb-4 flex items-center justify-between gap-3">
+                <h2 className="text-sm font-black uppercase tracking-[0.16em] text-slate-700">Riwayat</h2>
+                {history.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={handleClearHistory}
+                    className="inline-flex min-h-9 items-center rounded-full bg-slate-100 px-3 text-xs font-black text-slate-600 transition-colors hover:bg-danger-container hover:text-danger"
+                  >
+                    Bersihkan
+                  </button>
+                )}
+              </div>
               {history.length > 0 ? (
                 <ul className="space-y-2">
                   {history.slice(0, 5).map((item, index) => (
-                    <li key={`${item.keyword}-${index}`}>
+                    <li key={item.id ?? `${item.keyword}-${index}`} className="flex items-center gap-1">
                       <button
                         type="button"
                         onClick={() => handleHistoryClick(item.keyword)}
@@ -555,6 +597,16 @@ export default function SearchClient() {
                         <History className="h-4 w-4 shrink-0 text-ai" />
                         <span className="truncate">{item.keyword}</span>
                       </button>
+                      {item.id && (
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteHistoryItem(item)}
+                          aria-label={`Hapus riwayat ${item.keyword}`}
+                          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-danger-container hover:text-danger"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      )}
                     </li>
                   ))}
                 </ul>

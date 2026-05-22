@@ -12,14 +12,18 @@ import { adminDestinationService, type AdminDestination } from "@/services/admin
 import {
   adminScraperService,
   type JobStatus,
+  type PlaceResult,
+  type ScrapingHistoryItem,
   type ScrapingJob,
   type StartScrapingRequest,
 } from "@/services/admin/scraper.service";
 import {
   JobMonitorTable,
+  JobStatusDrawer,
   PipelineHealthStrip,
   PipelineHeroPanel,
   ReviewYieldChart,
+  ScrapingHistoryPanel,
   ScraperCommandPanel,
   StatusDistributionChart,
 } from "./scraper-components";
@@ -71,10 +75,20 @@ export default function ScraperClient() {
   const [mapsUrl, setMapsUrl] = useState("");
   const [maxReviews, setMaxReviews] = useState(100);
   const [isStarting, setIsStarting] = useState(false);
+  const [mapsSearchQuery, setMapsSearchQuery] = useState("");
+  const [mapsSearchResults, setMapsSearchResults] = useState<PlaceResult[]>([]);
+  const [isSearchingMaps, setIsSearchingMaps] = useState(false);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [activeJobs, setActiveJobs] = useState<Set<number>>(new Set());
+  const [selectedJobDetail, setSelectedJobDetail] = useState<ScrapingJob | null>(null);
+  const [isLoadingJobDetail, setIsLoadingJobDetail] = useState(false);
+  const [historyItems, setHistoryItems] = useState<ScrapingHistoryItem[]>([]);
+  const [historyMeta, setHistoryMeta] = useState({ page: 1, limit: 10, total: 0, total_pages: 1 });
+  const [historyDestinationId, setHistoryDestinationId] = useState("");
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const [historyError, setHistoryError] = useState("");
 
   const fetchDestinations = useCallback(async () => {
     try {
@@ -85,6 +99,24 @@ export default function ScraperClient() {
       setDestinationsError("Gagal memuat daftar destinasi.");
     }
   }, []);
+
+  const fetchHistory = useCallback(async (nextPage: number, destinationId: string) => {
+    setHistoryLoading(true);
+    try {
+      setHistoryError("");
+      const res = await adminScraperService.getHistory(
+        nextPage,
+        historyMeta.limit,
+        destinationId ? Number(destinationId) : undefined,
+      );
+      setHistoryItems(Array.isArray(res.data) ? res.data : []);
+      setHistoryMeta(res.meta || { page: nextPage, limit: historyMeta.limit, total: 0, total_pages: 1 });
+    } catch {
+      setHistoryError("Gagal memuat riwayat hasil scraping.");
+    } finally {
+      setHistoryLoading(false);
+    }
+  }, [historyMeta.limit]);
 
   const fetchJobs = useCallback(async () => {
     try {
@@ -104,8 +136,9 @@ export default function ScraperClient() {
     queueMicrotask(() => {
       void fetchDestinations();
       void fetchJobs();
+      void fetchHistory(1, "");
     });
-  }, [fetchDestinations, fetchJobs]);
+  }, [fetchDestinations, fetchJobs, fetchHistory]);
 
   useEffect(() => {
     if (activeJobs.size === 0) return;
@@ -178,6 +211,8 @@ export default function ScraperClient() {
       const res = await adminScraperService.startScraping(payload);
       toast.success(`Job scraping dimulai untuk "${res.destination_name ?? "destinasi"}"`);
       setMapsUrl("");
+      setMapsSearchQuery("");
+      setMapsSearchResults([]);
       await fetchJobs();
     } catch (error) {
       const maybeError = error as { response?: { data?: { message?: string } } };
@@ -185,6 +220,43 @@ export default function ScraperClient() {
     } finally {
       setIsStarting(false);
     }
+  };
+
+  const handleSearchMaps = async () => {
+    const query = mapsSearchQuery.trim();
+    if (!query) {
+      toast.error("Masukkan kata kunci tempat Maps");
+      return;
+    }
+
+    setIsSearchingMaps(true);
+    try {
+      const results = await adminScraperService.searchMaps(query);
+      setMapsSearchResults(results);
+      if (results.length === 0) toast.message("Tidak ada tempat yang cocok");
+    } catch {
+      toast.error("Gagal mencari tempat di Google Maps");
+    } finally {
+      setIsSearchingMaps(false);
+    }
+  };
+
+  const handleOpenJobDetail = async (jobId: number) => {
+    setIsLoadingJobDetail(true);
+    try {
+      const job = await adminScraperService.getJobStatus(jobId);
+      setSelectedJobDetail(job);
+    } catch {
+      toast.error("Gagal memuat detail job");
+    } finally {
+      setIsLoadingJobDetail(false);
+    }
+  };
+
+  const handleHistoryDestinationChange = (value: string) => {
+    setHistoryDestinationId(value);
+    setHistoryMeta((current) => ({ ...current, page: 1 }));
+    void fetchHistory(1, value);
   };
 
   const handleRefreshJobs = async () => {
@@ -230,10 +302,20 @@ export default function ScraperClient() {
           selectedDestination={selectedDestination}
           mapsUrl={mapsUrl}
           maxReviews={maxReviews}
+          mapsSearchQuery={mapsSearchQuery}
+          mapsSearchResults={mapsSearchResults}
+          isSearchingMaps={isSearchingMaps}
           isStarting={isStarting}
           onDestinationChange={setSelectedDestination}
           onMapsUrlChange={setMapsUrl}
           onMaxReviewsChange={setMaxReviews}
+          onMapsSearchQueryChange={setMapsSearchQuery}
+          onSearchMaps={handleSearchMaps}
+          onSelectMapsResult={(place) => {
+            if (place.url) setMapsUrl(place.url);
+            if (place.title) setMapsSearchQuery(place.title);
+            setMapsSearchResults([]);
+          }}
           onStart={handleStartScraping}
         />
 
@@ -268,6 +350,29 @@ export default function ScraperClient() {
           setPage(1);
         }}
         onDownload={handleDownloadExcel}
+        onOpenDetail={handleOpenJobDetail}
+      />
+
+      <ScrapingHistoryPanel
+        histories={historyItems}
+        destinations={destinations}
+        selectedDestination={historyDestinationId}
+        meta={historyMeta}
+        loading={historyLoading}
+        error={historyError}
+        onDestinationChange={handleHistoryDestinationChange}
+        onPageChange={(nextPage) => {
+          setHistoryMeta((current) => ({ ...current, page: nextPage }));
+          void fetchHistory(nextPage, historyDestinationId);
+        }}
+        onRefresh={() => fetchHistory(historyMeta.page, historyDestinationId)}
+      />
+
+      <JobStatusDrawer
+        job={selectedJobDetail}
+        loading={isLoadingJobDetail}
+        onClose={() => setSelectedJobDetail(null)}
+        onRefresh={selectedJobDetail ? () => handleOpenJobDetail(selectedJobDetail.id) : undefined}
       />
     </div>
   );

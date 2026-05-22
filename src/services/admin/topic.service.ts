@@ -27,6 +27,28 @@ export interface AiRenameResult {
   total: number;
 }
 
+export interface TopicDestinationItem {
+  id: number;
+  name: string;
+  slug?: string;
+  city?: string;
+  province?: string;
+  thumbnailUrl?: string | null;
+  positiveRatio?: number | null;
+  recommendationScore?: number | null;
+  total_reviews_in_topic?: number;
+}
+
+export interface TopicDestinationsResponse {
+  data: TopicDestinationItem[];
+  meta: {
+    page: number;
+    limit: number;
+    total: number;
+    total_pages: number;
+  };
+}
+
 // Service API untuk manajemen topik dan topic group.
 class AdminTopicService {
   async getTopics(): Promise<TopicItem[]> {
@@ -71,6 +93,15 @@ class AdminTopicService {
   async triggerAiRename(): Promise<AiRenameResult> {
     const response = await api.post('/api/topics/rename-ai');
     return response.data?.data || response.data;
+  }
+
+  async getTopicDestinations(id: number, page = 1, limit = 10): Promise<TopicDestinationsResponse> {
+    const response = await api.get(`/api/topics/${id}/destinations`, {
+      params: { page, limit },
+    });
+    return response.data?.data && response.data?.meta
+      ? response.data
+      : response.data?.data || response.data;
   }
 }
 

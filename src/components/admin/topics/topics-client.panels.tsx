@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowUpDown, CheckCircle2, Layers3, Loader2, Pencil, Search, Sparkles, Tags, Target } from 'lucide-react';
+import { ArrowUpDown, CheckCircle2, Layers3, Loader2, Pencil, Save, Search, Sparkles, Tags, Target, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { NativeSelect } from '@/components/ui/native-select';
@@ -168,6 +168,86 @@ export function TopicCommandPanel({
             {filter.label}
           </button>
         ))}
+      </div>
+    </section>
+  );
+}
+
+export function TopicGroupManager({
+  groups,
+  editingGroupId,
+  editingValue,
+  pending,
+  onEdit,
+  onValueChange,
+  onCancel,
+  onSubmit,
+}: {
+  groups: TopicGroupItem[];
+  editingGroupId: number | null;
+  editingValue: string;
+  pending: boolean;
+  onEdit: (group: TopicGroupItem) => void;
+  onValueChange: (value: string) => void;
+  onCancel: () => void;
+  onSubmit: () => void;
+}) {
+  return (
+    <section className="rounded-[1.75rem] border border-slate-200 bg-white p-5 shadow-sm">
+      <div className="mb-4 flex items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-black uppercase tracking-[0.16em] text-ai">Topic group</p>
+          <h3 className="mt-1 text-xl font-black text-slate-950">Kelola nama group</h3>
+        </div>
+        <Layers3 className="h-5 w-5 text-ai" />
+      </div>
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+        {groups.map((group) => {
+          const isEditing = editingGroupId === group.id;
+          return (
+            <div key={group.id} className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+              {isEditing ? (
+                <div className="space-y-3">
+                  <Input
+                    value={editingValue}
+                    onChange={(event) => onValueChange(event.target.value)}
+                    className="min-h-11 rounded-xl bg-white font-bold"
+                    autoFocus
+                  />
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      onClick={onSubmit}
+                      disabled={pending || !editingValue.trim()}
+                      className="min-h-10 flex-1 rounded-full bg-ai text-white hover:bg-ai/90"
+                    >
+                      {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                      Simpan
+                    </Button>
+                    <Button type="button" variant="outline" onClick={onCancel} className="min-h-10 rounded-full">
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="truncate font-black text-slate-950">{group.group_name}</p>
+                    <p className="mt-1 text-xs font-bold text-slate-500">{group.topics?.length || 0} topik detail</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => onEdit(group)}
+                    aria-label={`Rename group ${group.group_name}`}
+                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white text-slate-600 shadow-sm transition hover:bg-ai-container hover:text-ai"
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </button>
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
     </section>
   );

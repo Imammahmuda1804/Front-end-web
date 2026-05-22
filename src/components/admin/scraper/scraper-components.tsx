@@ -1,11 +1,11 @@
 import React from 'react';
-import { Activity, AlertTriangle, AlignLeft, BarChart3, CalendarClock, CheckCircle2, ChevronRight, Clock, Database, Download, FileSpreadsheet, LinkIcon, Lock, MapPin, Play, RefreshCw, Star, TimerReset, XCircle, Zap } from "lucide-react";
+import { Activity, AlertTriangle, AlignLeft, BarChart3, CalendarClock, CheckCircle2, ChevronRight, Clock, Database, Download, Eye, FileSpreadsheet, LinkIcon, Loader2, Lock, MapPin, Play, RefreshCw, Search, Star, TimerReset, X, XCircle, Zap } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { NativeSelect } from "@/components/ui/native-select";
 import type { AdminDestination } from "@/services/admin/destination.service";
-import type { ScrapingJob } from "@/services/admin/scraper.service";
+import type { PlaceResult, ScrapingHistoryItem, ScrapingJob } from "@/services/admin/scraper.service";
 import { STATUS_META, formatDate, getDurationMinutes, isActiveStatus, type StatusFilter, type Tone } from "./ScraperClient";
 export function ScraperCommandPanel({
   destinations,
@@ -13,10 +13,16 @@ export function ScraperCommandPanel({
   selectedDestination,
   mapsUrl,
   maxReviews,
+  mapsSearchQuery,
+  mapsSearchResults,
+  isSearchingMaps,
   isStarting,
   onDestinationChange,
   onMapsUrlChange,
   onMaxReviewsChange,
+  onMapsSearchQueryChange,
+  onSearchMaps,
+  onSelectMapsResult,
   onStart,
 }: {
   destinations: AdminDestination[];
@@ -24,10 +30,16 @@ export function ScraperCommandPanel({
   selectedDestination: string;
   mapsUrl: string;
   maxReviews: number;
+  mapsSearchQuery: string;
+  mapsSearchResults: PlaceResult[];
+  isSearchingMaps: boolean;
   isStarting: boolean;
   onDestinationChange: (value: string) => void;
   onMapsUrlChange: (value: string) => void;
   onMaxReviewsChange: (value: number) => void;
+  onMapsSearchQueryChange: (value: string) => void;
+  onSearchMaps: () => void;
+  onSelectMapsResult: (place: PlaceResult) => void;
   onStart: () => void;
 }) {
   return (
@@ -62,6 +74,54 @@ export function ScraperCommandPanel({
             searchPlaceholder="Cari nama destinasi..."
           />
         </label>
+
+        <div className="rounded-2xl border border-blue-100 bg-blue-50/60 p-4">
+          <span className="mb-2 flex items-center gap-2 text-xs font-black uppercase tracking-[0.16em] text-ai">
+            <Search className="h-3.5 w-3.5" />
+            Cari tempat Maps
+          </span>
+          <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto]">
+            <Input
+              value={mapsSearchQuery}
+              onChange={(event) => onMapsSearchQueryChange(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  event.preventDefault();
+                  onSearchMaps();
+                }
+              }}
+              placeholder="Nama destinasi di Google Maps"
+              className="min-h-11 rounded-xl border-blue-100 bg-white text-sm font-bold"
+            />
+            <Button
+              type="button"
+              onClick={onSearchMaps}
+              disabled={isSearchingMaps}
+              className="min-h-11 rounded-xl bg-ai px-4 font-black text-white hover:bg-ai/90"
+            >
+              {isSearchingMaps ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+              Cari
+            </Button>
+          </div>
+          {mapsSearchResults.length > 0 && (
+            <div className="mt-3 space-y-2">
+              {mapsSearchResults.slice(0, 4).map((place, index) => (
+                <button
+                  key={`${place.placeId || place.url || place.title}-${index}`}
+                  type="button"
+                  onClick={() => onSelectMapsResult(place)}
+                  className="flex w-full items-start gap-3 rounded-xl border border-blue-100 bg-white p-3 text-left transition hover:border-ai/40 hover:bg-ai-container"
+                >
+                  <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-ai" />
+                  <span className="min-w-0">
+                    <span className="block truncate text-sm font-black text-slate-900">{place.title || "Tempat Maps"}</span>
+                    <span className="mt-1 line-clamp-2 text-xs font-semibold text-slate-500">{place.address || place.url || "Pilih untuk memakai URL Maps"}</span>
+                  </span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
 
         <label className="block">
           <span className="mb-2 flex items-center gap-2 text-xs font-black uppercase tracking-[0.16em] text-slate-600">
@@ -203,6 +263,7 @@ export function JobMonitorTable({
   onPageChange,
   onPageSizeChange,
   onDownload,
+  onOpenDetail,
 }: {
   jobs: ScrapingJob[];
   totalJobs: number;
@@ -219,6 +280,7 @@ export function JobMonitorTable({
   onPageChange: (page: number) => void;
   onPageSizeChange: (pageSize: number) => void;
   onDownload: (jobId: number) => void;
+  onOpenDetail: (jobId: number) => void;
 }) {
   const filters: Array<{ value: StatusFilter; label: string }> = [
     { value: "all", label: "Semua" },
@@ -313,21 +375,30 @@ export function JobMonitorTable({
                     <td className="p-4 text-sm font-bold text-slate-600">{duration ? `${duration} menit` : "-"}</td>
                     <td className="p-4 text-sm font-bold text-slate-500">{formatDate(job.startedAt || job.createdAt)}</td>
                     <td className="p-4 text-right">
-                      {job.status === "completed" ? (
+                      <div className="flex justify-end gap-2">
                         <button
                           type="button"
-                          onClick={() => onDownload(job.id)}
-                          aria-label={`Unduh hasil scraping job ${job.id}`}
-                          className="inline-flex min-h-10 items-center justify-center gap-2 rounded-full border border-emerald-100 bg-emerald-50 px-4 text-sm font-black text-emerald-700 transition hover:bg-emerald-100"
+                          onClick={() => onOpenDetail(job.id)}
+                          aria-label={`Lihat detail job ${job.id}`}
+                          className="inline-flex min-h-10 items-center justify-center gap-2 rounded-full border border-slate-200 bg-white px-3 text-sm font-black text-slate-700 transition hover:border-ai/30 hover:bg-ai-container hover:text-ai"
                         >
-                          <Download className="h-4 w-4" />
-                          Unduh
+                          <Eye className="h-4 w-4" />
+                          Detail
                         </button>
-                      ) : job.status === "failed" ? (
-                        <span className="line-clamp-1 text-xs font-bold text-rose-500" title={job.errorMessage || "Error"}>{job.errorMessage || "Error"}</span>
-                      ) : (
-                        <span className="text-xs font-bold text-slate-400">Menunggu</span>
-                      )}
+                        {job.status === "completed" ? (
+                          <button
+                            type="button"
+                            onClick={() => onDownload(job.id)}
+                            aria-label={`Unduh hasil scraping job ${job.id}`}
+                            className="inline-flex min-h-10 items-center justify-center gap-2 rounded-full border border-emerald-100 bg-emerald-50 px-4 text-sm font-black text-emerald-700 transition hover:bg-emerald-100"
+                          >
+                            <Download className="h-4 w-4" />
+                            Unduh
+                          </button>
+                        ) : job.status === "failed" ? (
+                          <span className="max-w-36 truncate py-3 text-xs font-bold text-rose-500" title={job.errorMessage || "Error"}>{job.errorMessage || "Error"}</span>
+                        ) : null}
+                      </div>
                     </td>
                   </tr>
                 );
@@ -444,6 +515,236 @@ export function PaginationFooter({ page, pageSize, totalPages, onPageChange, onP
         <button type="button" onClick={() => onPageChange(Math.max(1, page - 1))} disabled={page <= 1} className="min-h-10 rounded-full border border-slate-200 bg-white px-4 text-sm font-black text-slate-700 disabled:opacity-40">Sebelumnya</button>
         <button type="button" onClick={() => onPageChange(Math.min(totalPages, page + 1))} disabled={page >= totalPages} className="min-h-10 rounded-full border border-slate-200 bg-white px-4 text-sm font-black text-slate-700 disabled:opacity-40">Berikutnya</button>
       </div>
+    </div>
+  );
+}
+
+export function ScrapingHistoryPanel({
+  histories,
+  destinations,
+  selectedDestination,
+  meta,
+  loading,
+  error,
+  onDestinationChange,
+  onPageChange,
+  onRefresh,
+}: {
+  histories: ScrapingHistoryItem[];
+  destinations: AdminDestination[];
+  selectedDestination: string;
+  meta: { page: number; limit: number; total: number; total_pages: number };
+  loading: boolean;
+  error: string;
+  onDestinationChange: (value: string) => void;
+  onPageChange: (page: number) => void;
+  onRefresh: () => void;
+}) {
+  return (
+    <section className="overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white shadow-sm">
+      <div className="flex flex-col gap-4 border-b border-slate-100 bg-blue-50/60 p-5 lg:flex-row lg:items-center lg:justify-between">
+        <div>
+          <p className="text-xs font-black uppercase tracking-[0.16em] text-ai">Review hasil scraping</p>
+          <h2 className="mt-1 text-xl font-black text-slate-950">Scraping History</h2>
+          <p className="mt-1 text-sm font-bold text-slate-500">File dan batch review yang sudah pernah dihasilkan scraper.</p>
+        </div>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+          <NativeSelect
+            aria-label="Filter history scraping berdasarkan destinasi"
+            value={selectedDestination}
+            onValueChange={onDestinationChange}
+            options={[
+              { value: "", label: "Semua destinasi" },
+              ...destinations.map((destination) => ({
+                value: String(destination.id),
+                label: destination.name,
+                description: destination.city || undefined,
+              })),
+            ]}
+            searchable
+            searchPlaceholder="Cari destinasi..."
+            wrapperClassName="min-w-64"
+            className="bg-white"
+          />
+          <button
+            type="button"
+            onClick={onRefresh}
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-blue-100 bg-white px-4 text-sm font-black text-ai transition hover:bg-ai-container"
+          >
+            <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
+            Refresh
+          </button>
+        </div>
+      </div>
+
+      {error && <div className="m-4 rounded-2xl border border-rose-100 bg-rose-50 p-4 text-sm font-bold text-rose-700">{error}</div>}
+
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[760px] text-left text-sm">
+          <thead className="bg-slate-50 text-xs font-black uppercase tracking-[0.14em] text-slate-500">
+            <tr>
+              <th className="p-4">ID</th>
+              <th className="p-4">Destinasi</th>
+              <th className="p-4">Job</th>
+              <th className="p-4">Review</th>
+              <th className="p-4">File</th>
+              <th className="p-4">Dibuat</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-100">
+            {loading ? (
+              Array.from({ length: 4 }).map((_, index) => (
+                <tr key={index}>
+                  <td colSpan={6} className="p-3">
+                    <div className="h-12 animate-pulse rounded-2xl bg-slate-100" />
+                  </td>
+                </tr>
+              ))
+            ) : histories.length === 0 ? (
+              <tr>
+                <td colSpan={6} className="h-44 text-center">
+                  <FileSpreadsheet className="mx-auto mb-3 h-8 w-8 text-slate-300" />
+                  <p className="font-black text-slate-700">Belum ada history scraping</p>
+                  <p className="mt-1 text-sm font-semibold text-slate-500">Mulai job scraping untuk membuat history baru.</p>
+                </td>
+              </tr>
+            ) : (
+              histories.map((history) => (
+                <tr key={history.id} className="hover:bg-slate-50/70">
+                  <td className="p-4 font-mono text-xs font-bold text-slate-400">#{history.id}</td>
+                  <td className="p-4 font-black text-slate-900">{history.destination?.name || "-"}</td>
+                  <td className="p-4 font-mono text-xs font-bold text-slate-500">{history.jobId ? `#${history.jobId}` : "-"}</td>
+                  <td className="p-4 font-black text-slate-800">{history.totalReviews ?? history.reviewsCount ?? history.job?.totalReviews ?? "-"}</td>
+                  <td className="p-4 text-xs font-bold text-slate-500">{history.fileName || history.filePath || "-"}</td>
+                  <td className="p-4 text-sm font-bold text-slate-500">{formatDate(history.createdAt)}</td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="flex items-center justify-between border-t border-slate-100 bg-slate-50/70 p-4">
+        <p className="text-sm font-bold text-slate-500">
+          Total {meta.total || 0} history
+        </p>
+        <div className="flex gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            className="rounded-full"
+            disabled={meta.page <= 1 || loading}
+            onClick={() => onPageChange(Math.max(1, meta.page - 1))}
+          >
+            Sebelumnya
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            className="rounded-full"
+            disabled={meta.page >= meta.total_pages || loading}
+            onClick={() => onPageChange(meta.page + 1)}
+          >
+            Berikutnya
+          </Button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+export function JobStatusDrawer({
+  job,
+  loading,
+  onClose,
+  onRefresh,
+}: {
+  job: ScrapingJob | null;
+  loading: boolean;
+  onClose: () => void;
+  onRefresh?: () => void;
+}) {
+  if (!job && !loading) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 bg-slate-950/30">
+      <aside className="ml-auto flex h-full w-full max-w-md flex-col bg-white shadow-2xl">
+        <div className="flex items-start justify-between gap-4 border-b border-slate-100 p-5">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.16em] text-ai">Detail job</p>
+            <h2 className="mt-1 text-2xl font-black text-slate-950">
+              {job ? `Job #${job.id}` : "Memuat job"}
+            </h2>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Tutup detail job"
+            className="flex h-11 w-11 items-center justify-center rounded-full bg-slate-100 text-slate-600 transition hover:bg-slate-200"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <div className="flex-1 space-y-4 overflow-y-auto p-5">
+          {loading && !job ? (
+            <div className="space-y-3">
+              {Array.from({ length: 5 }).map((_, index) => (
+                <div key={index} className="h-16 animate-pulse rounded-2xl bg-slate-100" />
+              ))}
+            </div>
+          ) : job ? (
+            <>
+              <div className="rounded-2xl border border-slate-200 p-4">
+                <p className="mb-2 text-xs font-black uppercase tracking-[0.14em] text-slate-500">Status</p>
+                <StatusBadge status={job.status} />
+              </div>
+              <DetailRow label="Destinasi" value={job.destination?.name || "-"} />
+              <DetailRow label="Kota" value={job.destination?.city || "-"} />
+              <DetailRow label="Total review" value={job.totalReviews ? job.totalReviews.toLocaleString("id-ID") : "-"} />
+              <DetailRow label="Dimulai" value={formatDate(job.startedAt || job.createdAt)} />
+              <DetailRow label="Selesai" value={formatDate(job.finishedAt)} />
+              <DetailRow label="Durasi" value={getDurationMinutes(job) ? `${getDurationMinutes(job)} menit` : "-"} />
+              {job.errorMessage && (
+                <div className="rounded-2xl border border-rose-100 bg-rose-50 p-4 text-sm font-bold text-rose-700">
+                  {job.errorMessage}
+                </div>
+              )}
+            </>
+          ) : null}
+        </div>
+
+        <div className="flex gap-2 border-t border-slate-100 p-5">
+          <Button
+            type="button"
+            variant="outline"
+            className="min-h-11 flex-1 rounded-full"
+            onClick={onClose}
+          >
+            Tutup
+          </Button>
+          {onRefresh && (
+            <Button
+              type="button"
+              className="min-h-11 flex-1 rounded-full bg-ai text-white hover:bg-ai/90"
+              onClick={onRefresh}
+              disabled={loading}
+            >
+              <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
+              Refresh
+            </Button>
+          )}
+        </div>
+      </aside>
+    </div>
+  );
+}
+
+function DetailRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-2xl border border-slate-200 p-4">
+      <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">{label}</p>
+      <p className="mt-1 font-black text-slate-950">{value}</p>
     </div>
   );
 }
