@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
     PieChart,
     Pie,
@@ -17,7 +17,8 @@ import {
     LineChart,
     Line,
 } from 'recharts';
-import { BarChart3, Download, PieChartIcon, Smile, Tags, TrendingDown } from 'lucide-react';
+import { BarChart3, Download, PieChartIcon, RefreshCw, Smile, Tags, TrendingDown } from 'lucide-react';
+import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import { adminAnalyticsService, TrendData } from '@/services/admin/analytics.service';
@@ -39,6 +40,7 @@ type SentimentDatum = {
 };
 
 export function DestinationAnalytics({ destinationId }: DestinationAnalyticsProps) {
+    const queryClient = useQueryClient();
     const { data: analytics, isLoading: loadingAnalytics } = useQuery({
         queryKey: ['admin-destination-analytics', destinationId],
         queryFn: () => adminAnalyticsService.getDestinationAnalytics(destinationId),
@@ -52,6 +54,21 @@ export function DestinationAnalytics({ destinationId }: DestinationAnalyticsProp
     const { data: trends, isLoading: loadingTrends } = useQuery({
         queryKey: ['admin-destination-trends', destinationId],
         queryFn: () => adminAnalyticsService.getDestinationTrends(destinationId, 'monthly'),
+    });
+
+    const recalculateMutation = useMutation({
+        mutationFn: () => adminAnalyticsService.recalculateDestination(destinationId),
+        onSuccess: async () => {
+            await Promise.all([
+                queryClient.invalidateQueries({ queryKey: ['admin-destination-analytics', destinationId] }),
+                queryClient.invalidateQueries({ queryKey: ['admin-destination-topics', destinationId] }),
+                queryClient.invalidateQueries({ queryKey: ['admin-destination-trends', destinationId] }),
+            ]);
+            toast.success('Analytics berhasil dihitung ulang');
+        },
+        onError: () => {
+            toast.error('Gagal menghitung ulang analytics');
+        },
     });
 
     if (loadingAnalytics || loadingTopics || loadingTrends) {
@@ -94,10 +111,21 @@ export function DestinationAnalytics({ destinationId }: DestinationAnalyticsProp
                         Skor rekomendasi {((analytics.recommendation_score || 0) * 100).toFixed(1)}%, {totalReviewsAnalyzed} review dianalisis.
                     </p>
                 </div>
-                <Button onClick={handleExport} variant="outline" className="rounded-full">
-                    <Download className="h-4 w-4" />
-                    Export CSV
-                </Button>
+                <div className="flex flex-col gap-2 sm:flex-row">
+                    <Button
+                        onClick={() => recalculateMutation.mutate()}
+                        disabled={recalculateMutation.isPending}
+                        variant="outline"
+                        className="rounded-full"
+                    >
+                        <RefreshCw className={`h-4 w-4 ${recalculateMutation.isPending ? 'animate-spin' : ''}`} />
+                        Hitung ulang
+                    </Button>
+                    <Button onClick={handleExport} variant="outline" className="rounded-full">
+                        <Download className="h-4 w-4" />
+                        Export CSV
+                    </Button>
+                </div>
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">

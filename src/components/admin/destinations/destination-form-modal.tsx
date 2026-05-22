@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Resolver, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { NativeSelect } from "@/components/ui/native-select";
 import { destinationSchema, DestinationFormValues } from "@/lib/validations/destination";
 import { DESTINATION_CATEGORIES } from "@/lib/destination-categories";
+import { api } from "@/lib/axios";
 import { ThumbnailUploader } from "./thumbnail-uploader";
 import { GalleryUploader, ExistingImage } from "./gallery-uploader";
 import { toast } from "sonner";
@@ -51,6 +52,9 @@ type GalleryUploadError = Error & {
   failedFiles?: string[];
 };
 
+type CategoryOption = { value: string; label: string };
+type RawCategoryOption = { value?: unknown; label?: unknown };
+
 export function DestinationFormModal({ open, onOpenChange, onSuccess, initialData }: DestinationFormModalProps) {
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -58,6 +62,7 @@ export function DestinationFormModal({ open, onOpenChange, onSuccess, initialDat
   const [thumbnailLink, setThumbnailLink] = useState<string>(initialData?.thumbnailUrl || "");
   const [galleryFiles, setGalleryFiles] = useState<File[]>([]);
   const [existingImages, setExistingImages] = useState<ExistingImage[]>(initialData?.images || []);
+  const [categoryOptions, setCategoryOptions] = useState<CategoryOption[]>([...DESTINATION_CATEGORIES]);
 
   const isEditing = !!initialData;
 
@@ -78,6 +83,28 @@ export function DestinationFormModal({ open, onOpenChange, onSuccess, initialDat
     },
   });
   const watchedValues = useWatch({ control });
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await api.get("/api/destinations/categories");
+        const raw = res.data?.data ?? res.data;
+        const list = Array.isArray(raw) ? raw : Array.isArray(raw?.data) ? raw.data : [];
+        const normalized = (list as RawCategoryOption[])
+          .map((item) => ({
+            value: String(item?.value ?? ""),
+            label: String(item?.label ?? item?.value ?? ""),
+          }))
+          .filter((item) => item.value && item.label);
+
+        if (normalized.length > 0) setCategoryOptions(normalized);
+      } catch {
+        setCategoryOptions([...DESTINATION_CATEGORIES]);
+      }
+    };
+
+    if (open) fetchCategories();
+  }, [open]);
 
   const handleDeleteExistingImage = async (imageId: number) => {
     try {
@@ -310,7 +337,7 @@ export function DestinationFormModal({ open, onOpenChange, onSuccess, initialDat
                 aria-label="Pilih kategori destinasi"
                 value={watchedValues.category || "alam"}
                 onValueChange={(value) => setValue("category", value, { shouldDirty: true, shouldValidate: true })}
-                options={DESTINATION_CATEGORIES.map((category) => ({
+                options={categoryOptions.map((category) => ({
                   value: category.value,
                   label: category.label,
                 }))}

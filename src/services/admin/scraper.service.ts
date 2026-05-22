@@ -102,7 +102,7 @@ class AdminScraperService {
     const res = await api.get('/api/admin/scraper/jobs', {
       params: { page, limit, ...(status ? { status } : {}) },
     });
-    return res.data?.data ?? res.data;
+    return res.data?.meta ? res.data : res.data?.data ?? res.data;
   }
 
   // Mengambil riwayat scraping destinasi.
@@ -112,9 +112,9 @@ class AdminScraperService {
     destinationId?: number,
   ): Promise<PaginatedResponse<unknown>> {
     const res = await api.get('/api/admin/scraper/history', {
-      params: { page, limit, ...(destinationId ? { destinationId } : {}) },
+      params: { page, limit, ...(destinationId ? { destination_id: destinationId } : {}) },
     });
-    return res.data?.data ?? res.data;
+    return res.data?.meta ? res.data : res.data?.data ?? res.data;
   }
 
   // Mengunduh hasil scraping.

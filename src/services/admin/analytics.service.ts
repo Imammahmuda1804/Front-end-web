@@ -171,6 +171,11 @@ class AdminAnalyticsService {
     };
   }
 
+  async recalculateDestination(destinationId: number): Promise<{ message?: string }> {
+    const response = await api.post(`/api/admin/analytics/recalculate/${destinationId}`);
+    return unwrapApiData<{ message?: string }>(response.data);
+  }
+
   getExportCsvUrl(destinationId: number): string {
     return `${process.env.NEXT_PUBLIC_API_URL}/api/admin/analytics/export/${destinationId}`;
   }

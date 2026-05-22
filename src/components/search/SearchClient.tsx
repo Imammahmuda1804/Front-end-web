@@ -36,6 +36,8 @@ interface SearchHistoryItem {
 
 type SearchMode = 'keyword' | 'semantic';
 type SemanticSort = 'relevance' | 'hybrid';
+type CategoryOption = { value: string; label: string };
+type RawCategoryOption = { value?: unknown; label?: unknown };
 type DestinationSearchParams = {
   limit: number;
   search?: string;
@@ -91,6 +93,7 @@ export default function SearchClient() {
 
   const [results, setResults] = useState<Destination[]>([]);
   const [cities, setCities] = useState<string[]>([]);
+  const [categoryOptions, setCategoryOptions] = useState<CategoryOption[]>([...DESTINATION_CATEGORIES]);
   const [history, setHistory] = useState<SearchHistoryItem[]>([]);
   const [totalResults, setTotalResults] = useState(0);
 
@@ -118,6 +121,28 @@ export default function SearchClient() {
     };
 
     fetchCities();
+  }, []);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await api.get('/api/destinations/categories');
+        const raw = res.data?.data ?? res.data;
+        const list = Array.isArray(raw) ? raw : Array.isArray(raw?.data) ? raw.data : [];
+        const normalized = (list as RawCategoryOption[])
+          .map((item) => ({
+            value: String(item?.value ?? ''),
+            label: String(item?.label ?? item?.value ?? ''),
+          }))
+          .filter((item) => item.value && item.label);
+
+        if (normalized.length > 0) setCategoryOptions(normalized);
+      } catch (error) {
+        console.error('Failed to fetch categories', error);
+      }
+    };
+
+    fetchCategories();
   }, []);
 
   useEffect(() => {
@@ -505,7 +530,7 @@ export default function SearchClient() {
                   className="rounded-xl border-slate-200 bg-slate-50 focus:ring-primary/20"
                   options={[
                     { value: '', label: 'Semua Kategori', description: 'Tampilkan semua jenis destinasi' },
-                    ...DESTINATION_CATEGORIES.map((category) => ({
+                    ...categoryOptions.map((category) => ({
                       value: category.value,
                       label: category.label,
                     })),
