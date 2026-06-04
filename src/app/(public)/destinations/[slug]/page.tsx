@@ -34,11 +34,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 async function getDestination(slug: string) {
-  const res = await fetch(`${getServerApiUrl()}/api/destinations/slug/${slug}`, {
+  const apiUrl = getServerApiUrl();
+  const res = await fetch(`${apiUrl}/api/destinations/slug/${slug}`, {
     next: { revalidate: 120, tags: [`destination-${slug}`] },
   });
   
   if (!res.ok) {
+    if (res.status === 404 && /^\d+$/.test(slug)) {
+      const idRes = await fetch(`${apiUrl}/api/destinations/${slug}`, {
+        next: { revalidate: 120, tags: [`destination-${slug}`] },
+      });
+      if (!idRes.ok) return null;
+      const { data: fallbackData } = await idRes.json();
+      return fallbackData;
+    }
     if (res.status === 404) return null;
     throw new Error('Failed to fetch destination');
   }

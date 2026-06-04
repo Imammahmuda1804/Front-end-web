@@ -13,7 +13,7 @@ import DataFreshnessPanel from './DataFreshnessPanel';
 import AdminActionQueue from './AdminActionQueue';
 
 const DashboardChartSkeleton = ({ height = 'h-80' }: { height?: string }) => (
-  <div className={`${height} animate-pulse rounded-[1.75rem] bg-white ring-1 ring-slate-200`} />
+  <div className={`${height} animate-pulse rounded-xl bg-white ring-1 ring-slate-200`} />
 );
 
 const MonthlySentimentChart = dynamic(() => import('./MonthlySentimentChart'), {
@@ -165,7 +165,7 @@ export function AdminDashboardClient() {
 
   if (isError) {
     return (
-      <div className="rounded-[1.75rem] border border-red-100 bg-red-50 p-8 text-center">
+      <div className="rounded-xl border border-red-100 bg-red-50 p-8 text-center">
         <AlertTriangle className="mx-auto mb-3 h-10 w-10 text-red-500" />
         <h1 className="text-xl font-black text-red-900">Gagal memuat dashboard</h1>
         <p className="mt-2 text-sm font-semibold text-red-600">Periksa koneksi API atau sesi admin, lalu muat ulang halaman.</p>
@@ -175,10 +175,10 @@ export function AdminDashboardClient() {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-[2rem] border border-orange-100 bg-orange-50/70 p-6 shadow-sm shadow-orange-100/50">
+      <section className="rounded-xl border border-orange-100 bg-orange-50/70 p-6 shadow-sm shadow-orange-100/50">
         <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
           <div className="max-w-3xl">
-            <p className="mb-3 inline-flex items-center gap-2 rounded-full bg-white px-3 py-1.5 text-xs font-black uppercase tracking-[0.16em] text-primary shadow-sm">
+            <p className="mb-3 inline-flex items-center gap-2 rounded-lg bg-white px-3 py-1.5 text-xs font-black uppercase tracking-[0.16em] text-primary shadow-sm">
               <Clock className="h-3.5 w-3.5" />
               Admin intelligence
             </p>
@@ -251,7 +251,7 @@ function InsightCard({
   }[tone];
 
   return (
-    <div className={`rounded-3xl border p-4 shadow-sm ${toneClass}`}>
+    <div className={`rounded-xl border p-4 shadow-sm ${toneClass}`}>
       <Icon className="mb-3 h-5 w-5" />
       <p className="text-xs font-black uppercase tracking-[0.14em] opacity-80">{label}</p>
       <p className="mt-1 text-2xl font-black text-slate-950">{value}</p>
@@ -263,22 +263,23 @@ function InsightCard({
 function DashboardSkeleton() {
   return (
     <div className="space-y-6" aria-label="Memuat dashboard admin">
-      <div className="h-44 animate-pulse rounded-[2rem] bg-orange-100/70" />
+      <div className="h-44 animate-pulse rounded-xl bg-orange-100/70" />
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {[1, 2, 3, 4].map((item) => (
-          <div key={item} className="h-36 animate-pulse rounded-[1.5rem] bg-white ring-1 ring-slate-200" />
+          <div key={item} className="h-36 animate-pulse rounded-xl bg-white ring-1 ring-slate-200" />
         ))}
       </div>
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1.45fr)_minmax(22rem,0.8fr)]">
         <div className="space-y-6">
-          <div className="h-[25rem] animate-pulse rounded-[1.75rem] bg-white ring-1 ring-slate-200" />
+          <div className="h-[25rem] animate-pulse rounded-xl bg-white ring-1 ring-slate-200" />
           <div className="grid gap-6 lg:grid-cols-2">
-            <div className="h-80 animate-pulse rounded-[1.75rem] bg-white ring-1 ring-slate-200" />
-            <div className="h-80 animate-pulse rounded-[1.75rem] bg-white ring-1 ring-slate-200" />
+            <div className="h-80 animate-pulse rounded-xl bg-white ring-1 ring-slate-200" />
+            <div className="h-80 animate-pulse rounded-xl bg-white ring-1 ring-slate-200" />
           </div>
         </div>
-        <div className="h-[42rem] animate-pulse rounded-[1.75rem] bg-white ring-1 ring-slate-200" />
+        <div className="h-[42rem] animate-pulse rounded-xl bg-white ring-1 ring-slate-200" />
       </div>
     </div>
   );
 }
+

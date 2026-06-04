@@ -13,6 +13,7 @@ export interface PlaceResult {
 export interface StartScrapingRequest {
   destination_id: number;
   max_reviews?: number;
+  fetch_all_reviews?: boolean;
   // URL Maps opsional dari form.
   maps_url?: string;
 }

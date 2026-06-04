@@ -241,7 +241,7 @@ export function ReviewPreviewDrawer({
                         <PreviewMetric label="Topik" value={review.topic?.topicName || '-'} />
                     </div>
                     {typeof review.sentimentConfidence === 'number' && (
-                        <section className="rounded-2xl border border-violet-100 bg-violet-50/60 p-4">
+                        <section className="rounded-xl border border-violet-100 bg-violet-50/60 p-4">
                             <div className="flex items-start gap-3">
                                 <div className="rounded-full bg-white p-2 text-violet-700">
                                     <Gauge className="h-4 w-4" />
@@ -264,7 +264,7 @@ export function ReviewPreviewDrawer({
                     <PreviewBlock title="Teks asli" value={review.reviewText || 'Teks ulasan kosong.'} />
                     <PreviewBlock title="Cleaned text" value={review.cleanedText || 'Cleaned text belum tersedia.'} />
                     {review.ownerReply && <PreviewBlock title="Balasan pemilik" value={review.ownerReply} />}
-                    <section className="rounded-2xl border border-slate-200 p-4">
+                    <section className="rounded-xl border border-slate-200 p-4">
                         <h4 className="font-semibold text-slate-950">Metadata</h4>
                         <div className="mt-3 space-y-2 text-sm">
                             <InfoRow label="Source" value={review.source || '-'} />
@@ -287,7 +287,7 @@ export function ReviewPreviewDrawer({
 
 export function PreviewMetric({ label, value }: { label: string; value: string }) {
     return (
-        <div className="rounded-2xl bg-slate-50 p-3">
+        <div className="rounded-xl bg-slate-50 p-3">
             <p className="text-xs font-medium text-slate-500">{label}</p>
             <p className="mt-1 truncate text-lg font-semibold text-slate-950">{value}</p>
         </div>
@@ -296,7 +296,7 @@ export function PreviewMetric({ label, value }: { label: string; value: string }
 
 export function PreviewBlock({ title, value }: { title: string; value: string }) {
     return (
-        <section className="rounded-2xl border border-slate-200 p-4">
+        <section className="rounded-xl border border-slate-200 p-4">
             <h4 className="font-semibold text-slate-950">{title}</h4>
             <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-slate-700">{value}</p>
         </section>
@@ -341,7 +341,7 @@ export function DeleteReviewDialog({
                         Aksi ini menghapus data review dari database admin. Pastikan data tidak lagi diperlukan untuk analitik.
                     </DialogDescription>
                 </DialogHeader>
-                <div className="rounded-2xl border border-rose-100 bg-rose-50 p-3 text-sm text-rose-700">
+                <div className="rounded-xl border border-rose-100 bg-rose-50 p-3 text-sm text-rose-700">
                     {target?.type === 'category'
                         ? 'Kategori bulk delete akan memakai endpoint penghapusan masal yang sudah tersedia.'
                         : 'Review terpilih akan dihapus satu per satu.'}
@@ -359,4 +359,5 @@ export function DeleteReviewDialog({
         </Dialog>
     );
 }
+
 

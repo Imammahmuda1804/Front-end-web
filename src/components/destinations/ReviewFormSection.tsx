@@ -65,7 +65,7 @@ export default function ReviewFormSection({ destinationId, isAuthenticated, onSu
 
   if (!isAuthenticated) {
     return (
-      <div className="mt-10 rounded-3xl border border-orange-100 bg-orange-50/60 p-8 text-center">
+      <div className="mt-10 rounded-xl border border-orange-100 bg-orange-50/60 p-8 text-center">
         <LogIn className="mx-auto mb-3 h-10 w-10 text-primary" />
         <h4 className="mb-2 text-lg font-black text-slate-900">Bagikan Pengalaman Anda</h4>
         <p className="mb-5 text-sm font-semibold text-slate-500">Login untuk memberikan ulasan dan rating destinasi ini.</p>
@@ -85,7 +85,7 @@ export default function ReviewFormSection({ destinationId, isAuthenticated, onSu
       <motion.div
         initial={reduceMotion ? false : { opacity: 0, scale: 0.95 }}
         animate={reduceMotion ? undefined : { opacity: 1, scale: 1 }}
-        className="mt-10 rounded-3xl border border-emerald-100 bg-emerald-50 p-8 text-center"
+        className="mt-10 rounded-xl border border-emerald-100 bg-emerald-50 p-8 text-center"
       >
         <CheckCircle className="mx-auto mb-3 h-10 w-10 text-emerald-500" />
         <h4 className="mb-1 text-lg font-black text-emerald-800">Ulasan terkirim</h4>
@@ -95,7 +95,7 @@ export default function ReviewFormSection({ destinationId, isAuthenticated, onSu
   }
 
   return (
-    <div className="mt-10 rounded-3xl border border-orange-100 bg-slate-50/80 p-6 sm:p-8">
+    <div className="mt-10 rounded-xl border border-orange-100 bg-slate-50/80 p-6 sm:p-8">
       <h4 className="mb-1 text-lg font-black text-slate-900">Tulis ulasan</h4>
       <p className="mb-5 text-sm font-semibold text-slate-500">Bagikan pengalaman Anda mengunjungi destinasi ini.</p>
 
@@ -142,12 +142,12 @@ export default function ReviewFormSection({ destinationId, isAuthenticated, onSu
             onChange={(e) => setReviewText(e.target.value)}
             rows={4}
             placeholder="Ceritakan pengalaman Anda..."
-            className="w-full resize-none rounded-2xl border-2 border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 transition-all duration-200 placeholder:text-slate-400 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10"
+            className="w-full resize-none rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 transition-all duration-200 placeholder:text-slate-400 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10"
           />
         </div>
 
         {error && (
-          <p className="rounded-2xl border border-red-100 bg-red-50 px-4 py-3 text-sm font-bold text-red-600">{error}</p>
+          <p className="rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm font-bold text-red-600">{error}</p>
         )}
 
         <button
@@ -171,3 +171,4 @@ export default function ReviewFormSection({ destinationId, isAuthenticated, onSu
     </div>
   );
 }
+

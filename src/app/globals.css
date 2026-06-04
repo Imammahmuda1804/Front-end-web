@@ -215,6 +215,43 @@
   }
 }
 
+.public-shell-background {
+  position: relative;
+  isolation: isolate;
+  background:
+    linear-gradient(180deg, oklch(0.995 0.012 55 / 0.18), oklch(0.975 0.012 235 / 0.32)),
+    url("/images/sumbar-tourism-bg.jpg");
+  background-attachment: fixed;
+  background-position: center;
+  background-size: cover;
+}
+
+.public-shell-background::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, oklch(0.99 0.006 55 / 0.22) 0%, oklch(0.985 0.009 55 / 0.34) 36%, oklch(0.97 0.01 235 / 0.46) 100%);
+  mask-image: linear-gradient(to bottom, black, black 82%, transparent);
+}
+
+.public-shell-background::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: oklch(1 0.006 55 / 0.08);
+}
+
+@media (max-width: 767px) {
+  .public-shell-background {
+    background-attachment: scroll;
+  }
+}
+
 /* Hero zoom animation — cross-browser safe */
 @keyframes hero-zoom {
   from { transform: scale(1.1); -webkit-transform: scale(1.1); }
@@ -243,4 +280,27 @@
 .hide-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+@media (min-width: 1024px) {
+  .destination-hero-copy {
+    right: auto !important;
+    bottom: 2.5rem !important;
+    left: 52% !important;
+    width: min(48vw, 920px) !important;
+  }
+
+  .destination-hero-copy > div {
+    align-items: flex-start !important;
+  }
+}
+
+@media (min-width: 1280px) {
+  .destination-hero-copy {
+    left: 50% !important;
+  }
+
+  .destination-hero-title {
+    max-width: 700px !important;
+    font-size: 5.75rem !important;
+  }
 }

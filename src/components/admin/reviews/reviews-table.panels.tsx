@@ -28,7 +28,7 @@ export function ReviewHealthOverviewCards({ reviews, total }: { reviews: Review[
             {stats.map((stat) => {
                 const Icon = stat.icon;
                 return (
-                    <div key={stat.label} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/50">
+                    <div key={stat.label} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/50">
                         <div className="flex items-start justify-between gap-3">
                             <div>
                                 <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{stat.label}</p>
@@ -56,7 +56,7 @@ export function ReviewPriorityQueue({ reviews, onPreview }: { reviews: Review[];
     );
 
     return (
-        <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/50">
+        <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/50">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                     <h3 className="font-semibold text-slate-950">Priority queue</h3>
@@ -68,7 +68,7 @@ export function ReviewPriorityQueue({ reviews, onPreview }: { reviews: Review[];
             </div>
             <div className="mt-4 grid gap-3 lg:grid-cols-2">
                 {priorityReviews.length === 0 ? (
-                    <div className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-500">
+                    <div className="rounded-xl bg-slate-50 p-4 text-sm text-slate-500">
                         Tidak ada review prioritas pada halaman ini.
                     </div>
                 ) : (
@@ -77,7 +77,7 @@ export function ReviewPriorityQueue({ reviews, onPreview }: { reviews: Review[];
                             key={review.id}
                             type="button"
                             onClick={() => onPreview(review)}
-                            className="rounded-2xl border border-slate-100 bg-slate-50 p-3 text-left transition-colors hover:border-orange-200 hover:bg-orange-50"
+                            className="rounded-xl border border-slate-100 bg-slate-50 p-3 text-left transition-colors hover:border-orange-200 hover:bg-orange-50"
                         >
                             <div className="flex items-center justify-between gap-3">
                                 <span className="truncate text-sm font-semibold text-slate-900">{review.reviewerName}</span>
@@ -108,7 +108,7 @@ export function ReviewLegendPanel() {
     ];
 
     return (
-        <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/50">
+        <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/50">
             <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                 <div>
                     <h3 className="text-sm font-semibold text-slate-950">Legenda review</h3>
@@ -134,5 +134,6 @@ export function ReviewLegendPanel() {
         </section>
     );
 }
+
 
 

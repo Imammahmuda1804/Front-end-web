@@ -160,7 +160,7 @@ export function UserFormModal({ open, onOpenChange, onSuccess, initialData }: Us
           </DialogDescription>
         </DialogHeader>
 
-        <div className="rounded-[1.5rem] border border-explore/20 bg-explore-container p-4">
+        <div className="rounded-xl border border-explore/20 bg-explore-container p-4">
           <div className="grid gap-3 sm:grid-cols-3">
             {steps.map((item, index) => {
               const stepNumber = index + 1;
@@ -170,7 +170,7 @@ export function UserFormModal({ open, onOpenChange, onSuccess, initialData }: Us
               return (
                 <div
                   key={item.label}
-                  className={`rounded-2xl border p-3 transition ${
+                  className={`rounded-xl border p-3 transition ${
                     active
                       ? "border-explore bg-white shadow-sm"
                       : "border-white/80 bg-white/60"
@@ -207,7 +207,7 @@ export function UserFormModal({ open, onOpenChange, onSuccess, initialData }: Us
                 <Input
                   id="name"
                   {...register("name")}
-                  className="h-12 rounded-2xl border-slate-200 focus-visible:ring-[var(--explore)]"
+                  className="h-12 rounded-xl border-slate-200 focus-visible:ring-[var(--explore)]"
                   placeholder="Contoh: Siti Rahma"
                 />
                 {errors.name && <p className="text-sm font-medium text-rose-600">{errors.name.message}</p>}
@@ -219,7 +219,7 @@ export function UserFormModal({ open, onOpenChange, onSuccess, initialData }: Us
                   id="email"
                   type="email"
                   {...register("email")}
-                  className="h-12 rounded-2xl border-slate-200 focus-visible:ring-[var(--explore)]"
+                  className="h-12 rounded-xl border-slate-200 focus-visible:ring-[var(--explore)]"
                   placeholder="nama@email.com"
                 />
                 {errors.email && <p className="text-sm font-medium text-rose-600">{errors.email.message}</p>}
@@ -271,9 +271,9 @@ export function UserFormModal({ open, onOpenChange, onSuccess, initialData }: Us
 
           {step === 3 && (
             <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_16rem]">
-              <div className="rounded-[1.5rem] border border-slate-200 bg-white p-4">
+              <div className="rounded-xl border border-slate-200 bg-white p-4">
                 <div className="mb-4 flex items-start gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-orange-50 text-explore">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-orange-50 text-explore">
                     <KeyRound className="h-5 w-5" />
                   </div>
                   <div>
@@ -293,7 +293,7 @@ export function UserFormModal({ open, onOpenChange, onSuccess, initialData }: Us
                     id="password"
                     type="password"
                     {...register("password")}
-                    className="h-12 rounded-2xl border-slate-200 focus-visible:ring-[var(--explore)]"
+                    className="h-12 rounded-xl border-slate-200 focus-visible:ring-[var(--explore)]"
                     placeholder="Minimal 6 karakter"
                   />
                   {errors.password && (
@@ -302,7 +302,7 @@ export function UserFormModal({ open, onOpenChange, onSuccess, initialData }: Us
                 </div>
               </div>
 
-              <div className="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-4">
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
                 <p className="text-xs font-black uppercase tracking-[0.16em] text-explore">
                   Ringkasan
                 </p>
@@ -378,7 +378,7 @@ function FieldGroup({
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-[1.5rem] border border-slate-200 bg-white p-4">
+    <div className="rounded-xl border border-slate-200 bg-white p-4">
       <h4 className="font-black text-slate-950">{title}</h4>
       <p className="mt-1 text-sm font-medium text-slate-500">{description}</p>
       <div className="mt-4">{children}</div>
@@ -410,7 +410,7 @@ function ChoiceCard({
     <button
       type="button"
       onClick={onClick}
-      className={`min-h-[7rem] rounded-3xl border p-4 text-left transition focus:outline-none focus:ring-2 focus:ring-explore/30 ${
+      className={`min-h-[7rem] rounded-xl border p-4 text-left transition focus:outline-none focus:ring-2 focus:ring-explore/30 ${
         selected ? "border-explore bg-explore-container shadow-sm" : "border-slate-200 bg-white hover:bg-slate-50"
       }`}
     >
@@ -438,3 +438,4 @@ function SummaryRow({ label, value }: { label: string; value: string }) {
     </div>
   );
 }
+

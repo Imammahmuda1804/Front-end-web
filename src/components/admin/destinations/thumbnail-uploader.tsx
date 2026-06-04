@@ -160,3 +160,4 @@ export function ThumbnailUploader({ onFileChange, onUrlChange, currentThumbnailU
     </div>
   );
 }
+

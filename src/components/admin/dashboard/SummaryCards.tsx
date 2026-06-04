@@ -75,14 +75,14 @@ export default function SummaryCards({
         const metric = values[card.key];
 
         return (
-          <article key={card.key} className={`rounded-[1.5rem] border p-5 shadow-sm ${toneClass}`}>
+          <article key={card.key} className={`rounded-xl border p-5 shadow-sm ${toneClass}`}>
             <div className="mb-6 flex items-start justify-between gap-4">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/80 shadow-sm">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/80 shadow-sm">
                 <Icon className="h-5 w-5" />
               </div>
               <Link
                 href={card.href}
-                className="inline-flex min-h-9 items-center gap-1 rounded-full bg-white px-3 text-xs font-black text-slate-700 shadow-sm transition-colors hover:text-primary focus:outline-none focus:ring-4 focus:ring-primary/15"
+                className="inline-flex min-h-9 items-center gap-1 rounded-lg bg-white px-3 text-xs font-black text-slate-700 shadow-sm transition-colors hover:text-primary focus:outline-none focus:ring-4 focus:ring-primary/15"
               >
                 Detail
                 <ArrowRight className="h-3.5 w-3.5" />
@@ -97,3 +97,4 @@ export default function SummaryCards({
     </section>
   );
 }
+

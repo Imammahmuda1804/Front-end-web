@@ -11,7 +11,7 @@ import { NativeSelectOption } from '@/components/ui/native-select';
 import { GetAdminReviewsResponse, Review, adminReviewsService } from '@/services/admin/reviews.service';
 import { ReviewBulkToolbar, ReviewFilterBar } from './reviews-table.controls';
 import { DeleteReviewDialog, ReviewDataTable, ReviewPreviewDrawer } from './reviews-table.data';
-import { ReviewHealthOverviewCards, ReviewLegendPanel, ReviewPriorityQueue } from './reviews-table.panels';
+import { ReviewHealthOverviewCards, ReviewPriorityQueue } from './reviews-table.panels';
 
 interface ReviewsTableProps {
     destinationId: number;
@@ -283,9 +283,8 @@ export function ReviewsTable({ destinationId }: ReviewsTableProps) {
         <div className="space-y-5">
             <ReviewHealthOverviewCards reviews={reviews} total={meta.total} />
             <ReviewPriorityQueue reviews={reviews} onPreview={setPreviewReview} />
-            <ReviewLegendPanel />
 
-            <section className="rounded-2xl border border-slate-200 bg-white shadow-sm shadow-slate-200/50">
+            <section className="rounded-xl border border-slate-200 bg-white shadow-sm shadow-slate-200/50">
                 <div className="border-b border-slate-100 p-4">
                     <ReviewFilterBar
                         queryTerm={queryTerm}
@@ -373,5 +372,6 @@ export function ReviewsTable({ destinationId }: ReviewsTableProps) {
         </div>
     );
 }
+
 
 

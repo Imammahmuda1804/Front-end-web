@@ -74,6 +74,7 @@ export default function ScraperClient() {
   const [selectedDestination, setSelectedDestination] = useState("");
   const [mapsUrl, setMapsUrl] = useState("");
   const [maxReviews, setMaxReviews] = useState(100);
+  const [fetchAllReviews, setFetchAllReviews] = useState(false);
   const [isStarting, setIsStarting] = useState(false);
   const [mapsSearchQuery, setMapsSearchQuery] = useState("");
   const [mapsSearchResults, setMapsSearchResults] = useState<PlaceResult[]>([]);
@@ -205,7 +206,8 @@ export default function ScraperClient() {
     try {
       const payload: StartScrapingRequest = {
         destination_id: Number(selectedDestination),
-        max_reviews: maxReviews,
+        fetch_all_reviews: fetchAllReviews,
+        ...(fetchAllReviews ? {} : { max_reviews: maxReviews }),
         ...(mapsUrl.trim() ? { maps_url: mapsUrl.trim() } : {}),
       };
       const res = await adminScraperService.startScraping(payload);
@@ -289,9 +291,9 @@ export default function ScraperClient() {
         title="Scraper Operations"
         description="Mulai pengambilan ulasan Google Maps, pantau status job, dan unduh file Excel untuk pipeline NLP."
         insights={[
-          { label: "Job aktif", value: String(metrics.active), helper: "Pending, running, scraping, NLP", icon: Activity, tone: metrics.active > 0 ? "amber" : "emerald" },
-          { label: "Success rate", value: `${metrics.successRate}%`, helper: `${metrics.completed} selesai dari ${jobs.length} job`, icon: CheckCircle2, tone: "emerald" },
-          { label: "Review terkumpul", value: metrics.totalReviews.toLocaleString("id-ID"), helper: "Dari job selesai", icon: Database, tone: "blue" },
+          { label: "Job aktif", value: String(metrics.active), helper: metrics.active > 0 ? "Pantau job" : "Tidak ada antrean", icon: Activity, tone: metrics.active > 0 ? "amber" : "emerald" },
+          { label: "Success rate", value: `${metrics.successRate}%`, helper: `${metrics.completed}/${jobs.length} selesai`, icon: CheckCircle2, tone: "emerald" },
+          { label: "Review terkumpul", value: metrics.totalReviews.toLocaleString("id-ID"), helper: "Siap NLP", icon: Database, tone: "blue" },
         ]}
       />
 
@@ -302,6 +304,7 @@ export default function ScraperClient() {
           selectedDestination={selectedDestination}
           mapsUrl={mapsUrl}
           maxReviews={maxReviews}
+          fetchAllReviews={fetchAllReviews}
           mapsSearchQuery={mapsSearchQuery}
           mapsSearchResults={mapsSearchResults}
           isSearchingMaps={isSearchingMaps}
@@ -309,6 +312,7 @@ export default function ScraperClient() {
           onDestinationChange={setSelectedDestination}
           onMapsUrlChange={setMapsUrl}
           onMaxReviewsChange={setMaxReviews}
+          onFetchAllReviewsChange={setFetchAllReviews}
           onMapsSearchQueryChange={setMapsSearchQuery}
           onSearchMaps={handleSearchMaps}
           onSelectMapsResult={(place) => {
@@ -377,5 +381,6 @@ export default function ScraperClient() {
     </div>
   );
 }
+
 
 

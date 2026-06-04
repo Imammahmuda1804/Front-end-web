@@ -25,7 +25,7 @@ export function ComparisonHeroPanel({
       : '-';
 
   return (
-    <section className="rounded-[2rem] border border-orange-100 bg-orange-50/70 p-6 shadow-sm shadow-orange-100/50">
+    <section className="rounded-xl border border-orange-100 bg-orange-50/70 p-6 shadow-sm shadow-orange-100/50">
       <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
         <div className="max-w-3xl">
           <p className="mb-3 inline-flex items-center gap-2 rounded-full bg-white px-3 py-1.5 text-xs font-black uppercase tracking-[0.16em] text-primary shadow-sm">
@@ -39,9 +39,9 @@ export function ComparisonHeroPanel({
         </div>
 
         <div className="grid gap-3 md:grid-cols-3 xl:min-w-[42rem]">
-          <HeroInsightCard label="Selisih skor" value={comparisonGap} helper={biggestDelta?.label || 'Belum ada pembanding'} icon={Target} tone="orange" />
-          <HeroInsightCard label="Tren positif" value={trendSignal} helper="Rasio sentimen positif" icon={TrendingUp} tone="emerald" />
-          <HeroInsightCard label="Topik pembeda" value={activeTab === 'compare' ? String((dA?.topics?.length || 0) + (dB?.topics?.length || 0)) : String(singleData?.topics?.length || 0)} helper="Topik tersedia" icon={Tags} tone="blue" />
+          <HeroInsightCard label="Selisih skor" value={comparisonGap} helper={biggestDelta?.label || 'Pilih destinasi'} icon={Target} tone="orange" />
+          <HeroInsightCard label="Tren positif" value={trendSignal} helper="Rasio positif" icon={TrendingUp} tone="emerald" />
+          <HeroInsightCard label="Topik pembeda" value={activeTab === 'compare' ? String((dA?.topics?.length || 0) + (dB?.topics?.length || 0)) : String(singleData?.topics?.length || 0)} helper="Topik aktif" icon={Tags} tone="blue" />
         </div>
       </div>
     </section>
@@ -56,7 +56,7 @@ export function HeroInsightCard({ icon: Icon, label, value, helper, tone }: { ic
   }[tone];
 
   return (
-    <div className={`rounded-3xl border p-4 shadow-sm ${toneClass}`}>
+    <div className={`rounded-xl border p-4 shadow-sm ${toneClass}`}>
       <Icon className="mb-3 h-5 w-5" />
       <p className="text-xs font-black uppercase tracking-[0.14em] opacity-80">{label}</p>
       <p className="mt-1 text-2xl font-black text-slate-950">{value}</p>
@@ -105,5 +105,6 @@ export function DestinationSelect({ label, value, destinations, tone, onChange }
     </label>
   );
 }
+
 
 

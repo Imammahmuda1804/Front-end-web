@@ -21,10 +21,25 @@ export interface TopicGroupItem {
   topics?: TopicItem[];
 }
 
+export interface TopicGroupPayload {
+  groupName: string;
+  description?: string;
+  keywords?: string[];
+  displayOrder?: number;
+}
+
 export interface AiRenameResult {
   renamed: number;
   failed: number;
   total: number;
+}
+
+export interface MergeTopicsResult {
+  merged: boolean;
+  target_topic_id: number;
+  target_topic_name: string;
+  source_topic_ids: number[];
+  deleted_topics: number;
 }
 
 export interface TopicDestinationItem {
@@ -41,6 +56,47 @@ export interface TopicDestinationItem {
 
 export interface TopicDestinationsResponse {
   data: TopicDestinationItem[];
+  meta: {
+    page: number;
+    limit: number;
+    total: number;
+    total_pages: number;
+  };
+}
+
+export type TopicReviewSentiment = 'positive' | 'neutral' | 'negative';
+
+export interface TopicReviewItem {
+  id: number;
+  reviewer_name: string;
+  review_text?: string | null;
+  rating?: number | null;
+  review_date?: string | null;
+  sentiment?: string | null;
+  sentiment_confidence?: number | null;
+  destination: {
+    id: number;
+    name: string;
+    slug?: string;
+    city?: string;
+    province?: string;
+    thumbnailUrl?: string | null;
+  };
+}
+
+export interface TopicReviewsResponse {
+  topic: {
+    id: number;
+    topic_name: string;
+    group?: { id: number; group_name: string } | null;
+  };
+  sentiment_summary: {
+    positive: number;
+    neutral: number;
+    negative: number;
+    unknown: number;
+  };
+  data: TopicReviewItem[];
   meta: {
     page: number;
     limit: number;
@@ -68,6 +124,11 @@ class AdminTopicService {
     return response.data?.data || response.data;
   }
 
+  async mergeTopics(targetTopicId: number, sourceTopicIds: number[]): Promise<MergeTopicsResult> {
+    const response = await api.post('/api/topics/merge', { targetTopicId, sourceTopicIds });
+    return response.data?.data || response.data;
+  }
+
   async deleteTopic(id: number): Promise<{ deleted: boolean; id: number }> {
     const response = await api.delete(`/api/topics/${id}`);
     return response.data?.data || response.data;
@@ -90,6 +151,21 @@ class AdminTopicService {
     return response.data?.data || response.data;
   }
 
+  async createGroup(data: TopicGroupPayload): Promise<TopicGroupItem> {
+    const response = await api.post('/api/topics/groups', data);
+    return response.data?.data || response.data;
+  }
+
+  async updateGroup(id: number, data: TopicGroupPayload): Promise<TopicGroupItem> {
+    const response = await api.put(`/api/topics/groups/${id}`, data);
+    return response.data?.data || response.data;
+  }
+
+  async deleteGroup(id: number): Promise<{ deleted: boolean; id: number; group_name: string }> {
+    const response = await api.delete(`/api/topics/groups/${id}`);
+    return response.data?.data || response.data;
+  }
+
   async triggerAiRename(): Promise<AiRenameResult> {
     const response = await api.post('/api/topics/rename-ai');
     return response.data?.data || response.data;
@@ -98,6 +174,23 @@ class AdminTopicService {
   async getTopicDestinations(id: number, page = 1, limit = 10): Promise<TopicDestinationsResponse> {
     const response = await api.get(`/api/topics/${id}/destinations`, {
       params: { page, limit },
+    });
+    return response.data?.data && response.data?.meta
+      ? response.data
+      : response.data?.data || response.data;
+  }
+
+  async getTopicReviews(
+    id: number,
+    params?: {
+      page?: number;
+      limit?: number;
+      sentiment?: TopicReviewSentiment;
+      destinationId?: number;
+    },
+  ): Promise<TopicReviewsResponse> {
+    const response = await api.get(`/api/admin/topics/${id}/reviews`, {
+      params,
     });
     return response.data?.data && response.data?.meta
       ? response.data

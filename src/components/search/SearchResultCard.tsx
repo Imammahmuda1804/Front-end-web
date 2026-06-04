@@ -31,6 +31,8 @@ export interface SearchDestination {
   positiveRatio?: number;
   recommendation_score?: number;
   recommendationScore?: number;
+  google_rating?: number;
+  googleRating?: number;
   topics?: SearchDestinationTopic[];
 }
 
@@ -86,7 +88,7 @@ export default function SearchResultCard({
       initial={prefersReduced ? false : { opacity: 0, y: 18 }}
       animate={prefersReduced ? undefined : { opacity: 1, y: 0 }}
       transition={{ duration: 0.32, delay: Math.min(index * 0.04, 0.16), ease: easeOutExpo }}
-      className={`group overflow-hidden rounded-2xl border bg-white shadow-sm shadow-slate-200/60 transition-all duration-300 motion-safe:hover:-translate-y-0.5 hover:border-orange-200 hover:shadow-md hover:shadow-slate-200/70 ${
+      className={`group overflow-hidden rounded-xl border bg-white shadow-sm shadow-slate-200/60 transition-all duration-300 motion-safe:hover:-translate-y-0.5 hover:border-orange-200 hover:shadow-md hover:shadow-slate-200/70 ${
         featured ? 'border-explore/20 bg-surface-warm' : 'border-slate-200'
       }`}
     >
@@ -180,3 +182,4 @@ export default function SearchResultCard({
     </motion.article>
   );
 }
+

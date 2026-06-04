@@ -22,14 +22,14 @@ export default function DestinationGallerySection({
   sectionHeader,
 }: DestinationGallerySectionProps) {
   return (
-    <section id="galeri" className="scroll-mt-32 rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+    <section id="galeri" className="scroll-mt-32 rounded-xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
       {sectionHeader}
 
       <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {images.length > 0 ? images.slice(0, 5).map((img, idx) => (
           <div
             key={`${img}-${idx}`}
-            className={`group relative overflow-hidden rounded-3xl border border-slate-200 bg-slate-100 shadow-sm ${
+            className={`group relative overflow-hidden rounded-xl border border-slate-200 bg-slate-100 shadow-sm ${
               idx === 0 ? 'aspect-[16/10] sm:col-span-2 lg:row-span-2 lg:aspect-auto' : 'aspect-[4/3]'
             }`}
           >
@@ -54,7 +54,7 @@ export default function DestinationGallerySection({
             )}
           </div>
         )) : (
-          <div className="col-span-full rounded-3xl border border-dashed border-slate-200 bg-slate-50 py-12 text-center">
+          <div className="col-span-full rounded-xl border border-dashed border-slate-200 bg-slate-50 py-12 text-center">
             <ImageIcon className="mx-auto mb-3 h-10 w-10 text-slate-300" />
             <p className="font-bold text-slate-500">Belum ada foto tambahan untuk destinasi ini.</p>
           </div>
@@ -62,7 +62,7 @@ export default function DestinationGallerySection({
       </div>
 
       {galleryOpen && (
-        <div className="mt-6 rounded-3xl border border-orange-100 bg-orange-50/60 p-4">
+        <div className="mt-6 rounded-xl border border-orange-100 bg-orange-50/60 p-4">
           <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h3 className="text-lg font-black text-slate-950">Semua foto</h3>
@@ -78,7 +78,7 @@ export default function DestinationGallerySection({
           </div>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {images.map((img, idx) => (
-              <div key={`expanded-${img}-${idx}`} className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-white bg-slate-100">
+              <div key={`expanded-${img}-${idx}`} className="relative aspect-[4/3] overflow-hidden rounded-xl border border-white bg-slate-100">
                 <Image
                   src={img}
                   alt={`${destinationName} galeri ${idx + 1}`}
@@ -94,3 +94,4 @@ export default function DestinationGallerySection({
     </section>
   );
 }
+

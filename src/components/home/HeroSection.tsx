@@ -4,9 +4,9 @@ import * as React from 'react';
 import { useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { ArrowRight, BarChart3, Compass, MapPinned, Search, Sparkles } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 const easeOutExpo = [0.16, 1, 0.3, 1] as const;
 
@@ -41,8 +41,8 @@ export function HeroSection() {
   const router = useRouter();
   const prefersReduced = useReducedMotion();
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSearch = (event: React.FormEvent) => {
+    event.preventDefault();
     if (query.trim()) {
       router.push(`/search?q=${encodeURIComponent(query)}`);
     }
@@ -58,7 +58,7 @@ export function HeroSection() {
     <section className="relative min-h-screen w-full overflow-hidden bg-slate-950 pt-16">
       <div className="absolute inset-0 z-0">
         <Image
-          src="/images/auth-bg.jpg"
+          src="https://asset.kompas.com/crops/btQSNsdM_nKr0mxO79y2rx-VDN4=/0x0:739x493/1200x800/data/photo/2020/06/12/5ee30a504d889.jpg"
           alt="Pemandangan wisata Sumatera Barat"
           fill
           priority
@@ -126,7 +126,7 @@ export function HeroSection() {
                 placeholder="Coba: keluarga dan alam, kuliner pedas, tempat tenang"
                 className="w-full bg-transparent text-base font-semibold text-slate-800 outline-none placeholder:text-slate-400 md:text-lg"
                 value={query}
-                onChange={(e) => setQuery(e.target.value)}
+                onChange={(event) => setQuery(event.target.value)}
               />
             </div>
             <button
@@ -159,9 +159,9 @@ export function HeroSection() {
               </motion.button>
             ))}
             <motion.div variants={trustCard}>
-            <Link href="/compare" className="inline-flex items-center gap-1 rounded-full bg-secondary px-4 py-1.5 text-xs font-black text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-secondary/90">
-              Bandingkan destinasi <ArrowRight className="h-3.5 w-3.5" />
-            </Link>
+              <Link href="/compare" className="inline-flex items-center gap-1 rounded-full bg-secondary px-4 py-1.5 text-xs font-black text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-secondary/90">
+                Bandingkan destinasi <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
             </motion.div>
           </motion.div>
         </motion.div>

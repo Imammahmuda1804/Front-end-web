@@ -1,9 +1,10 @@
 import React from 'react';
-import { Eye, Hash, MapPin, Pencil, Trash2 } from 'lucide-react';
+import { Eye, GitMerge, Hash, MapPin, MessageSquareText, Pencil, Trash2 } from 'lucide-react';
 import { NativeSelect } from '@/components/ui/native-select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import type { TopicGroupItem, TopicItem } from '@/services/admin/topic.service';
-import { getTopicStatus, type SortKey } from './TopicsClient';
+import type { SortKey } from './topics-client.types';
+import { getTopicStatus } from './topics-client.utils';
 import { SortButton, StatusBadge } from './topics-client.panels';
 export function TaxonomyTable({
   topics,
@@ -18,8 +19,10 @@ export function TaxonomyTable({
   onPageChange,
   onPageSizeChange,
   onRename,
+  onMerge,
   onDelete,
   onViewDestinations,
+  onViewReviews,
   groups,
   onGroupChange,
   onVisibilityChange,
@@ -36,8 +39,10 @@ export function TaxonomyTable({
   onPageChange: (page: number) => void;
   onPageSizeChange: (pageSize: number) => void;
   onRename: (topic: TopicItem) => void;
+  onMerge: (topic: TopicItem) => void;
   onDelete: (topic: TopicItem) => void;
   onViewDestinations: (topic: TopicItem) => void;
+  onViewReviews: (topic: TopicItem) => void;
   groups: TopicGroupItem[];
   onGroupChange: (topic: TopicItem, groupId: number | null) => void;
   onVisibilityChange: (
@@ -53,7 +58,7 @@ export function TaxonomyTable({
   );
 
   return (
-    <section className="overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white shadow-sm">
+    <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
       <div className="flex flex-col gap-3 border-b border-slate-100 bg-slate-50/70 p-5 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-xs font-black uppercase tracking-[0.16em] text-primary">Taxonomy table</p>
@@ -85,7 +90,7 @@ export function TaxonomyTable({
                   <MapPin className="h-3.5 w-3.5" /> Destinasi
                 </SortButton>
               </TableHead>
-              <TableHead className="w-32 text-right">Aksi</TableHead>
+              <TableHead className="w-52 text-right">Aksi</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -187,23 +192,39 @@ export function TaxonomyTable({
                           type="button"
                           aria-label={`Lihat destinasi topik ${topic.topic_name}`}
                           onClick={() => onViewDestinations(topic)}
-                          className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700 focus:outline-none focus:ring-4 focus:ring-emerald-100"
+                          className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700 focus:outline-none focus:ring-4 focus:ring-emerald-100"
                         >
                           <Eye className="h-4 w-4" />
                         </button>
                         <button
                           type="button"
+                          aria-label={`Lihat ulasan topik ${topic.topic_name}`}
+                          onClick={() => onViewReviews(topic)}
+                          className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:border-orange-200 hover:bg-orange-50 hover:text-primary focus:outline-none focus:ring-4 focus:ring-primary/15"
+                        >
+                          <MessageSquareText className="h-4 w-4" />
+                        </button>
+                        <button
+                          type="button"
                           aria-label={`Rename topik ${topic.topic_name}`}
                           onClick={() => onRename(topic)}
-                          className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 transition hover:border-sky-200 hover:bg-sky-50 hover:text-ai focus:outline-none focus:ring-4 focus:ring-primary/15"
+                          className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:border-sky-200 hover:bg-sky-50 hover:text-ai focus:outline-none focus:ring-4 focus:ring-primary/15"
                         >
                           <Pencil className="h-4 w-4" />
                         </button>
                         <button
                           type="button"
+                          aria-label={`Gabungkan topik ${topic.topic_name}`}
+                          onClick={() => onMerge(topic)}
+                          className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:border-sky-200 hover:bg-sky-50 hover:text-ai focus:outline-none focus:ring-4 focus:ring-sky-100"
+                        >
+                          <GitMerge className="h-4 w-4" />
+                        </button>
+                        <button
+                          type="button"
                           aria-label={`Hapus topik ${topic.topic_name}`}
                           onClick={() => onDelete(topic)}
-                          className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 transition hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600 focus:outline-none focus:ring-4 focus:ring-rose-100"
+                          className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600 focus:outline-none focus:ring-4 focus:ring-rose-100"
                         >
                           <Trash2 className="h-4 w-4" />
                         </button>
@@ -282,5 +303,6 @@ export function TaxonomyTable({
     </section>
   );
 }
+
 
 

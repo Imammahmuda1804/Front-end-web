@@ -7,7 +7,6 @@ import {
   ArrowRightLeft,
   BarChart2,
   Download,
-  GitCompare,
   Heart,
   Star,
   ThumbsUp,
@@ -22,9 +21,9 @@ import {
   TopicData,
   TrendData,
 } from '@/services/admin/analytics.service';
-import { AnalyticsSkeleton, CompareAnalysisView } from './admin-compare.result';
-import { ComparisonHeroPanel, DestinationSelect, ModeButton } from './admin-compare.panels';
-import { SingleAnalysisView } from './admin-compare.single';
+import { CompareAnalysisView } from './admin-compare.result';
+import { AnalyticsSkeleton } from './admin-compare.skeleton';
+import { ComparisonHeroPanel, DestinationSelect } from './admin-compare.panels';
 
 export type Mode = 'single' | 'compare';
 
@@ -96,7 +95,7 @@ export function CustomTooltip({ active, payload, label }: { active?: boolean; pa
   if (!active || !payload?.length) return null;
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xl shadow-slate-200/70">
+    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-xl shadow-slate-200/70">
       <p className="mb-2 text-sm font-black text-slate-950">{label}</p>
       <div className="space-y-1.5">
         {payload.map((entry, index) => (
@@ -112,11 +111,10 @@ export function CustomTooltip({ active, payload, label }: { active?: boolean; pa
 }
 
 export function CompareClient() {
-  const [activeTab, setActiveTab] = useState<Mode>('single');
+  const activeTab: Mode = 'compare';
   const [destinations, setDestinations] = useState<DestinationOption[]>([]);
   const [destA, setDestA] = useState<number | ''>('');
   const [destB, setDestB] = useState<number | ''>('');
-  const [singleData, setSingleData] = useState<DestinationAnalytics | null>(null);
   const [compareData, setCompareData] = useState<CompareResult | null>(null);
   const [trendDataA, setTrendDataA] = useState<TrendData[]>([]);
   const [trendDataB, setTrendDataB] = useState<TrendData[]>([]);
@@ -153,28 +151,6 @@ export function CompareClient() {
 
     const fetchData = async () => {
       setErrorMessage(null);
-
-      if (activeTab === 'single') {
-        if (!destA) return;
-        setLoading(true);
-        try {
-          const [analytics, trends, topics] = await Promise.all([
-            adminAnalyticsService.getDestinationAnalytics(Number(destA)),
-            adminAnalyticsService.getDestinationTrends(Number(destA), 'monthly'),
-            adminAnalyticsService.getDestinationTopics(Number(destA)),
-          ]);
-          if (!cancelled) {
-            setSingleData(analytics);
-            setTrendDataA(trends);
-            setTopicsA(topics);
-          }
-        } catch (error) {
-          if (!cancelled) setErrorMessage(getErrorMessage(error, 'Gagal memuat analitik destinasi.'));
-        } finally {
-          if (!cancelled) setLoading(false);
-        }
-        return;
-      }
 
       if (!destA || !destB) return;
       if (destA === destB) {
@@ -213,10 +189,6 @@ export function CompareClient() {
   }, [activeTab, destA, destB]);
 
   const handleExport = () => {
-    if (activeTab === 'single' && destA) {
-      window.open(adminAnalyticsService.getExportCsvUrl(Number(destA)), '_blank');
-      return;
-    }
     if (destA) window.open(adminAnalyticsService.getExportCsvUrl(Number(destA)), '_blank');
     if (destB) window.setTimeout(() => window.open(adminAnalyticsService.getExportCsvUrl(Number(destB)), '_blank'), 500);
   };
@@ -228,43 +200,6 @@ export function CompareClient() {
 
   const selectedA = destinations.find((destination) => destination.id === destA);
   const selectedB = destinations.find((destination) => destination.id === destB);
-
-  const singlePieData = useMemo(() => {
-    if (!singleData) return [];
-    return [
-      { name: 'Positif', value: singleData.sentiment.positive || 0 },
-      { name: 'Netral', value: singleData.sentiment.neutral || 0 },
-      { name: 'Negatif', value: singleData.sentiment.negative || 0 },
-    ];
-  }, [singleData]);
-
-  const singleTrendData = useMemo(
-    () => trendDataA.map((trend) => ({
-      name: formatMonth(trend.date),
-      Positif: trend.positive,
-      Netral: trend.neutral,
-      Negatif: trend.negative,
-      PosRate: Math.round((trend.positive / ((trend.positive + trend.negative + trend.neutral) || 1)) * 100),
-    })),
-    [trendDataA],
-  );
-
-  const singleTopicData = useMemo(
-    () => topicsA.slice(0, 7).map((topic) => ({ name: cleanTopicName(topic.topic_name), Percentage: Math.round(topic.percentage) })),
-    [topicsA],
-  );
-
-  const singleCompleteness = useMemo(() => {
-    if (!singleData) return 0;
-    const checks = [
-      singleData.positive_ratio !== null,
-      singleData.recommendation_score !== null,
-      Boolean(singleData.rating.google || singleData.rating.user),
-      trendDataA.length > 0,
-      topicsA.length > 0,
-    ];
-    return Math.round((checks.filter(Boolean).length / checks.length) * 100);
-  }, [singleData, topicsA.length, trendDataA.length]);
 
   const radarData = useMemo(() => {
     const dA = compareData?.destination1;
@@ -354,52 +289,44 @@ export function CompareClient() {
         dA={dA}
         dB={dB}
         biggestDelta={biggestDelta}
-        singleData={singleData}
+        singleData={null}
       />
 
-      <section className="rounded-[1.75rem] border border-slate-200 bg-white p-4 shadow-sm">
+      <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
           <div className="flex w-full flex-col gap-3 lg:flex-row lg:items-end">
             <DestinationSelect
-              label={activeTab === 'single' ? 'Pilih Destinasi' : 'Destinasi A'}
+              label="Destinasi A"
               value={destA}
               destinations={destinations}
               tone="orange"
               onChange={setDestA}
             />
-            {activeTab === 'compare' && (
-              <>
-                <button
-                  type="button"
-                  onClick={handleSwap}
-                  disabled={!destA && !destB}
-                  aria-label="Tukar destinasi pembanding"
-                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-sky-200 bg-sky-50 px-4 text-sm font-black text-ai transition-all hover:-translate-y-0.5 hover:border-ai disabled:cursor-not-allowed disabled:opacity-40"
-                >
-                  <ArrowRightLeft className="h-4 w-4" />
-                  Tukar
-                </button>
-                <DestinationSelect
-                  label="Destinasi B"
-                  value={destB}
-                  destinations={destinations}
-                  tone="blue"
-                  onChange={setDestB}
-                />
-              </>
-            )}
+            <button
+              type="button"
+              onClick={handleSwap}
+              disabled={!destA && !destB}
+              aria-label="Tukar destinasi pembanding"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border border-sky-200 bg-sky-50 px-4 text-sm font-black text-ai transition-all hover:-translate-y-0.5 hover:border-ai disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              <ArrowRightLeft className="h-4 w-4" />
+              Tukar
+            </button>
+            <DestinationSelect
+              label="Destinasi B"
+              value={destB}
+              destinations={destinations}
+              tone="blue"
+              onChange={setDestB}
+            />
           </div>
 
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <div role="tablist" aria-label="Mode analitik" className="flex rounded-2xl border border-slate-200 bg-slate-100 p-1">
-              <ModeButton mode="single" activeTab={activeTab} onClick={setActiveTab} icon={BarChart2} label="Analisis Tunggal" />
-              <ModeButton mode="compare" activeTab={activeTab} onClick={setActiveTab} icon={GitCompare} label="Mode Banding" />
-            </div>
             <button
               type="button"
               onClick={handleExport}
-              disabled={activeTab === 'single' ? !destA : !destA || !destB}
-              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-primary px-5 text-sm font-black text-white shadow-sm shadow-orange-200 transition-all hover:-translate-y-0.5 hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
+              disabled={!destA || !destB}
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-primary px-5 text-sm font-black text-white shadow-sm shadow-orange-200 transition-all hover:-translate-y-0.5 hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Download className="h-4 w-4" />
               Ekspor CSV
@@ -409,7 +336,7 @@ export function CompareClient() {
       </section>
 
       {errorMessage && (
-        <div className="rounded-[1.5rem] border border-amber-200 bg-amber-50 p-5 text-amber-800">
+        <div className="rounded-xl border border-amber-200 bg-amber-50 p-5 text-amber-800">
           <div className="flex items-start gap-3">
             <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" />
             <div>
@@ -422,16 +349,6 @@ export function CompareClient() {
 
       {loading ? (
         <AnalyticsSkeleton />
-      ) : activeTab === 'single' ? (
-        <SingleAnalysisView
-          data={singleData}
-          pieData={singlePieData}
-          trendData={singleTrendData}
-          topicData={singleTopicData}
-          topics={topicsA}
-          completeness={singleCompleteness}
-          onExport={handleExport}
-        />
       ) : (
         <CompareAnalysisView
           dA={dA}
@@ -451,5 +368,6 @@ export function CompareClient() {
     </div>
   );
 }
+
 
 

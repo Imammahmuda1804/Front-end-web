@@ -9,7 +9,7 @@ export const metadata = {
 
 export default function SearchPage() {
   return (
-    <main className="min-h-screen bg-slate-50 pt-24 pb-12">
+    <main className="min-h-screen pt-24 pb-12">
       <div className="mx-auto max-w-[100rem] px-4 sm:px-6 lg:px-8 2xl:px-10">
         <Suspense fallback={<SearchFallback />}>
           <SearchClientBoundary fallback={<SearchFallback />} />

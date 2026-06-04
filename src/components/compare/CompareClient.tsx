@@ -26,6 +26,9 @@ import {
   CompareSkeleton,
   DestinationResultCard,
   EmptyCompareState,
+  FactorMatrix,
+  HighlightRiskGrid,
+  LocationComparePanel,
   SectionHeader,
   VibeCard,
 } from './compare-components';
@@ -55,20 +58,29 @@ export interface DestinationMinimal {
 interface CompareTopic {
   topic_name: string;
   total_reviews: number;
+  group_name?: string | null;
 }
+
+export type CompareFactorKey = 'access' | 'cost_value' | 'cleanliness' | 'facilities' | 'crowd' | 'view_activity';
 
 export interface ComparedDestination {
   id: number;
   name: string;
   city?: string;
+  province?: string;
+  category?: string;
   slug?: string;
   thumbnail?: string;
   imageUrl?: string;
   image_url?: string;
   thumbnailUrl?: string;
   thumbnail_url?: string;
+  latitude?: number | null;
+  longitude?: number | null;
+  googleMapsUrl?: string | null;
   recommendation_score?: number | null;
   positive_ratio?: number | null;
+  review_count?: number;
   rating: {
     user?: number | null;
     google?: number | null;
@@ -79,6 +91,12 @@ export interface ComparedDestination {
     negative: number;
   };
   topics?: CompareTopic[];
+  top_topics?: CompareTopic[];
+  topic_groups?: Array<{ group_name: string; total_reviews: number }>;
+  travel_traits?: Record<string, number>;
+  decision_factors?: Record<CompareFactorKey, number>;
+  highlights?: string[];
+  risks?: string[];
 }
 
 interface CompareResult {
@@ -87,6 +105,13 @@ interface CompareResult {
   comparison: {
     recommendation_winner: number | null;
     score_difference: number;
+    insights?: {
+      recommended_destination_id?: number | null;
+      summary?: string;
+      best_for?: string[];
+      tradeoffs?: string[];
+      score_cards?: Array<{ destination_id: number; label: string; score: number; reasons: string[] }>;
+    };
   };
 }
 
@@ -233,7 +258,7 @@ export default function CompareClient({ availableDestinations }: CompareClientPr
       scoreGap,
       reason: balanced
         ? 'Kedua destinasi punya sinyal yang cukup seimbang. Gunakan vibe dan topik ulasan untuk menentukan pilihan akhir.'
-        : `${winner?.name} lebih kuat pada skor rekomendasi, sentimen positif, dan sinyal ulasan yang tersedia.`,
+        : comparison.insights?.summary || `${winner?.name} lebih kuat pada skor rekomendasi, sentimen positif, dan sinyal ulasan yang tersedia.`,
     };
   }, [compareData]);
 
@@ -254,7 +279,7 @@ export default function CompareClient({ availableDestinations }: CompareClientPr
 
         <motion.section
           {...motionProps}
-          className="relative z-30 overflow-visible rounded-[2rem] border border-orange-200 bg-orange-50/70 p-6 shadow-xl shadow-orange-100/50 md:p-8 lg:p-10"
+          className="relative z-30 overflow-visible rounded-xl border border-orange-200 bg-orange-50/70 p-6 shadow-xl shadow-orange-100/50 md:p-8 lg:p-10"
           aria-labelledby="compare-title"
         >
           <div className="grid gap-8 xl:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] xl:items-end">
@@ -276,7 +301,7 @@ export default function CompareClient({ availableDestinations }: CompareClientPr
                   { label: 'Rating', icon: Star },
                   { label: 'Vibe', icon: Compass },
                 ].map(({ label, icon: Icon }) => (
-                  <div key={label} className="flex min-h-14 items-center gap-3 rounded-2xl border border-orange-200 bg-white px-4 text-sm font-black text-slate-800 shadow-sm">
+                  <div key={label} className="flex min-h-14 items-center gap-3 rounded-xl border border-orange-200 bg-white px-4 text-sm font-black text-slate-800 shadow-sm">
                     <Icon className="h-4 w-4 text-primary" />
                     {label}
                   </div>
@@ -284,7 +309,7 @@ export default function CompareClient({ availableDestinations }: CompareClientPr
               </div>
             </div>
 
-            <div className="min-w-0 rounded-[1.75rem] border border-orange-200 bg-white p-4 shadow-sm md:p-5">
+            <div className="min-w-0 rounded-xl border border-orange-200 bg-white p-4 shadow-sm md:p-5">
               <div className="grid grid-cols-1 gap-4 md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] md:items-center">
                 <DestinationSelect
                   label="Destinasi A"
@@ -339,7 +364,7 @@ export default function CompareClient({ availableDestinations }: CompareClientPr
         {isLoading && <CompareSkeleton />}
 
         {isError && (
-          <div className="rounded-[1.75rem] border border-red-200 bg-red-50 p-6 text-red-700">
+          <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-red-700">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div className="flex items-start gap-3">
                 <AlertCircle className="mt-0.5 h-6 w-6 shrink-0" />
@@ -383,7 +408,7 @@ export default function CompareClient({ availableDestinations }: CompareClientPr
         {compareData && !isLoading && !isError && decision && (
           <motion.div {...motionProps} className="space-y-6">
             <section className="grid gap-6 xl:grid-cols-[minmax(0,0.95fr)_minmax(22rem,0.45fr)]">
-              <div className="rounded-[1.75rem] border border-orange-200 bg-white p-6 shadow-sm md:p-8">
+              <div className="rounded-xl border border-orange-200 bg-white p-6 shadow-sm md:p-8">
                 <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
                   <div>
                     <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">Ringkasan keputusan</p>
@@ -392,7 +417,7 @@ export default function CompareClient({ availableDestinations }: CompareClientPr
                     </h2>
                     <p className="mt-3 max-w-3xl text-sm font-semibold leading-7 text-slate-600 md:text-base">{decision.reason}</p>
                   </div>
-                  <div className="rounded-3xl bg-orange-50 px-5 py-4 text-primary">
+                  <div className="rounded-xl bg-orange-50 px-5 py-4 text-primary">
                     <p className="text-xs font-black uppercase tracking-[0.16em] text-primary/70">Selisih skor</p>
                     <p className="mt-1 text-3xl font-black">{decision.scoreGap.toFixed(1)}%</p>
                   </div>
@@ -404,7 +429,7 @@ export default function CompareClient({ availableDestinations }: CompareClientPr
                 </div>
               </div>
 
-              <div className="rounded-[1.75rem] border border-sky-100 bg-white p-6 shadow-sm">
+              <div className="rounded-xl border border-sky-100 bg-white p-6 shadow-sm">
                 <p className="text-xs font-black uppercase tracking-[0.18em] text-ai">Cocok untuk</p>
                 <div className="mt-4 space-y-4">
                   {[compareData.destination1, compareData.destination2].map((dest, idx) => (
@@ -425,7 +450,14 @@ export default function CompareClient({ availableDestinations }: CompareClientPr
               </div>
             </section>
 
-            <section className="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm md:p-8">
+            <section className="grid gap-6 xl:grid-cols-[minmax(0,0.95fr)_minmax(22rem,0.45fr)]">
+              <FactorMatrix destination1={compareData.destination1} destination2={compareData.destination2} />
+              <LocationComparePanel destination1={compareData.destination1} destination2={compareData.destination2} />
+            </section>
+
+            <HighlightRiskGrid destination1={compareData.destination1} destination2={compareData.destination2} />
+
+            <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm md:p-8">
               <SectionHeader
                 eyebrow="Detail metrik"
                 title="Bandingkan sinyal utama"
@@ -445,7 +477,7 @@ export default function CompareClient({ availableDestinations }: CompareClientPr
               </div>
             </section>
 
-            <section className="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm md:p-8">
+            <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm md:p-8">
               <SectionHeader
                 eyebrow="Vibe Mapping"
                 title="Topik dominan dari masing-masing destinasi"
@@ -462,5 +494,6 @@ export default function CompareClient({ availableDestinations }: CompareClientPr
     </main>
   );
 }
+
 
 

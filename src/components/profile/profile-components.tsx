@@ -6,8 +6,8 @@ import { getImageUrl } from '@/lib/utils';
 import { scoreLabel, topicLabel, type Favorite, type Message, type Persona, type SortKey } from './ProfileClient';
 export function StatCard({ icon: Icon, label, value, helper }: { icon: React.ElementType; label: string; value: string; helper: string }) {
   return (
-    <div className="rounded-3xl border border-white bg-white p-4 shadow-sm">
-      <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-2xl bg-orange-50 text-primary">
+    <div className="rounded-xl border border-white bg-white p-4 shadow-sm">
+      <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-orange-50 text-primary">
         <Icon className="h-5 w-5" />
       </div>
       <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">{label}</p>
@@ -49,7 +49,7 @@ export function ProfileCard({
   userName: string;
 }) {
   return (
-    <div className="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+    <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
       <div className="mb-8 flex items-center gap-4">
         <button
           type="button"
@@ -71,7 +71,7 @@ export function ProfileCard({
 
       {message.text && (
         <div
-          className={`mb-6 flex items-center justify-between gap-3 rounded-2xl border px-4 py-3 text-sm font-bold ${
+          className={`mb-6 flex items-center justify-between gap-3 rounded-xl border px-4 py-3 text-sm font-bold ${
             message.type === 'success' ? 'border-emerald-100 bg-emerald-50 text-emerald-700' : 'border-red-100 bg-red-50 text-red-600'
           }`}
           role="status"
@@ -130,7 +130,7 @@ export function ProfileInput({
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-900 transition-all placeholder:text-slate-400 focus:border-primary focus:bg-white focus:outline-none focus:ring-4 focus:ring-primary/10"
+        className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-900 transition-all placeholder:text-slate-400 focus:border-primary focus:bg-white focus:outline-none focus:ring-4 focus:ring-primary/10"
         placeholder={placeholder}
         autoComplete={autoComplete}
         required={required}
@@ -141,7 +141,7 @@ export function ProfileInput({
 
 export function PersonaCard({ personas }: { personas: Persona[] }) {
   return (
-    <div className="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+    <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
       <h3 className="text-sm font-black uppercase tracking-[0.16em] text-slate-500">Persona Perjalanan</h3>
       {personas.length > 0 ? (
         <div className="mt-4 flex flex-wrap gap-2">
@@ -152,7 +152,7 @@ export function PersonaCard({ personas }: { personas: Persona[] }) {
           ))}
         </div>
       ) : (
-        <div className="mt-4 flex items-start gap-3 rounded-2xl bg-slate-50 p-4 text-sm font-semibold leading-6 text-slate-500">
+        <div className="mt-4 flex items-start gap-3 rounded-xl bg-slate-50 p-4 text-sm font-semibold leading-6 text-slate-500">
           <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
           <span>Simpan beberapa destinasi favorit untuk membaca pola perjalananmu.</span>
         </div>
@@ -163,7 +163,7 @@ export function PersonaCard({ personas }: { personas: Persona[] }) {
 
 export function AccountSafetyCard({ email }: { email: string }) {
   return (
-    <div className="rounded-[1.75rem] border border-orange-100 bg-orange-50/60 p-6 shadow-sm">
+    <div className="rounded-xl border border-orange-100 bg-orange-50/60 p-6 shadow-sm">
       <div className="flex items-start gap-3">
         <ShieldCheck className="mt-1 h-5 w-5 text-primary" />
         <div>
@@ -213,7 +213,7 @@ export function FavoriteToolbar({
   sortKey: SortKey;
 }) {
   return (
-    <div className="grid gap-3 rounded-[1.75rem] border border-slate-200 bg-white p-4 shadow-sm lg:grid-cols-[minmax(0,1fr)_13rem_13rem]">
+    <div className="grid gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm lg:grid-cols-[minmax(0,1fr)_13rem_13rem]">
       <label className="relative block">
         <span className="sr-only">Cari favorit</span>
         <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
@@ -268,7 +268,7 @@ export function FavoriteCard({
   const topics = favorite.destination.topics?.map(topicLabel).filter(Boolean).slice(0, 3) || [];
 
   return (
-    <article className="group overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-orange-200 hover:shadow-xl hover:shadow-orange-100/60">
+    <article className="group overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-orange-200 hover:shadow-xl hover:shadow-orange-100/60">
       <div className="relative aspect-[16/10] overflow-hidden bg-slate-100">
         <Image
           src={favorite.destination.thumbnailUrl ? getImageUrl(favorite.destination.thumbnailUrl) : '/images/auth-bg.jpg'}
@@ -286,7 +286,7 @@ export function FavoriteCard({
         >
           <Heart className="h-5 w-5 fill-red-500" />
         </button>
-        <div className="absolute bottom-4 left-4 rounded-2xl bg-white px-3 py-2 shadow-sm">
+        <div className="absolute bottom-4 left-4 rounded-xl bg-white px-3 py-2 shadow-sm">
           <span className="block text-[10px] font-black uppercase tracking-[0.16em] text-primary">Vibe</span>
           <span className="text-lg font-black leading-none text-slate-950">{scoreLabel(favorite)}</span>
         </div>
@@ -342,6 +342,13 @@ export function FavoriteCard({
             Detail
             <ArrowRight className="h-4 w-4" />
           </Link>
+          <Link
+            href={`/routes/new?destinationId=${favorite.destination.id}`}
+            className="col-span-2 inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-sky-100 bg-sky-50 px-3 text-xs font-black text-ai transition-all hover:bg-ai hover:text-white focus:outline-none focus:ring-4 focus:ring-sky-100"
+          >
+            Tambahkan ke rute
+            <ArrowRight className="h-4 w-4" />
+          </Link>
         </div>
       </div>
     </article>
@@ -352,7 +359,7 @@ export function FavoritesSkeleton() {
   return (
     <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3" aria-label="Memuat favorit">
       {[1, 2, 3, 4, 5, 6].map((item) => (
-        <div key={item} className="overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white">
+        <div key={item} className="overflow-hidden rounded-xl border border-slate-200 bg-white">
           <div className="aspect-[16/10] animate-pulse bg-slate-200" />
           <div className="space-y-3 p-5">
             <div className="h-5 w-3/4 animate-pulse rounded-full bg-slate-200" />
@@ -367,7 +374,7 @@ export function FavoritesSkeleton() {
 
 export function FavoritesEmptyState() {
   return (
-    <div className="rounded-[1.75rem] border border-dashed border-orange-200 bg-white p-10 text-center shadow-sm">
+    <div className="rounded-xl border border-dashed border-orange-200 bg-white p-10 text-center shadow-sm">
       <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-orange-50">
         <Heart className="h-8 w-8 text-primary" />
       </div>
@@ -384,7 +391,7 @@ export function FavoritesEmptyState() {
 
 export function NoResultsState({ onReset }: { onReset: () => void }) {
   return (
-    <div className="rounded-[1.75rem] border border-slate-200 bg-white p-10 text-center shadow-sm">
+    <div className="rounded-xl border border-slate-200 bg-white p-10 text-center shadow-sm">
       <Compass className="mx-auto mb-4 h-10 w-10 text-slate-300" />
       <h3 className="text-xl font-black text-slate-900">Favorit tidak ditemukan</h3>
       <p className="mx-auto mt-2 max-w-md text-sm font-semibold leading-6 text-slate-500">
@@ -403,7 +410,7 @@ export function CompareTray({ favorites, onClear }: { favorites: Favorite[]; onC
     : '/compare';
 
   return (
-    <div className="fixed inset-x-4 bottom-5 z-40 mx-auto max-w-4xl rounded-[1.5rem] border border-orange-200 bg-white p-4 shadow-2xl shadow-slate-900/15">
+    <div className="fixed inset-x-4 bottom-5 z-40 mx-auto max-w-4xl rounded-xl border border-orange-200 bg-white p-4 shadow-2xl shadow-slate-900/15">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="min-w-0">
           <p className="text-xs font-black uppercase tracking-[0.16em] text-primary">Compare tray</p>
@@ -434,4 +441,5 @@ export function CompareTray({ favorites, onClear }: { favorites: Favorite[]; onC
     </div>
   );
 }
+
 

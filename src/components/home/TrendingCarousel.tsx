@@ -1,185 +1,435 @@
 'use client';
 
 import * as React from 'react';
-import useEmblaCarousel from 'embla-carousel-react';
-import { ArrowRight, ChevronLeft, ChevronRight, MapPin, Star, TrendingUp } from 'lucide-react';
-import { useCallback } from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
-import Image from 'next/image';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { gsap } from 'gsap';
+import { useReducedMotion } from 'framer-motion';
+import { ArrowRight, MapPin, Sparkles, Star, TrendingUp } from 'lucide-react';
 import Link from 'next/link';
 
 import { getImageUrl } from '@/lib/utils';
-
-const easeOutExpo = [0.16, 1, 0.3, 1] as const;
-
-const sectionReveal = {
-  hidden: { opacity: 0, y: 28 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.62, ease: easeOutExpo },
-  },
-};
-
-const stagger = {
-  hidden: {},
-  visible: {
-    transition: { staggerChildren: 0.09 },
-  },
-};
 
 interface Destination {
   id: number;
   name: string;
   slug: string;
   city: string;
-  thumbnailUrl: string;
-  positiveRatio: number;
-  userRating: number;
+  thumbnailUrl?: string | null;
+  description?: string | null;
+  positiveRatio?: number | null;
+  userRating?: number | null;
 }
 
 interface TrendingCarouselProps {
   destinations: Destination[];
 }
 
+const AUTOPLAY_SECONDS = 6;
+const ease = 'sine.inOut';
+
+function createOrder(length: number) {
+  return Array.from({ length }, (_, index) => index);
+}
+
+function destinationImage(destination?: Destination) {
+  return destination?.thumbnailUrl ? getImageUrl(destination.thumbnailUrl) : '/images/auth-bg.jpg';
+}
+
+function destinationDescription(destination?: Destination) {
+  return destination?.description?.trim() || 'Deskripsi destinasi belum tersedia.';
+}
+
+function percentLabel(value?: number | null) {
+  return `${Math.round(Math.max(0, Math.min(1, value || 0)) * 100)}%`;
+}
+
 export function TrendingCarousel({ destinations }: TrendingCarouselProps) {
-  const [emblaRef, emblaApi] = useEmblaCarousel({
-    align: 'start',
-    containScroll: 'trimSnaps',
-    dragFree: true,
-  });
+  const [activeIndex, setActiveIndex] = useState(0);
+  const reduceMotion = useReducedMotion();
+  const rootRef = useRef<HTMLElement | null>(null);
+  const progressRef = useRef<HTMLDivElement | null>(null);
+  const cardRefs = useRef(new Map<number, HTMLDivElement>());
+  const contentRefs = useRef(new Map<number, HTMLDivElement>());
+  const orderRef = useRef<number[]>([]);
+  const isTransitioningRef = useRef(false);
+  const mountedRef = useRef(false);
+  const frameRef = useRef<number | null>(null);
+  const timerTweenRef = useRef<gsap.core.Tween | null>(null);
+  const stepRef = useRef<() => void>(() => undefined);
+  const itemCount = destinations?.length || 0;
 
-  const prefersReduced = useReducedMotion();
+  const active = destinations?.[activeIndex];
 
-  const scrollPrev = useCallback(() => {
-    if (emblaApi) emblaApi.scrollPrev();
-  }, [emblaApi]);
+  const getCopyTargets = useCallback(() => {
+    if (!rootRef.current) return [];
+    return Array.from(rootRef.current.querySelectorAll<HTMLElement>('.timecard-copy'));
+  }, []);
 
-  const scrollNext = useCallback(() => {
-    if (emblaApi) emblaApi.scrollNext();
-  }, [emblaApi]);
+  const placeCards = useCallback((animate = false) => {
+    if (!rootRef.current || !itemCount) return;
 
-  if (!destinations || destinations.length === 0) {
+    const width = rootRef.current.clientWidth;
+    const height = rootRef.current.clientHeight;
+    const isDesktop = width >= 1024;
+    const cardWidth = isDesktop ? 230 : 170;
+    const cardHeight = isDesktop ? 345 : 250;
+    const gap = isDesktop ? 40 : 16;
+    const offsetTop = isDesktop ? height - 395 : height - 280;
+    const offsetLeft = isDesktop ? Math.max(24, width - 950) : 24;
+    const [currentActive, ...rest] = orderRef.current;
+
+    const activeCard = cardRefs.current.get(currentActive);
+    const activeContent = contentRefs.current.get(currentActive);
+    if (activeCard) {
+      gsap.set(activeCard, {
+        x: 0,
+        y: 0,
+        width,
+        height,
+        zIndex: 20,
+        borderRadius: 0,
+        scale: 1,
+      });
+    }
+    if (activeContent) {
+      gsap.set(activeContent, { opacity: 0 });
+    }
+
+    rest.forEach((index, position) => {
+      const card = cardRefs.current.get(index);
+      const content = contentRefs.current.get(index);
+      const vars = {
+        x: offsetLeft + position * (cardWidth + gap),
+        y: offsetTop,
+        width: cardWidth,
+        height: cardHeight,
+        zIndex: 30,
+        borderRadius: 10,
+        scale: 1,
+      };
+
+      if (animate && card) {
+        gsap.to(card, { ...vars, duration: 0.72, delay: 0.08 * position, ease });
+      } else if (card) {
+        gsap.set(card, vars);
+      }
+
+      if (content) {
+        gsap.set(content, { opacity: 1 });
+      }
+    });
+  }, [itemCount]);
+
+  const revealText = useCallback(() => {
+    const copyTargets = getCopyTargets();
+    if (copyTargets.length === 0) return;
+
+    if (reduceMotion) {
+      gsap.set(copyTargets, { clearProps: 'all' });
+      return;
+    }
+
+    gsap.fromTo(
+      copyTargets,
+      { autoAlpha: 0, y: 42 },
+      { autoAlpha: 1, y: 0, duration: 0.72, stagger: 0.07, delay: 0.18, ease },
+    );
+  }, [getCopyTargets, reduceMotion]);
+
+  const startProgress = useCallback(() => {
+    timerTweenRef.current?.kill();
+    if (!progressRef.current) return;
+
+    gsap.set(progressRef.current, { width: '0%' });
+
+    if (reduceMotion || itemCount <= 1) return;
+
+    timerTweenRef.current = gsap.to(progressRef.current, {
+      width: '100%',
+      duration: AUTOPLAY_SECONDS,
+      ease: 'none',
+      onComplete: () => stepRef.current(),
+    });
+  }, [itemCount, reduceMotion]);
+
+  const step = useCallback(() => {
+    if (!rootRef.current || itemCount <= 1 || isTransitioningRef.current) return;
+
+    if (reduceMotion) {
+      const [first, ...rest] = orderRef.current;
+      orderRef.current = [...rest, first];
+      setActiveIndex(orderRef.current[0]);
+      requestAnimationFrame(() => {
+        placeCards(false);
+        revealText();
+      });
+      return;
+    }
+
+    isTransitioningRef.current = true;
+    timerTweenRef.current?.kill();
+    if (progressRef.current) {
+      gsap.set(progressRef.current, { width: '0%' });
+    }
+
+    const copyTargets = getCopyTargets();
+    if (copyTargets.length > 0) {
+      gsap.to(copyTargets, { autoAlpha: 0, y: 36, duration: 0.24, ease });
+    }
+
+    const previousOrder = orderRef.current;
+    const previousActive = previousOrder[0];
+    const nextOrder = [...previousOrder.slice(1), previousActive];
+    const nextActive = nextOrder[0];
+    const rest = nextOrder.slice(1);
+
+    orderRef.current = nextOrder;
+    setActiveIndex(nextActive);
+
+    frameRef.current = requestAnimationFrame(() => {
+      if (!mountedRef.current || !rootRef.current) return;
+
+      const width = rootRef.current.clientWidth;
+      const height = rootRef.current.clientHeight;
+      const isDesktop = width >= 1024;
+      const cardWidth = isDesktop ? 230 : 170;
+      const cardHeight = isDesktop ? 345 : 250;
+      const gap = isDesktop ? 40 : 16;
+      const offsetTop = isDesktop ? height - 395 : height - 280;
+      const offsetLeft = isDesktop ? Math.max(24, width - 950) : 24;
+
+      const nextCard = cardRefs.current.get(nextActive);
+      const previousCard = cardRefs.current.get(previousActive);
+      const nextContent = contentRefs.current.get(nextActive);
+
+      if (nextContent) {
+        gsap.to(nextContent, {
+          y: cardHeight - 10,
+          opacity: 0,
+          duration: 0.28,
+          ease,
+        });
+      }
+
+      if (previousCard) {
+        gsap.set(previousCard, { zIndex: 10 });
+        gsap.to(previousCard, { scale: 1.5, duration: 0.75, ease });
+      }
+
+      if (nextCard) {
+        gsap.set(nextCard, { zIndex: 20 });
+        gsap.to(nextCard, {
+          x: 0,
+          y: 0,
+          width,
+          height,
+          borderRadius: 0,
+          duration: 1,
+          ease,
+          onComplete: () => {
+            if (!mountedRef.current) return;
+
+            if (previousCard) {
+              const lastPosition = rest.length - 1;
+              gsap.set(previousCard, {
+                x: offsetLeft + lastPosition * (cardWidth + gap),
+                y: offsetTop,
+                width: cardWidth,
+                height: cardHeight,
+                zIndex: 30,
+                borderRadius: 10,
+                scale: 1,
+              });
+            }
+
+            const previousContent = contentRefs.current.get(previousActive);
+            if (previousContent) {
+              gsap.set(previousContent, { opacity: 1, y: 0 });
+            }
+
+            rest.forEach((index, position) => {
+              if (index === previousActive) return;
+              const card = cardRefs.current.get(index);
+              const content = contentRefs.current.get(index);
+              if (card) {
+                gsap.set(card, { zIndex: 30 });
+                gsap.to(card, {
+                  x: offsetLeft + position * (cardWidth + gap),
+                  y: offsetTop,
+                  width: cardWidth,
+                  height: cardHeight,
+                  borderRadius: 10,
+                  scale: 1,
+                  duration: 0.72,
+                  delay: 0.08 * (position + 1),
+                  ease,
+                });
+              }
+              if (content) {
+                gsap.set(content, { opacity: 1, y: 0 });
+              }
+            });
+
+            if (nextCard) {
+              gsap.set(nextCard, { zIndex: 20, scale: 1 });
+            }
+
+            isTransitioningRef.current = false;
+            revealText();
+            startProgress();
+          },
+        });
+      }
+    });
+  }, [getCopyTargets, itemCount, placeCards, reduceMotion, revealText, startProgress]);
+
+  useEffect(() => {
+    stepRef.current = step;
+  }, [step]);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    const rootNode = rootRef.current;
+    return () => {
+      mountedRef.current = false;
+      timerTweenRef.current?.kill();
+      if (frameRef.current !== null) {
+        cancelAnimationFrame(frameRef.current);
+      }
+      if (rootNode) {
+        gsap.killTweensOf(rootNode.querySelectorAll('*'));
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!itemCount) return;
+
+    orderRef.current = createOrder(itemCount);
+
+    const initialize = () => {
+      if (!mountedRef.current) return;
+      setActiveIndex(0);
+      placeCards(false);
+      revealText();
+      startProgress();
+    };
+
+    frameRef.current = requestAnimationFrame(initialize);
+    window.addEventListener('resize', initialize);
+
+    return () => {
+      timerTweenRef.current?.kill();
+      if (frameRef.current !== null) {
+        cancelAnimationFrame(frameRef.current);
+      }
+      window.removeEventListener('resize', initialize);
+    };
+  }, [itemCount, placeCards, revealText, startProgress]);
+
+  if (!destinations || destinations.length === 0 || !active) {
     return null;
   }
 
+  const slideLabel = `${activeIndex + 1}`.padStart(2, '0');
+  const rating = active.userRating ? active.userRating.toFixed(1) : 'Baru';
+
   return (
-    <section aria-label="Destinasi dengan sentimen terbaik" className="relative overflow-hidden bg-[#FFF3EC] py-24 md:py-28">
-      <div className="pointer-events-none absolute -right-12 top-10 hidden rounded-[3rem] bg-primary px-10 py-6 text-7xl font-black tracking-tighter text-slate-950/10 md:block">
-        SENTIMEN  
-      </div>
-      <div className="mx-auto mb-10 flex max-w-7xl flex-col gap-6 px-6 md:flex-row md:items-end md:justify-between md:px-12">
-        <motion.div
-          variants={stagger}
-          initial={prefersReduced ? false : 'hidden'}
-          whileInView={prefersReduced ? undefined : 'visible'}
-          viewport={{ once: true }}
+    <section
+      ref={rootRef}
+      aria-label="Destinasi rekomendasi"
+      aria-live="polite"
+      className="relative isolate h-[800px] overflow-hidden bg-slate-950 text-white lg:h-[880px]"
+    >
+      <div className="absolute inset-0 z-[21] bg-[linear-gradient(90deg,rgba(15,23,42,0.90)_0%,rgba(15,23,42,0.66)_42%,rgba(15,23,42,0.18)_100%)]" />
+      <div className="absolute inset-x-0 top-0 z-[22] h-32 bg-[linear-gradient(180deg,rgb(248,250,252)_0%,rgba(248,250,252,0.78)_18%,rgba(248,250,252,0)_100%)]" />
+      <div className="absolute inset-x-0 bottom-0 z-[22] h-36 bg-[linear-gradient(0deg,rgba(248,250,252,0.72)_0%,rgba(248,250,252,0.22)_38%,rgba(248,250,252,0)_100%)]" />
+      <div className="absolute inset-0 z-[22] bg-[radial-gradient(circle_at_76%_24%,rgba(255,123,84,0.22),transparent_28%),radial-gradient(circle_at_18%_82%,rgba(45,130,181,0.2),transparent_30%)]" />
+
+      {destinations.map((destination, index) => (
+        <div
+          key={destination.id}
+          ref={(node) => {
+            if (node) cardRefs.current.set(index, node);
+            else cardRefs.current.delete(index);
+          }}
+          className="absolute left-0 top-0 overflow-hidden bg-slate-900 bg-cover bg-center shadow-[8px_8px_18px_rgba(0,0,0,0.45)]"
+          style={{ backgroundImage: `url(${destinationImage(destination)})` }}
         >
-          <motion.span variants={sectionReveal} className="inline-flex rounded-full bg-slate-950 px-4 py-2 text-xs font-black uppercase tracking-[0.22em] text-primary">Pilihan berbasis ulasan</motion.span>
-          <motion.h2 variants={sectionReveal} className="mt-5 max-w-4xl text-4xl font-black leading-none tracking-tight text-slate-900 md:text-6xl">
-            Destinasi dengan sentimen terbaik
-          </motion.h2>
-          <motion.p variants={sectionReveal} className="mt-4 max-w-2xl text-lg leading-8 text-slate-600">
-            Mulai dari destinasi yang sedang punya pola respons positif, lalu baca detailnya sebelum menentukan rute perjalanan.
-          </motion.p>
-        </motion.div>
-
-        <div className="flex items-center gap-3">
-          <Link href="/search" className="hidden rounded-full border-2 border-slate-900 bg-white px-5 py-3 text-sm font-black text-slate-900 transition-colors hover:bg-slate-900 hover:text-primary md:inline-flex">
-            Lihat semua
-          </Link>
-          <motion.button
-            onClick={scrollPrev}
-            aria-label="Destinasi sebelumnya"
-            whileHover={prefersReduced ? undefined : { y: -2 }}
-            whileTap={prefersReduced ? undefined : { scale: 0.94 }}
-            className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-slate-900 bg-white text-slate-900 transition-all hover:bg-slate-900 hover:text-primary active:scale-95"
+          <div
+            ref={(node) => {
+              if (node) contentRefs.current.set(index, node);
+              else contentRefs.current.delete(index);
+            }}
+            className="absolute inset-x-0 bottom-0 z-10 p-4 text-white"
           >
-            <ChevronLeft className="h-6 w-6" />
-          </motion.button>
-          <motion.button
-            onClick={scrollNext}
-            aria-label="Destinasi berikutnya"
-            whileHover={prefersReduced ? undefined : { y: -2 }}
-            whileTap={prefersReduced ? undefined : { scale: 0.94 }}
-            className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-slate-900 bg-primary text-slate-950 shadow-md shadow-primary/20 transition-all hover:bg-primary/90 active:scale-95"
-          >
-            <ChevronRight className="h-6 w-6" />
-          </motion.button>
+            <span className="mb-2 block h-1 w-8 rounded-full bg-white/90" />
+            <p className="text-xs font-black uppercase tracking-[0.16em] text-primary">{String(index + 1).padStart(2, '0')}</p>
+            <p className="mt-1 line-clamp-2 text-base font-black leading-tight md:text-lg lg:text-xl">{destination.name}</p>
+            <p className="mt-1 line-clamp-1 text-xs font-bold text-white/75">{destination.city}</p>
+          </div>
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/25 to-transparent" />
         </div>
-      </div>
+      ))}
 
-      <div className="overflow-hidden px-6 pb-12 md:px-12" ref={emblaRef}>
-        <div className="flex gap-6">
-          {destinations.map((dest, index) => (
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: prefersReduced ? 0 : 0.5, delay: prefersReduced ? 0 : Math.min(index * 0.08, 0.24) }}
-              key={dest.id}
-              className="flex-[0_0_85%] sm:flex-[0_0_45%] lg:flex-[0_0_30%] min-w-0"
+      <div className="relative z-40 mx-auto flex h-full max-w-7xl flex-col justify-between px-6 pb-20 pt-28 md:px-12 lg:pt-32">
+        <div className="max-w-3xl pt-8 lg:pt-14">
+          <div className="timecard-copy inline-flex items-center gap-2 rounded-[14px] border border-white/20 bg-white px-4 py-2 text-xs font-black uppercase tracking-[0.2em] text-slate-950 shadow-sm">
+            <Sparkles className="h-4 w-4 text-ai" />
+            Destinasi rekomendasi
+          </div>
+          <p className="timecard-copy mt-8 flex items-center gap-3 text-sm font-black uppercase tracking-[0.18em] text-orange-100">
+            <span className="h-1 w-9 rounded-full bg-primary" />
+            {active.city}
+          </p>
+          <h2 className="timecard-copy mt-4 max-w-4xl text-5xl font-black leading-[0.92] tracking-tight drop-shadow-md md:text-7xl lg:text-8xl">
+            {active.name}
+          </h2>
+          <p className="timecard-copy mt-6 line-clamp-3 max-w-2xl text-base font-semibold leading-8 text-slate-100 md:text-lg">
+            {destinationDescription(active)}
+          </p>
+
+          <div className="timecard-copy mt-7 flex flex-wrap gap-3">
+            <span className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/20 bg-white/95 px-4 text-sm font-black text-slate-950">
+              <Star className="h-4 w-4 fill-primary text-primary" />
+              Rating {rating}
+            </span>
+            <span className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 text-sm font-black text-emerald-700">
+              <TrendingUp className="h-4 w-4" />
+              {percentLabel(active.positiveRatio)} positif
+            </span>
+            <span className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-sky-200 bg-sky-50 px-4 text-sm font-black text-ai">
+              <MapPin className="h-4 w-4" />
+              Top destinasi
+            </span>
+          </div>
+
+          <div className="timecard-copy mt-8 flex flex-wrap items-center gap-3">
+            <Link
+              href={`/destinations/${active.slug}`}
+              className="inline-flex min-h-12 items-center gap-2 rounded-xl bg-primary px-6 text-sm font-black text-slate-950 shadow-lg shadow-orange-950/25 transition hover:-translate-y-0.5 hover:bg-primary/90 focus:outline-none focus:ring-4 focus:ring-primary/30"
             >
-              <motion.div
-                whileHover={prefersReduced ? undefined : { y: -6, scale: 1.01 }}
-                transition={{ duration: 0.32, ease: easeOutExpo }}
-              >
-              <Link href={`/destinations/${dest.slug}`} className="group relative block h-[500px] overflow-hidden rounded-[2rem] border-4 border-white bg-slate-900 shadow-xl shadow-orange-900/10 transition-shadow duration-500 hover:shadow-2xl">
-                <Image
-                  src={dest.thumbnailUrl ? getImageUrl(dest.thumbnailUrl) : '/images/auth-bg.jpg'}
-                  alt={dest.name}
-                  fill
-                  sizes="(max-width: 640px) 85vw, (max-width: 1024px) 45vw, 30vw"
-                  className="object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/30 to-slate-950/5" />
+              Lihat detail
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+            <Link
+              href="/search"
+              className="inline-flex min-h-12 items-center rounded-xl border border-white/30 bg-white/10 px-6 text-sm font-black text-white backdrop-blur transition hover:bg-white hover:text-slate-950 focus:outline-none focus:ring-4 focus:ring-white/25"
+            >
+              Lihat semua
+            </Link>
+          </div>
+        </div>
 
-                <div className="absolute inset-0 flex flex-col justify-between p-5">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 shadow-sm">
-                      <Star className="h-4 w-4 fill-orange-500 text-orange-500" />
-                      <span className="text-sm font-black text-slate-900">{dest.userRating ? dest.userRating.toFixed(1) : 'Baru'}</span>
-                    </div>
-                    <span className="rounded-full border border-slate-900 bg-primary px-3 py-1.5 text-xs font-black uppercase tracking-wider text-slate-950">
-                      AI pick
-                    </span>
-                  </div>
-
-                  <div>
-                    <h3 className="mb-2 text-3xl font-black leading-none text-white drop-shadow-md">{dest.name}</h3>
-                    <div className="mb-4 flex items-center text-sm font-semibold text-white/85">
-                      <MapPin className="mr-1 h-4 w-4" />
-                      <span>{dest.city}</span>
-                    </div>
-
-                    <div className="rounded-2xl border-2 border-white bg-slate-700 p-4">
-                      <div className="mb-2 flex items-center justify-between gap-3">
-                        <span className="inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-white/70">
-                          <TrendingUp className="h-3.5 w-3.5 text-emerald-400" />
-                          Sentimen
-                        </span>
-                        <span className="text-sm font-black text-emerald-300">{((dest.positiveRatio || 0) * 100).toFixed(0)}% positif</span>
-                      </div>
-                      <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/15">
-                        <motion.div
-                          initial={prefersReduced ? false : { scaleX: 0 }}
-                          whileInView={prefersReduced ? undefined : { scaleX: 1 }}
-                          viewport={{ once: true }}
-                          transition={{ duration: 0.7, delay: prefersReduced ? 0 : 0.2, ease: easeOutExpo }}
-                          className="h-full origin-left rounded-full bg-emerald-400"
-                          style={{ width: `${Math.min(100, Math.max(0, (dest.positiveRatio || 0) * 100))}%` }}
-                        />
-                      </div>
-                      <span className="mt-3 inline-flex items-center gap-1 text-sm font-bold text-white">
-                        Lihat detail <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </Link>
-              </motion.div>
-            </motion.div>
-          ))}
+        <div className="timecard-copy mb-5 flex w-full flex-col gap-3 rounded-xl border border-white/15 bg-slate-950/40 p-4 backdrop-blur lg:mb-7 lg:max-w-[420px] lg:rounded-none lg:border-0 lg:bg-transparent lg:p-0 lg:backdrop-blur-0">
+          <div className="flex min-w-0 flex-1 items-center gap-4">
+            <div className="h-[3px] flex-1 overflow-hidden bg-white/25">
+              <div ref={progressRef} className="h-full bg-primary" />
+            </div>
+            <p className="w-16 overflow-hidden text-center text-3xl font-black leading-none text-white">
+              {slideLabel}
+            </p>
+          </div>
         </div>
       </div>
     </section>

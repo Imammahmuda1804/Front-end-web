@@ -41,7 +41,7 @@ export default function MonthlySentimentChart() {
   const negativeDelta = latest && previous ? latest.negative - previous.negative : 0;
 
   return (
-    <Card className="rounded-[1.75rem] border border-slate-200 bg-white py-0 shadow-sm">
+    <Card className="rounded-xl border border-slate-200 bg-white py-0 shadow-sm">
       <CardHeader className="flex flex-col gap-4 border-b border-slate-100 p-6 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <CardTitle className="text-xl font-black text-slate-950">Tren Sentimen</CardTitle>
@@ -64,7 +64,7 @@ export default function MonthlySentimentChart() {
             <Loader2 className="h-8 w-8 animate-spin text-primary/60" />
           </div>
         ) : trends.length === 0 ? (
-          <div className="flex h-[320px] flex-col items-center justify-center rounded-3xl border border-dashed border-slate-200 bg-slate-50 text-center">
+          <div className="flex h-[320px] flex-col items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50 text-center">
             <p className="text-sm font-bold text-slate-500">Data tren sentimen belum tersedia.</p>
           </div>
         ) : (
@@ -77,8 +77,8 @@ export default function MonthlySentimentChart() {
             <p className="sr-only">
               Grafik area bertumpuk menampilkan jumlah ulasan positif, netral, negatif, dan garis total per periode.
             </p>
-            <div className="h-[320px] w-full">
-              <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
+            <div className="relative h-[320px] min-h-[320px] w-full min-w-0 overflow-hidden">
+              <ResponsiveContainer width="100%" height={320} minWidth={1} minHeight={1}>
                 <AreaChart data={trends} margin={{ top: 8, right: 8, left: -12, bottom: 0 }}>
                   <CartesianGrid vertical={false} stroke="#e2e8f0" strokeDasharray="4 4" />
                   <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b', fontWeight: 700 }} dy={10} />
@@ -108,7 +108,7 @@ function TrendStat({ label, value, tone, signed }: { label: string; value: numbe
   }[tone];
 
   return (
-    <div className={`rounded-2xl border p-4 ${toneClass}`}>
+    <div className={`rounded-xl border p-4 ${toneClass}`}>
       <p className="text-xs font-black uppercase tracking-[0.14em] opacity-80">{label}</p>
       <p className="mt-1 text-2xl font-black text-slate-950">
         {signed && value > 0 ? `+${value}` : value.toLocaleString()}
@@ -116,3 +116,4 @@ function TrendStat({ label, value, tone, signed }: { label: string; value: numbe
     </div>
   );
 }
+

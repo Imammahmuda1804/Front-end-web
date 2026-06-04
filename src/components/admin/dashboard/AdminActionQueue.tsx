@@ -56,7 +56,7 @@ export default function AdminActionQueue({ queue }: Props) {
   ] as const;
 
   return (
-    <Card className="rounded-[1.75rem] border border-slate-200 bg-white py-0 shadow-sm">
+    <Card className="rounded-xl border border-slate-200 bg-white py-0 shadow-sm">
       <CardHeader className="border-b border-slate-100 p-6">
         <CardTitle className="text-lg font-black text-slate-950">Antrian Tindakan</CardTitle>
         <CardDescription className="mt-1 font-semibold">Prioritas kerja yang dapat langsung ditindak admin.</CardDescription>
@@ -73,7 +73,7 @@ export default function AdminActionQueue({ queue }: Props) {
             }[action.tone];
 
             return (
-              <Link key={action.label} href={action.href} className={`rounded-2xl border p-3 transition-transform hover:-translate-y-0.5 ${toneClass}`}>
+              <Link key={action.label} href={action.href} className={`rounded-xl border p-3 transition-transform hover:-translate-y-0.5 ${toneClass}`}>
                 <Icon className="mb-3 h-5 w-5" />
                 <p className="text-2xl font-black text-slate-950">{action.value}</p>
                 <p className="text-xs font-black uppercase tracking-[0.12em] opacity-80">{action.label}</p>
@@ -89,7 +89,7 @@ export default function AdminActionQueue({ queue }: Props) {
           </div>
           {(queue?.recent_negative_reviews || []).length > 0 ? (
             queue?.recent_negative_reviews.slice(0, 3).map((review) => (
-              <Link key={review.id} href={`/admin/destinations/${review.destination.id}`} className="flex items-start justify-between gap-3 rounded-2xl bg-slate-50 p-3 transition-colors hover:bg-orange-50">
+              <Link key={review.id} href={`/admin/destinations/${review.destination.id}`} className="flex items-start justify-between gap-3 rounded-xl bg-slate-50 p-3 transition-colors hover:bg-orange-50">
                 <div className="min-w-0">
                   <p className="truncate text-sm font-black text-slate-950">{review.destination.name}</p>
                   <p className="mt-1 line-clamp-2 text-xs font-semibold leading-5 text-slate-500">
@@ -100,10 +100,11 @@ export default function AdminActionQueue({ queue }: Props) {
               </Link>
             ))
           ) : (
-            <p className="rounded-2xl bg-slate-50 p-3 text-sm font-bold text-slate-500">Tidak ada ulasan negatif terbaru.</p>
+            <p className="rounded-xl bg-slate-50 p-3 text-sm font-bold text-slate-500">Tidak ada ulasan negatif terbaru.</p>
           )}
         </div>
       </CardContent>
     </Card>
   );
 }
+

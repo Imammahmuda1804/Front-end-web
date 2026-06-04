@@ -22,7 +22,7 @@ export function DestinationOverviewCards({ destinations, total }: { destinations
         const Icon = stat.icon;
 
         return (
-          <div key={stat.label} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/50">
+          <div key={stat.label} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/50">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{stat.label}</p>
@@ -126,10 +126,10 @@ export function AdminDestinationLegend() {
   ];
 
   return (
-    <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm shadow-slate-200/50">
+    <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm shadow-slate-200/50">
       <div className="border-b border-slate-100 bg-slate-50/80 px-4 py-3">
         <div className="flex items-start gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-orange-100 text-orange-700">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-orange-100 text-orange-700">
             <CircleHelp className="h-5 w-5" />
           </div>
           <div>
@@ -145,7 +145,7 @@ export function AdminDestinationLegend() {
           const GroupIcon = group.icon;
 
           return (
-            <div key={group.title} className="rounded-2xl border border-slate-100 bg-slate-50/60 p-3">
+            <div key={group.title} className="rounded-xl border border-slate-100 bg-slate-50/60 p-3">
               <div className="mb-3 flex items-center gap-2">
                 <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-white text-slate-600 shadow-sm shadow-slate-200/60">
                   <GroupIcon className="h-4 w-4" />
@@ -209,7 +209,7 @@ export function DestinationQualityChart({ destinations }: { destinations: AdminD
   const totalSignals = Math.max(1, data.reduce((sum, item) => sum + item.value, 0));
 
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/50">
+    <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/50">
       <div className="flex items-start justify-between gap-3">
         <div>
           <h3 className="font-semibold text-slate-950">Kualitas Data</h3>
@@ -248,7 +248,7 @@ export function CityDistributionChart({ destinations }: { destinations: AdminDes
   const max = Math.max(1, ...data.map((item) => item.value));
 
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/50">
+    <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/50">
       <h3 className="font-semibold text-slate-950">Sebaran Kota</h3>
       <p className="mt-1 text-sm text-slate-500">Bar menunjukkan kota dengan jumlah destinasi terbanyak pada halaman ini.</p>
       <div className="mt-4 space-y-3">
@@ -280,7 +280,7 @@ export function RatingComparisonChart({ destinations }: { destinations: AdminDes
   );
 
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/50">
+    <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/50">
       <h3 className="font-semibold text-slate-950">Rating Google vs User</h3>
       <p className="mt-1 text-sm text-slate-500">Kuning = rating Google, biru = rating user RANAHINSIGHT.</p>
       <div className="mt-4 space-y-3">
@@ -310,5 +310,6 @@ export function RatingComparisonChart({ destinations }: { destinations: AdminDes
     </section>
   );
 }
+
 
 

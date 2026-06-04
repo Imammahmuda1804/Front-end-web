@@ -41,10 +41,42 @@ export function CompareAnalysisView({
     { label: 'Skor AI', value: (dA.recommendation_score || 0) >= (dB.recommendation_score || 0) ? dA.name : dB.name, helper: `${(dA.recommendation_score || 0).toFixed(2)} vs ${(dB.recommendation_score || 0).toFixed(2)}`, tone: 'orange' as Tone, icon: TrendingUp },
     { label: 'Volume', value: sentimentTotal(dA) >= sentimentTotal(dB) ? dA.name : dB.name, helper: `${sentimentTotal(dA)} vs ${sentimentTotal(dB)} ulasan`, tone: 'blue' as Tone, icon: BarChart2 },
   ];
+  const latestTrend = mergedTrendData.at(-1);
+  const previousTrend = mergedTrendData.at(-2);
+  const trendDeltaA = latestTrend?.A !== undefined && previousTrend?.A !== undefined ? latestTrend.A - previousTrend.A : null;
+  const trendDeltaB = latestTrend?.B !== undefined && previousTrend?.B !== undefined ? latestTrend.B - previousTrend.B : null;
+  const trendLeader = latestTrend?.A !== undefined && latestTrend?.B !== undefined
+    ? latestTrend.A >= latestTrend.B
+      ? dA.name
+      : dB.name
+    : 'Data belum cukup';
+  const trendCards = [
+    {
+      label: 'Trend unggul',
+      value: trendLeader,
+      helper: latestTrend?.A !== undefined && latestTrend?.B !== undefined ? `${latestTrend.A}% vs ${latestTrend.B}% positif` : 'Butuh data tren',
+      tone: 'blue' as Tone,
+      icon: TrendingUp,
+    },
+    {
+      label: `${dA.name} bulan ini`,
+      value: latestTrend?.A !== undefined ? `${latestTrend.A}%` : '-',
+      helper: trendDeltaA === null ? 'Belum ada pembanding' : `${trendDeltaA >= 0 ? '+' : ''}${trendDeltaA}% dari periode lalu`,
+      tone: trendDeltaA !== null && trendDeltaA < 0 ? 'rose' as Tone : 'emerald' as Tone,
+      icon: TrendingUp,
+    },
+    {
+      label: `${dB.name} bulan ini`,
+      value: latestTrend?.B !== undefined ? `${latestTrend.B}%` : '-',
+      helper: trendDeltaB === null ? 'Belum ada pembanding' : `${trendDeltaB >= 0 ? '+' : ''}${trendDeltaB}% dari periode lalu`,
+      tone: trendDeltaB !== null && trendDeltaB < 0 ? 'rose' as Tone : 'emerald' as Tone,
+      icon: TrendingUp,
+    },
+  ];
 
   return (
     <div className="space-y-6">
-      <section className="rounded-[1.75rem] border border-orange-100 bg-white p-6 shadow-sm">
+      <section className="rounded-xl border border-orange-100 bg-white p-6 shadow-sm">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div>
             <p className="text-xs font-black uppercase tracking-[0.16em] text-primary">Executive summary</p>
@@ -66,7 +98,7 @@ export function CompareAnalysisView({
         </div>
 
         {biggestDelta && (
-          <div className="mt-5 rounded-3xl border border-sky-100 bg-sky-50 p-5">
+          <div className="mt-5 rounded-xl border border-sky-100 bg-sky-50 p-5">
             <p className="text-xs font-black uppercase tracking-[0.16em] text-ai">Selisih terbesar</p>
             <p className="mt-1 text-xl font-black text-slate-950">{biggestDelta.label}</p>
             <p className="mt-1 text-sm font-semibold text-slate-600">
@@ -78,71 +110,92 @@ export function CompareAnalysisView({
 
       <div className="grid gap-6 xl:grid-cols-[minmax(20rem,0.7fr)_minmax(0,1.3fr)]">
         <ChartCard title="Radar Performa" icon={Target}>
-          <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
-            <RadarChart cx="50%" cy="50%" outerRadius="70%" data={radarData}>
-              <PolarGrid stroke="#e2e8f0" />
-              <PolarAngleAxis dataKey="subject" tick={{ fill: '#64748b', fontSize: 12, fontWeight: 700 }} />
-              <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
-              <Radar name={dA.name} dataKey="A" stroke={DEST_A_COLOR} fill={DEST_A_COLOR} fillOpacity={0.3} strokeWidth={3} />
-              <Radar name={dB.name} dataKey="B" stroke={DEST_B_COLOR} fill={DEST_B_COLOR} fillOpacity={0.25} strokeWidth={3} />
-              <Tooltip content={<CustomTooltip />} />
-              <Legend iconType="circle" wrapperStyle={{ fontWeight: 700, fontSize: '12px' }} />
-            </RadarChart>
-          </ResponsiveContainer>
+          <div className="relative h-80 min-h-80 w-full min-w-0 overflow-hidden">
+            <ResponsiveContainer width="100%" height={320} minWidth={1} minHeight={1}>
+              <RadarChart cx="50%" cy="50%" outerRadius="70%" data={radarData}>
+                <PolarGrid stroke="#e2e8f0" />
+                <PolarAngleAxis dataKey="subject" tick={{ fill: '#64748b', fontSize: 12, fontWeight: 700 }} />
+                <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
+                <Radar name={dA.name} dataKey="A" stroke={DEST_A_COLOR} fill={DEST_A_COLOR} fillOpacity={0.3} strokeWidth={3} />
+                <Radar name={dB.name} dataKey="B" stroke={DEST_B_COLOR} fill={DEST_B_COLOR} fillOpacity={0.25} strokeWidth={3} />
+                <Tooltip content={<CustomTooltip />} />
+                <Legend iconType="circle" wrapperStyle={{ fontWeight: 700, fontSize: '12px' }} />
+              </RadarChart>
+            </ResponsiveContainer>
+          </div>
         </ChartCard>
 
         <ChartCard title="Sentimen 100% Stacked" icon={Heart}>
-          <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
-            <BarChart data={sentimentCompareData} layout="vertical" margin={{ top: 10, right: 20, left: 20, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e2e8f0" />
-              <XAxis type="number" domain={[0, 100]} tickFormatter={(value) => `${value}%`} axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
-              <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#0f172a', fontSize: 12, fontWeight: 800 }} width={120} />
-              <Tooltip content={<CustomTooltip />} />
-              <Legend iconType="circle" wrapperStyle={{ fontWeight: 700, fontSize: '12px' }} />
-              <Bar dataKey="Positif" stackId="a" fill="#10b981" radius={[6, 0, 0, 6]} />
-              <Bar dataKey="Netral" stackId="a" fill="#94a3b8" />
-              <Bar dataKey="Negatif" stackId="a" fill="#ef4444" radius={[0, 6, 6, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
+          <div className="relative h-80 min-h-80 w-full min-w-0 overflow-hidden">
+            <ResponsiveContainer width="100%" height={320} minWidth={1} minHeight={1}>
+              <BarChart data={sentimentCompareData} layout="vertical" margin={{ top: 10, right: 20, left: 20, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e2e8f0" />
+                <XAxis type="number" domain={[0, 100]} tickFormatter={(value) => `${value}%`} axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
+                <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#0f172a', fontSize: 12, fontWeight: 800 }} width={120} />
+                <Tooltip content={<CustomTooltip />} />
+                <Legend iconType="circle" wrapperStyle={{ fontWeight: 700, fontSize: '12px' }} />
+                <Bar dataKey="Positif" stackId="a" fill="#10b981" radius={[6, 0, 0, 6]} />
+                <Bar dataKey="Netral" stackId="a" fill="#94a3b8" />
+                <Bar dataKey="Negatif" stackId="a" fill="#ef4444" radius={[0, 6, 6, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         </ChartCard>
       </div>
 
+      <section className="rounded-xl border border-sky-100 bg-sky-50/60 p-5">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.16em] text-ai">Trend decision signal</p>
+            <h3 className="mt-1 text-xl font-black text-slate-950">Perbandingan tren terbaru</h3>
+          </div>
+          <p className="text-sm font-bold text-slate-600">Membaca perubahan rasio positif antar periode.</p>
+        </div>
+        <div className="mt-4 grid gap-4 md:grid-cols-3">
+          {trendCards.map((card) => <MetricCard key={card.label} {...card} />)}
+        </div>
+      </section>
+
       <div className="grid gap-6 xl:grid-cols-2">
         <ChartCard title="Topic Overlap" icon={Tags}>
-          <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
-            <BarChart layout="vertical" data={mergedTopicData} margin={{ top: 10, right: 16, left: 10, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e2e8f0" />
-              <XAxis type="number" domain={[0, 100]} axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
-              <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#334155', fontSize: 11, fontWeight: 700 }} width={96} />
-              <Tooltip content={<CustomTooltip />} />
-              <Legend iconType="circle" wrapperStyle={{ fontWeight: 700, fontSize: '12px' }} />
-              <Bar dataKey="A" name={dA.name} fill={DEST_A_COLOR} radius={[0, 6, 6, 0]} barSize={10} />
-              <Bar dataKey="B" name={dB.name} fill={DEST_B_COLOR} radius={[0, 6, 6, 0]} barSize={10} />
-            </BarChart>
-          </ResponsiveContainer>
+          <div className="relative h-80 min-h-80 w-full min-w-0 overflow-hidden">
+            <ResponsiveContainer width="100%" height={320} minWidth={1} minHeight={1}>
+              <BarChart layout="vertical" data={mergedTopicData} margin={{ top: 10, right: 16, left: 10, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e2e8f0" />
+                <XAxis type="number" domain={[0, 100]} axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
+                <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#334155', fontSize: 11, fontWeight: 700 }} width={96} />
+                <Tooltip content={<CustomTooltip />} />
+                <Legend iconType="circle" wrapperStyle={{ fontWeight: 700, fontSize: '12px' }} />
+                <Bar dataKey="A" name={dA.name} fill={DEST_A_COLOR} radius={[0, 6, 6, 0]} barSize={10} />
+                <Bar dataKey="B" name={dB.name} fill={DEST_B_COLOR} radius={[0, 6, 6, 0]} barSize={10} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         </ChartCard>
 
         <ChartCard title="Tren Rasio Positif" icon={TrendingUp}>
-          <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
-            <AreaChart data={mergedTrendData} margin={{ top: 10, right: 16, left: -12, bottom: 0 }}>
-              <defs>
-                <linearGradient id="compareA" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor={DEST_A_COLOR} stopOpacity={0.28} />
-                  <stop offset="95%" stopColor={DEST_A_COLOR} stopOpacity={0} />
-                </linearGradient>
-                <linearGradient id="compareB" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor={DEST_B_COLOR} stopOpacity={0.28} />
-                  <stop offset="95%" stopColor={DEST_B_COLOR} stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-              <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12, fontWeight: 700 }} dy={10} />
-              <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
-              <Tooltip content={<CustomTooltip />} />
-              <Area type="monotone" dataKey="A" name={dA.name} stroke={DEST_A_COLOR} strokeWidth={3} fill="url(#compareA)" />
-              <Area type="monotone" dataKey="B" name={dB.name} stroke={DEST_B_COLOR} strokeWidth={3} fill="url(#compareB)" />
-            </AreaChart>
-          </ResponsiveContainer>
+          <div className="relative h-80 min-h-80 w-full min-w-0 overflow-hidden">
+            <ResponsiveContainer width="100%" height={320} minWidth={1} minHeight={1}>
+              <AreaChart data={mergedTrendData} margin={{ top: 10, right: 16, left: -12, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="compareA" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor={DEST_A_COLOR} stopOpacity={0.28} />
+                    <stop offset="95%" stopColor={DEST_A_COLOR} stopOpacity={0} />
+                  </linearGradient>
+                  <linearGradient id="compareB" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor={DEST_B_COLOR} stopOpacity={0.28} />
+                    <stop offset="95%" stopColor={DEST_B_COLOR} stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12, fontWeight: 700 }} dy={10} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
+                <Tooltip content={<CustomTooltip />} />
+                <Area type="monotone" dataKey="A" name={dA.name} stroke={DEST_A_COLOR} strokeWidth={3} fill="url(#compareA)" />
+                <Area type="monotone" dataKey="B" name={dB.name} stroke={DEST_B_COLOR} strokeWidth={3} fill="url(#compareB)" />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
         </ChartCard>
       </div>
 
@@ -162,7 +215,7 @@ export function MetricCard({ icon: Icon, label, value, helper, tone }: { icon: E
   }[tone];
 
   return (
-    <article className={`rounded-[1.5rem] border p-5 shadow-sm ${toneClass}`}>
+    <article className={`rounded-xl border p-5 shadow-sm ${toneClass}`}>
       <Icon className="mb-4 h-5 w-5" />
       <p className="text-xs font-black uppercase tracking-[0.14em] opacity-80">{label}</p>
       <p className="mt-2 line-clamp-1 text-2xl font-black leading-none text-slate-950">{value}</p>
@@ -173,10 +226,10 @@ export function MetricCard({ icon: Icon, label, value, helper, tone }: { icon: E
 
 export function ChartCard({ title, icon: Icon, children, heightClass = 'h-[20rem]' }: { title: string; icon: ElementType; children: ReactNode; heightClass?: string }) {
   return (
-    <section className="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
+    <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
       <div className="mb-5 flex items-start justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-orange-50 text-primary">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-50 text-primary">
             <Icon className="h-5 w-5" />
           </div>
           <h3 className="font-black text-slate-950">{title}</h3>
@@ -190,7 +243,7 @@ export function ChartCard({ title, icon: Icon, children, heightClass = 'h-[20rem
 
 export function ActionableVarianceTable({ rows, nameA, nameB }: { rows: MetricRow[]; nameA: string; nameB: string }) {
   return (
-    <section className="overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white shadow-sm">
+    <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
       <div className="flex flex-col gap-3 border-b border-slate-100 bg-slate-50/70 p-5 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-xs font-black uppercase tracking-[0.16em] text-primary">Actionable variance table</p>
@@ -245,8 +298,8 @@ export function ActionableVarianceTable({ rows, nameA, nameB }: { rows: MetricRo
 
 export function EmptyState({ title, description }: { title: string; description: string }) {
   return (
-    <section className="flex min-h-72 flex-col items-center justify-center rounded-[1.75rem] border border-dashed border-slate-200 bg-white p-8 text-center">
-      <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-orange-50 text-primary">
+    <section className="flex min-h-72 flex-col items-center justify-center rounded-xl border border-dashed border-slate-200 bg-white p-8 text-center">
+      <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-orange-50 text-primary">
         <GitCompare className="h-7 w-7" />
       </div>
       <h2 className="text-xl font-black text-slate-950">{title}</h2>
@@ -254,21 +307,3 @@ export function EmptyState({ title, description }: { title: string; description:
     </section>
   );
 }
-
-export function AnalyticsSkeleton() {
-  return (
-    <div className="space-y-6" aria-label="Memuat compare analytics">
-      <div className="h-36 animate-pulse rounded-[1.75rem] bg-orange-100/70" />
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        {[1, 2, 3, 4].map((item) => (
-          <div key={item} className="h-32 animate-pulse rounded-[1.5rem] bg-white ring-1 ring-slate-200" />
-        ))}
-      </div>
-      <div className="grid gap-6 xl:grid-cols-2">
-        <div className="h-80 animate-pulse rounded-[1.75rem] bg-white ring-1 ring-slate-200" />
-        <div className="h-80 animate-pulse rounded-[1.75rem] bg-white ring-1 ring-slate-200" />
-      </div>
-    </div>
-  );
-}
-

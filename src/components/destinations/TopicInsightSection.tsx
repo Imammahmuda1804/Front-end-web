@@ -18,79 +18,23 @@ import {
 import dayjs from 'dayjs';
 import 'dayjs/locale/id';
 
+import type { FineTopicDetail, SentimentBreakdown, TopicData, TopicGroupData, TopicReview } from './topic-insight.types';
+import {
+  API_BASE,
+  cleanTopicName,
+  getSentimentBucket,
+  getSentimentColor,
+  getSentimentCrowd,
+  getSentimentPercentages,
+} from './topic-insight.utils';
+
 dayjs.locale('id');
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-
-interface TopicData {
-  id: number;
-  totalReviews: number;
-  topic: {
-    id: number;
-    topicName: string;
-    keywords: string[] | null;
-  };
-  isGroup?: boolean;
-  fineTopics?: Array<{ id: number; topicName: string; totalReviews: number }>;
-  groupSentimentBreakdown?: SentimentBreakdown;
-}
-
-interface TopicGroupData {
-  groupId: number;
-  groupName: string;
-  totalReviews: number;
-  sentimentBreakdown: SentimentBreakdown;
-  topics: Array<{ id: number; topicName: string; totalReviews: number }>;
-}
-
-interface SentimentBreakdown {
-  positive: number;
-  negative: number;
-  neutral: number;
-}
-
-interface TopicReview {
-  id: number;
-  reviewerName: string;
-  reviewText: string | null;
-  rating: number | null;
-  reviewDate: string | null;
-  sentiment: string | null;
-  likesCount: number | null;
-}
 
 interface Props {
   destinationId: number;
   topics: TopicData[];
   sentimentBreakdown: Record<number, SentimentBreakdown>;
   topicGroups?: TopicGroupData[];
-}
-
-function getSentimentColor(breakdown: SentimentBreakdown | undefined) {
-  if (!breakdown) return { bg: 'bg-slate-100', text: 'text-slate-600', border: 'border-slate-200', label: 'Belum Ada Data', icon: Minus };
-  const total = breakdown.positive + breakdown.negative + breakdown.neutral;
-  if (total === 0) return { bg: 'bg-slate-100', text: 'text-slate-600', border: 'border-slate-200', label: 'Belum Ada Data', icon: Minus };
-  const positiveRatio = breakdown.positive / total;
-  if (positiveRatio >= 0.65) return { bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-100', label: 'Mayoritas Positif', icon: ThumbsUp };
-  if (positiveRatio <= 0.35) return { bg: 'bg-red-50', text: 'text-red-600', border: 'border-red-100', label: 'Mayoritas Negatif', icon: ThumbsDown };
-  return { bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-100', label: 'Campuran', icon: Minus };
-}
-
-function getSentimentPercentages(breakdown: SentimentBreakdown | undefined) {
-  const total = breakdown ? breakdown.positive + breakdown.negative + breakdown.neutral : 0;
-  if (!breakdown || total === 0) {
-    return { positive: 0, neutral: 0, negative: 0 };
-  }
-
-  return {
-    positive: Math.round((breakdown.positive / total) * 100),
-    neutral: Math.round((breakdown.neutral / total) * 100),
-    negative: Math.round((breakdown.negative / total) * 100),
-  };
-}
-
-function cleanTopicName(name?: string) {
-  return name?.replace(/^Topic \d+:\s*/, '').trim() || 'Topik perjalanan';
 }
 
 function highlightKeywords(text: string, keywords: string[]): React.ReactNode {
@@ -174,10 +118,55 @@ export default function TopicInsightSection({ destinationId, topics, sentimentBr
 
   const sorted = (groupedTopics.length > 0 ? groupedTopics : topics)
     .sort((a, b) => (b.totalReviews || 0) - (a.totalReviews || 0));
+  const fineTopicDetails: FineTopicDetail[] = topicGroups?.length
+    ? topicGroups.flatMap((group) =>
+      group.topics.map((topic) => ({
+        id: topic.id,
+        topicName: topic.topicName,
+        totalReviews: topic.totalReviews,
+        groupName: group.groupName,
+      })),
+    )
+    : topics.map((item) => ({
+      id: item.topic.id,
+      topicName: item.topic.topicName,
+      totalReviews: item.totalReviews,
+  }));
+  const sortedFineTopics = fineTopicDetails.sort((a, b) => (b.totalReviews || 0) - (a.totalReviews || 0));
+  const detailPreview = sortedFineTopics.slice(0, 10);
+  const sentimentClouds = [
+    {
+      id: 'positive',
+      title: 'Condong positif',
+      description: 'Topik kecil yang paling banyak dibaca sebagai pengalaman baik.',
+      icon: ThumbsUp,
+      shell: 'border-emerald-100 bg-emerald-50/70',
+      chip: 'border-emerald-100 bg-white text-emerald-700',
+      topics: detailPreview.filter((topic) => getSentimentBucket(sentimentBreakdown[topic.id]) === 'positive'),
+    },
+    {
+      id: 'mixed',
+      title: 'Netral / campuran',
+      description: 'Topik dengan opini seimbang atau belum cukup kuat arahnya.',
+      icon: Minus,
+      shell: 'border-amber-100 bg-amber-50/70',
+      chip: 'border-amber-100 bg-white text-amber-700',
+      topics: detailPreview.filter((topic) => getSentimentBucket(sentimentBreakdown[topic.id]) === 'mixed'),
+    },
+    {
+      id: 'negative',
+      title: 'Condong negatif',
+      description: 'Topik kecil yang perlu dibaca lebih hati-hati sebelum berkunjung.',
+      icon: ThumbsDown,
+      shell: 'border-red-100 bg-red-50/70',
+      chip: 'border-red-100 bg-white text-red-600',
+      topics: detailPreview.filter((topic) => getSentimentBucket(sentimentBreakdown[topic.id]) === 'negative'),
+    },
+  ];
 
   if (sorted.length === 0) {
     return (
-      <div className="rounded-3xl border border-dashed border-slate-200 bg-slate-50 py-10 text-center">
+      <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 py-10 text-center">
         <Hash className="mx-auto mb-3 h-10 w-10 text-slate-300" />
         <p className="font-bold text-slate-500">Belum ada topik yang teridentifikasi dari ulasan.</p>
       </div>
@@ -197,6 +186,122 @@ export default function TopicInsightSection({ destinationId, topics, sentimentBr
         </div>
       </div>
 
+      <div className="mb-8 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h4 className="text-sm font-black uppercase tracking-[0.14em] text-slate-500">Cloud sentimen topik detail</h4>
+            <p className="mt-1 text-sm font-semibold text-slate-600">Topik kecil dipecah menjadi tiga arah sentimen, terpisah dari topic group utama.</p>
+          </div>
+          <span className="inline-flex w-fit items-center gap-1.5 rounded-lg bg-sky-50 px-3 py-1.5 text-xs font-black text-ai">
+            <Sparkles className="h-3.5 w-3.5" />
+            Fine topics
+          </span>
+        </div>
+
+        <div className="grid gap-3 lg:grid-cols-3">
+          {sentimentClouds.map((bucket) => {
+            const BucketIcon = bucket.icon;
+
+            return (
+              <section key={bucket.id} className={`min-h-44 rounded-lg border p-3 ${bucket.shell}`}>
+                <div className="mb-3 flex items-start gap-2">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white">
+                    <BucketIcon className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <h5 className="text-sm font-black text-slate-950">{bucket.title}</h5>
+                    <p className="mt-1 text-xs font-bold leading-5 text-slate-600">{bucket.description}</p>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {bucket.topics.length > 0 ? bucket.topics.map((topic) => {
+                    const percentages = getSentimentPercentages(sentimentBreakdown[topic.id]);
+                    const topicLabel = cleanTopicName(topic.topicName);
+                    return (
+                      <span
+                        key={`${bucket.id}-${topic.id}`}
+                        className={`max-w-full truncate rounded-lg border px-2.5 py-1.5 text-[11px] font-black ${bucket.chip}`}
+                        title={`${topicLabel}: ${percentages.positive}% positif, ${percentages.neutral}% netral, ${percentages.negative}% negatif`}
+                      >
+                        {topicLabel}
+                        <span className="ml-1 font-bold opacity-70">({topic.totalReviews || 0})</span>
+                      </span>
+                    );
+                  }) : (
+                    <span className="rounded-lg border border-white/70 bg-white/70 px-2.5 py-1.5 text-[11px] font-black text-slate-500">
+                      Tidak ada topik
+                    </span>
+                  )}
+                </div>
+              </section>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="hidden">
+        <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h4 className="text-sm font-black uppercase tracking-[0.14em] text-slate-500">Arah sentimen topik detail</h4>
+            <p className="mt-1 text-sm font-semibold text-slate-600">Topik kecil di dalam group, dipisahkan dari kartu topic group di bawah.</p>
+          </div>
+          <span className="inline-flex w-fit items-center gap-1.5 rounded-lg bg-sky-50 px-3 py-1.5 text-xs font-black text-ai">
+            <Sparkles className="h-3.5 w-3.5" />
+            Detail sentiment
+          </span>
+        </div>
+
+        <div className="grid gap-2 md:grid-cols-2">
+          {detailPreview.map((topic) => {
+            const breakdown = sentimentBreakdown[topic.id];
+            const percentages = getSentimentPercentages(breakdown);
+            const crowd = getSentimentCrowd(breakdown);
+            const CrowdIcon = crowd.icon;
+            const topicLabel = cleanTopicName(topic.topicName);
+
+            return (
+              <div key={`topic-detail-${topic.id}`} className="rounded-lg border border-slate-200 bg-slate-50/80 p-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-black text-slate-950" title={topicLabel}>{topicLabel}</p>
+                    <p className="mt-1 text-xs font-bold text-slate-500">
+                      {topic.groupName ? `${topic.groupName} • ` : ''}{topic.totalReviews || 0} ulasan terkait
+                    </p>
+                  </div>
+                  <span className={`inline-flex shrink-0 items-center gap-1 rounded-lg border px-2.5 py-1 text-[11px] font-black ${crowd.tone}`}>
+                    <CrowdIcon className="h-3 w-3" />
+                    {crowd.label}
+                  </span>
+                </div>
+                <div
+                  className="mt-3 h-2 overflow-hidden rounded-full bg-white"
+                  role="img"
+                  aria-label={`${topicLabel}: ${percentages.positive}% positif, ${percentages.neutral}% netral, ${percentages.negative}% negatif`}
+                >
+                  <div className="flex h-full w-full">
+                    <span className="bg-emerald-500" style={{ width: `${percentages.positive}%` }} />
+                    <span className="bg-slate-400" style={{ width: `${percentages.neutral}%` }} />
+                    <span className="bg-red-500" style={{ width: `${percentages.negative}%` }} />
+                  </div>
+                </div>
+                <div className="mt-2 flex justify-between text-[11px] font-black">
+                  <span className="text-emerald-600">{percentages.positive}% positif</span>
+                  <span className="text-slate-500">{percentages.neutral}% netral</span>
+                  <span className="text-red-500">{percentages.negative}% negatif</span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h4 className="text-sm font-black uppercase tracking-[0.14em] text-slate-500">Topic group utama</h4>
+          <p className="mt-1 text-sm font-semibold text-slate-600">Kartu group di bawah bisa diklik untuk membuka contoh ulasan.</p>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         {(showAllTopics ? sorted : sorted.slice(0, 4)).map((dt) => {
           const breakdown = dt.groupSentimentBreakdown || sentimentBreakdown[dt.topic.id];
@@ -212,7 +317,7 @@ export default function TopicInsightSection({ destinationId, topics, sentimentBr
                 type="button"
                 onClick={() => handleTopicClick(dt.topic.id, dt.topic.keywords, dt.isGroup ? 'group' : 'topic')}
                 aria-expanded={isExpanded}
-                className={`group w-full cursor-pointer rounded-3xl border p-5 text-left transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-primary/15 ${
+                className={`group w-full cursor-pointer rounded-xl border p-5 text-left transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-primary/15 ${
                   isExpanded
                     ? 'border-orange-200 bg-orange-50/70 shadow-sm shadow-orange-100/60'
                     : 'border-slate-200 bg-slate-50/70 hover:-translate-y-0.5 hover:border-orange-200 hover:bg-white hover:shadow-sm'
@@ -273,7 +378,7 @@ export default function TopicInsightSection({ destinationId, topics, sentimentBr
                       animate={{ opacity: 1, height: 'auto' }}
                       exit={reduceMotion ? undefined : { opacity: 0, height: 0 }}
                       transition={{ duration: 0.25 }}
-                      className="mb-2 overflow-hidden rounded-3xl border border-orange-200 bg-white p-5 shadow-sm"
+                      className="mb-2 overflow-hidden rounded-xl border border-orange-200 bg-white p-5 shadow-sm"
                     >
                       <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center">
                         <MessageSquare className="h-4 w-4 text-primary" />
@@ -297,7 +402,7 @@ export default function TopicInsightSection({ destinationId, topics, sentimentBr
                       ) : (
                         <div className="max-h-[400px] space-y-3 overflow-y-auto pr-1">
                           {topicReviews.map((review) => (
-                            <div key={review.id} className="rounded-2xl border border-slate-200 bg-slate-50/80 p-4">
+                            <div key={review.id} className="rounded-xl border border-slate-200 bg-slate-50/80 p-4">
                               <div className="mb-2 flex items-center justify-between gap-3">
                                 <div className="flex items-center gap-2">
                                   <div className="flex h-8 w-8 items-center justify-center rounded-full bg-orange-100 text-xs font-black text-primary">
@@ -369,3 +474,4 @@ export default function TopicInsightSection({ destinationId, topics, sentimentBr
     </div>
   );
 }
+

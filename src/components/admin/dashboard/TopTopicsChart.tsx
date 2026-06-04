@@ -12,15 +12,15 @@ interface TopTopicsChartProps {
 
 export default function TopTopicsChart({ topics }: TopTopicsChartProps) {
   return (
-    <Card className="rounded-[1.75rem] border border-slate-200 bg-white py-0 shadow-sm">
+    <Card className="rounded-xl border border-slate-200 bg-white py-0 shadow-sm">
       <CardHeader className="border-b border-slate-100 p-6">
         <CardTitle className="text-xl font-black text-slate-950">Topik Paling Sering Dibahas</CardTitle>
         <CardDescription className="mt-1 font-semibold">Topik dominan dari ulasan lintas destinasi.</CardDescription>
       </CardHeader>
       <CardContent className="p-6">
         {topics && topics.length > 0 ? (
-          <div className="h-[250px] w-full">
-            <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
+          <div className="relative h-[250px] min-h-[250px] w-full min-w-0 overflow-hidden">
+            <ResponsiveContainer width="100%" height={250} minWidth={1} minHeight={1}>
               <BarChart
                 data={topics}
                 layout="vertical"
@@ -49,7 +49,7 @@ export default function TopTopicsChart({ topics }: TopTopicsChartProps) {
             </ResponsiveContainer>
           </div>
         ) : (
-          <div className="flex h-[250px] items-center justify-center rounded-3xl border border-dashed border-slate-200 text-sm font-bold text-slate-400">
+          <div className="flex h-[250px] items-center justify-center rounded-xl border border-dashed border-slate-200 text-sm font-bold text-slate-400">
             Data topik belum tersedia.
           </div>
         )}
@@ -57,3 +57,4 @@ export default function TopTopicsChart({ topics }: TopTopicsChartProps) {
     </Card>
   );
 }
+

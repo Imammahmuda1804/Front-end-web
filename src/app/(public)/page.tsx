@@ -36,12 +36,7 @@ export default async function Home() {
   return (
     <main className="flex min-h-screen flex-col bg-white">
       <HeroSection />
-      
-      
-      {destinations && destinations.length > 0 && (
-        <TrendingCarousel destinations={destinations} />
-      )}
-      
+      <TrendingCarousel destinations={destinations} />
       <InfoSection />
       <BentoGrid />
     </main>

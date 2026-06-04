@@ -17,19 +17,19 @@ export default function ReviewSourceMixChart({ breakdown }: Props) {
   const userRatio = total > 0 ? Math.round((breakdown.user_submitted / total) * 100) : 0;
 
   return (
-    <Card className="rounded-[1.75rem] border border-slate-200 bg-white py-0 shadow-sm">
+    <Card className="rounded-xl border border-slate-200 bg-white py-0 shadow-sm">
       <CardHeader className="border-b border-slate-100 p-6">
         <CardTitle className="text-lg font-black text-slate-950">Komposisi Sumber Ulasan</CardTitle>
         <CardDescription className="mt-1 font-semibold">Perbandingan hasil scraping dan kontribusi pengguna.</CardDescription>
       </CardHeader>
       <CardContent className="p-6">
-        <div className="mb-5 rounded-2xl border border-orange-100 bg-orange-50 p-4">
+        <div className="mb-5 rounded-xl border border-orange-100 bg-orange-50 p-4">
           <p className="text-xs font-black uppercase tracking-[0.14em] text-primary">Kontribusi pengguna</p>
           <p className="mt-1 text-3xl font-black text-slate-950">{userRatio}%</p>
           <p className="mt-1 text-sm font-semibold text-slate-600">Dari total {total.toLocaleString()} ulasan</p>
         </div>
-        <div className="h-52">
-          <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
+        <div className="relative h-52 min-h-52 w-full min-w-0 overflow-hidden">
+          <ResponsiveContainer width="100%" height={208} minWidth={1} minHeight={1}>
             <BarChart data={data} layout="vertical" margin={{ top: 8, right: 18, left: 18, bottom: 0 }}>
               <XAxis type="number" hide />
               <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#334155', fontWeight: 800 }} width={88} />
@@ -44,3 +44,4 @@ export default function ReviewSourceMixChart({ breakdown }: Props) {
     </Card>
   );
 }
+

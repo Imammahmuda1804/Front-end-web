@@ -328,7 +328,7 @@ export default function ProfileClient({ initialView = 'profile' }: Props) {
   return (
     <main className="min-h-screen bg-slate-50 pb-24 pt-28">
       <div className="mx-auto max-w-[92rem] px-4 sm:px-6 lg:px-10">
-        <section className="mb-8 overflow-hidden rounded-[2rem] border border-orange-100 bg-orange-50/70 p-6 shadow-sm shadow-orange-100/50 sm:p-8">
+        <section className="mb-8 overflow-hidden rounded-xl border border-orange-100 bg-orange-50/70 p-6 shadow-sm shadow-orange-100/50 sm:p-8">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-3xl">
               <p className="mb-3 inline-flex items-center gap-2 rounded-full bg-white px-3 py-1.5 text-xs font-black uppercase tracking-[0.16em] text-primary shadow-sm">
@@ -427,7 +427,7 @@ export default function ProfileClient({ initialView = 'profile' }: Props) {
           role="status"
           aria-live="polite"
         >
-          <div className="flex items-center justify-between gap-4 rounded-2xl bg-slate-950 px-5 py-3 text-white shadow-xl">
+          <div className="flex items-center justify-between gap-4 rounded-xl bg-slate-950 px-5 py-3 text-white shadow-xl">
             <span className="text-sm font-semibold">Favorit dihapus.</span>
             <button
               type="button"
@@ -443,5 +443,6 @@ export default function ProfileClient({ initialView = 'profile' }: Props) {
     </main>
   );
 }
+
 
 

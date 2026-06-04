@@ -7,10 +7,12 @@ Folder `web` berisi aplikasi web RANAHINSIGHT berbasis Next.js App Router. Web i
 Web dipakai untuk:
 
 - landing page RANAHINSIGHT;
+- katalog semua destinasi publik;
 - pencarian destinasi keyword dan semantic;
 - detail destinasi dengan gallery, topic insight, review, dan favorite;
 - compare destinasi;
 - profile dan favorite user;
+- route wisata shareable, route tersimpan, dan route builder;
 - login user/admin;
 - dashboard admin;
 - CRUD destinasi;
@@ -39,6 +41,7 @@ Versi utama yang dipakai:
 - Tailwind CSS.
 - Recharts.
 - Framer Motion.
+- GSAP untuk slider timecard landing page.
 - Zustand.
 
 ## Instalasi dari Clone Baru
@@ -95,6 +98,39 @@ http://localhost:3001
 | PostgreSQL | Tidak dipakai langsung oleh web. |
 | Redis | Tidak dipakai langsung oleh web. |
 
+## Fitur Route Wisata
+
+Route wisata memakai data `latitude`, `longitude`, `googleMapsUrl`, dan `googlePlaceId` dari destinasi.
+
+- `/routes`: katalog route publik dan route tersimpan user.
+- `/routes/saved`: tracker rute tersimpan untuk menandai stop yang sudah dikunjungi dan melihat tujuan berikutnya.
+- `/routes/me`: route buatan user login dan entry edit route milik user.
+- `/routes/new`: builder route manual dengan auto sort dari backend dan dropdown `NativeSelect` yang sama untuk user/admin.
+- `/routes/[shareSlug]`: halaman share route public/link-only.
+- `/admin/routes`: curated route yang dibuat admin, termasuk edit, publish/unpublish, dan delete.
+
+Tombol "Tambahkan ke rute" tersedia dari detail destinasi dan favorite card. Detail destinasi juga menampilkan Google Maps dan destinasi terdekat saat koordinat tersedia.
+
+Progress rute tersimpan disimpan di backend, sehingga status kunjungan tetap tersedia lintas browser atau device setelah user login. Halaman detail route menampilkan penanda jika route sudah disimpan dan menyediakan action hapus simpanan. Fitur salinan route tidak ditampilkan di UI karena action simpan sudah cukup untuk workflow user.
+
+## Tampilan Public Shell
+
+Halaman publik memakai background foto wisata Sumatera Barat dari `public/images/sumbar-tourism-bg.jpg` dengan overlay warm/cool tipis agar konten tetap terbaca tanpa menutup foto. Foto ini adalah Ngarai Sianok dari Wikimedia Commons, bukan image generated. Overlay dibuat ringan agar halaman eksplorasi, katalog destinasi, route, compare, profile, dan detail tetap punya nuansa wisata seperti hero landing. Navbar public dibuat sebagai glass header semi transparan dengan blur ringan, border halus, dan radius lebih kecil supaya tidak terasa terlalu flat atau terlalu membulat.
+
+Katalog destinasi memakai card visual server-compatible dengan tinggi konten yang stabil. Deskripsi dan topik dibuat ringkas agar daftar tetap mudah dipindai tanpa membawa animasi client card.
+
+Atribusi background: `Ngarai Sianok Bukittinggi.jpg`, Wikimedia Commons, CC BY-SA 4.0.
+
+## Landing Page
+
+Landing page memakai rekomendasi dari endpoint `/api/destinations/recommendations`. Hero utama adalah timecard destination slider berbasis GSAP: background hero berganti mengikuti destinasi aktif, informasi destinasi tampil sebagai konten utama, preview destinasi berikutnya muncul sebagai kartu kecil, progress slide berjalan otomatis, dan user tetap bisa mengontrol dengan tombol atau swipe pada layar sentuh.
+
+Hero timecard menampilkan deskripsi destinasi dari backend, rating, rasio sentimen positif, dan CTA detail. Warna tetap mengikuti brand RANAHINSIGHT: orange untuk eksplorasi/progress, blue untuk sinyal AI, emerald untuk sentimen positif, dan slate overlay agar teks tetap terbaca.
+
+## Fitur Compare
+
+Halaman `/compare` memakai endpoint `/api/analytics/compare` untuk menampilkan ringkasan keputusan, best-for chips, factor matrix, highlight, risiko, lokasi/maps, chart sentimen, dan topik dominan. Field tambahan compare bersifat additive sehingga fallback lama tetap aman jika backend belum mengirim insight lengkap.
+
 ## Struktur Folder
 
 | Path | Kegunaan |
@@ -107,8 +143,9 @@ http://localhost:3001
 | `src/app/api/revalidate/` | Route internal revalidation. |
 | `src/components/` | Komponen UI public, admin, layout, chart, dan primitive. |
 | `src/components/home/` | Hero, carousel trending, info section, dan bento landing. |
-| `src/components/search/` | Search workspace dan result card. |
-| `src/components/destinations/` | Detail destinasi, gallery, topic insight, review form, dan chart. |
+| `src/components/search/` | Search workspace, command surface, panel filter/history, result card, state kosong/loading reusable, helper API lokal, type lokal, konstanta prompt, dan helper normalisasi. |
+| `src/components/destinations/` | Detail destinasi, hero/detail nav presentational, gallery, topic insight dengan helper/type terpisah, review form, helper/type lokal, dan chart lazy-loaded. |
+| `WEB_REFACTOR_NOTES.md` | Catatan batch refactor Next.js untuk public pages dan workspace admin besar seperti topics, NLP, scraper, users, dan admin detail. |
 | `src/components/compare/` | Compare user. |
 | `src/components/profile/` | Profile, favorite card, toolbar, dan compare tray. |
 | `src/components/admin/` | Komponen dashboard admin per fitur. |
@@ -133,10 +170,10 @@ http://localhost:3001
 Contoh search:
 
 1. User membuka `/search`.
-2. `SearchClient` mengatur input dan filter.
+2. `SearchClient` mengatur state dan `SearchCommandSurface` merender input, mode, dan prompt cepat.
 3. Request dikirim ke `POST /api/search`.
 4. Jika user login, riwayat pencarian dimuat dari `GET /api/search/history`.
-5. User bisa menghapus satu history atau membersihkan semua history dari sidebar.
+5. `SearchFilterPanel` dan `SearchHistoryPanel` merender rail kiri agar container search tidak penuh JSX presentational.
 6. Result ditampilkan dengan `SearchResultCard`.
 
 Contoh admin destinasi:
@@ -147,25 +184,52 @@ Contoh admin destinasi:
 4. `adminDestinationService` memanggil backend.
 5. Admin bisa create, update, delete, upload thumbnail, dan upload gallery.
 
+Catatan UI admin:
+
+- Halaman admin dirapikan sebagai workspace operasional dinas pariwisata.
+- Panel legenda besar tidak dirender di halaman utama jika informasi sudah jelas dari badge, label, icon, chart legend, atau tooltip.
+- Prioritas tindakan seperti review negatif, data destinasi kurang lengkap, job gagal, dan topik perlu rename dibuat lebih menonjol daripada teks panduan panjang.
+- Dropdown custom `NativeSelect` dirender sebagai portal sehingga opsi tidak terpotong oleh table overflow pada halaman admin.
+
 Contoh admin scraper:
 
 1. Admin membuka `/admin/scraper`.
 2. `ScraperClient` memuat destinasi dan job scraping.
-3. Admin bisa mencari tempat Maps, memilih hasil untuk mengisi URL, lalu memulai job.
-4. Job monitor bisa membuka detail status job, melihat history scraping, dan mengunduh Excel.
+3. Admin bisa mencari tempat Maps, memilih hasil untuk mengisi URL, memilih batas ulasan atau mode seluruh ulasan, lalu memulai job.
+4. Job monitor bisa membuka detail status job, melihat history scraping, dan mengunduh Excel. Chart scraper dipisah ke file chart khusus dan dimuat dynamic agar panel command/table tidak membawa `recharts` langsung.
+
+Contoh admin NLP Processing:
+
+1. Admin membuka `/admin/nlp-processing`.
+2. Admin memilih destinasi dan file CSV/XLSX hasil scraping.
+3. Web menjalankan preflight ke backend untuk menghitung review baru, duplikat, dan file yang pernah diproses.
+4. Admin memilih mode `Lewati duplikat`, `Proses ulang`, atau `Ganti data`.
+5. Backend memproses review target ke Model Python, menyimpan hasil NLP, dan mencatat history proses.
+6. Panel riwayat menampilkan status, mode, jumlah review inserted/skipped/processed, admin, dan error jika gagal.
+7. Preflight tidak membuat history run; riwayat baru muncul setelah admin menekan tombol proses.
 
 Contoh admin topics:
 
 1. Admin membuka `/admin/topics`.
 2. `TopicsClient` memuat topic dan topic group.
-3. Admin bisa rename topic, rename group, mengatur visibility, dan melihat destinasi terkait topic.
+3. Search admin topic memakai nama topic saja agar pencarian taxonomy lebih presisi.
+4. Admin bisa rename topic, CRUD topic group, mengatur anggota topik dalam group, memindahkan topik dari group lain, mengatur visibility, melihat destinasi terkait topic, melihat ulasan berdasarkan topic, dan menggabungkan beberapa topic duplikat ke satu topic target.
+5. Jika rename manual menghasilkan nama yang sudah ada, backend otomatis menggabungkan topic ke nama existing.
+6. Dialog merge memiliki search target/source agar admin mudah mencari topic yang ingin digabung.
+
+Contoh admin compare:
+
+1. Admin membuka `/admin/compare` untuk membandingkan dua destinasi.
+2. Halaman compare fokus pada selisih metrik, pemenang rekomendasi, topic overlap, dan sinyal trend terbaru.
+3. Admin membuka `/admin/detail` untuk analitik detail satu destinasi.
+4. Analitik detail menampilkan kualitas sinyal, risiko sentimen, gambaran situasi tempat, snapshot bulanan, pembicaraan utama, sinyal operasional, topik prioritas, checklist tindakan dinas, dan chart tren bulanan tiga sentimen dalam satu grafik garis. Chart analitik detail dipisah ke file chart khusus dan dimuat dynamic agar view utama tidak mengimpor `recharts` langsung.
 
 ## Auth dan Route Protection
 
 File utama:
 
 - `src/store/auth.store.ts`
-- `src/middleware.ts`
+- `src/proxy.ts`
 - `src/app/(auth)/login/page.tsx`
 - `src/components/layout/Navbar.tsx`
 
@@ -174,7 +238,7 @@ Alur:
 1. Login mengirim email/password ke backend.
 2. Backend mengembalikan user dan token.
 3. Token/user disimpan di store dan cookie.
-4. Middleware memakai cookie untuk proteksi route.
+4. Proxy Next memakai cookie untuk proteksi route.
 5. Admin route hanya boleh dibuka role admin.
 
 ## Menjalankan Bersama Backend
@@ -222,6 +286,8 @@ Manual check:
 - `/admin/destinations`
 - `/admin/reviews`
 - `/admin/topics`
+- `/admin/compare`
+- `/admin/detail`
 - `/admin/nlp-processing`
 - `/admin/scraper`
 - `/admin/users`
@@ -233,9 +299,10 @@ Manual check:
 Periksa:
 
 - route file masih ada di `src/app`;
-- `middleware.ts` tidak salah redirect;
+- `proxy.ts` tidak salah redirect;
 - Next dev server dijalankan dari folder `web`;
-- jangan hapus/migrasi middleware ke proxy tanpa test semua route.
+- cache `.next` tidak korup. Jika route file ada tetapi route seperti `/profile`, `/favorites`, `/routes/saved`, atau `/admin/topics` tetap 404, hentikan dev server lalu jalankan ulang `npm run dev`. Script `dev` dan `build` otomatis menjalankan `scripts/clean-next-route-cache.mjs` untuk menghapus `.next/dev` dan `.next/types` sebelum Next membuat route manifest baru.
+- Jangan menjalankan dev server lama sambil memakai cache generated yang sudah korup. Gejalanya terlihat dari `.next/dev/types/routes.d.ts` atau `.next/types/routes.d.ts` yang tidak memuat semua route App Router.
 
 ### Backend tidak terhubung
 

@@ -558,3 +558,4 @@ export function DestinationFormModal({ open, onOpenChange, onSuccess, initialDat
     </Dialog>
   );
 }
+

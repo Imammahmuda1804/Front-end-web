@@ -281,7 +281,7 @@ export function DestinationPreviewDrawer({
           </SheetDescription>
         </SheetHeader>
         <div className="space-y-5 p-4">
-          <div className="relative aspect-[16/10] overflow-hidden rounded-2xl border border-slate-200 bg-slate-100">
+          <div className="relative aspect-[16/10] overflow-hidden rounded-xl border border-slate-200 bg-slate-100">
             {imageUrl ? (
               <Image src={getImageUrl(imageUrl)} alt={destination.name} fill sizes="560px" className="object-cover" />
             ) : (
@@ -297,7 +297,7 @@ export function DestinationPreviewDrawer({
             <PreviewMetric label="User" value={String(destination.userRating ?? "-")} hint="Rating pengguna aplikasi" />
           </div>
 
-          <section className="rounded-2xl border border-slate-200 p-4">
+          <section className="rounded-xl border border-slate-200 p-4">
             <div className="flex items-center justify-between gap-3">
               <h4 className="font-semibold text-slate-950">Checklist kualitas</h4>
               <span className={`rounded-full border px-2.5 py-1 text-xs font-semibold ${statusClass(quality.tone)}`}>
@@ -319,7 +319,7 @@ export function DestinationPreviewDrawer({
             </div>
           </section>
 
-          <section className="rounded-2xl border border-slate-200 p-4">
+          <section className="rounded-xl border border-slate-200 p-4">
             <h4 className="font-semibold text-slate-950">Galeri</h4>
             <p className="mt-1 text-sm text-slate-500">Menampilkan maksimal 6 gambar pertama untuk cek cepat kualitas visual.</p>
             {destination.images?.length ? (
@@ -335,7 +335,7 @@ export function DestinationPreviewDrawer({
             )}
           </section>
 
-          <section className="rounded-2xl border border-slate-200 p-4">
+          <section className="rounded-xl border border-slate-200 p-4">
             <h4 className="font-semibold text-slate-950">Akses dan media</h4>
             <p className="mt-1 text-sm text-slate-500">Bagian ini menentukan apakah navigasi, scraping, dan trailer bisa dipakai.</p>
             <div className="mt-3 space-y-2 text-sm">
@@ -368,7 +368,7 @@ export function DestinationPreviewDrawer({
 
 export function PreviewMetric({ label, value, hint }: { label: string; value: string; hint: string }) {
   return (
-    <div className="rounded-2xl bg-slate-50 p-3">
+    <div className="rounded-xl bg-slate-50 p-3">
       <p className="text-xs font-medium text-slate-500">{label}</p>
       <p className="mt-1 text-xl font-semibold text-slate-950">{value}</p>
       <p className="mt-1 text-xs text-slate-500">{hint}</p>
@@ -408,7 +408,7 @@ export function DeleteConfirmationDialog({
             Data akan disembunyikan dari halaman publik melalui soft delete. Tindakan ini tetap perlu dipastikan karena memengaruhi pengalaman pengguna.
           </DialogDescription>
         </DialogHeader>
-        <div className="rounded-2xl border border-red-100 bg-red-50 p-3 text-sm text-red-700">
+        <div className="rounded-xl border border-red-100 bg-red-50 p-3 text-sm text-red-700">
           {target?.type === "single" ? target.destination.name : `${count} destinasi terpilih`} akan dihapus dari daftar aktif.
         </div>
         <DialogFooter>
@@ -424,4 +424,5 @@ export function DeleteConfirmationDialog({
     </Dialog>
   );
 }
+
 

@@ -18,7 +18,6 @@ import { DestinationFormModal } from "./destination-form-modal";
 import { BulkToolbar, DestinationFilterBar } from "./destinations-table.controls";
 import { DeleteConfirmationDialog, DestinationPreviewDrawer, DestinationsDataTable } from "./destinations-table.data";
 import {
-  AdminDestinationLegend,
   CityDistributionChart,
   DestinationOverviewCards,
   DestinationQualityChart,
@@ -334,7 +333,6 @@ export function DestinationsTable({ initialFilters }: DestinationsTableProps) {
   return (
     <div className="space-y-5">
       <DestinationOverviewCards destinations={destinations} total={meta.total} />
-      <AdminDestinationLegend />
 
       <div className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
         <DestinationQualityChart destinations={destinations} />
@@ -344,7 +342,7 @@ export function DestinationsTable({ initialFilters }: DestinationsTableProps) {
         </div>
       </div>
 
-      <section className="rounded-2xl border border-slate-200 bg-white shadow-sm shadow-slate-200/50">
+      <section className="rounded-xl border border-slate-200 bg-white shadow-sm shadow-slate-200/50">
         <div className="border-b border-slate-100 p-4">
           <DestinationFilterBar
             searchTerm={searchTerm}
@@ -452,5 +450,6 @@ export function DestinationsTable({ initialFilters }: DestinationsTableProps) {
     </div>
   );
 }
+
 
 

@@ -13,19 +13,22 @@ import {
   Tags,
   MessageSquare,
   LogOut,
-  BrainCircuit
+  BrainCircuit,
+  Route,
 } from 'lucide-react';
 import { useAuthStore } from '@/store/auth.store';
 
 const sidebarLinks = [
-  { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/admin/destinations', label: 'Destinations', icon: MapPin },
-  { href: '/admin/reviews', label: 'Manajemen Review', icon: MessageSquare },
-  { href: '/admin/compare', label: 'Compare Analytics', icon: BarChart3 },
+  { href: '/admin', label: 'Dasbor', icon: LayoutDashboard },
+  { href: '/admin/destinations', label: 'Destinasi', icon: MapPin },
+  { href: '/admin/reviews', label: 'Ulasan', icon: MessageSquare },
+  { href: '/admin/detail', label: 'Analitik Detail', icon: BarChart3 },
+  { href: '/admin/compare', label: 'Bandingkan', icon: BarChart3 },
   { href: '/admin/topics', label: 'Manajemen Topik', icon: Tags },
+  { href: '/admin/routes', label: 'Rute Wisata', icon: Route },
   { href: '/admin/scraper', label: 'Scraper', icon: Search },
-  { href: '/admin/nlp-processing', label: 'NLP Processing', icon: BrainCircuit },
-  { href: '/admin/users', label: 'Users', icon: Users },
+  { href: '/admin/nlp-processing', label: 'Proses NLP', icon: BrainCircuit },
+  { href: '/admin/users', label: 'Pengguna', icon: Users },
 ];
 
 export function AdminSidebar() {

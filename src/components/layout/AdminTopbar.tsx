@@ -17,14 +17,16 @@ import Image from 'next/image';
 
 // Menu admin yang ditampilkan pada drawer mobile.
 const mobileAdminLinks = [
-  { href: '/admin', label: 'Dashboard' },
-  { href: '/admin/destinations', label: 'Destinations' },
-  { href: '/admin/reviews', label: 'Manajemen Review' },
-  { href: '/admin/compare', label: 'Compare Analytics' },
+  { href: '/admin', label: 'Dasbor' },
+  { href: '/admin/destinations', label: 'Destinasi' },
+  { href: '/admin/reviews', label: 'Ulasan' },
+  { href: '/admin/detail', label: 'Analitik Detail' },
+  { href: '/admin/compare', label: 'Bandingkan' },
   { href: '/admin/topics', label: 'Manajemen Topik' },
+  { href: '/admin/routes', label: 'Rute Wisata' },
   { href: '/admin/scraper', label: 'Scraper' },
-  { href: '/admin/nlp-processing', label: 'NLP Processing' },
-  { href: '/admin/users', label: 'Users' },
+  { href: '/admin/nlp-processing', label: 'Proses NLP' },
+  { href: '/admin/users', label: 'Pengguna' },
 ];
 
 // Topbar admin untuk navigasi mobile, profil, dan logout.

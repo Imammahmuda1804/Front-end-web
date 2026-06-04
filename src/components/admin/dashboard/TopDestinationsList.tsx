@@ -19,13 +19,13 @@ interface TopDestinationsListProps {
 
 export default function TopDestinationsList({ destinations }: TopDestinationsListProps) {
   return (
-    <Card className="overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white py-0 shadow-sm">
+    <Card className="overflow-hidden rounded-xl border border-slate-200 bg-white py-0 shadow-sm">
       <CardHeader className="flex flex-row items-start justify-between border-b border-slate-100 p-6">
         <div>
           <CardTitle className="text-lg font-black text-slate-950">Destinasi Teratas</CardTitle>
           <CardDescription className="mt-1 font-semibold">Ranking berdasarkan skor rekomendasi.</CardDescription>
         </div>
-        <Link href="/admin/destinations" className="flex min-h-9 items-center gap-1 rounded-full bg-slate-100 px-3 text-xs font-black text-slate-600 transition-colors hover:bg-primary hover:text-white">
+        <Link href="/admin/destinations" className="flex min-h-9 items-center gap-1 rounded-lg bg-slate-100 px-3 text-xs font-black text-slate-600 transition-colors hover:bg-primary hover:text-white">
           Semua
         </Link>
       </CardHeader>
@@ -35,7 +35,7 @@ export default function TopDestinationsList({ destinations }: TopDestinationsLis
             {destinations.map((dest, i) => (
               <div key={dest.id} className="flex items-center justify-between group">
                 <div className="flex items-start gap-4">
-                  <div className="flex flex-col items-center justify-center w-10 h-10 rounded-[12px] bg-slate-50 text-slate-700 font-bold shadow-sm border border-slate-100">
+                  <div className="flex flex-col items-center justify-center w-10 h-10 rounded-lg bg-slate-50 text-slate-700 font-bold shadow-sm border border-slate-100">
                     <span className="text-[10px] text-slate-400 font-normal uppercase leading-none mt-1">Rank</span>
                     <span className="text-sm leading-none mb-1">#{i + 1}</span>
                   </div>
@@ -49,14 +49,14 @@ export default function TopDestinationsList({ destinations }: TopDestinationsLis
                     </div>
                   </div>
                 </div>
-                <Link href={`/admin/destinations/${dest.id}`} className="w-8 h-8 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-primary group-hover:text-white group-hover:border-primary transition-all">
+                <Link href={`/admin/destinations/${dest.id}`} className="w-8 h-8 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-primary group-hover:text-white group-hover:border-primary transition-all">
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
                 </Link>
               </div>
             ))}
           </div>
         ) : (
-          <div className="rounded-3xl border border-dashed border-slate-200 py-8 text-center text-sm font-bold text-slate-400">
+          <div className="rounded-xl border border-dashed border-slate-200 py-8 text-center text-sm font-bold text-slate-400">
             Data destinasi belum tersedia.
           </div>
         )}
@@ -64,3 +64,5 @@ export default function TopDestinationsList({ destinations }: TopDestinationsLis
     </Card>
   );
 }
+
+

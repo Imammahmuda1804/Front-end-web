@@ -24,7 +24,7 @@ function relativeTime(value?: string) {
 
 export default function DataFreshnessPanel({ freshness }: Props) {
   return (
-    <Card className="rounded-[1.75rem] border border-slate-200 bg-white py-0 shadow-sm">
+    <Card className="rounded-xl border border-slate-200 bg-white py-0 shadow-sm">
       <CardHeader className="border-b border-slate-100 p-6">
         <CardTitle className="text-lg font-black text-slate-950">Kesegaran Data</CardTitle>
         <CardDescription className="mt-1 font-semibold">Sinyal apakah data destinasi siap dianalisis.</CardDescription>
@@ -84,8 +84,8 @@ function FreshnessRow({
   }[tone];
 
   return (
-    <div className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-3">
-      <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border ${toneClass}`}>
+    <div className="flex items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3">
+      <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border ${toneClass}`}>
         <Icon className="h-5 w-5" />
       </div>
       <div className="min-w-0">
@@ -96,3 +96,4 @@ function FreshnessRow({
     </div>
   );
 }
+

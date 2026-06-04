@@ -30,7 +30,7 @@ export function DestinationFilterBar({
 }) {
   return (
     <div className="space-y-3">
-      <div className="rounded-2xl border border-slate-100 bg-slate-50 p-3 text-sm text-slate-600">
+      <div className="rounded-xl border border-slate-100 bg-slate-50 p-3 text-sm text-slate-600">
         Cari memakai nama/kota. Filter kualitas memakai kelengkapan media, Maps, koordinat, dan rating. Semua pilihan tersimpan di URL.
       </div>
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
@@ -134,5 +134,6 @@ export function BulkToolbar({
     </div>
   );
 }
+
 
 
