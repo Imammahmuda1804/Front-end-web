@@ -43,6 +43,7 @@ Versi utama yang dipakai:
 - Framer Motion.
 - GSAP untuk slider timecard landing page.
 - Zustand.
+- `@react-oauth/google` untuk tombol Google login.
 
 ## Instalasi dari Clone Baru
 
@@ -62,6 +63,7 @@ Jika backend berjalan di URL berbeda, buat `.env.local`:
 
 ```env
 NEXT_PUBLIC_API_URL=http://localhost:3000/api
+NEXT_PUBLIC_GOOGLE_CLIENT_ID=your-google-web-client-id.apps.googleusercontent.com
 ```
 
 Jika tidak ada `.env.local`, cek `src/lib/axios.ts` untuk fallback base URL.
@@ -175,6 +177,14 @@ Contoh search:
 4. Jika user login, riwayat pencarian dimuat dari `GET /api/search/history`.
 5. `SearchFilterPanel` dan `SearchHistoryPanel` merender rail kiri agar container search tidak penuh JSX presentational.
 6. Result ditampilkan dengan `SearchResultCard`.
+
+Contoh login Google:
+
+1. `src/components/providers.tsx` memasang `GoogleOAuthProvider` jika `NEXT_PUBLIC_GOOGLE_CLIENT_ID` tersedia.
+2. User menekan tombol "Masuk / daftar dengan Google" pada `/login`.
+3. Google mengembalikan credential `id_token`.
+4. Web mengirim `POST /api/auth/google` ke backend.
+5. Response token backend disimpan di `useAuthStore`, lalu user diarahkan ke `callbackUrl` atau profile.
 
 Contoh admin destinasi:
 

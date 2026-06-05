@@ -8,6 +8,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { isAxiosError } from 'axios';
+import { CredentialResponse, GoogleLogin } from '@react-oauth/google';
 import { api } from '@/lib/axios';
 import { useAuthStore } from '@/store/auth.store';
 import { toast } from 'sonner';
@@ -38,7 +39,10 @@ function LoginContent() {
   const callbackUrl = searchParams.get('callbackUrl') || '/';
   const { setAuth } = useAuthStore();
   const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+  const isGoogleConfigured = Boolean(googleClientId);
 
   const {
     register,
@@ -48,24 +52,50 @@ function LoginContent() {
     resolver: zodResolver(loginSchema),
   });
 
+  const completeLogin = (
+    user: Parameters<typeof setAuth>[0],
+    accessToken: string,
+    refreshToken: string,
+  ) => {
+    setAuth(user, accessToken, refreshToken);
+    toast.success('Login berhasil! Selamat datang.');
+
+    setTimeout(() => {
+      router.push(callbackUrl);
+    }, 500);
+  };
+
   const onSubmit = async (data: LoginFormValues) => {
     try {
       setIsLoading(true);
       const response = await api.post('/api/auth/login', data);
       
       const { user, access_token, refresh_token } = response.data.data;
-      
-      setAuth(user, access_token, refresh_token);
-      
-      toast.success('Login berhasil! Selamat datang.');
-      
-      setTimeout(() => {
-        router.push(callbackUrl);
-      }, 500);
+      completeLogin(user, access_token, refresh_token);
     } catch (error: unknown) {
       toast.error(getErrorMessage(error, 'Gagal login. Periksa email dan password Anda.'));
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleGoogleSuccess = async (credentialResponse: CredentialResponse) => {
+    if (!credentialResponse.credential) {
+      toast.error('Token Google tidak tersedia. Coba ulangi login.');
+      return;
+    }
+
+    try {
+      setIsGoogleLoading(true);
+      const response = await api.post('/api/auth/google', {
+        id_token: credentialResponse.credential,
+      });
+      const { user, access_token, refresh_token } = response.data.data;
+      completeLogin(user, access_token, refresh_token);
+    } catch (error: unknown) {
+      toast.error(getErrorMessage(error, 'Login Google gagal. Coba lagi.'));
+    } finally {
+      setIsGoogleLoading(false);
     }
   };
 
@@ -169,6 +199,42 @@ function LoginContent() {
               >
                 {isLoading ? 'MEMPROSES...' : 'Masuk'}
               </button>
+            </div>
+
+            <div className="space-y-4 pt-2">
+              <div className="flex items-center gap-3">
+                <span className="h-px flex-1 bg-slate-200" />
+                <span className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">atau</span>
+                <span className="h-px flex-1 bg-slate-200" />
+              </div>
+              <div className={isGoogleLoading ? 'pointer-events-none opacity-60' : ''}>
+                <div className="flex justify-center">
+                  {isGoogleConfigured ? (
+                  <GoogleLogin
+                    onSuccess={handleGoogleSuccess}
+                    onError={() => toast.error('Login Google gagal. Coba lagi.')}
+                    text="continue_with"
+                    shape="rectangular"
+                    size="large"
+                    width="320"
+                    logo_alignment="left"
+                  />
+                  ) : (
+                    <button
+                      className="flex h-11 w-full max-w-80 items-center justify-center gap-3 rounded-xl border border-slate-200 bg-white px-4 text-sm font-black text-slate-500 shadow-sm transition hover:border-primary/30 hover:text-slate-700"
+                      type="button"
+                      onClick={() =>
+                        toast.error('NEXT_PUBLIC_GOOGLE_CLIENT_ID belum dikonfigurasi.')
+                      }
+                    >
+                      <span className="flex h-5 w-5 items-center justify-center rounded-full border border-slate-300 text-xs font-black text-primary">
+                        G
+                      </span>
+                      Masuk / daftar dengan Google
+                    </button>
+                  )}
+                </div>
+              </div>
             </div>
           </form>
 

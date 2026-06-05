@@ -70,7 +70,7 @@ Posisi pada flow: state auth browser.
 
 Kegunaan:
 - menyimpan user, access token, refresh token, dan status login;
-- dipakai oleh navbar, admin topbar, halaman profile, dan Axios interceptor.
+- dipakai oleh navbar, admin topbar, halaman profile, login Google, dan Axios interceptor.
 
 Catatan:
 - State ini berjalan di client/browser.
@@ -686,8 +686,9 @@ Bagian ini memetakan file web yang memengaruhi flow route, state, pemanggilan AP
 
 | Path | Posisi pada flow | Kegunaan | Referensi baris utama |
 | --- | --- | --- | --- |
-| `web/src/app/(auth)/login/page.tsx` | Login UI | Menangani login form, submit, error, dan redirect user. | `LoginContent` `page.tsx:35`, `LoginPage` `page.tsx:226` |
+| `web/src/app/(auth)/login/page.tsx` | Login UI | Menangani login form, tombol Google login/register, submit, error, simpan token, dan redirect user. | `LoginContent` `page.tsx:35`, `LoginPage` `page.tsx:226` |
 | `web/src/app/(auth)/register/page.tsx` | Register UI | Menangani register form dan transisi ke login/session. | Route register |
+| `web/src/components/providers.tsx` | Provider client | Memasang QueryClient, Toaster, dan `GoogleOAuthProvider` jika `NEXT_PUBLIC_GOOGLE_CLIENT_ID` tersedia. | `Providers` `providers.tsx:10` |
 | `web/src/components/layout/Navbar.tsx` | Navbar public | Navigasi utama user, auth action, dan brand. | `Navbar` `Navbar.tsx:23` |
 | `web/src/components/layout/Footer.tsx` | Footer public | Informasi footer dan link bawah halaman. | `Footer` `Footer.tsx:10` |
 | `web/src/components/layout/AdminSidebar.tsx` | Navigasi admin | Menu dashboard admin dan route management. | `AdminSidebar` `AdminSidebar.tsx:31` |
