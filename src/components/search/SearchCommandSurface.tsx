@@ -1,4 +1,4 @@
-import { AnimatePresence, motion } from 'framer-motion';
+﻿import { AnimatePresence, motion } from 'framer-motion';
 import { Brain, CheckCircle2, Search, Sparkles, Type } from 'lucide-react';
 import type { FormEvent } from 'react';
 
@@ -119,7 +119,7 @@ export function SearchCommandSurface({
               id="search-main"
               type="text"
               placeholder={searchMode === 'semantic' ? 'Contoh: pantai tenang untuk keluarga' : 'Contoh: Jam Gadang atau Bukittinggi'}
-              className="min-h-16 w-full rounded-xl border-2 border-explore/15 bg-white py-3 pl-13 pr-4 text-base font-bold text-slate-900 outline-none transition-all placeholder:text-slate-400 focus:border-explore focus:bg-white focus:ring-4 focus:ring-explore/20"
+              className="min-h-16 w-full rounded-xl border-2 border-explore/15 bg-white py-3 pl-13 pr-4 text-base font-bold text-slate-900 outline-none transition-[color,background-color,border-color,box-shadow,transform,opacity] placeholder:text-slate-400 focus:border-explore focus:bg-white focus:ring-4 focus:ring-explore/20"
               value={query}
               onChange={(e) => onQueryChange(e.target.value)}
             />
@@ -128,7 +128,7 @@ export function SearchCommandSurface({
             type="submit"
             disabled={isLoading || !query.trim()}
             whileTap={shouldReduceMotion ? undefined : { scale: 0.98 }}
-            className="flex min-h-16 items-center justify-center gap-2 rounded-xl bg-explore px-8 text-sm font-black text-white shadow-sm shadow-primary/20 transition-all motion-safe:hover:-translate-y-0.5 hover:bg-explore/90 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
+            className="flex min-h-16 items-center justify-center gap-2 rounded-xl bg-explore px-8 text-sm font-black text-white shadow-sm shadow-primary/20 transition-[color,background-color,border-color,box-shadow,transform,opacity] motion-safe:hover:-translate-y-0.5 hover:bg-explore/90 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
           >
             <Search className="h-4 w-4" />
             Cari destinasi
@@ -161,7 +161,7 @@ export function SearchCommandSurface({
                 whileTap={shouldReduceMotion ? undefined : { scale: 0.97 }}
                 onClick={() => onQuickPrompt(prompt)}
                 aria-pressed={isActivePrompt}
-                className={`inline-flex min-h-11 items-center gap-2 rounded-full border px-3 text-sm font-black shadow-sm transition-all ${
+                className={`inline-flex min-h-11 items-center gap-2 rounded-full border px-3 text-sm font-black shadow-sm transition-[color,background-color,border-color,box-shadow,transform,opacity] ${
                   isActivePrompt
                     ? 'border-primary bg-primary text-white shadow-primary/20'
                     : `text-slate-700 hover:border-explore hover:bg-explore-container hover:text-explore ${prompt.tone}`
@@ -207,3 +207,4 @@ export function SearchCommandSurface({
     </motion.section>
   );
 }
+

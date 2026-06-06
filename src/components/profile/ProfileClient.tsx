@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useReducedMotion } from 'framer-motion';
@@ -313,7 +313,7 @@ export default function ProfileClient({ initialView = 'profile' }: Props) {
         <p className="mb-6 max-w-md text-sm font-semibold leading-6 text-slate-500">
           Profil dan favorit tersimpan hanya tersedia setelah Anda masuk.
         </p>
-        <Link href="/login" className="inline-flex min-h-12 items-center rounded-full bg-primary px-6 text-sm font-black text-white shadow-lg shadow-orange-200 transition-all hover:-translate-y-0.5 hover:bg-primary/90 focus:outline-none focus:ring-4 focus:ring-primary/20">
+        <Link href="/login" className="inline-flex min-h-12 items-center rounded-full bg-primary px-6 text-sm font-black text-white shadow-lg shadow-orange-200 transition-[color,background-color,border-color,box-shadow,transform,opacity] hover:-translate-y-0.5 hover:bg-primary/90 focus:outline-none focus:ring-4 focus:ring-primary/20">
           Masuk
         </Link>
       </main>
@@ -443,6 +443,7 @@ export default function ProfileClient({ initialView = 'profile' }: Props) {
     </main>
   );
 }
+
 
 
 

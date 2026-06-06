@@ -1,4 +1,4 @@
-import Image from 'next/image';
+﻿import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight, Camera, Compass, GitCompareArrows, Heart, Loader2, MapPin, Search, ShieldCheck, Sparkles, Star, X } from 'lucide-react';
 import { NativeSelect } from '@/components/ui/native-select';
@@ -91,7 +91,7 @@ export function ProfileCard({
         <button
           type="submit"
           disabled={saving}
-          className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-primary px-6 text-sm font-black text-white shadow-lg shadow-orange-200 transition-all hover:-translate-y-0.5 hover:bg-primary/90 focus:outline-none focus:ring-4 focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-70 sm:w-auto"
+          className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-primary px-6 text-sm font-black text-white shadow-lg shadow-orange-200 transition-[color,background-color,border-color,box-shadow,transform,opacity] hover:-translate-y-0.5 hover:bg-primary/90 focus:outline-none focus:ring-4 focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-70 sm:w-auto"
         >
           {saving && <Loader2 className="h-4 w-4 animate-spin" />}
           Simpan Perubahan
@@ -130,7 +130,7 @@ export function ProfileInput({
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-900 transition-all placeholder:text-slate-400 focus:border-primary focus:bg-white focus:outline-none focus:ring-4 focus:ring-primary/10"
+        className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-900 transition-[color,background-color,border-color,box-shadow,transform,opacity] placeholder:text-slate-400 focus:border-primary focus:bg-white focus:outline-none focus:ring-4 focus:ring-primary/10"
         placeholder={placeholder}
         autoComplete={autoComplete}
         required={required}
@@ -187,7 +187,7 @@ export function FavoritesHeader({ filtered, isFavoritesPage, total }: { filtered
           Menampilkan {filtered} dari {total} destinasi tersimpan.
         </p>
       </div>
-      <Link href="/search" className="inline-flex min-h-11 w-fit items-center gap-2 rounded-full border border-orange-200 bg-white px-5 text-sm font-black text-primary transition-all hover:-translate-y-0.5 hover:border-primary focus:outline-none focus:ring-4 focus:ring-primary/15">
+      <Link href="/search" className="inline-flex min-h-11 w-fit items-center gap-2 rounded-full border border-orange-200 bg-white px-5 text-sm font-black text-primary transition-[color,background-color,border-color,box-shadow,transform,opacity] hover:-translate-y-0.5 hover:border-primary focus:outline-none focus:ring-4 focus:ring-primary/15">
         Jelajahi Destinasi
         <ArrowRight className="h-4 w-4" />
       </Link>
@@ -220,7 +220,7 @@ export function FavoriteToolbar({
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="min-h-12 w-full rounded-full border border-slate-200 bg-slate-50 pl-11 pr-4 text-sm font-semibold text-slate-900 outline-none transition-all placeholder:text-slate-400 focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10"
+          className="min-h-12 w-full rounded-full border border-slate-200 bg-slate-50 pl-11 pr-4 text-sm font-semibold text-slate-900 outline-none transition-[color,background-color,border-color,box-shadow,transform,opacity] placeholder:text-slate-400 focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10"
           placeholder="Cari nama, kota, atau topik"
         />
       </label>
@@ -268,7 +268,7 @@ export function FavoriteCard({
   const topics = favorite.destination.topics?.map(topicLabel).filter(Boolean).slice(0, 3) || [];
 
   return (
-    <article className="group overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-orange-200 hover:shadow-xl hover:shadow-orange-100/60">
+    <article className="group overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition-[color,background-color,border-color,box-shadow,transform,opacity] duration-300 hover:-translate-y-0.5 hover:border-orange-200 hover:shadow-xl hover:shadow-orange-100/60">
       <div className="relative aspect-[16/10] overflow-hidden bg-slate-100">
         <Image
           src={favorite.destination.thumbnailUrl ? getImageUrl(favorite.destination.thumbnailUrl) : '/images/auth-bg.jpg'}
@@ -326,7 +326,7 @@ export function FavoriteCard({
             type="button"
             onClick={() => onToggleCompare(favorite.destination.id)}
             aria-pressed={isSelected}
-            className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-full border px-3 text-xs font-black transition-all focus:outline-none focus:ring-4 focus:ring-primary/15 ${
+            className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-full border px-3 text-xs font-black transition-[color,background-color,border-color,box-shadow,transform,opacity] focus:outline-none focus:ring-4 focus:ring-primary/15 ${
               isSelected
                 ? 'border-primary bg-orange-50 text-primary'
                 : 'border-slate-200 bg-white text-slate-600 hover:border-primary hover:text-primary'
@@ -337,14 +337,14 @@ export function FavoriteCard({
           </button>
           <Link
             href={`/destinations/${favorite.destination.slug}`}
-            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-primary px-3 text-xs font-black text-white transition-all hover:bg-primary/90 focus:outline-none focus:ring-4 focus:ring-primary/20"
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-primary px-3 text-xs font-black text-white transition-[color,background-color,border-color,box-shadow,transform,opacity] hover:bg-primary/90 focus:outline-none focus:ring-4 focus:ring-primary/20"
           >
             Detail
             <ArrowRight className="h-4 w-4" />
           </Link>
           <Link
             href={`/routes/new?destinationId=${favorite.destination.id}`}
-            className="col-span-2 inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-sky-100 bg-sky-50 px-3 text-xs font-black text-ai transition-all hover:bg-ai hover:text-white focus:outline-none focus:ring-4 focus:ring-sky-100"
+            className="col-span-2 inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-sky-100 bg-sky-50 px-3 text-xs font-black text-ai transition-[color,background-color,border-color,box-shadow,transform,opacity] hover:bg-ai hover:text-white focus:outline-none focus:ring-4 focus:ring-sky-100"
           >
             Tambahkan ke rute
             <ArrowRight className="h-4 w-4" />
@@ -382,7 +382,7 @@ export function FavoritesEmptyState() {
       <p className="mx-auto mt-2 max-w-md text-sm font-semibold leading-6 text-slate-500">
         Mulai jelajahi dan simpan destinasi yang cocok dengan gaya perjalanan Anda.
       </p>
-      <Link href="/search" className="mt-6 inline-flex min-h-12 items-center rounded-full bg-primary px-7 text-sm font-black text-white shadow-lg shadow-orange-200 transition-all hover:-translate-y-0.5 hover:bg-primary/90 focus:outline-none focus:ring-4 focus:ring-primary/20">
+      <Link href="/search" className="mt-6 inline-flex min-h-12 items-center rounded-full bg-primary px-7 text-sm font-black text-white shadow-lg shadow-orange-200 transition-[color,background-color,border-color,box-shadow,transform,opacity] hover:-translate-y-0.5 hover:bg-primary/90 focus:outline-none focus:ring-4 focus:ring-primary/20">
         Jelajahi Destinasi
       </Link>
     </div>
@@ -441,5 +441,6 @@ export function CompareTray({ favorites, onClear }: { favorites: Favorite[]; onC
     </div>
   );
 }
+
 
 

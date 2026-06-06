@@ -22,7 +22,7 @@ export function RouteCard({ route }: { route: TravelRoute }) {
   const href = `/routes/${route.shareSlug}`;
 
   return (
-    <article className="overflow-hidden rounded-xl border border-slate-200 bg-white/95 shadow-sm backdrop-blur transition hover:-translate-y-0.5 hover:border-orange-200 hover:shadow-md">
+    <article className="overflow-hidden rounded-xl border border-slate-200 bg-white/95 shadow-sm transition-[border-color,box-shadow] duration-200 hover:border-orange-200 hover:shadow-md">
       <Link href={href} className="block">
         <div className="relative aspect-[16/9] bg-slate-100">
           <Image src={image} alt={route.title} fill className="object-cover" sizes="(max-width: 768px) 100vw, 33vw" />

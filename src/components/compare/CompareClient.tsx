@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import * as React from 'react';
 import { useEffect, useMemo, useState } from 'react';
@@ -271,7 +271,7 @@ export default function CompareClient({ availableDestinations }: CompareClientPr
       <div className="mx-auto max-w-[100rem] space-y-6 px-4 sm:px-6 lg:px-8">
         <Link
           href="/search"
-          className="inline-flex min-h-11 items-center gap-2 rounded-full border border-orange-200 bg-white px-4 text-sm font-black text-slate-700 shadow-sm shadow-orange-100/50 transition-all hover:-translate-y-0.5 hover:border-primary hover:text-primary focus:outline-none focus:ring-4 focus:ring-primary/15"
+          className="inline-flex min-h-11 items-center gap-2 rounded-full border border-orange-200 bg-white px-4 text-sm font-black text-slate-700 shadow-sm shadow-orange-100/50 transition-[color,background-color,border-color,box-shadow,transform,opacity] hover:-translate-y-0.5 hover:border-primary hover:text-primary focus:outline-none focus:ring-4 focus:ring-primary/15"
         >
           <ArrowLeft className="h-4 w-4" />
           Kembali ke Pencarian
@@ -326,7 +326,7 @@ export default function CompareClient({ availableDestinations }: CompareClientPr
                   onClick={handleSwap}
                   disabled={!dest1Id && !dest2Id}
                   aria-label="Tukar destinasi yang dibandingkan"
-                  className="mx-auto inline-flex h-12 w-12 items-center justify-center rounded-full border border-sky-200 bg-sky-50 text-ai transition-all hover:-translate-y-0.5 hover:border-ai disabled:cursor-not-allowed disabled:opacity-40 md:mt-7"
+                  className="mx-auto inline-flex h-12 w-12 items-center justify-center rounded-full border border-sky-200 bg-sky-50 text-ai transition-[color,background-color,border-color,box-shadow,transform,opacity] hover:-translate-y-0.5 hover:border-ai disabled:cursor-not-allowed disabled:opacity-40 md:mt-7"
                 >
                   <ArrowRightLeft className="h-5 w-5" />
                 </button>
@@ -494,6 +494,7 @@ export default function CompareClient({ availableDestinations }: CompareClientPr
     </main>
   );
 }
+
 
 
 

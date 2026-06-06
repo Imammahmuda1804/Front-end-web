@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import * as React from 'react';
 import { useCallback, useState } from 'react';
@@ -265,7 +265,7 @@ export default function TopicInsightSection({ destinationId, topics, sentimentBr
                   <div className="min-w-0">
                     <p className="truncate text-sm font-black text-slate-950" title={topicLabel}>{topicLabel}</p>
                     <p className="mt-1 text-xs font-bold text-slate-500">
-                      {topic.groupName ? `${topic.groupName} • ` : ''}{topic.totalReviews || 0} ulasan terkait
+                      {topic.groupName ? `${topic.groupName} â€¢ ` : ''}{topic.totalReviews || 0} ulasan terkait
                     </p>
                   </div>
                   <span className={`inline-flex shrink-0 items-center gap-1 rounded-lg border px-2.5 py-1 text-[11px] font-black ${crowd.tone}`}>
@@ -317,7 +317,7 @@ export default function TopicInsightSection({ destinationId, topics, sentimentBr
                 type="button"
                 onClick={() => handleTopicClick(dt.topic.id, dt.topic.keywords, dt.isGroup ? 'group' : 'topic')}
                 aria-expanded={isExpanded}
-                className={`group w-full cursor-pointer rounded-xl border p-5 text-left transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-primary/15 ${
+                className={`group w-full cursor-pointer rounded-xl border p-5 text-left transition-[color,background-color,border-color,box-shadow,transform,opacity] duration-200 focus:outline-none focus:ring-4 focus:ring-primary/15 ${
                   isExpanded
                     ? 'border-orange-200 bg-orange-50/70 shadow-sm shadow-orange-100/60'
                     : 'border-slate-200 bg-slate-50/70 hover:-translate-y-0.5 hover:border-orange-200 hover:bg-white hover:shadow-sm'
@@ -461,7 +461,7 @@ export default function TopicInsightSection({ destinationId, topics, sentimentBr
             type="button"
             onClick={() => setShowAllTopics(!showAllTopics)}
             aria-expanded={showAllTopics}
-            className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-1.5 rounded-full border border-slate-200 bg-white px-5 py-2 text-sm font-black text-slate-600 transition-all hover:-translate-y-0.5 hover:border-primary hover:text-primary focus:outline-none focus:ring-4 focus:ring-primary/15"
+            className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-1.5 rounded-full border border-slate-200 bg-white px-5 py-2 text-sm font-black text-slate-600 transition-[color,background-color,border-color,box-shadow,transform,opacity] hover:-translate-y-0.5 hover:border-primary hover:text-primary focus:outline-none focus:ring-4 focus:ring-primary/15"
           >
             {showAllTopics ? (
               <>Tampilkan Lebih Sedikit <ChevronUp className="h-4 w-4" /></>
@@ -474,4 +474,5 @@ export default function TopicInsightSection({ destinationId, topics, sentimentBr
     </div>
   );
 }
+
 

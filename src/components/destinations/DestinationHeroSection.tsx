@@ -1,4 +1,4 @@
-import Image from 'next/image';
+﻿import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { AlertTriangle, MapPin, Navigation, PlayCircle, Sparkles } from 'lucide-react';
 import type { ComponentProps } from 'react';
@@ -88,7 +88,7 @@ export function DestinationHeroSection({
                 href={destination.googleMapsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-black text-white shadow-lg shadow-orange-200 transition-all hover:-translate-y-0.5 hover:bg-primary/90 focus:outline-none focus:ring-4 focus:ring-primary/20"
+                className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-bold text-white shadow-md shadow-orange-200 transition-[background-color,transform] duration-150 hover:bg-primary/90 active:scale-[0.98] focus:outline-none focus:ring-4 focus:ring-primary/20"
               >
                 <Navigation className="h-4 w-4" />
                 Buka Google Maps
@@ -102,7 +102,7 @@ export function DestinationHeroSection({
             {destination.youtubeUrl && (
               <a
                 href="#trailer"
-                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-sky-200 bg-white px-6 py-3 text-sm font-black text-ai shadow-sm transition-all hover:-translate-y-0.5 hover:border-ai focus:outline-none focus:ring-4 focus:ring-sky-100"
+                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border border-sky-200 bg-white px-6 py-3 text-sm font-bold text-ai shadow-sm transition-[border-color,background-color,transform] duration-150 hover:border-ai active:scale-[0.98] focus:outline-none focus:ring-4 focus:ring-sky-100"
               >
                 <PlayCircle className="h-4 w-4" />
                 Lihat Trailer
@@ -114,3 +114,4 @@ export function DestinationHeroSection({
     </motion.section>
   );
 }
+

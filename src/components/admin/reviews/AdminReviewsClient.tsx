@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
@@ -136,7 +136,7 @@ export function AdminReviewsClient({ initialFilters }: AdminReviewsClientProps) 
                                     role="tab"
                                     aria-selected={activeTab === 'reviews' ? 'true' : 'false'}
                                     onClick={() => updateQuery({ tab: 'reviews' })}
-                                    className={`flex min-h-10 items-center justify-center gap-2 rounded-xl px-4 text-sm font-semibold transition-all ${
+                                    className={`flex min-h-10 items-center justify-center gap-2 rounded-xl px-4 text-sm font-semibold transition-[color,background-color,border-color,box-shadow,transform,opacity] ${
                                         activeTab === 'reviews'
                                             ? 'bg-white text-slate-950 shadow-sm shadow-slate-200'
                                             : 'text-slate-600 hover:text-slate-950'
@@ -150,7 +150,7 @@ export function AdminReviewsClient({ initialFilters }: AdminReviewsClientProps) 
                                     role="tab"
                                     aria-selected={activeTab === 'analytics' ? 'true' : 'false'}
                                     onClick={() => updateQuery({ tab: 'analytics' })}
-                                    className={`flex min-h-10 items-center justify-center gap-2 rounded-xl px-4 text-sm font-semibold transition-all ${
+                                    className={`flex min-h-10 items-center justify-center gap-2 rounded-xl px-4 text-sm font-semibold transition-[color,background-color,border-color,box-shadow,transform,opacity] ${
                                         activeTab === 'analytics'
                                             ? 'bg-white text-slate-950 shadow-sm shadow-slate-200'
                                             : 'text-slate-600 hover:text-slate-950'
@@ -189,4 +189,5 @@ export function AdminReviewsClient({ initialFilters }: AdminReviewsClientProps) 
         </div>
     );
 }
+
 

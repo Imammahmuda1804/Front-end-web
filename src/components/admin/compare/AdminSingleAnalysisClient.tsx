@@ -1,8 +1,8 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { ArrowRightLeft, BarChart2, Download } from 'lucide-react';
+import { ArrowRightLeft, BarChart2 } from 'lucide-react';
 
 import { adminDestinationService } from '@/services/admin/destination.service';
 import {
@@ -123,10 +123,6 @@ export function AdminSingleAnalysisClient() {
     return Math.round((checks.filter(Boolean).length / checks.length) * 100);
   }, [singleData, topics.length, trendData.length]);
 
-  const handleExport = () => {
-    if (destinationId) window.open(adminAnalyticsService.getExportCsvUrl(Number(destinationId)), '_blank');
-  };
-
   return (
     <div className="space-y-6">
       <section className="rounded-xl border border-orange-100 bg-orange-50/70 p-6 shadow-sm shadow-orange-100/50">
@@ -160,15 +156,9 @@ export function AdminSingleAnalysisClient() {
             tone="orange"
             onChange={setDestinationId}
           />
-          <button
-            type="button"
-            onClick={handleExport}
-            disabled={!destinationId}
-            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-primary px-5 text-sm font-black text-white shadow-sm shadow-orange-200 transition-all hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            <Download className="h-4 w-4" />
-            Ekspor CSV
-          </button>
+          <p className="text-sm font-semibold text-slate-500">
+            Data akan dimuat otomatis setelah destinasi dipilih.
+          </p>
         </div>
       </section>
 
@@ -188,7 +178,6 @@ export function AdminSingleAnalysisClient() {
           topicData={topicData}
           topics={topics}
           completeness={completeness}
-          onExport={handleExport}
         />
       )}
     </div>
@@ -202,3 +191,4 @@ function getYearLabel(date: string) {
   const matchedYear = date.match(/\b\d{4}\b/)?.[0];
   return matchedYear || '';
 }
+

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import * as React from 'react';
 import { useState } from 'react';
@@ -71,7 +71,7 @@ export default function ReviewFormSection({ destinationId, isAuthenticated, onSu
         <p className="mb-5 text-sm font-semibold text-slate-500">Login untuk memberikan ulasan dan rating destinasi ini.</p>
         <Link
           href="/login"
-          className="inline-flex min-h-12 items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-black text-white shadow-lg shadow-orange-200 transition-all duration-200 hover:-translate-y-0.5 hover:bg-primary/90 focus:outline-none focus:ring-4 focus:ring-primary/20"
+          className="inline-flex min-h-12 items-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-bold text-white shadow-md shadow-orange-200 transition-[background-color,transform] duration-150 hover:bg-primary/90 active:scale-[0.98] focus:outline-none focus:ring-4 focus:ring-primary/20"
         >
           <LogIn className="h-4 w-4" />
           Login untuk Mengulas
@@ -142,7 +142,7 @@ export default function ReviewFormSection({ destinationId, isAuthenticated, onSu
             onChange={(e) => setReviewText(e.target.value)}
             rows={4}
             placeholder="Ceritakan pengalaman Anda..."
-            className="w-full resize-none rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 transition-all duration-200 placeholder:text-slate-400 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10"
+            className="w-full resize-none rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 transition-[color,background-color,border-color,box-shadow,transform,opacity] duration-200 placeholder:text-slate-400 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10"
           />
         </div>
 
@@ -153,7 +153,7 @@ export default function ReviewFormSection({ destinationId, isAuthenticated, onSu
         <button
           type="submit"
           disabled={submitting || rating === 0}
-          className="inline-flex min-h-12 cursor-pointer items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-black text-white shadow-lg shadow-orange-200 transition-all duration-200 hover:-translate-y-0.5 hover:bg-primary/90 focus:outline-none focus:ring-4 focus:ring-primary/20 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-none"
+          className="inline-flex min-h-12 cursor-pointer items-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-bold text-white shadow-md shadow-orange-200 transition-[background-color,transform] duration-150 hover:bg-primary/90 focus:outline-none focus:ring-4 focus:ring-primary/20 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100"
         >
           {submitting ? (
             <>
@@ -171,4 +171,5 @@ export default function ReviewFormSection({ destinationId, isAuthenticated, onSu
     </div>
   );
 }
+
 

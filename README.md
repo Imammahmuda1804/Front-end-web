@@ -41,7 +41,7 @@ Versi utama yang dipakai:
 - Tailwind CSS.
 - Recharts.
 - Framer Motion.
-- GSAP untuk slider timecard landing page.
+- GSAP masih tersedia untuk komponen `TrendingCarousel`, tetapi landing aktif memakai hero pencarian berbasis Framer Motion.
 - Zustand.
 - `@react-oauth/google` untuk tombol Google login.
 
@@ -117,17 +117,17 @@ Progress rute tersimpan disimpan di backend, sehingga status kunjungan tetap ter
 
 ## Tampilan Public Shell
 
-Halaman publik memakai background foto wisata Sumatera Barat dari `public/images/sumbar-tourism-bg.jpg` dengan overlay warm/cool tipis agar konten tetap terbaca tanpa menutup foto. Foto ini adalah Ngarai Sianok dari Wikimedia Commons, bukan image generated. Overlay dibuat ringan agar halaman eksplorasi, katalog destinasi, route, compare, profile, dan detail tetap punya nuansa wisata seperti hero landing. Navbar public dibuat sebagai glass header semi transparan dengan blur ringan, border halus, dan radius lebih kecil supaya tidak terasa terlalu flat atau terlalu membulat.
+Halaman publik memakai turunan foto Ngarai Sianok yang sudah dioptimalkan pada `public/images/sumbar-tourism-bg-optimized.jpg`. Overlay dibuat tipis agar halaman eksplorasi, katalog destinasi, route, compare, profile, dan detail tetap memiliki konteks wisata tanpa mengurangi keterbacaan. Navbar public memakai satu glass surface semi transparan, active indicator sederhana, dan radius yang lebih kecil supaya tidak terasa seperti kumpulan pill.
 
-Katalog destinasi memakai card visual server-compatible dengan tinggi konten yang stabil. Deskripsi dan topik dibuat ringkas agar daftar tetap mudah dipindai tanpa membawa animasi client card.
+Katalog destinasi memakai `DestinationCatalogCard` yang berbeda dari kartu hasil pencarian. Gambar dibuat dominan, tinggi konten stabil, topik dibatasi satu, dan action disusun konsisten agar grid mudah dipindai.
 
 Atribusi background: `Ngarai Sianok Bukittinggi.jpg`, Wikimedia Commons, CC BY-SA 4.0.
 
 ## Landing Page
 
-Landing page memakai rekomendasi dari endpoint `/api/destinations/recommendations`. Hero utama adalah timecard destination slider berbasis GSAP: background hero berganti mengikuti destinasi aktif, informasi destinasi tampil sebagai konten utama, preview destinasi berikutnya muncul sebagai kartu kecil, progress slide berjalan otomatis, dan user tetap bisa mengontrol dengan tombol atau swipe pada layar sentuh.
+Landing page memakai hero fotografis yang fokus pada satu pekerjaan utama: mencari destinasi. Hero menampilkan headline singkat, satu penjelasan, dan form pencarian. Rekomendasi, insight, dan penjelasan fitur ditempatkan setelah first viewport agar tidak bersaing dengan pencarian.
 
-Hero timecard menampilkan deskripsi destinasi dari backend, rating, rasio sentimen positif, dan CTA detail. Warna tetap mengikuti brand RANAHINSIGHT: orange untuk eksplorasi/progress, blue untuk sinyal AI, emerald untuk sentimen positif, dan slate overlay agar teks tetap terbaca.
+Animasi hero dibatasi pada kemunculan copy dan zoom awal gambar, memakai properti transform/opacity dan menghormati `prefers-reduced-motion`.
 
 ## Fitur Compare
 
@@ -144,7 +144,7 @@ Halaman `/compare` memakai endpoint `/api/analytics/compare` untuk menampilkan r
 | `src/app/admin/` | Route dashboard admin. |
 | `src/app/api/revalidate/` | Route internal revalidation. |
 | `src/components/` | Komponen UI public, admin, layout, chart, dan primitive. |
-| `src/components/home/` | Hero, carousel trending, info section, dan bento landing. |
+| `src/components/home/` | Hero pencarian fotografis, info section, dan bento landing. |
 | `src/components/search/` | Search workspace, command surface, panel filter/history, result card, state kosong/loading reusable, helper API lokal, type lokal, konstanta prompt, dan helper normalisasi. |
 | `src/components/destinations/` | Detail destinasi, hero/detail nav presentational, gallery, topic insight dengan helper/type terpisah, review form, helper/type lokal, dan chart lazy-loaded. |
 | `WEB_REFACTOR_NOTES.md` | Catatan batch refactor Next.js untuk public pages dan workspace admin besar seperti topics, NLP, scraper, users, dan admin detail. |
@@ -330,3 +330,6 @@ Biasanya dari ekstensi browser. Coba disable extension atau buka incognito.
 ### Chart width/height warning
 
 Pastikan container chart punya tinggi/width stabil dan tidak dirender saat hidden dengan ukuran `-1`.
+# Catatan Tampilan
+
+Landing web menggunakan fotografi wisata sebagai fondasi visual. Hero utama tetap berdiri sendiri, sedangkan rekomendasi di bawahnya menggunakan editorial destination rail tanpa autoplay. Interaksi rutin dibatasi di bawah 300 ms, hover lift dikurangi, dan bentuk pill hanya dipakai untuk badge atau status.

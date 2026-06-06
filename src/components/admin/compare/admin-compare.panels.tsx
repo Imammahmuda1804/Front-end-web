@@ -1,4 +1,4 @@
-import type { ElementType } from 'react';
+﻿import type { ElementType } from 'react';
 import { GitCompare, Tags, Target, TrendingUp } from 'lucide-react';
 import { NativeSelect } from '@/components/ui/native-select';
 import type { DestinationAnalytics } from '@/services/admin/analytics.service';
@@ -73,7 +73,7 @@ export function ModeButton({ mode, activeTab, onClick, icon: Icon, label }: { mo
       role="tab"
       aria-selected={active ? 'true' : 'false'}
       onClick={() => onClick(mode)}
-      className={`inline-flex min-h-10 items-center gap-2 rounded-xl px-4 text-sm font-black transition-all ${
+      className={`inline-flex min-h-10 items-center gap-2 rounded-xl px-4 text-sm font-black transition-[color,background-color,border-color,box-shadow,transform,opacity] ${
         active ? 'bg-white text-primary shadow-sm' : 'text-slate-500 hover:text-slate-800'
       }`}
     >
@@ -105,6 +105,7 @@ export function DestinationSelect({ label, value, destinations, tone, onChange }
     </label>
   );
 }
+
 
 
 

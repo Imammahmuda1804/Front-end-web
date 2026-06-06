@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useEffect, useState } from "react";
 import { Resolver, useForm, useWatch } from "react-hook-form";
@@ -266,7 +266,7 @@ export function DestinationFormModal({ open, onOpenChange, onSuccess, initialDat
                 )}
                 <div className="flex flex-col items-center gap-1">
                   <div
-                    className={`flex items-center justify-center h-9 w-9 rounded-full border-2 transition-all duration-300 ${
+                    className={`flex items-center justify-center h-9 w-9 rounded-full border-2 transition-[color,background-color,border-color,box-shadow,transform,opacity] duration-300 ${
                       isActive
                         ? "border-primary bg-primary text-primary-foreground shadow-md shadow-primary/25"
                         : isCompleted
@@ -403,7 +403,7 @@ export function DestinationFormModal({ open, onOpenChange, onSuccess, initialDat
               </p>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="googleRating">Rating (1.0 – 5.0)</Label>
+                  <Label htmlFor="googleRating">Rating (1.0 â€“ 5.0)</Label>
                   <Input
                     id="googleRating"
                     type="number"
@@ -558,4 +558,5 @@ export function DestinationFormModal({ open, onOpenChange, onSuccess, initialDat
     </Dialog>
   );
 }
+
 

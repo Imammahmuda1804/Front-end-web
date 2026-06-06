@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import * as React from 'react';
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
@@ -156,7 +156,7 @@ export default function DestinationSelect({
         aria-expanded={isOpen}
         aria-haspopup="listbox"
         aria-controls={isOpen ? listboxId : undefined}
-        className={`flex min-h-24 w-full min-w-0 items-center justify-between gap-3 overflow-hidden rounded-xl border bg-white p-4 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md focus:outline-none ${accent.ring} ${
+        className={`flex min-h-24 w-full min-w-0 items-center justify-between gap-3 overflow-hidden rounded-xl border bg-white p-4 text-left shadow-sm transition-[color,background-color,border-color,box-shadow,transform,opacity] hover:-translate-y-0.5 hover:shadow-md focus:outline-none ${accent.ring} ${
           isOpen ? accent.active : accent.border
         }`}
       >
@@ -198,7 +198,7 @@ export default function DestinationSelect({
                 ref={searchInputRef}
                 type="text"
                 placeholder="Cari nama destinasi atau kota..."
-                className="min-h-11 w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-3 text-sm font-semibold text-slate-900 outline-none transition-all placeholder:text-slate-400 focus:border-primary focus:ring-4 focus:ring-primary/10"
+                className="min-h-11 w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-3 text-sm font-semibold text-slate-900 outline-none transition-[color,background-color,border-color,box-shadow,transform,opacity] placeholder:text-slate-400 focus:border-primary focus:ring-4 focus:ring-primary/10"
                 value={search}
                 onChange={(event) => {
                   setSearch(event.target.value);
@@ -272,4 +272,5 @@ export default function DestinationSelect({
     </div>
   );
 }
+
 

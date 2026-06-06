@@ -1,5 +1,5 @@
 import type { ElementType, ReactNode } from 'react';
-import { BarChart2, Download, GitCompare, Heart, Star, Tags, Target, TrendingUp } from 'lucide-react';
+import { BarChart2, GitCompare, Heart, Star, Tags, Target, TrendingUp } from 'lucide-react';
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, Legend, PolarAngleAxis, PolarGrid, PolarRadiusAxis, Radar, RadarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import type { DestinationAnalytics } from '@/services/admin/analytics.service';
 import type { DestinationOption, MetricRow, Tone } from './CompareClient';
@@ -16,7 +16,6 @@ export function CompareAnalysisView({
   sentimentCompareData,
   mergedTopicData,
   mergedTrendData,
-  onExport,
 }: {
   dA?: DestinationAnalytics;
   dB?: DestinationAnalytics;
@@ -29,7 +28,6 @@ export function CompareAnalysisView({
   sentimentCompareData: Array<{ name: string; Positif: number; Netral: number; Negatif: number }>;
   mergedTopicData: Array<{ name: string; A: number; B: number }>;
   mergedTrendData: Array<{ name: string; A?: number; B?: number }>;
-  onExport: () => void;
 }) {
   if (!dA || !dB) {
     return <EmptyState title="Pilih dua destinasi berbeda" description="Ringkasan pemenang, delta metrik, chart, dan tabel akan muncul di sini." />;
@@ -87,10 +85,6 @@ export function CompareAnalysisView({
               Gunakan ringkasan pemenang, selisih terbesar, volume ulasan, dan tren positif untuk menentukan prioritas kurasi atau tindak lanjut admin.
             </p>
           </div>
-          <button onClick={onExport} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-primary px-5 text-sm font-black text-white transition-colors hover:bg-primary/90">
-            <Download className="h-4 w-4" />
-            Ekspor CSV
-          </button>
         </div>
 
         <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">

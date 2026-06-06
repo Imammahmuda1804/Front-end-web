@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useMemo, useState } from 'react';
 import type { ElementType } from 'react';
@@ -6,7 +6,6 @@ import {
   AlertTriangle,
   ArrowRightLeft,
   BarChart2,
-  Download,
   Heart,
   Star,
   ThumbsUp,
@@ -188,11 +187,6 @@ export function CompareClient() {
     };
   }, [activeTab, destA, destB]);
 
-  const handleExport = () => {
-    if (destA) window.open(adminAnalyticsService.getExportCsvUrl(Number(destA)), '_blank');
-    if (destB) window.setTimeout(() => window.open(adminAnalyticsService.getExportCsvUrl(Number(destB)), '_blank'), 500);
-  };
-
   const handleSwap = () => {
     setDestA(destB);
     setDestB(destA);
@@ -307,7 +301,7 @@ export function CompareClient() {
               onClick={handleSwap}
               disabled={!destA && !destB}
               aria-label="Tukar destinasi pembanding"
-              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border border-sky-200 bg-sky-50 px-4 text-sm font-black text-ai transition-all hover:-translate-y-0.5 hover:border-ai disabled:cursor-not-allowed disabled:opacity-40"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border border-sky-200 bg-sky-50 px-4 text-sm font-black text-ai transition-[color,background-color,border-color,box-shadow,transform,opacity] hover:-translate-y-0.5 hover:border-ai disabled:cursor-not-allowed disabled:opacity-40"
             >
               <ArrowRightLeft className="h-4 w-4" />
               Tukar
@@ -321,17 +315,9 @@ export function CompareClient() {
             />
           </div>
 
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <button
-              type="button"
-              onClick={handleExport}
-              disabled={!destA || !destB}
-              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-primary px-5 text-sm font-black text-white shadow-sm shadow-orange-200 transition-all hover:-translate-y-0.5 hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              <Download className="h-4 w-4" />
-              Ekspor CSV
-            </button>
-          </div>
+          <p className="text-sm font-semibold text-slate-500">
+            Pilih dua destinasi untuk melihat tren dan selisih metrik.
+          </p>
         </div>
       </section>
 
@@ -362,12 +348,12 @@ export function CompareClient() {
           sentimentCompareData={sentimentCompareData}
           mergedTopicData={mergedTopicData}
           mergedTrendData={mergedTrendData}
-          onExport={handleExport}
         />
       )}
     </div>
   );
 }
+
 
 
 

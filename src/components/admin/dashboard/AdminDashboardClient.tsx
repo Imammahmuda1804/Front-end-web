@@ -175,15 +175,15 @@ export function AdminDashboardClient() {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-xl border border-orange-100 bg-orange-50/70 p-6 shadow-sm shadow-orange-100/50">
+      <section className="border-b border-slate-300/80 pb-7 pt-2">
         <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
           <div className="max-w-3xl">
-            <p className="mb-3 inline-flex items-center gap-2 rounded-lg bg-white px-3 py-1.5 text-xs font-black uppercase tracking-[0.16em] text-primary shadow-sm">
+            <p className="mb-3 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.12em] text-primary">
               <Clock className="h-3.5 w-3.5" />
               Admin intelligence
             </p>
-            <h1 className="text-3xl font-black tracking-tight text-slate-950 md:text-5xl">Dashboard Operasional</h1>
-            <p className="mt-3 max-w-2xl text-sm font-semibold leading-7 text-slate-600 md:text-base">
+            <h1 className="text-3xl font-extrabold tracking-tight text-slate-950 md:text-5xl">Dashboard Operasional</h1>
+            <p className="mt-3 max-w-2xl text-sm font-medium leading-7 text-slate-600 md:text-base">
               Pantau kualitas data, kesehatan scraping, sentimen ulasan, dan prioritas tindakan admin dalam satu ruang analisis.
             </p>
           </div>
@@ -251,7 +251,7 @@ function InsightCard({
   }[tone];
 
   return (
-    <div className={`rounded-xl border p-4 shadow-sm ${toneClass}`}>
+    <div className={`rounded-lg border p-4 shadow-sm ${toneClass}`}>
       <Icon className="mb-3 h-5 w-5" />
       <p className="text-xs font-black uppercase tracking-[0.14em] opacity-80">{label}</p>
       <p className="mt-1 text-2xl font-black text-slate-950">{value}</p>

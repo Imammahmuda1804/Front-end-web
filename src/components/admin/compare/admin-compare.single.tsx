@@ -1,7 +1,7 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { BarChart2, CheckCircle2, FileDown, Heart, Star, Tags, ThumbsUp, TrendingUp } from 'lucide-react';
+import { BarChart2, CheckCircle2, Heart, Star, Tags, ThumbsUp, TrendingUp } from 'lucide-react';
 import type { DestinationAnalytics, TopicData } from '@/services/admin/analytics.service';
 import { cleanTopicName, formatSigned, percent, sentimentRate, sentimentTotal } from './admin-compare.utils';
 import {
@@ -42,7 +42,6 @@ export function SingleAnalysisView({
   topicData,
   topics,
   completeness,
-  onExport,
 }: {
   data: DestinationAnalytics | null;
   pieData: Array<{ name: string; value: number }>;
@@ -50,7 +49,6 @@ export function SingleAnalysisView({
   topicData: Array<{ name: string; Percentage: number }>;
   topics: TopicData[];
   completeness: number;
-  onExport: () => void;
 }) {
   if (!data) {
     return <EmptyState title="Pilih destinasi untuk dianalisis" description="Dashboard analitik tunggal akan muncul setelah destinasi dipilih." />;
@@ -143,10 +141,6 @@ export function SingleAnalysisView({
               Ringkasan operasional untuk membaca kesehatan sinyal, risiko sentimen, perubahan tren, dan topik yang paling layak diprioritaskan.
             </p>
           </div>
-          <button onClick={onExport} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-primary px-5 text-sm font-black text-white transition-colors hover:bg-primary/90">
-            <FileDown className="h-4 w-4" />
-            Ekspor CSV
-          </button>
         </div>
         <div className="mt-5 grid gap-4 xl:grid-cols-[minmax(18rem,0.8fr)_minmax(0,1.2fr)]">
           <SignalHealthPanel

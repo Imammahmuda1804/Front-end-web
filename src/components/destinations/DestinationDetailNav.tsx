@@ -1,4 +1,4 @@
-import Link from 'next/link';
+﻿import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Heart } from 'lucide-react';
 import type { ComponentProps } from 'react';
@@ -22,7 +22,7 @@ export function DestinationTopActions({
     >
       <Link
         href="/search"
-        className="inline-flex min-h-11 w-fit items-center gap-2 rounded-full border border-orange-200 bg-white px-4 py-2 text-sm font-extrabold text-slate-700 shadow-sm shadow-orange-100/50 transition-all hover:-translate-y-0.5 hover:border-primary hover:text-primary focus:outline-none focus:ring-4 focus:ring-primary/15"
+        className="inline-flex min-h-11 w-fit items-center gap-2 rounded-lg border border-orange-200 bg-white px-4 py-2 text-sm font-bold text-slate-700 shadow-sm shadow-orange-100/50 transition-[border-color,color,box-shadow] duration-150 hover:border-primary hover:text-primary focus:outline-none focus:ring-4 focus:ring-primary/15"
       >
         <ArrowLeft className="h-4 w-4" />
         Kembali ke Pencarian
@@ -32,7 +32,7 @@ export function DestinationTopActions({
         onClick={onToggleFavorite}
         disabled={savingFavorite}
         aria-label={isFavorite ? 'Hapus dari favorit' : 'Tambahkan ke favorit'}
-        className={`inline-flex min-h-11 w-fit items-center gap-2 rounded-full border px-4 py-2 text-sm font-extrabold shadow-sm transition-all focus:outline-none focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60 ${
+        className={`inline-flex min-h-11 w-fit items-center gap-2 rounded-lg border px-4 py-2 text-sm font-bold shadow-sm transition-[color,background-color,border-color,box-shadow] duration-150 focus:outline-none focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60 ${
           isFavorite
             ? 'border-red-200 bg-red-50 text-red-600'
             : 'border-slate-200 bg-white text-slate-600 hover:-translate-y-0.5 hover:border-red-200 hover:bg-red-50 hover:text-red-500'
@@ -76,3 +76,4 @@ export function DestinationAnchorNav({
     </div>
   );
 }
+

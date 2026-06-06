@@ -99,15 +99,15 @@ export function SavedRoutesClient() {
   return (
     <main className="min-h-screen pt-24 pb-14">
       <section className="mx-auto max-w-7xl px-6 md:px-12">
-        <div className="rounded-xl border border-sky-100 bg-sky-50/80 p-6 shadow-sm md:p-8">
-          <p className="inline-flex items-center gap-2 rounded-lg bg-white px-3 py-1.5 text-xs font-black uppercase tracking-[0.16em] text-ai shadow-sm">
+        <div className="border-b border-slate-300/70 pb-8 pt-4">
+          <p className="editorial-kicker inline-flex items-center gap-2">
             <RouteIcon className="h-4 w-4" />
             Route Tracker
           </p>
           <div className="mt-4 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <h1 className="text-3xl font-black tracking-tight text-slate-950 md:text-5xl">Rute tersimpan</h1>
-              <p className="mt-3 max-w-2xl text-sm font-semibold leading-7 text-slate-600">
+              <h1 className="text-4xl font-extrabold tracking-tight text-slate-950 md:text-6xl">Rute tersimpan</h1>
+              <p className="mt-3 max-w-2xl text-sm font-medium leading-7 text-slate-600 md:text-base">
                 Tandai lokasi yang sudah dikunjungi dan lihat destinasi berikutnya tanpa kehilangan urutan rute.
               </p>
             </div>
@@ -139,8 +139,8 @@ export function SavedRoutesClient() {
                     key={route.id}
                     type="button"
                     onClick={() => setSelectedRouteId(route.id)}
-                    className={`w-full rounded-xl border p-4 text-left transition ${
-                      active ? 'border-primary bg-orange-50 shadow-sm shadow-orange-100' : 'border-slate-200 bg-white hover:border-orange-200'
+                    className={`w-full border-b p-4 text-left transition-colors duration-150 ${
+                      active ? 'border-primary bg-orange-50/75' : 'border-slate-200 bg-white/70 hover:border-orange-200'
                     }`}
                   >
                     <span className="text-sm font-black text-slate-950">{route.title}</span>
@@ -168,14 +168,14 @@ export function SavedRoutesClient() {
                 </div>
 
                 {nextStop && (
-                  <div className="mt-5 rounded-xl border border-orange-100 bg-orange-50 p-4">
-                    <p className="text-xs font-black uppercase tracking-[0.14em] text-primary">Selanjutnya</p>
-                    <h3 className="mt-1 text-xl font-black text-slate-950">{nextStop.destination?.name}</h3>
-                    <p className="mt-1 text-sm font-bold text-slate-600">{nextStop.destination?.city}, {nextStop.destination?.province}</p>
+                  <div className="mt-5 rounded-lg bg-slate-950 p-5 text-white">
+                    <p className="text-xs font-bold uppercase tracking-[0.12em] text-orange-300">Tujuan berikutnya</p>
+                    <h3 className="mt-2 text-2xl font-extrabold">{nextStop.destination?.name}</h3>
+                    <p className="mt-1 text-sm font-medium text-slate-300">{nextStop.destination?.city}, {nextStop.destination?.province}</p>
                   </div>
                 )}
 
-                <div className="mt-6 space-y-4">
+                <div className="relative mt-6 space-y-2 before:absolute before:bottom-6 before:left-[1.35rem] before:top-6 before:w-px before:bg-slate-200">
                   {selectedRoute.stops.map((stop, index) => {
                     const stopId = stop.id;
                     const progress = selectedProgress.find((item) => item.routeStopId === stopId);
@@ -187,9 +187,9 @@ export function SavedRoutesClient() {
                         : undefined);
 
                     return (
-                      <div key={`${selectedRoute.id}-${stop.destinationId}-${index}`} className={`rounded-xl border p-4 transition ${visited ? 'border-emerald-100 bg-emerald-50/70' : isNext ? 'border-orange-200 bg-orange-50/60' : 'border-slate-200 bg-slate-50/70'}`}>
+                      <div key={`${selectedRoute.id}-${stop.destinationId}-${index}`} className={`relative rounded-lg border p-4 transition-colors duration-150 ${visited ? 'border-emerald-200 bg-emerald-50/55' : isNext ? 'border-orange-200 bg-orange-50/55' : 'border-slate-200 bg-white'}`}>
                         <div className="flex gap-4">
-                          <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-sm font-black ${visited ? 'bg-emerald-600 text-white' : isNext ? 'bg-primary text-white' : 'bg-white text-slate-500 ring-1 ring-slate-200'}`}>
+                          <div className={`z-10 flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-sm font-black ${visited ? 'bg-emerald-600 text-white' : isNext ? 'bg-primary text-white' : 'bg-white text-slate-500 ring-1 ring-slate-200'}`}>
                             {visited ? <CheckCircle2 className="h-5 w-5" /> : index + 1}
                           </div>
                           <div className="min-w-0 flex-1">
@@ -259,8 +259,8 @@ export function SavedRoutesClient() {
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-xl bg-slate-50 px-3 py-2 text-slate-700">
-      <span className="block text-[10px] uppercase tracking-[0.14em] text-slate-400">{label}</span>
+    <div className="border-l border-slate-200 px-3 py-1 text-slate-700 first:border-l-0">
+      <span className="block text-[11px] font-semibold text-slate-400">{label}</span>
       <span className="block font-black">{value}</span>
     </div>
   );

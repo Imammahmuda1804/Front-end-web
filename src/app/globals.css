@@ -114,12 +114,12 @@
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
+  --background: oklch(0.985 0.008 62);
+  --foreground: oklch(0.19 0.018 255);
+  --card: oklch(0.995 0.006 62);
+  --card-foreground: oklch(0.19 0.018 255);
+  --popover: oklch(0.995 0.006 62);
+  --popover-foreground: oklch(0.19 0.018 255);
   --primary: oklch(0.68 0.17 42); /* Tropical Orange */
   --primary-foreground: oklch(0.985 0 0);
   --secondary: oklch(0.55 0.1 240); /* Ocean Blue */
@@ -141,15 +141,21 @@
   --surface-danger: oklch(0.97 0.026 18);
   --minang-gold: oklch(0.72 0.13 75);
   --minang-rust: oklch(0.55 0.13 42);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.955 0.008 62);
+  --muted-foreground: oklch(0.48 0.02 255);
+  --accent: oklch(0.955 0.014 54);
+  --accent-foreground: oklch(0.24 0.03 42);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
+  --border: oklch(0.89 0.012 62);
+  --input: oklch(0.89 0.012 62);
   --ring: oklch(0.68 0.17 42);
-  --radius: 0.75rem;
+  --radius: 0.625rem;
+  --ease-ui-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-ui-move: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-ui-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  --duration-press: 120ms;
+  --duration-control: 180ms;
+  --duration-panel: 240ms;
 }
 
 .dark {
@@ -201,17 +207,48 @@
   html {
     @apply font-sans;
   }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
 }
 
 @layer components {
   /* Clean Minimalist Input */
   .input-minimal {
-    @apply w-full h-14 px-5 rounded-xl bg-slate-50 border-2 border-slate-200 text-slate-900 placeholder:text-slate-400 focus:border-primary focus:bg-white focus:outline-none focus:ring-[4px] focus:ring-primary/20 transition-all duration-300;
+    @apply h-14 w-full rounded-lg border border-slate-200 bg-slate-50 px-5 text-slate-900 transition-[border-color,background-color,box-shadow] duration-200 placeholder:text-slate-400 focus:border-primary focus:bg-white focus:outline-none focus:ring-[3px] focus:ring-primary/15;
   }
   
   /* Joy Vibes Button */
   .btn-joy {
-    @apply w-full h-14 bg-primary text-white font-bold tracking-wide rounded-xl hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/30 active:scale-95 transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none disabled:active:scale-100;
+    @apply flex h-14 w-full items-center justify-center gap-2 rounded-lg bg-primary font-bold tracking-wide text-white transition-[transform,background-color,box-shadow] duration-150 hover:bg-primary/90 hover:shadow-md hover:shadow-primary/20 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:shadow-none disabled:active:scale-100;
+  }
+
+  .surface-panel {
+    @apply border border-slate-200/80 bg-white/[0.92] shadow-sm shadow-slate-900/[0.035];
+  }
+
+  .admin-workspace {
+    background:
+      linear-gradient(180deg, oklch(0.975 0.009 62), oklch(0.96 0.008 245));
+  }
+
+  .editorial-kicker {
+    @apply text-xs font-bold uppercase tracking-[0.12em] text-primary;
+  }
+}
+
+@layer utilities {
+  /* Keep existing markup compatible while removing the uniformly heavy hierarchy. */
+  .font-black {
+    font-weight: 800;
   }
 }
 
@@ -219,8 +256,8 @@
   position: relative;
   isolation: isolate;
   background:
-    linear-gradient(180deg, oklch(0.995 0.012 55 / 0.18), oklch(0.975 0.012 235 / 0.32)),
-    url("/images/sumbar-tourism-bg.jpg");
+    linear-gradient(180deg, oklch(0.995 0.012 55 / 0.04), oklch(0.975 0.012 235 / 0.12)),
+    url("/images/sumbar-tourism-bg-optimized.jpg");
   background-attachment: fixed;
   background-position: center;
   background-size: cover;
@@ -233,7 +270,7 @@
   z-index: -1;
   pointer-events: none;
   background:
-    linear-gradient(180deg, oklch(0.99 0.006 55 / 0.22) 0%, oklch(0.985 0.009 55 / 0.34) 36%, oklch(0.97 0.01 235 / 0.46) 100%);
+    linear-gradient(180deg, oklch(0.99 0.006 55 / 0.07) 0%, oklch(0.985 0.009 55 / 0.15) 42%, oklch(0.97 0.01 235 / 0.22) 100%);
   mask-image: linear-gradient(to bottom, black, black 82%, transparent);
 }
 
@@ -243,7 +280,24 @@
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background: oklch(1 0.006 55 / 0.08);
+  background: oklch(1 0.006 55 / 0.02);
+}
+
+.public-content-plane {
+  position: relative;
+  background:
+    linear-gradient(180deg, oklch(0.985 0.008 62 / 0.72), oklch(0.975 0.008 62 / 0.82));
+}
+
+.public-content-plane > * {
+  position: relative;
+  z-index: 1;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .interactive-lift:hover {
+    transform: none;
+  }
 }
 
 @media (max-width: 767px) {

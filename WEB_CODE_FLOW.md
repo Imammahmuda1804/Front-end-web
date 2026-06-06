@@ -86,8 +86,8 @@ File penting:
 - `Footer.tsx`: footer public.
 
 Catatan tampilan:
-- Navbar public memakai surface semi transparan dengan blur ringan, border putih halus, dan radius `rounded-xl` agar modern tetapi tidak terlalu kapsul.
-- Public layout memakai background foto wisata Sumatera Barat dari `public/images/sumbar-tourism-bg.jpg` dengan overlay CSS tipis. Foto berfungsi sebagai atmosfer halaman, sedangkan section utama tetap memakai surface putih/warm agar teks mudah dibaca.
+- Navbar public memakai satu surface semi transparan dengan blur ringan, border putih halus, active underline/tonal state, dan radius `rounded-lg`.
+- Public layout memakai background teroptimasi `public/images/sumbar-tourism-bg-optimized.jpg` dengan overlay CSS tipis. Foto berfungsi sebagai atmosfer halaman, sedangkan section utama tetap memakai surface putih/warm agar teks mudah dibaca.
 - Radius besar di halaman user dikurangi: panel utama memakai `rounded-xl`, control memakai `rounded-lg`, sedangkan `rounded-full` dipertahankan hanya untuk avatar, dot status, progress bar, atau chip kecil.
 
 Komentar penting:
@@ -101,20 +101,23 @@ Komentar penting:
 Folder/file:
 - `web/src/app/(public)/page.tsx`
 - `web/src/components/home/HeroSection.tsx`
+- `web/src/components/home/TrendingCarousel.tsx`
 - `web/src/components/home/InfoSection.tsx`
 - `web/src/components/home/BentoGrid.tsx`
 
 Kegunaan:
 - memberi entrypoint brand RANAHINSIGHT;
-- menampilkan CTA search;
-- menampilkan timecard slider destinasi rekomendasi di dalam hero;
-- menjelaskan sinyal AI, sentimen, dan topik secara visual.
+- menjadikan pencarian sebagai aksi utama first viewport;
+- menampilkan foto wisata lokal teroptimasi;
+- menampilkan rekomendasi destinasi sebagai section visual setelah hero;
+- memindahkan penjelasan insight dan fitur ke section setelah hero.
 
 Alur:
-1. Page public mengambil data rekomendasi dari backend.
-2. Data diteruskan ke `HeroSection`.
-3. `HeroSection` memakai GSAP untuk animasi opening, preview card, progress slide, dan kontrol manual.
-4. CTA search mengarahkan user ke `/search?q=...`.
+1. Page public mengambil rekomendasi untuk `TrendingCarousel` dengan fallback list kosong saat backend tidak tersedia.
+2. `HeroSection` dirender sebagai visual utama dan menampilkan image lokal melalui `next/image`.
+3. Form pencarian menormalisasi query lalu mengarahkan user ke `/search?q=...`.
+4. `TrendingCarousel` menampilkan rekomendasi setelah first viewport, bukan di dalam hero.
+5. Motion hero dan carousel menghormati preferensi reduced motion.
 
 ### Search
 
@@ -159,7 +162,7 @@ Kegunaan:
 - memberi akses cepat ke search/filter dan katalog route;
 - membuka detail destinasi melalui card katalog yang lebih visual.
 - menjaga tinggi card stabil dengan deskripsi terbatas, topik ringkas, dan CTA sejajar.
-- memakai `SearchResultCardStatic` agar katalog server-rendered tidak membawa animasi client card.
+- memakai `DestinationCatalogCard` agar katalog tidak terlihat seperti search result.
 
 Alur:
 1. Page `/destinations` mengambil daftar destinasi dari backend dengan revalidate ringan.
@@ -644,7 +647,7 @@ Bagian ini memetakan file web yang memengaruhi flow route, state, pemanggilan AP
 | Path | Posisi pada flow | Kegunaan | Referensi baris utama |
 | --- | --- | --- | --- |
 | `web/src/app/(public)/page.tsx` | Landing page | Server Component yang mengambil rekomendasi awal lalu merender home sections. | `getRecommendations` `page.tsx:13`, `Home` `page.tsx:32` |
-| `web/src/components/home/HeroSection.tsx` | Tampilan home | Hero rekomendasi destinasi dengan background aktif, preview card, progress, deskripsi, CTA detail, dan metric sentimen. | `HeroSection` `HeroSection.tsx:80` |
+| `web/src/components/home/HeroSection.tsx` | Tampilan home | Hero fotografis dengan headline, supporting copy, dan form pencarian utama. | `HeroSection` |
 | `web/src/components/home/InfoSection.tsx` | Edukasi produk | Menjelaskan cara platform membaca ulasan dan insight wisata. | `InfoSection` `InfoSection.tsx:33` |
 | `web/src/components/home/BentoGrid.tsx` | Landing feature grid | Menampilkan shortcut fitur dan value utama dalam bento layout. | `BentoGrid` `BentoGrid.tsx:39` |
 | `web/src/app/(public)/search/page.tsx` | Route search | Merender halaman pencarian dan membiarkan state interaktif di `SearchClient`. | Route page untuk `/search` |
@@ -754,4 +757,16 @@ Bagian ini memetakan file web yang memengaruhi flow route, state, pemanggilan AP
 4. **Detail destinasi**: `destinations/[slug]/page.tsx:36` fetch data server-side, `DestinationDetailClient.tsx:179` mengatur interaksi, `TopicInsightSection.tsx:117` menampilkan topik, dan `ReviewFormSection.tsx:30` mengirim ulasan.
 5. **Admin**: route admin membaca search params, container seperti `destinations-table.tsx:192` atau `ReviewsTable.tsx:125` mengatur state, lalu komponen `*.controls.tsx`, `*.data.tsx`, dan `*.visuals.tsx` memecah tampilan.
 6. **Service admin**: file `src/services/admin/*.service.ts` menjadi lapisan request agar komponen UI tetap fokus pada state dan render.
-Catatan layout landing terbaru: `HeroSection` kembali menjadi hero utama dengan search, quick prompt, dan trust signal. Timecard dipindahkan ke `TrendingCarousel` sebagai section rekomendasi destinasi. Kontrol manual slider dihapus; implementasi timecard memakai stack kartu absolut seperti referensi `Komponen`, sehingga kartu rekomendasi berikutnya membesar langsung dari posisi kanan bawah menjadi background penuh sebelum teks destinasi baru muncul. Kartu yang sedang membesar tetap berada di layer background agar tidak menutup preview slider. Tinggi visual section dibuat tetap, preview card diposisikan lebih rendah agar jaraknya dari nama destinasi aktif lebih lega, dan timer dibuat lebih pendek agar tidak menimpa kartu.
+Catatan layout landing terbaru: `HeroSection` sengaja disederhanakan menjadi satu pengalaman pencarian fotografis. Timecard, prompt berulang, trust card, dan kontrol slider tidak ditempatkan pada first viewport agar hierarki lebih tegas dan biaya hydration lebih kecil.
+# Pembaruan UI dan Motion (Juni 2026)
+
+- Landing tetap mempertahankan hero utama sebagai section terpisah.
+- Rekomendasi destinasi menggunakan `TrendingCarousel` dalam bentuk editorial destination rail: satu destinasi aktif berukuran besar dan daftar kurasi yang dapat dipilih pengguna.
+- Rail tidak menggunakan autoplay atau transisi layout berat. Perubahan state memakai transisi `opacity`, `transform`, dan warna dengan durasi singkat.
+- `InfoSection` memakai struktur editorial dengan divider dan satu panel demonstrasi data, bukan grid feature card identik.
+- `BentoGrid` sekarang menjadi CTA band dengan link eksplorasi, perbandingan, dan route tracker.
+- Katalog destinasi memberi variasi ukuran pada destinasi pertama dan menggunakan metric row agar tinggi card lebih stabil.
+- Admin memakai background workspace, surface netral, dan semantic color hanya untuk status atau risiko.
+- Token motion, radius, surface, dan typography utama berada di `src/app/globals.css`.
+- Area konten publik memakai `public-content-plane` agar teks hitam tidak langsung bertabrakan dengan background foto cerah.
+- Tombol export CSV pada admin compare dan admin detail disembunyikan sampai endpoint export siap dipakai pada flow tersebut.

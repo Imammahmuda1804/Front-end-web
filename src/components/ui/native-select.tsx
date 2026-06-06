@@ -176,7 +176,7 @@ export function NativeSelect({
         aria-haspopup="listbox"
         aria-controls={isOpen ? listboxId : undefined}
         className={cn(
-          'flex min-h-12 w-full cursor-pointer items-center justify-between gap-3 rounded-xl border border-slate-200 bg-slate-50 py-2.5 text-left text-sm font-black text-slate-800 shadow-sm shadow-slate-200/30 outline-none transition-all hover:border-orange-200 hover:bg-white focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10 disabled:cursor-not-allowed disabled:opacity-60',
+          'flex min-h-12 w-full cursor-pointer items-center justify-between gap-3 rounded-lg border border-slate-300 bg-white py-2.5 text-left text-sm font-semibold text-slate-800 outline-none transition-[border-color,background-color,box-shadow] duration-150 ease-[var(--ease-ui-out)] hover:border-orange-300 focus:border-primary focus:ring-4 focus:ring-primary/10 disabled:cursor-not-allowed disabled:opacity-60',
           leftIcon ? 'pl-4 pr-4' : 'pl-4 pr-4',
           isOpen && 'border-primary bg-white ring-4 ring-primary/10',
           className,
@@ -195,7 +195,7 @@ export function NativeSelect({
         <div
           ref={dropdownRef}
           style={dropdownStyle}
-          className="fixed z-[80] overflow-hidden rounded-xl border border-slate-200 bg-white p-2 shadow-xl shadow-slate-200/70"
+          className="fixed z-[80] origin-[var(--radix-popover-content-transform-origin)] overflow-hidden rounded-lg border border-slate-200 bg-white p-2 shadow-xl shadow-slate-900/10"
         >
           {searchable && (
             <label htmlFor={searchInputId} className="relative mb-2 block">
@@ -210,7 +210,7 @@ export function NativeSelect({
                   setHighlightedIndex(filterOptions(nextQuery).length ? 0 : -1);
                 }}
                 placeholder={searchPlaceholder}
-                className="min-h-11 w-full rounded-lg border border-slate-200 bg-slate-50 pl-10 pr-3 text-sm font-bold text-slate-800 outline-none transition focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10"
+                className="min-h-11 w-full rounded-md border border-slate-200 bg-slate-50 pl-10 pr-3 text-sm font-semibold text-slate-800 outline-none transition-[border-color,background-color,box-shadow] duration-150 focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10"
               />
             </label>
           )}
@@ -240,13 +240,13 @@ export function NativeSelect({
                     onMouseEnter={() => setHighlightedIndex(index)}
                     onClick={() => handleSelect(option.value)}
                     className={cn(
-                      'mb-1 flex min-h-11 w-full items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-left text-sm transition-colors',
+                      'mb-1 flex min-h-11 w-full items-center justify-between gap-3 rounded-md px-3 py-2.5 text-left text-sm transition-colors duration-150',
                       isSelected || isHighlighted ? 'bg-orange-50 text-primary' : 'text-slate-700 hover:bg-slate-50',
                     )}
                   >
                     <span className="min-w-0">
-                      <span className="block truncate font-black">{option.label}</span>
-                      {option.description && <span className="mt-0.5 block truncate text-xs font-bold text-slate-500">{option.description}</span>}
+                      <span className="block truncate font-semibold">{option.label}</span>
+                      {option.description && <span className="mt-0.5 block truncate text-xs font-medium text-slate-500">{option.description}</span>}
                     </span>
                     {isSelected && <Check className="h-4 w-4 shrink-0 text-primary" />}
                   </button>

@@ -34,7 +34,7 @@ export default async function Home() {
   const destinations = recommendationsRes?.data || [];
 
   return (
-    <main className="flex min-h-screen flex-col bg-white">
+    <main className="flex min-h-screen flex-col">
       <HeroSection />
       <TrendingCarousel destinations={destinations} />
       <InfoSection />

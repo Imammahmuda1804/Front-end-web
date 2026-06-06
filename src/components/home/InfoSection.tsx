@@ -1,168 +1,119 @@
 'use client';
 
-import * as React from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
-import { BrainCircuit, Fingerprint, MessageSquareText, Tags, TrendingUp } from 'lucide-react';
+import { BrainCircuit, MessageSquareText, Tags, TrendingUp } from 'lucide-react';
 
 const easeOutExpo = [0.16, 1, 0.3, 1] as const;
 
-const reveal = {
-  hidden: { opacity: 0, y: 26 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.62, ease: easeOutExpo },
-  },
-};
-
-const stagger = {
-  hidden: {},
-  visible: {
-    transition: { staggerChildren: 0.1 },
-  },
-};
-
 const sentimentMeters = [
-  { label: 'Positif', value: 'Kuat', width: '82%', color: 'bg-primary' },
-  { label: 'Netral', value: 'Seimbang', width: '48%', color: 'bg-secondary' },
-  { label: 'Negatif', value: 'Perlu cek', width: '28%', color: 'bg-slate-400' },
+  { label: 'Positif', value: '82%', width: '82%', color: 'bg-emerald-600' },
+  { label: 'Netral', value: '48%', width: '48%', color: 'bg-ai' },
+  { label: 'Perlu perhatian', value: '28%', width: '28%', color: 'bg-rose-500' },
 ];
 
-const vibeTopics = ['Budaya', 'Alam', 'Kuliner', 'Keluarga', 'Petualangan', 'Tenang'];
+const signals = [
+  {
+    icon: MessageSquareText,
+    title: 'Rangkum ribuan ulasan',
+    body: 'Komentar yang berulang diubah menjadi sinyal yang bisa dipindai dengan cepat.',
+  },
+  {
+    icon: Tags,
+    title: 'Kenali karakter tempat',
+    body: 'Topik menunjukkan pengalaman yang menonjol, bukan hanya kategori destinasi.',
+  },
+  {
+    icon: TrendingUp,
+    title: 'Bandingkan dengan konteks',
+    body: 'Rating, sentimen, dan risiko dibaca bersama sebelum menentukan pilihan.',
+  },
+];
 
 export function InfoSection() {
   const prefersReduced = useReducedMotion();
 
   return (
-    <section className="bg-slate-50 py-24 md:py-32">
-      <div className="mx-auto max-w-7xl px-6 md:px-12">
+    <section className="border-y border-slate-200/80 bg-white/92 py-20 md:py-28">
+      <div className="mx-auto grid max-w-7xl gap-12 px-6 md:px-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
         <motion.div
-          variants={stagger}
-          initial={prefersReduced ? false : 'hidden'}
-          whileInView={prefersReduced ? undefined : 'visible'}
+          initial={prefersReduced ? false : { opacity: 0, y: 18 }}
+          whileInView={prefersReduced ? undefined : { opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-80px' }}
-          className="mx-auto mb-14 max-w-4xl text-center md:mb-16"
+          transition={{ duration: 0.46, ease: easeOutExpo }}
+          className="lg:sticky lg:top-28 lg:h-fit"
         >
-          <motion.span variants={reveal} className="mb-4 inline-flex rounded-full bg-primary px-4 py-2 text-sm font-black uppercase tracking-[0.18em] text-slate-950">Kecerdasan di balik perjalanan</motion.span>
-          <motion.h2 variants={reveal} className="text-4xl font-black leading-none tracking-tight text-slate-900 md:text-6xl">
-            Baca pola ulasan tanpa tenggelam di banyak komentar
-          </motion.h2>
-          <motion.p variants={reveal} className="mt-5 text-base leading-8 text-slate-600 md:text-lg">
-            RANAHINSIGHT membantu merangkum rasa perjalanan dari ulasan wisatawan: emosi yang dominan,
-            topik yang sering muncul, dan karakter destinasi yang lebih mudah dibandingkan.
-          </motion.p>
+          <p className="editorial-kicker">Cara membaca RANAHINSIGHT</p>
+          <h2 className="mt-4 text-4xl font-extrabold leading-[1.03] tracking-tight text-slate-950 md:text-5xl">
+            Dari suara wisatawan menjadi keputusan perjalanan
+          </h2>
+          <p className="mt-5 max-w-xl text-base font-medium leading-8 text-slate-600">
+            Sistem tidak menggantikan pengalaman manusia. Ia menyusun pola dari ulasan agar Anda tahu apa yang disukai, apa yang perlu dicek, dan destinasi mana yang paling relevan.
+          </p>
+
+          <div className="mt-9 border-t border-slate-200">
+            {signals.map(({ icon: Icon, title, body }, index) => (
+              <div key={title} className="grid grid-cols-[2.5rem_minmax(0,1fr)] gap-4 border-b border-slate-200 py-5">
+                <span className="text-sm font-bold text-primary">{String(index + 1).padStart(2, '0')}</span>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <Icon className="h-4 w-4 text-slate-500" />
+                    <h3 className="font-bold text-slate-950">{title}</h3>
+                  </div>
+                  <p className="mt-2 text-sm font-medium leading-6 text-slate-600">{body}</p>
+                </div>
+              </div>
+            ))}
+          </div>
         </motion.div>
 
-        <div className="grid gap-6 lg:grid-cols-[1.08fr_0.92fr] lg:gap-8">
-          <motion.div
-            initial={prefersReduced ? false : { opacity: 0, y: 34, scale: 0.985 }}
-            whileInView={prefersReduced ? undefined : { opacity: 1, y: 0, scale: 1 }}
-            viewport={{ once: true, margin: '-80px' }}
-            transition={{ duration: 0.64, ease: easeOutExpo }}
-            whileHover={prefersReduced ? undefined : { y: -4 }}
-            className="rounded-[2rem] border-4 border-white bg-primary p-6 text-slate-950 shadow-xl shadow-orange-900/10 md:p-8 lg:p-10"
-          >
-            <div className="flex flex-col gap-8 md:flex-row md:items-start">
-              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-slate-950 text-primary">
-                <BrainCircuit className="h-7 w-7" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="mb-3 text-sm font-black uppercase tracking-[0.16em] text-slate-800">Sentiment Intelligence</p>
-                <h3 className="mb-4 text-3xl font-black leading-none tracking-tight text-slate-950 md:text-4xl">
-                  Ringkasan rasa, bukan sekadar rating
-                </h3>
-                <p className="max-w-2xl text-base font-semibold leading-8 text-slate-800">
-                  Lihat apakah sebuah destinasi lebih sering dibicarakan dengan nada positif, netral,
-                  atau perlu ditinjau lagi sebelum masuk itinerary.
-                </p>
+        <motion.div
+          initial={prefersReduced ? false : { opacity: 0, y: 22 }}
+          whileInView={prefersReduced ? undefined : { opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-80px' }}
+          transition={{ duration: 0.5, delay: prefersReduced ? 0 : 0.06, ease: easeOutExpo }}
+          className="overflow-hidden rounded-xl border border-slate-800 bg-slate-950 text-white"
+        >
+          <div className="grid gap-8 border-b border-white/10 p-6 md:grid-cols-[1fr_auto] md:p-9">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.12em] text-orange-300">Contoh pembacaan sentimen</p>
+              <h3 className="mt-3 max-w-xl text-3xl font-extrabold leading-tight md:text-4xl">
+                Ringkasan rasa yang tetap menunjukkan ketidakpastian
+              </h3>
+            </div>
+            <BrainCircuit className="h-10 w-10 text-primary" />
+          </div>
 
-                <div className="mt-8 space-y-4 rounded-2xl border-2 border-slate-950 bg-white p-5">
-                  {sentimentMeters.map((item) => (
-                    <div key={item.label}>
-                      <div className="mb-2 flex items-center justify-between gap-4">
-                        <span className="text-sm font-bold text-slate-800">{item.label}</span>
-                        <span className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">{item.value}</span>
-                      </div>
-                      <div className="h-2.5 overflow-hidden rounded-full bg-slate-100">
-                        <motion.div
-                          initial={prefersReduced ? false : { scaleX: 0 }}
-                          whileInView={prefersReduced ? undefined : { scaleX: 1 }}
-                          viewport={{ once: true }}
-                          transition={{ duration: 0.85, ease: easeOutExpo }}
-                          className={`h-full origin-left rounded-full ${item.color}`}
-                          style={{ width: item.width }}
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="mt-6 grid gap-3 sm:grid-cols-2">
-                  <div className="flex items-start gap-3 rounded-2xl border-2 border-slate-950 bg-white p-4">
-                    <MessageSquareText className="mt-0.5 h-5 w-5 text-secondary" />
-                    <p className="text-sm font-semibold leading-6 text-slate-700">Membantu membaca tema ulasan yang berulang.</p>
+          <div className="p-6 md:p-9">
+            <div className="space-y-6">
+              {sentimentMeters.map((item) => (
+                <div key={item.label}>
+                  <div className="mb-2 flex items-center justify-between gap-4 text-sm">
+                    <span className="font-semibold text-slate-200">{item.label}</span>
+                    <span className="font-bold text-white">{item.value}</span>
                   </div>
-                  <div className="flex items-start gap-3 rounded-2xl border-2 border-slate-950 bg-white p-4">
-                    <TrendingUp className="mt-0.5 h-5 w-5 text-primary" />
-                    <p className="text-sm font-semibold leading-6 text-slate-700">Memudahkan prioritas destinasi untuk dibandingkan.</p>
+                  <div className="h-2 overflow-hidden bg-white/10">
+                    <motion.div
+                      initial={prefersReduced ? false : { scaleX: 0 }}
+                      whileInView={prefersReduced ? undefined : { scaleX: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.6, ease: easeOutExpo }}
+                      className={`h-full origin-left ${item.color}`}
+                      style={{ width: item.width }}
+                    />
                   </div>
                 </div>
-              </div>
-            </div>
-          </motion.div>
-
-          <motion.div
-            initial={prefersReduced ? false : { opacity: 0, y: 34, scale: 0.985 }}
-            whileInView={prefersReduced ? undefined : { opacity: 1, y: 0, scale: 1 }}
-            viewport={{ once: true, margin: '-80px' }}
-            transition={{ duration: 0.64, delay: prefersReduced ? 0 : 0.12, ease: easeOutExpo }}
-            whileHover={prefersReduced ? undefined : { y: -4 }}
-            className="rounded-[2rem] border-4 border-white bg-secondary p-6 text-white shadow-xl shadow-blue-900/10 md:p-8 lg:p-10"
-          >
-            <div className="mb-8 flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-secondary">
-              <Fingerprint className="h-7 w-7" />
-            </div>
-            <p className="mb-3 text-sm font-black uppercase tracking-[0.16em] text-white/75">Vibe Mapping</p>
-            <h3 className="mb-4 text-3xl font-black leading-none tracking-tight text-white md:text-4xl">
-              Taxonomy untuk menemukan karakter destinasi
-            </h3>
-            <p className="text-base font-semibold leading-8 text-blue-50">
-              Topik ulasan dikelompokkan menjadi bahasa yang lebih praktis untuk wisatawan:
-              suasana, aktivitas, dan konteks kunjungan.
-            </p>
-
-            <div className="mt-8 rounded-3xl border-2 border-white bg-white p-5">
-              <div className="mb-4 flex items-center gap-2 text-sm font-black text-slate-800">
-                <Tags className="h-4 w-4 text-secondary" />
-                Kategori vibe
-              </div>
-              <motion.div
-                variants={stagger}
-                initial={prefersReduced ? false : 'hidden'}
-                whileInView={prefersReduced ? undefined : 'visible'}
-                viewport={{ once: true }}
-                className="flex flex-wrap gap-3"
-              >
-                {vibeTopics.map((tag) => (
-                  <motion.span key={tag} variants={reveal} className="rounded-full border-2 border-slate-200 bg-slate-50 px-4 py-2 text-sm font-black text-slate-800">
-                    {tag}
-                  </motion.span>
-                ))}
-              </motion.div>
+              ))}
             </div>
 
-            <motion.div
-              initial={prefersReduced ? false : { opacity: 0, y: 16 }}
-              whileInView={prefersReduced ? undefined : { opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: prefersReduced ? 0 : 0.22, ease: easeOutExpo }}
-              className="mt-6 rounded-3xl border-2 border-white bg-slate-950 px-5 py-5 text-white"
-            >
-              <p className="text-sm font-bold uppercase tracking-[0.16em] text-white/70">Output yang dicari</p>
-              <p className="mt-2 text-lg font-black leading-snug">Destinasi yang terasa cocok sebelum Anda berangkat.</p>
-            </motion.div>
-          </motion.div>
-        </div>
+            <div className="mt-10 grid gap-px overflow-hidden border border-white/10 bg-white/10 sm:grid-cols-3">
+              {['Pemandangan menenangkan', 'Akses perlu dicek', 'Cocok untuk keluarga'].map((topic) => (
+                <div key={topic} className="bg-slate-950 p-4">
+                  <p className="text-xs font-semibold leading-5 text-slate-300">{topic}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </motion.div>
       </div>
     </section>
   );

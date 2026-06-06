@@ -1,7 +1,7 @@
 import { Compass, MapPinned, Route as RouteIcon } from 'lucide-react';
 import Link from 'next/link';
 import { type SearchDestination } from '@/components/search/SearchResultCard';
-import { SearchResultCardStatic } from '@/components/search/SearchResultCardStatic';
+import { DestinationCatalogCard } from '@/components/destinations/DestinationCatalogCard';
 
 export const metadata = {
   title: 'Semua Destinasi - RANAHINSIGHT',
@@ -34,29 +34,29 @@ export default async function DestinationsPage() {
   return (
     <main className="min-h-screen pt-24 pb-14">
       <section className="mx-auto max-w-7xl px-6 md:px-12">
-        <div className="overflow-hidden rounded-xl border border-orange-100 bg-orange-50/85 p-6 shadow-sm shadow-orange-100/60 md:p-8">
-          <p className="inline-flex items-center gap-2 rounded-lg bg-white px-3 py-1.5 text-xs font-black uppercase tracking-[0.16em] text-primary shadow-sm">
+        <div className="border-b border-slate-300/70 pb-8 pt-4">
+          <p className="editorial-kicker inline-flex items-center gap-2">
             <MapPinned className="h-4 w-4" />
             Katalog Destinasi
           </p>
           <div className="mt-4 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <h1 className="text-3xl font-black tracking-tight text-slate-950 md:text-5xl">Semua destinasi</h1>
-              <p className="mt-3 max-w-2xl text-sm font-semibold leading-7 text-slate-600">
+              <h1 className="text-4xl font-extrabold tracking-tight text-slate-950 md:text-6xl">Semua destinasi</h1>
+              <p className="mt-3 max-w-2xl text-sm font-medium leading-7 text-slate-600 md:text-base">
                 Jelajahi seluruh destinasi yang sudah tersedia, lalu buka detail, bandingkan, atau susun rute kunjungan.
               </p>
             </div>
             <div className="flex flex-col gap-2 sm:flex-row">
               <Link
                 href="/search"
-                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-orange-200 bg-white px-5 text-sm font-black text-primary"
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white/80 px-5 text-sm font-bold text-slate-800 transition-colors hover:border-primary hover:text-primary"
               >
                 <Compass className="h-4 w-4" />
                 Cari dengan filter
               </Link>
               <Link
                 href="/routes"
-                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-primary px-5 text-sm font-black text-white"
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-primary px-5 text-sm font-bold text-white transition-colors hover:bg-primary/90"
               >
                 <RouteIcon className="h-4 w-4" />
                 Lihat rute
@@ -71,10 +71,11 @@ export default async function DestinationsPage() {
           </div>
         ) : (
           <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-            {destinations.map((destination) => (
-              <SearchResultCardStatic
+            {destinations.map((destination, index) => (
+              <DestinationCatalogCard
                 key={destination.id}
                 destination={destination}
+                index={index}
               />
             ))}
           </div>

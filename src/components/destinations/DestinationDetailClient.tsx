@@ -269,11 +269,10 @@ export default function DestinationDetailClient({ destination }: Props) {
                 description={heroDescription}
               />
 
-              <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+              <div className="mt-6 grid gap-4 md:grid-cols-3">
                 <InfoTile icon={Star} label="Trust rating" value={`${googleRating.toFixed(1)} / 5`} helper={`${googleCount} ulasan Google`} tone="blue" />
                 <InfoTile icon={Sparkles} label="Vibe dominan" value={positivePercentage} helper="Porsi sentimen positif" tone="emerald" />
                 <InfoTile icon={ThumbsUp} label="Social proof" value={platformRating ? `${platformRating.toFixed(1)} / 5` : '-'} helper={`${platformCount} ulasan pengguna`} tone="orange" />
-                <InfoTile icon={Route} label="Akses lokasi" value={hasMapsUrl ? 'Siap dibuka' : 'Perlu dicek'} helper={`${destination.city}, ${destination.province}`} tone="slate" />
               </div>
             </section>
 
@@ -313,7 +312,7 @@ export default function DestinationDetailClient({ destination }: Props) {
                     href={destination.youtubeUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-full border border-orange-200 bg-white px-5 py-2.5 text-sm font-black text-primary shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary focus:outline-none focus:ring-4 focus:ring-primary/15"
+                    className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-lg border border-orange-200 bg-white px-5 py-2.5 text-sm font-bold text-primary shadow-sm transition-colors hover:border-primary focus:outline-none focus:ring-4 focus:ring-primary/15"
                   >
                     Buka YouTube
                     <ExternalLink className="h-4 w-4" />
@@ -457,7 +456,7 @@ export default function DestinationDetailClient({ destination }: Props) {
                     href={destination.googleMapsUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-black text-white shadow-lg shadow-orange-200 transition-all hover:-translate-y-0.5 focus:outline-none focus:ring-4 focus:ring-primary/20"
+                    className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-primary px-5 py-3 text-sm font-bold text-white shadow-md shadow-orange-200 transition-[transform,background-color] duration-150 hover:bg-primary/90 active:scale-[0.98] focus:outline-none focus:ring-4 focus:ring-primary/20"
                   >
                     <Navigation className="h-4 w-4" />
                     Google Maps
@@ -471,14 +470,14 @@ export default function DestinationDetailClient({ destination }: Props) {
                   onClick={toggleFavorite}
                   disabled={savingFavorite}
                   aria-label={isFavorite ? 'Hapus destinasi dari favorit' : 'Simpan destinasi ke favorit'}
-                  className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full border border-orange-200 bg-white px-5 py-3 text-sm font-black text-slate-700 transition-all hover:-translate-y-0.5 hover:text-primary focus:outline-none focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-lg border border-orange-200 bg-white px-5 py-3 text-sm font-bold text-slate-700 transition-colors hover:text-primary focus:outline-none focus:ring-4 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   <Heart className={`h-4 w-4 ${isFavorite ? 'fill-red-500 text-red-500' : ''}`} />
                   {isFavorite ? 'Tersimpan' : 'Simpan destinasi'}
                 </button>
                 <Link
                   href={`/routes/new?destinationId=${destination.id}`}
-                  className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full border border-sky-100 bg-sky-50 px-5 py-3 text-sm font-black text-ai transition-all hover:-translate-y-0.5 hover:bg-ai hover:text-white focus:outline-none focus:ring-4 focus:ring-sky-100"
+                  className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-lg border border-sky-100 bg-sky-50 px-5 py-3 text-sm font-bold text-ai transition-colors hover:bg-ai hover:text-white focus:outline-none focus:ring-4 focus:ring-sky-100"
                 >
                   <Route className="h-4 w-4" />
                   Tambahkan ke rute

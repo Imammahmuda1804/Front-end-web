@@ -40,7 +40,7 @@ export function AdminTopbar() {
   };
 
   return (
-    <header className="sticky top-0 z-20 flex h-16 shrink-0 items-center gap-x-4 border-b bg-background px-4 sm:gap-x-6 sm:px-6 lg:px-8">
+    <header className="sticky top-0 z-20 flex h-16 shrink-0 items-center gap-x-4 border-b border-slate-200/90 bg-[oklch(0.99_0.006_62/0.92)] px-4 backdrop-blur-md sm:gap-x-6 sm:px-6 lg:px-8">
       <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
         <SheetTrigger className="md:hidden -m-2.5 p-2.5 text-muted-foreground">
           <span className="sr-only">Open sidebar</span>
@@ -53,13 +53,13 @@ export function AdminTopbar() {
               <span className="font-bold text-lg text-primary">RANAHINSIGHT</span>
             </div>
           </div>
-          <div className="p-4 flex flex-col gap-2">
+          <div className="flex flex-col gap-1 p-4">
             {mobileAdminLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 onClick={() => setSheetOpen(false)}
-                className="px-3 py-2 hover:bg-muted rounded-md text-sm font-medium"
+                className="min-h-11 rounded-lg px-3 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50"
               >
                 {link.label}
               </Link>
@@ -88,7 +88,7 @@ export function AdminTopbar() {
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleLogout} className="text-red-600">
-                Log out
+                Keluar
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

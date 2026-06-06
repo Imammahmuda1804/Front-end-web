@@ -67,30 +67,30 @@ export default function SummaryCards({
       {cards.map((card) => {
         const Icon = card.icon;
         const toneClass = {
-          orange: 'border-orange-100 bg-orange-50 text-primary',
-          blue: 'border-sky-100 bg-sky-50 text-ai',
-          emerald: 'border-emerald-100 bg-emerald-50 text-emerald-700',
-          slate: 'border-slate-200 bg-white text-slate-700',
+          orange: 'text-primary',
+          blue: 'text-ai',
+          emerald: 'text-emerald-700',
+          slate: 'text-slate-700',
         }[card.tone];
         const metric = values[card.key];
 
         return (
-          <article key={card.key} className={`rounded-xl border p-5 shadow-sm ${toneClass}`}>
+          <article key={card.key} className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm shadow-slate-900/[0.035]">
             <div className="mb-6 flex items-start justify-between gap-4">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/80 shadow-sm">
+              <div className={`flex h-10 w-10 items-center justify-center rounded-md bg-slate-50 ${toneClass}`}>
                 <Icon className="h-5 w-5" />
               </div>
               <Link
                 href={card.href}
-                className="inline-flex min-h-9 items-center gap-1 rounded-lg bg-white px-3 text-xs font-black text-slate-700 shadow-sm transition-colors hover:text-primary focus:outline-none focus:ring-4 focus:ring-primary/15"
+                className="inline-flex min-h-9 items-center gap-1 rounded-md border border-slate-200 px-3 text-xs font-bold text-slate-600 transition-colors hover:border-primary hover:text-primary focus:outline-none focus:ring-4 focus:ring-primary/15"
               >
                 Detail
                 <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </div>
-            <p className="text-xs font-black uppercase tracking-[0.14em] opacity-80">{card.label}</p>
-            <p className="mt-2 text-4xl font-black leading-none text-slate-950">{metric.value.toLocaleString()}</p>
-            <p className="mt-3 text-sm font-semibold leading-6 text-slate-600">{metric.meta || card.helper}</p>
+            <p className="text-xs font-semibold text-slate-500">{card.label}</p>
+            <p className="mt-2 text-4xl font-extrabold leading-none text-slate-950">{metric.value.toLocaleString()}</p>
+            <p className="mt-3 text-sm font-medium leading-6 text-slate-600">{metric.meta || card.helper}</p>
           </article>
         );
       })}
