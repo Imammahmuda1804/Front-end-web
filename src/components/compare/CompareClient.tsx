@@ -267,11 +267,11 @@ export default function CompareClient({ availableDestinations }: CompareClientPr
     : { initial: { opacity: 0, y: 18 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.45 } };
 
   return (
-    <main id="main-content" className="min-h-screen bg-slate-50 pt-24 pb-24">
+    <main id="main-content" className="min-h-screen pt-24 pb-24">
       <div className="mx-auto max-w-[100rem] space-y-6 px-4 sm:px-6 lg:px-8">
         <Link
           href="/search"
-          className="inline-flex min-h-11 items-center gap-2 rounded-full border border-orange-200 bg-white px-4 text-sm font-black text-slate-700 shadow-sm shadow-orange-100/50 transition-[color,background-color,border-color,box-shadow,transform,opacity] hover:-translate-y-0.5 hover:border-primary hover:text-primary focus:outline-none focus:ring-4 focus:ring-primary/15"
+          className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-white/40 bg-white/78 px-4 text-sm font-black text-slate-800 shadow-[0_10px_26px_rgba(15,23,42,0.12)] backdrop-blur-xl transition-[color,background-color,border-color,box-shadow,transform,opacity] hover:-translate-y-0.5 hover:border-primary hover:text-primary focus:outline-none focus:ring-4 focus:ring-primary/15"
         >
           <ArrowLeft className="h-4 w-4" />
           Kembali ke Pencarian
@@ -279,19 +279,19 @@ export default function CompareClient({ availableDestinations }: CompareClientPr
 
         <motion.section
           {...motionProps}
-          className="relative z-30 overflow-visible rounded-xl border border-orange-200 bg-orange-50/70 p-6 shadow-xl shadow-orange-100/50 md:p-8 lg:p-10"
+          className="relative z-30 overflow-visible rounded-xl border border-white/30 bg-slate-950/42 p-6 shadow-[0_24px_70px_rgba(15,23,42,0.24)] backdrop-blur-xl md:p-8 lg:p-10"
           aria-labelledby="compare-title"
         >
           <div className="grid gap-8 xl:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] xl:items-end">
             <div className="min-w-0">
-              <span className="mb-4 inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-xs font-black uppercase tracking-[0.18em] text-white shadow-sm shadow-orange-900/10">
+              <span className="mb-4 inline-flex items-center gap-2 rounded-lg border border-orange-200/40 bg-primary px-4 py-2 text-xs font-black uppercase tracking-[0.18em] text-white shadow-sm shadow-orange-900/10">
                 <ArrowRightLeft className="h-3.5 w-3.5" />
                 Compare Command
               </span>
-              <h1 id="compare-title" className="max-w-3xl text-4xl font-black leading-none tracking-tight text-slate-950 md:text-6xl">
+              <h1 id="compare-title" className="on-photo-heading max-w-3xl text-4xl font-black leading-none tracking-tight md:text-6xl">
                 Bandingkan Destinasi
               </h1>
-              <p className="mt-4 max-w-2xl text-base font-semibold leading-7 text-slate-700">
+              <p className="on-photo-copy mt-4 max-w-2xl text-base font-semibold leading-7">
                 Letakkan dua destinasi berdampingan, baca pola sentimen, lihat vibe dominan, lalu pilih yang paling cocok untuk rencana perjalanan Anda.
               </p>
 
@@ -301,7 +301,7 @@ export default function CompareClient({ availableDestinations }: CompareClientPr
                   { label: 'Rating', icon: Star },
                   { label: 'Vibe', icon: Compass },
                 ].map(({ label, icon: Icon }) => (
-                  <div key={label} className="flex min-h-14 items-center gap-3 rounded-xl border border-orange-200 bg-white px-4 text-sm font-black text-slate-800 shadow-sm">
+                  <div key={label} className="flex min-h-14 items-center gap-3 rounded-lg border border-white/35 bg-white/82 px-4 text-sm font-black text-slate-800 shadow-sm backdrop-blur-xl">
                     <Icon className="h-4 w-4 text-primary" />
                     {label}
                   </div>
@@ -309,7 +309,7 @@ export default function CompareClient({ availableDestinations }: CompareClientPr
               </div>
             </div>
 
-            <div className="min-w-0 rounded-xl border border-orange-200 bg-white p-4 shadow-sm md:p-5">
+            <div className="min-w-0 rounded-xl border border-white/50 bg-white/90 p-4 shadow-sm backdrop-blur-xl md:p-5">
               <div className="grid grid-cols-1 gap-4 md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] md:items-center">
                 <DestinationSelect
                   label="Destinasi A"
@@ -326,7 +326,7 @@ export default function CompareClient({ availableDestinations }: CompareClientPr
                   onClick={handleSwap}
                   disabled={!dest1Id && !dest2Id}
                   aria-label="Tukar destinasi yang dibandingkan"
-                  className="mx-auto inline-flex h-12 w-12 items-center justify-center rounded-full border border-sky-200 bg-sky-50 text-ai transition-[color,background-color,border-color,box-shadow,transform,opacity] hover:-translate-y-0.5 hover:border-ai disabled:cursor-not-allowed disabled:opacity-40 md:mt-7"
+                  className="mx-auto inline-flex h-12 w-12 items-center justify-center rounded-lg border border-sky-200 bg-sky-50 text-ai transition-[color,background-color,border-color,box-shadow,transform,opacity] hover:-translate-y-0.5 hover:border-ai disabled:cursor-not-allowed disabled:opacity-40 md:mt-7"
                 >
                   <ArrowRightLeft className="h-5 w-5" />
                 </button>
@@ -350,7 +350,7 @@ export default function CompareClient({ availableDestinations }: CompareClientPr
                   <button
                     type="button"
                     onClick={handleReset}
-                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-orange-200 bg-orange-50 px-4 text-sm font-black text-primary transition-colors hover:bg-orange-100 focus:outline-none focus:ring-4 focus:ring-primary/15"
+                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-orange-200 bg-orange-50 px-4 text-sm font-black text-primary transition-colors hover:bg-orange-100 focus:outline-none focus:ring-4 focus:ring-primary/15"
                   >
                     <RotateCcw className="h-4 w-4" />
                     Reset

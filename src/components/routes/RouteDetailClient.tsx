@@ -91,13 +91,13 @@ export function RouteDetailClient({ shareSlug }: { shareSlug: string }) {
     <main className="min-h-screen pt-24">
       <section className="mx-auto grid max-w-7xl gap-6 px-6 pb-10 pt-8 md:px-12 lg:grid-cols-[minmax(0,1fr)_22rem]">
         <div>
-          <div className="rounded-xl border border-orange-100 bg-orange-50 p-6 md:p-8">
-            <p className="inline-flex items-center gap-2 rounded-lg bg-white px-3 py-1.5 text-xs font-black uppercase tracking-[0.16em] text-primary">
+          <div className="on-photo-rule border-b pb-8 pt-4">
+            <p className="on-photo-kicker inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.16em]">
               <RouteIcon className="h-4 w-4" />
               {route.isAdminCurated ? 'Pilihan admin' : 'Custom route'}
             </p>
-            <h1 className="mt-4 text-3xl font-black tracking-tight text-slate-950 md:text-5xl">{route.title}</h1>
-            <p className="mt-3 max-w-3xl text-sm font-semibold leading-7 text-slate-600">
+            <h1 className="on-photo-heading mt-4 text-3xl font-black tracking-tight md:text-5xl">{route.title}</h1>
+            <p className="on-photo-copy mt-3 max-w-3xl text-sm font-semibold leading-7">
               {route.description || `${route.stops.length} destinasi dalam urutan kunjungan.`}
             </p>
           </div>

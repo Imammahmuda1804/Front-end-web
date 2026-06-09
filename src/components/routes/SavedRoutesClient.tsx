@@ -99,15 +99,15 @@ export function SavedRoutesClient() {
   return (
     <main className="min-h-screen pt-24 pb-14">
       <section className="mx-auto max-w-7xl px-6 md:px-12">
-        <div className="border-b border-slate-300/70 pb-8 pt-4">
-          <p className="editorial-kicker inline-flex items-center gap-2">
+        <div className="on-photo-rule border-b pb-8 pt-4">
+          <p className="editorial-kicker on-photo-kicker inline-flex items-center gap-2">
             <RouteIcon className="h-4 w-4" />
             Route Tracker
           </p>
           <div className="mt-4 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <h1 className="text-4xl font-extrabold tracking-tight text-slate-950 md:text-6xl">Rute tersimpan</h1>
-              <p className="mt-3 max-w-2xl text-sm font-medium leading-7 text-slate-600 md:text-base">
+              <h1 className="on-photo-heading text-4xl font-extrabold tracking-tight md:text-6xl">Rute tersimpan</h1>
+              <p className="on-photo-copy mt-3 max-w-2xl text-sm font-semibold leading-7 md:text-base">
                 Tandai lokasi yang sudah dikunjungi dan lihat destinasi berikutnya tanpa kehilangan urutan rute.
               </p>
             </div>

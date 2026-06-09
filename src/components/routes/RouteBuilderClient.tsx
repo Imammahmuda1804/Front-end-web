@@ -69,6 +69,15 @@ export function RouteBuilderClient({
 
   const selectedIds = useMemo(() => new Set(stops.map((stop) => stop.destinationId)), [stops]);
   const availableDestinations = destinations.filter((destination) => !selectedIds.has(destination.id));
+  const heroShellClass = admin
+    ? 'rounded-xl border border-orange-100 bg-orange-50 p-6 md:p-8'
+    : 'on-photo-rule border-b pb-8 pt-4';
+  const heroKickerClass = admin
+    ? 'inline-flex items-center gap-2 rounded-lg bg-white px-3 py-1.5 text-xs font-black uppercase tracking-[0.16em] text-primary'
+    : 'on-photo-kicker inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.16em]';
+  const heroTitleClass = admin
+    ? 'mt-4 text-3xl font-black text-slate-950'
+    : 'on-photo-heading mt-4 text-3xl font-black';
   const destinationOptions = useMemo<NativeSelectOption[]>(
     () =>
       availableDestinations.map((destination) => ({
@@ -168,14 +177,14 @@ export function RouteBuilderClient({
   };
 
   return (
-    <main className={admin ? '' : 'min-h-screen bg-slate-50 pt-24'}>
+    <main className={admin ? '' : 'min-h-screen pt-24'}>
       <section className={admin ? 'space-y-6' : 'mx-auto max-w-6xl px-6 pb-10 pt-8 md:px-12'}>
-        <div className="rounded-xl border border-orange-100 bg-orange-50 p-6 md:p-8">
-          <p className="inline-flex items-center gap-2 rounded-lg bg-white px-3 py-1.5 text-xs font-black uppercase tracking-[0.16em] text-primary">
+        <div className={heroShellClass}>
+          <p className={heroKickerClass}>
             <RouteIcon className="h-4 w-4" />
             {admin ? 'Admin curated route' : 'Custom route'}
           </p>
-          <h1 className="mt-4 text-3xl font-black text-slate-950">
+          <h1 className={heroTitleClass}>
             {isEditing ? 'Edit rute wisata' : admin ? 'Buat rute pilihan admin' : 'Buat rute wisata'}
           </h1>
         </div>

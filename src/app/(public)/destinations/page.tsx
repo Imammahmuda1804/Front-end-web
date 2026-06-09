@@ -34,15 +34,15 @@ export default async function DestinationsPage() {
   return (
     <main className="min-h-screen pt-24 pb-14">
       <section className="mx-auto max-w-7xl px-6 md:px-12">
-        <div className="border-b border-slate-300/70 pb-8 pt-4">
-          <p className="editorial-kicker inline-flex items-center gap-2">
+        <div className="on-photo-rule border-b pb-8 pt-4">
+          <p className="editorial-kicker on-photo-kicker inline-flex items-center gap-2">
             <MapPinned className="h-4 w-4" />
             Katalog Destinasi
           </p>
           <div className="mt-4 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <h1 className="text-4xl font-extrabold tracking-tight text-slate-950 md:text-6xl">Semua destinasi</h1>
-              <p className="mt-3 max-w-2xl text-sm font-medium leading-7 text-slate-600 md:text-base">
+              <h1 className="on-photo-heading text-4xl font-extrabold tracking-tight md:text-6xl">Semua destinasi</h1>
+              <p className="on-photo-copy mt-3 max-w-2xl text-sm font-semibold leading-7 md:text-base">
                 Jelajahi seluruh destinasi yang sudah tersedia, lalu buka detail, bandingkan, atau susun rute kunjungan.
               </p>
             </div>
