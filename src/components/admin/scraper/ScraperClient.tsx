@@ -17,6 +17,7 @@ import {
   type ScrapingJob,
   type StartScrapingRequest,
 } from "@/services/admin/scraper.service";
+import { getScraperErrorMessage } from "./scraper-error.util";
 import {
   JobMonitorTable,
   JobStatusDrawer,
@@ -217,8 +218,7 @@ export default function ScraperClient() {
       setMapsSearchResults([]);
       await fetchJobs();
     } catch (error) {
-      const maybeError = error as { response?: { data?: { message?: string } } };
-      toast.error(maybeError.response?.data?.message || "Gagal memulai scraping job");
+      toast.error(getScraperErrorMessage(error));
     } finally {
       setIsStarting(false);
     }
@@ -236,8 +236,8 @@ export default function ScraperClient() {
       const results = await adminScraperService.searchMaps(query);
       setMapsSearchResults(results);
       if (results.length === 0) toast.message("Tidak ada tempat yang cocok");
-    } catch {
-      toast.error("Gagal mencari tempat di Google Maps");
+    } catch (error) {
+      toast.error(getScraperErrorMessage(error));
     } finally {
       setIsSearchingMaps(false);
     }
@@ -269,11 +269,11 @@ export default function ScraperClient() {
 
   const handleDownloadExcel = async (jobId: number) => {
     try {
-      const blob = await adminScraperService.downloadResults(jobId);
+      const { blob, filename } = await adminScraperService.downloadResults(jobId);
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `ulasan_job_${jobId}.xlsx`;
+      a.download = filename;
       document.body.appendChild(a);
       a.click();
       URL.revokeObjectURL(url);

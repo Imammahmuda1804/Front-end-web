@@ -79,6 +79,26 @@ export interface PaginatedResponse<T> {
   };
 }
 
+export interface DownloadResult {
+  blob: Blob;
+  filename: string;
+}
+
+function parseDownloadFileName(contentDisposition?: string) {
+  if (!contentDisposition) return null;
+
+  const encodedMatch = contentDisposition.match(/filename\*=UTF-8''([^;]+)/i);
+  if (encodedMatch?.[1]) return decodeURIComponent(encodedMatch[1]);
+
+  const plainMatch = contentDisposition.match(/filename="?([^";]+)"?/i);
+  return plainMatch?.[1] ?? null;
+}
+
+function fallbackDownloadFileName(jobId: number) {
+  const date = new Date().toISOString().slice(0, 10);
+  return `RanahInsight_Scrape_Job_${jobId}_${date}.xlsx`;
+}
+
 // Service API untuk pencarian Maps, job scraping, history, dan download.
 class AdminScraperService {
   private static instance: AdminScraperService;
@@ -136,11 +156,16 @@ class AdminScraperService {
   }
 
   // Mengunduh hasil scraping.
-  async downloadResults(jobId: number): Promise<Blob> {
+  async downloadResults(jobId: number): Promise<DownloadResult> {
     const res = await api.get(`/api/admin/scraper/download/${jobId}`, {
       responseType: 'blob',
     });
-    return res.data;
+    return {
+      blob: res.data,
+      filename:
+        parseDownloadFileName(res.headers['content-disposition']) ??
+        fallbackDownloadFileName(jobId),
+    };
   }
 }
 

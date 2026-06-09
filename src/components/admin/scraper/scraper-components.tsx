@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { NativeSelect } from "@/components/ui/native-select";
 import type { ScrapingJob } from "@/services/admin/scraper.service";
 import { STATUS_META, formatDate, getDurationMinutes, isActiveStatus, type StatusFilter, type Tone } from "./ScraperClient";
+import { formatScraperErrorMessage } from "./scraper-error.util";
 export { ScraperCommandPanel } from './scraper-command-panel';
 export { ScrapingHistoryPanel } from './scraping-history-panel';
 
@@ -183,7 +184,7 @@ export function JobMonitorTable({
                           <Eye className="h-4 w-4" />
                           Detail
                         </button>
-                        {job.status === "completed" ? (
+                        {job.status === "completed" && (job.totalReviews || 0) > 0 ? (
                           <button
                             type="button"
                             onClick={() => onDownload(job.id)}
@@ -193,8 +194,20 @@ export function JobMonitorTable({
                             <Download className="h-4 w-4" />
                             Unduh
                           </button>
+                        ) : job.status === "completed" ? (
+                          <span
+                            className="max-w-52 truncate py-3 text-xs font-bold text-amber-600"
+                            title="Job selesai, tetapi tidak ada ulasan berteks yang berhasil diambil. Cek limit Apify, URL Maps, atau pilih ambil seluruh ulasan."
+                          >
+                            0 ulasan berteks
+                          </span>
                         ) : job.status === "failed" ? (
-                          <span className="max-w-36 truncate py-3 text-xs font-bold text-rose-500" title={job.errorMessage || "Error"}>{job.errorMessage || "Error"}</span>
+                          <span
+                            className="max-w-52 truncate py-3 text-xs font-bold text-rose-500"
+                            title={formatScraperErrorMessage(job.errorMessage || "Error")}
+                          >
+                            {formatScraperErrorMessage(job.errorMessage || "Error")}
+                          </span>
                         ) : null}
                       </div>
                     </td>
@@ -369,9 +382,14 @@ export function JobStatusDrawer({
               <DetailRow label="Dimulai" value={formatDate(job.startedAt || job.createdAt)} />
               <DetailRow label="Selesai" value={formatDate(job.finishedAt)} />
               <DetailRow label="Durasi" value={getDurationMinutes(job) ? `${getDurationMinutes(job)} menit` : "-"} />
+              {job.status === "completed" && (job.totalReviews || 0) === 0 && (
+                <div className="rounded-xl border border-amber-100 bg-amber-50 p-4 text-sm font-bold text-amber-700">
+                  Job selesai, tetapi tidak ada ulasan berteks yang berhasil diambil. Cek limit Apify, URL Maps, atau coba opsi ambil seluruh ulasan.
+                </div>
+              )}
               {job.errorMessage && (
                 <div className="rounded-xl border border-rose-100 bg-rose-50 p-4 text-sm font-bold text-rose-700">
-                  {job.errorMessage}
+                  {formatScraperErrorMessage(job.errorMessage)}
                 </div>
               )}
             </>
