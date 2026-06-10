@@ -13,6 +13,7 @@ import {
   adminScraperService,
   type JobStatus,
   type PlaceResult,
+  type ScraperOverview,
   type ScrapingHistoryItem,
   type ScrapingJob,
   type StartScrapingRequest,
@@ -80,6 +81,9 @@ export default function ScraperClient() {
   const [mapsSearchQuery, setMapsSearchQuery] = useState("");
   const [mapsSearchResults, setMapsSearchResults] = useState<PlaceResult[]>([]);
   const [isSearchingMaps, setIsSearchingMaps] = useState(false);
+  const [scraperOverview, setScraperOverview] = useState<ScraperOverview | null>(null);
+  const [isLoadingOverview, setIsLoadingOverview] = useState(false);
+  const [overviewError, setOverviewError] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -134,6 +138,29 @@ export default function ScraperClient() {
     }
   }, []);
 
+  const fetchScraperOverview = useCallback(async () => {
+    if (!selectedDestination) {
+      setScraperOverview(null);
+      setOverviewError("");
+      return;
+    }
+
+    setIsLoadingOverview(true);
+    try {
+      setOverviewError("");
+      const overview = await adminScraperService.getOverview(
+        Number(selectedDestination),
+        mapsUrl.trim() || undefined,
+      );
+      setScraperOverview(overview);
+    } catch (error) {
+      setScraperOverview(null);
+      setOverviewError(getScraperErrorMessage(error));
+    } finally {
+      setIsLoadingOverview(false);
+    }
+  }, [mapsUrl, selectedDestination]);
+
   useEffect(() => {
     queueMicrotask(() => {
       void fetchDestinations();
@@ -154,6 +181,16 @@ export default function ScraperClient() {
     timeoutId = setTimeout(poll, currentDelay);
     return () => clearTimeout(timeoutId);
   }, [activeJobs.size, fetchJobs]);
+
+  useEffect(() => {
+    if (!selectedDestination) return;
+
+    const timeoutId = setTimeout(() => {
+      void fetchScraperOverview();
+    }, 450);
+
+    return () => clearTimeout(timeoutId);
+  }, [fetchScraperOverview, selectedDestination]);
 
   const metrics = useMemo(() => {
     const completed = jobs.filter((job) => job.status === "completed").length;
@@ -217,6 +254,7 @@ export default function ScraperClient() {
       setMapsSearchQuery("");
       setMapsSearchResults([]);
       await fetchJobs();
+      void fetchScraperOverview();
     } catch (error) {
       toast.error(getScraperErrorMessage(error));
     } finally {
@@ -241,6 +279,12 @@ export default function ScraperClient() {
     } finally {
       setIsSearchingMaps(false);
     }
+  };
+
+  const handleDestinationChange = (value: string) => {
+    setSelectedDestination(value);
+    setScraperOverview(null);
+    setOverviewError("");
   };
 
   const handleOpenJobDetail = async (jobId: number) => {
@@ -308,13 +352,17 @@ export default function ScraperClient() {
           mapsSearchQuery={mapsSearchQuery}
           mapsSearchResults={mapsSearchResults}
           isSearchingMaps={isSearchingMaps}
+          scraperOverview={scraperOverview}
+          isLoadingOverview={isLoadingOverview}
+          overviewError={overviewError}
           isStarting={isStarting}
-          onDestinationChange={setSelectedDestination}
+          onDestinationChange={handleDestinationChange}
           onMapsUrlChange={setMapsUrl}
           onMaxReviewsChange={setMaxReviews}
           onFetchAllReviewsChange={setFetchAllReviews}
           onMapsSearchQueryChange={setMapsSearchQuery}
           onSearchMaps={handleSearchMaps}
+          onRefreshOverview={fetchScraperOverview}
           onSelectMapsResult={(place) => {
             if (place.url) setMapsUrl(place.url);
             if (place.title) setMapsSearchQuery(place.title);

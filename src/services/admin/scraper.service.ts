@@ -84,6 +84,53 @@ export interface DownloadResult {
   filename: string;
 }
 
+export interface ScraperOverview {
+  destination_id: number;
+  destination_name: string;
+  maps_url: string;
+  live_google: {
+    title: string | null;
+    address: string | null;
+    rating: number | null;
+    total_reviews: number | null;
+    place_id: string | null;
+    fetched_at: string;
+  };
+  cached_destination: {
+    google_rating: number | null;
+    google_review_count: number | null;
+  };
+  database: {
+    stored_text_reviews: number;
+    processed_reviews: number;
+    latest_nlp_run: {
+      id: number;
+      fileName: string;
+      mode: string;
+      status: string;
+      totalRows: number;
+      insertedReviews: number;
+      skippedDuplicates: number;
+      processedReviews: number;
+      startedAt: string;
+      finishedAt?: string | null;
+    } | null;
+    latest_scraping_job: {
+      id: number;
+      status: string;
+      totalReviews?: number | null;
+      startedAt?: string | null;
+      finishedAt?: string | null;
+      createdAt: string;
+    } | null;
+  };
+  coverage: {
+    stored_text_reviews_percent: number | null;
+    processed_reviews_percent: number | null;
+  };
+  text_filter_note: string;
+}
+
 function parseDownloadFileName(contentDisposition?: string) {
   if (!contentDisposition) return null;
 
@@ -122,6 +169,17 @@ class AdminScraperService {
   // Memulai job scraping baru.
   async startScraping(data: StartScrapingRequest): Promise<StartScrapingResponse> {
     const res = await api.post('/api/admin/scraper/start', data);
+    return res.data?.data ?? res.data;
+  }
+
+  // Mengambil ringkasan live Google Maps dan data yang sudah diproses.
+  async getOverview(destinationId: number, mapsUrl?: string): Promise<ScraperOverview> {
+    const res = await api.get('/api/admin/scraper/overview', {
+      params: {
+        destination_id: destinationId,
+        ...(mapsUrl ? { maps_url: mapsUrl } : {}),
+      },
+    });
     return res.data?.data ?? res.data;
   }
 

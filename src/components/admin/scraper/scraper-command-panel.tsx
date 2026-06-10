@@ -1,10 +1,10 @@
-import { AlignLeft, CalendarClock, ChevronRight, LinkIcon, Loader2, Lock, MapPin, Play, RefreshCw, Search, Star, Zap } from 'lucide-react';
+import { AlignLeft, BarChart3, CalendarClock, ChevronRight, Database, Globe2, LinkIcon, Loader2, Lock, MapPin, Play, RefreshCw, Search, Star, Zap } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { NativeSelect } from '@/components/ui/native-select';
 import type { AdminDestination } from '@/services/admin/destination.service';
-import type { PlaceResult } from '@/services/admin/scraper.service';
+import type { PlaceResult, ScraperOverview } from '@/services/admin/scraper.service';
 
 export function ScraperCommandPanel({
   destinations,
@@ -16,6 +16,9 @@ export function ScraperCommandPanel({
   mapsSearchQuery,
   mapsSearchResults,
   isSearchingMaps,
+  scraperOverview,
+  isLoadingOverview,
+  overviewError,
   isStarting,
   onDestinationChange,
   onMapsUrlChange,
@@ -23,6 +26,7 @@ export function ScraperCommandPanel({
   onFetchAllReviewsChange,
   onMapsSearchQueryChange,
   onSearchMaps,
+  onRefreshOverview,
   onSelectMapsResult,
   onStart,
 }: {
@@ -35,6 +39,9 @@ export function ScraperCommandPanel({
   mapsSearchQuery: string;
   mapsSearchResults: PlaceResult[];
   isSearchingMaps: boolean;
+  scraperOverview: ScraperOverview | null;
+  isLoadingOverview: boolean;
+  overviewError: string;
   isStarting: boolean;
   onDestinationChange: (value: string) => void;
   onMapsUrlChange: (value: string) => void;
@@ -42,6 +49,7 @@ export function ScraperCommandPanel({
   onFetchAllReviewsChange: (value: boolean) => void;
   onMapsSearchQueryChange: (value: string) => void;
   onSearchMaps: () => void;
+  onRefreshOverview: () => void;
   onSelectMapsResult: (place: PlaceResult) => void;
   onStart: () => void;
 }) {
@@ -140,6 +148,15 @@ export function ScraperCommandPanel({
           <p className="mt-2 text-xs font-semibold leading-5 text-slate-500">Opsional. Kosongkan untuk memakai URL yang tersimpan pada data destinasi.</p>
         </label>
 
+        {selectedDestination && (
+          <ScraperOverviewPanel
+            overview={scraperOverview}
+            loading={isLoadingOverview}
+            error={overviewError}
+            onRefresh={onRefreshOverview}
+          />
+        )}
+
         <div className="rounded-xl border border-emerald-100 bg-emerald-50/60 p-4">
           <label className="flex cursor-pointer items-start gap-3">
             <input
@@ -151,7 +168,7 @@ export function ScraperCommandPanel({
             <span>
               <span className="block text-sm font-black text-slate-950">Ambil seluruh ulasan berteks</span>
               <span className="mt-1 block text-xs font-semibold leading-5 text-slate-600">
-                Gunakan saat admin ingin mengambil semua ulasan yang tersedia dari Google Maps. Job bisa berjalan lebih lama dan memakai kuota Apify lebih besar.
+                Scraper akan mencoba mengambil semua review dari Maps, lalu tetap menyimpan hanya ulasan yang punya teks. Job bisa berjalan lebih lama dan memakai kuota Apify lebih besar.
               </span>
             </span>
           </label>
@@ -201,4 +218,111 @@ export function ScraperCommandPanel({
 
 function FilterPill({ icon, label }: { icon: React.ReactNode; label: string }) {
   return <span className="inline-flex items-center gap-1.5 rounded-full border border-orange-100 bg-orange-50 px-3 py-1.5 text-xs font-black text-primary">{icon}{label}</span>;
+}
+
+function ScraperOverviewPanel({
+  overview,
+  loading,
+  error,
+  onRefresh,
+}: {
+  overview: ScraperOverview | null;
+  loading: boolean;
+  error: string;
+  onRefresh: () => void;
+}) {
+  return (
+    <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-4">
+      <div className="mb-3 flex items-start justify-between gap-3">
+        <div>
+          <span className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.16em] text-slate-500">
+            <Globe2 className="h-3.5 w-3.5 text-ai" />
+            Ringkasan Maps
+          </span>
+          <p className="mt-1 text-xs font-semibold leading-5 text-slate-500">
+            Angka review total diambil live dari Google Maps, bukan dari database.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={onRefresh}
+          disabled={loading}
+          aria-label="Refresh ringkasan Google Maps"
+          className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:border-ai/40 hover:text-ai disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+        </button>
+      </div>
+
+      {error && (
+        <div className="mb-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-bold leading-5 text-amber-800">
+          {error}
+        </div>
+      )}
+
+      <div className="grid gap-2 sm:grid-cols-2">
+        <OverviewMetric
+          icon={<Globe2 className="h-4 w-4" />}
+          label="Review di Maps"
+          value={loading ? '...' : formatOverviewNumber(overview?.live_google.total_reviews)}
+          helper={overview?.live_google.rating ? `Rating ${overview.live_google.rating}` : 'Live via Apify'}
+        />
+        <OverviewMetric
+          icon={<Database className="h-4 w-4" />}
+          label="Ulasan tersimpan"
+          value={loading ? '...' : formatOverviewNumber(overview?.database.stored_text_reviews)}
+          helper={`${formatOverviewPercent(overview?.coverage.stored_text_reviews_percent)} dari live`}
+        />
+        <OverviewMetric
+          icon={<BarChart3 className="h-4 w-4" />}
+          label="Sudah diproses"
+          value={loading ? '...' : formatOverviewNumber(overview?.database.processed_reviews)}
+          helper={`${formatOverviewPercent(overview?.coverage.processed_reviews_percent)} punya NLP`}
+        />
+        <OverviewMetric
+          icon={<RefreshCw className="h-4 w-4" />}
+          label="Job terakhir"
+          value={loading ? '...' : overview?.database.latest_scraping_job?.status ?? '-'}
+          helper={overview?.database.latest_scraping_job ? `Job #${overview.database.latest_scraping_job.id}` : 'Belum ada job'}
+        />
+      </div>
+
+      {overview?.text_filter_note && (
+        <p className="mt-3 text-xs font-semibold leading-5 text-slate-500">{overview.text_filter_note}</p>
+      )}
+    </div>
+  );
+}
+
+function OverviewMetric({
+  icon,
+  label,
+  value,
+  helper,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  helper: string;
+}) {
+  return (
+    <div className="rounded-lg border border-white bg-white px-3 py-3 shadow-sm">
+      <div className="mb-2 flex items-center gap-2 text-xs font-black uppercase tracking-[0.12em] text-slate-500">
+        <span className="text-ai">{icon}</span>
+        {label}
+      </div>
+      <p className="text-lg font-black text-slate-950">{value}</p>
+      <p className="mt-0.5 text-xs font-semibold text-slate-500">{helper}</p>
+    </div>
+  );
+}
+
+function formatOverviewNumber(value?: number | null) {
+  if (typeof value !== 'number' || !Number.isFinite(value)) return '-';
+  return value.toLocaleString('id-ID');
+}
+
+function formatOverviewPercent(value?: number | null) {
+  if (typeof value !== 'number' || !Number.isFinite(value)) return '-';
+  return `${value.toLocaleString('id-ID')}%`;
 }
