@@ -29,14 +29,14 @@ export default function TopicRiskMatrix({ topics }: Props) {
   }));
 
   return (
-    <Card className="rounded-xl border border-slate-200 bg-white py-0 shadow-sm">
+    <Card className="rounded-lg border border-slate-200 bg-white py-0 shadow-sm">
       <CardHeader className="border-b border-slate-100 p-6">
         <CardTitle className="text-xl font-black text-slate-950">Topic Risk Matrix</CardTitle>
         <CardDescription className="mt-1 font-semibold">Topik dengan porsi sentimen negatif tertinggi untuk dipantau admin.</CardDescription>
       </CardHeader>
       <CardContent className="p-6">
         {data.length === 0 ? (
-          <div className="flex h-72 items-center justify-center rounded-xl border border-dashed border-slate-200 text-sm font-bold text-slate-400">
+          <div className="flex h-72 items-center justify-center rounded-lg border border-dashed border-slate-200 text-sm font-bold text-slate-400">
             Data risiko topik belum tersedia.
           </div>
         ) : (
@@ -58,7 +58,7 @@ export default function TopicRiskMatrix({ topics }: Props) {
             </div>
             <div className="space-y-3">
               {data.slice(0, 5).map((topic, index) => (
-                <div key={`${topic.topic_name}-${index}`} className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                <div key={`${topic.topic_name}-${index}`} className="rounded-lg border border-slate-200 bg-slate-50 p-3">
                   <div className="flex items-center justify-between gap-3">
                     <p className="truncate text-sm font-black text-slate-950">{topic.topic_name}</p>
                     <span className="text-sm font-black text-rose-600">{topic.risk_percent}%</span>

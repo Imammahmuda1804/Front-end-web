@@ -228,7 +228,8 @@ Alur:
 2. Data awal dikirim ke `DestinationDetailClient`.
 3. Client mengecek favorite jika user login.
 4. Section vibe menampilkan cloud topik detail dalam tiga arah sentimen: positif, netral/campuran, dan negatif. Kartu topic group utama dipisahkan di bawahnya dan bisa diklik untuk membaca contoh ulasan.
-5. User bisa membuka galeri, menambah favorite, membaca topik, atau mengirim review.
+5. Review yang berasal dari multi-aspect assignment menampilkan badge `Topik utama` atau `Aspek tambahan` dengan confidence, jika backend mengirim `topicAssignments`.
+6. User bisa membuka galeri, menambah favorite, membaca topik, atau mengirim review.
 
 ### Compare Public
 
@@ -391,7 +392,7 @@ Alur:
 4. Admin bisa membuka merge dari toolbar atau dari baris topic.
 5. Dialog merge menyediakan search untuk target dan source agar topic cepat ditemukan.
 6. Panel topic group bisa membuat/edit/hapus group dan mencentang topik detail yang masuk ke group tersebut; topik dari group lain akan dipindahkan ke group aktif.
-7. Admin membuka drawer ulasan topic; data diambil lazy dari `GET /api/admin/topics/:id/reviews` dengan filter sentimen.
+7. Admin membuka drawer ulasan topic; data diambil lazy dari `GET /api/admin/topics/:id/reviews` dengan filter sentimen. Jika response membawa `topic_assignments`, drawer menampilkan apakah review masuk sebagai topik utama atau aspek tambahan.
 8. Dropdown group memakai portal agar opsi tidak terpotong oleh table overflow.
 9. Admin bisa rename, merge, delete, update settings, CRUD topic group, atau menjalankan AI naming.
 10. Dialog merge memilih satu topic target dan beberapa topic source; backend memindahkan review/relasi source ke target.

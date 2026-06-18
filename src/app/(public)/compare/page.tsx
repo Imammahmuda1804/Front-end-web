@@ -4,7 +4,7 @@ import CompareClient from '@/components/compare/CompareClient';
 
 export const metadata: Metadata = {
   title: 'Bandingkan Destinasi | RanahInsight',
-  description: 'Bandingkan dua destinasi wisata pilihan Anda dan temukan yang paling cocok dengan preferensi Vibe Anda.',
+  description: 'Bandingkan dua destinasi wisata pilihan Anda dan temukan tempat yang paling cocok dengan kebutuhan perjalanan.',
 };
 
 async function getAllDestinations() {

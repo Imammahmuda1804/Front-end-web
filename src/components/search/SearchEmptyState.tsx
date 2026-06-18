@@ -12,8 +12,8 @@ export function SearchEmptyState({
   onResetFilters: () => void;
 }) {
   return (
-    <div className="rounded-xl border border-explore/15 bg-surface-warm p-8 text-center text-slate-950 shadow-sm shadow-orange-900/5 md:p-12">
-      <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-xl bg-primary text-white">
+    <div className="rounded-lg border border-explore/15 bg-surface-warm p-8 text-center text-slate-950 shadow-sm shadow-orange-900/5 md:p-12">
+      <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-lg bg-primary text-white">
         <Search className="h-8 w-8" />
       </div>
       <h3 className="text-3xl font-black tracking-tight text-slate-950">Tidak ada hasil ditemukan</h3>

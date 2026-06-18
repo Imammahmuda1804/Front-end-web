@@ -121,6 +121,12 @@ Halaman publik memakai turunan foto Ngarai Sianok yang sudah dioptimalkan pada `
 
 Katalog destinasi memakai `DestinationCatalogCard` yang berbeda dari kartu hasil pencarian. Gambar dibuat dominan, tinggi konten stabil, topik dibatasi satu, dan action disusun konsisten agar grid mudah dipindai.
 
+Detail destinasi membaca topik dari backend sebagai topic group, fine topic,
+dan review per topik. Jika backend mengirim metadata multi-aspect assignment,
+review terkait topik menampilkan badge `Topik utama` atau `Aspek tambahan`
+beserta confidence agar user/admin paham kenapa satu ulasan bisa masuk ke lebih
+dari satu topik.
+
 Atribusi background: `Ngarai Sianok Bukittinggi.jpg`, Wikimedia Commons, CC BY-SA 4.0.
 
 ## Landing Page
@@ -224,8 +230,9 @@ Contoh admin topics:
 2. `TopicsClient` memuat topic dan topic group.
 3. Search admin topic memakai nama topic saja agar pencarian taxonomy lebih presisi.
 4. Admin bisa rename topic, CRUD topic group, mengatur anggota topik dalam group, memindahkan topik dari group lain, mengatur visibility, melihat destinasi terkait topic, melihat ulasan berdasarkan topic, dan menggabungkan beberapa topic duplikat ke satu topic target.
-5. Jika rename manual menghasilkan nama yang sudah ada, backend otomatis menggabungkan topic ke nama existing.
-6. Dialog merge memiliki search target/source agar admin mudah mencari topic yang ingin digabung.
+5. Drawer ulasan topic menampilkan badge multi-aspect jika review masuk sebagai topik utama atau aspek tambahan.
+6. Jika rename manual menghasilkan nama yang sudah ada, backend otomatis menggabungkan topic ke nama existing.
+7. Dialog merge memiliki search target/source agar admin mudah mencari topic yang ingin digabung.
 
 Contoh admin compare:
 

@@ -156,14 +156,14 @@ export default function DestinationSelect({
         aria-expanded={isOpen}
         aria-haspopup="listbox"
         aria-controls={isOpen ? listboxId : undefined}
-        className={`flex min-h-24 w-full min-w-0 items-center justify-between gap-3 overflow-hidden rounded-xl border bg-white p-4 text-left shadow-sm transition-[color,background-color,border-color,box-shadow,transform,opacity] hover:-translate-y-0.5 hover:shadow-md focus:outline-none ${accent.ring} ${
+        className={`flex min-h-24 w-full min-w-0 items-center justify-between gap-3 overflow-hidden rounded-lg border bg-white p-4 text-left shadow-sm transition-[color,background-color,border-color,box-shadow,transform,opacity] hover:-translate-y-0.5 hover:shadow-md focus:outline-none ${accent.ring} ${
           isOpen ? accent.active : accent.border
         }`}
       >
         <div className="flex min-w-0 flex-1 items-center gap-3">
           {selectedDest ? (
             <>
-              <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-slate-100">
+              <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-slate-100">
                 <Image
                   src={resolveImageUrl(selectedDest)}
                   alt={selectedDest.name}
@@ -190,7 +190,7 @@ export default function DestinationSelect({
       </button>
 
       {isOpen && (
-        <div className="absolute z-50 mt-3 w-full overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl shadow-slate-200/70">
+        <div className="absolute z-50 mt-3 w-full overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl shadow-slate-200/70">
           <div className={`border-b border-slate-100 p-3 ${accent.bg}`}>
             <div className="relative">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
@@ -198,7 +198,7 @@ export default function DestinationSelect({
                 ref={searchInputRef}
                 type="text"
                 placeholder="Cari nama destinasi atau kota..."
-                className="min-h-11 w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-3 text-sm font-semibold text-slate-900 outline-none transition-[color,background-color,border-color,box-shadow,transform,opacity] placeholder:text-slate-400 focus:border-primary focus:ring-4 focus:ring-primary/10"
+                className="min-h-11 w-full rounded-lg border border-slate-200 bg-white py-2.5 pl-10 pr-3 text-sm font-semibold text-slate-900 outline-none transition-[color,background-color,border-color,box-shadow,transform,opacity] placeholder:text-slate-400 focus:border-primary focus:ring-4 focus:ring-primary/10"
                 value={search}
                 onChange={(event) => {
                   setSearch(event.target.value);
@@ -235,7 +235,7 @@ export default function DestinationSelect({
                       role="option"
                       aria-selected={isSelected ? 'true' : 'false'}
                       onClick={() => handleSelect(destination.id)}
-                      className={`mb-1 flex min-h-14 w-full items-center justify-between rounded-xl px-3 py-2.5 text-left transition-colors ${
+                      className={`mb-1 flex min-h-14 w-full items-center justify-between rounded-lg px-3 py-2.5 text-left transition-colors ${
                         isHighlighted
                           ? `${accent.bg} ${accent.text}`
                           : isSelected
@@ -244,7 +244,7 @@ export default function DestinationSelect({
                       }`}
                     >
                       <div className="flex min-w-0 items-center gap-3">
-                        <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-xl bg-slate-100">
+                        <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-md bg-slate-100">
                           <Image
                             src={resolveImageUrl(destination)}
                             alt={destination.name}

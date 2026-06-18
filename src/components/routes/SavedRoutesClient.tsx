@@ -2,11 +2,16 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { ArrowRight, CheckCircle2, Clock, LogIn, MapPin, Navigation, Plus, RotateCcw, Route as RouteIcon } from 'lucide-react';
+import dynamic from 'next/dynamic';
+import { ArrowRight, CheckCircle2, Clock, LogIn, MapPin, Navigation, Plus, RotateCcw, Route as RouteIcon, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { routesService, SavedRouteProgressItem, TravelRoute } from '@/services/routes.service';
 import { useAuthStore } from '@/store/auth.store';
 import { formatRouteDuration } from './RouteCards';
+
+const Map = dynamic(() => import('@/components/ui/map').then((mod) => mod.Map), { ssr: false });
+const MapMarker = dynamic(() => import('@/components/ui/map').then((mod) => mod.MapMarker), { ssr: false });
+const MapRoute = dynamic(() => import('@/components/ui/map').then((mod) => mod.MapRoute), { ssr: false });
 
 type ProgressMap = Record<number, SavedRouteProgressItem[]>;
 
@@ -17,6 +22,24 @@ export function SavedRoutesClient() {
   const [selectedRouteId, setSelectedRouteId] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [updatingStopId, setUpdatingStopId] = useState<number | null>(null);
+  const [unsavingRouteId, setUnsavingRouteId] = useState<number | null>(null);
+
+  const handleUnsave = async (routeId: number) => {
+    setUnsavingRouteId(routeId);
+    try {
+      await routesService.unsave(routeId);
+      toast.success('Rute dihapus dari simpanan');
+      const nextRoutes = routes.filter((r) => r.id !== routeId);
+      setRoutes(nextRoutes);
+      if (selectedRouteId === routeId) {
+        setSelectedRouteId(nextRoutes[0]?.id || null);
+      }
+    } catch {
+      toast.error('Gagal menghapus rute dari simpanan');
+    } finally {
+      setUnsavingRouteId(null);
+    }
+  };
 
   useEffect(() => {
     let active = true;
@@ -54,9 +77,22 @@ export function SavedRoutesClient() {
     () => routes.find((route) => route.id === selectedRouteId) || routes[0],
     [routes, selectedRouteId],
   );
-  const selectedProgress = selectedRoute ? progressByRoute[selectedRoute.id] || [] : [];
-  const visitedStopIds = new Set(selectedProgress.filter((item) => item.status === 'visited').map((item) => item.routeStopId));
+  const selectedProgress = useMemo(() => selectedRoute ? progressByRoute[selectedRoute.id] || [] : [], [selectedRoute, progressByRoute]);
+  const visitedStopIds = useMemo(() => new Set(selectedProgress.filter((item) => item.status === 'visited').map((item) => item.routeStopId)), [selectedProgress]);
   const nextStop = selectedRoute?.stops.find((stop) => stop.id && !visitedStopIds.has(stop.id));
+
+  const routeCoordinates = useMemo<[number, number][]>(() => {
+    if (!selectedRoute || !selectedRoute.stops) return [];
+    return selectedRoute.stops
+      .filter((stop) => !stop.id || !visitedStopIds.has(stop.id))
+      .map((stop) => {
+        const lng = Number(stop.destination?.longitude);
+        const lat = Number(stop.destination?.latitude);
+        if (!lng || !lat || isNaN(lng) || isNaN(lat)) return null;
+        return [lng, lat] as [number, number];
+      })
+      .filter((coord): coord is [number, number] => coord !== null);
+  }, [selectedRoute, visitedStopIds]);
 
   const updateStop = async (route: TravelRoute, routeStopId: number, visited: boolean) => {
     setUpdatingStopId(routeStopId);
@@ -80,13 +116,13 @@ export function SavedRoutesClient() {
     return (
       <main className="min-h-screen pt-24 pb-14">
         <section className="mx-auto max-w-3xl px-6 text-center">
-          <div className="rounded-xl border border-orange-100 bg-white p-10 shadow-sm">
+          <div className="rounded-lg border border-orange-100 bg-white/95 p-10 shadow-sm backdrop-blur">
             <LogIn className="mx-auto h-10 w-10 text-primary" />
             <h1 className="mt-4 text-3xl font-black text-slate-950">Masuk untuk melihat rute tersimpan</h1>
             <p className="mt-3 text-sm font-semibold leading-7 text-slate-600">
               Progress kunjungan disimpan di akun Anda agar bisa dipakai lintas perangkat.
             </p>
-            <Link href="/login?callbackUrl=/routes/saved" className="mt-6 inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-primary px-6 text-sm font-black text-white">
+            <Link href="/login?callbackUrl=/routes/saved" className="mt-6 inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-primary px-6 text-sm font-black text-white shadow-sm shadow-orange-950/20">
               Masuk
               <ArrowRight className="h-4 w-4" />
             </Link>
@@ -99,19 +135,19 @@ export function SavedRoutesClient() {
   return (
     <main className="min-h-screen pt-24 pb-14">
       <section className="mx-auto max-w-7xl px-6 md:px-12">
-        <div className="on-photo-rule border-b pb-8 pt-4">
-          <p className="editorial-kicker on-photo-kicker inline-flex items-center gap-2">
+        <div className="border-b pb-8 pt-4">
+          <p className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.16em]">
             <RouteIcon className="h-4 w-4" />
             Route Tracker
           </p>
           <div className="mt-4 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <h1 className="on-photo-heading text-4xl font-extrabold tracking-tight md:text-6xl">Rute tersimpan</h1>
-              <p className="on-photo-copy mt-3 max-w-2xl text-sm font-semibold leading-7 md:text-base">
+              <h1 className="text-4xl font-extrabold tracking-tight md:text-6xl">Rute tersimpan</h1>
+              <p className="mt-3 max-w-2xl text-sm font-semibold leading-7 md:text-base">
                 Tandai lokasi yang sudah dikunjungi dan lihat destinasi berikutnya tanpa kehilangan urutan rute.
               </p>
             </div>
-            <Link href="/routes" className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-primary px-5 text-sm font-black text-white">
+            <Link href="/routes" className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-primary px-5 text-sm font-black text-white shadow-sm shadow-orange-950/20">
               <Plus className="h-4 w-4" />
               Simpan rute lain
             </Link>
@@ -119,12 +155,12 @@ export function SavedRoutesClient() {
         </div>
 
         {loading ? (
-          <div className="mt-8 h-96 animate-pulse rounded-xl bg-white" />
+          <div className="mt-8 h-96 animate-pulse rounded-lg bg-white/90" />
         ) : routes.length === 0 ? (
-          <div className="mt-8 rounded-xl border border-dashed border-slate-200 bg-white p-10 text-center">
+          <div className="mt-8 rounded-lg border border-dashed border-slate-200 bg-white/95 p-10 text-center shadow-sm">
             <h2 className="text-2xl font-black text-slate-950">Belum ada rute tersimpan</h2>
-            <p className="mt-2 text-sm font-semibold text-slate-500">Simpan route publik untuk mulai melacak kunjungan.</p>
-            <Link href="/routes" className="mt-5 inline-flex min-h-11 items-center rounded-lg bg-primary px-5 text-sm font-black text-white">Lihat route publik</Link>
+            <p className="mt-2 text-sm font-semibold text-slate-500">Simpan rute publik untuk mulai melacak kunjungan.</p>
+            <Link href="/routes" className="mt-5 inline-flex min-h-11 items-center rounded-lg bg-primary px-5 text-sm font-black text-white">Lihat rute publik</Link>
           </div>
         ) : (
           <div className="mt-8 grid gap-6 lg:grid-cols-[22rem_minmax(0,1fr)]">
@@ -139,8 +175,8 @@ export function SavedRoutesClient() {
                     key={route.id}
                     type="button"
                     onClick={() => setSelectedRouteId(route.id)}
-                    className={`w-full border-b p-4 text-left transition-colors duration-150 ${
-                      active ? 'border-primary bg-orange-50/75' : 'border-slate-200 bg-white/70 hover:border-orange-200'
+                    className={`w-full rounded-lg border p-4 text-left shadow-sm backdrop-blur transition-[border-color,background-color,box-shadow,transform] duration-150 hover:-translate-y-0.5 ${
+                      active ? 'border-primary bg-orange-50/90 shadow-orange-950/[0.06]' : 'border-white/55 bg-white/86 hover:border-orange-200 hover:bg-white'
                     }`}
                   >
                     <span className="text-sm font-black text-slate-950">{route.title}</span>
@@ -152,101 +188,153 @@ export function SavedRoutesClient() {
             </aside>
 
             {selectedRoute && (
-              <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm md:p-6">
-                <div className="flex flex-col gap-4 border-b border-slate-100 pb-5 md:flex-row md:items-start md:justify-between">
-                  <div>
-                    <h2 className="text-2xl font-black text-slate-950">{selectedRoute.title}</h2>
-                    <p className="mt-2 text-sm font-semibold leading-6 text-slate-500">
-                      {selectedRoute.description || `${selectedRoute.stops.length} destinasi dalam urutan kunjungan.`}
-                    </p>
-                  </div>
-                  <div className="grid grid-cols-3 gap-2 text-center text-xs font-black">
-                    <Stat label="Stop" value={selectedRoute.stops.length.toString()} />
-                    <Stat label="Jarak" value={`${selectedRoute.totalDistanceKm?.toFixed(1) || '-'} km`} />
-                    <Stat label="Durasi" value={formatRouteDuration(selectedRoute.estimatedDurationMinutes)} />
-                  </div>
+              <section className="rounded-lg border border-white/60 bg-white/96 p-5 shadow-sm backdrop-blur md:p-6">
+                <div className="border-b border-slate-100 pb-5">
+                  <h2 className="text-2xl font-black text-slate-950">{selectedRoute.title}</h2>
+                  <p className="mt-2 text-sm font-semibold leading-6 text-slate-500">
+                    {selectedRoute.description || `${selectedRoute.stops.length} destinasi dalam urutan kunjungan.`}
+                  </p>
                 </div>
 
-                {nextStop && (
-                  <div className="mt-5 rounded-lg bg-slate-950 p-5 text-white">
-                    <p className="text-xs font-bold uppercase tracking-[0.12em] text-orange-300">Tujuan berikutnya</p>
-                    <h3 className="mt-2 text-2xl font-extrabold">{nextStop.destination?.name}</h3>
-                    <p className="mt-1 text-sm font-medium text-slate-300">{nextStop.destination?.city}, {nextStop.destination?.province}</p>
-                  </div>
-                )}
+                <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_20rem]">
+                  <div className="space-y-6">
+                    {nextStop && (
+                      <div className="rounded-lg bg-slate-950 p-5 text-white">
+                        <p className="text-xs font-bold uppercase tracking-[0.12em] text-orange-300">Tujuan berikutnya</p>
+                        <h3 className="mt-2 text-2xl font-extrabold">{nextStop.destination?.name}</h3>
+                        <p className="mt-1 text-sm font-medium text-slate-300">{nextStop.destination?.city}, {nextStop.destination?.province}</p>
+                      </div>
+                    )}
 
-                <div className="relative mt-6 space-y-2 before:absolute before:bottom-6 before:left-[1.35rem] before:top-6 before:w-px before:bg-slate-200">
-                  {selectedRoute.stops.map((stop, index) => {
-                    const stopId = stop.id;
-                    const progress = selectedProgress.find((item) => item.routeStopId === stopId);
-                    const visited = progress?.status === 'visited';
-                    const isNext = nextStop?.id === stopId;
-                    const mapsUrl = stop.destination?.googleMapsUrl ||
-                      (stop.destination?.latitude && stop.destination?.longitude
-                        ? `https://www.google.com/maps/search/?api=1&query=${stop.destination.latitude},${stop.destination.longitude}`
-                        : undefined);
+                    <div className="relative space-y-2 before:absolute before:bottom-6 before:left-[1.35rem] before:top-6 before:w-px before:bg-slate-200">
+                      {selectedRoute.stops.map((stop, index) => {
+                        const stopId = stop.id;
+                        const progress = selectedProgress.find((item) => item.routeStopId === stopId);
+                        const visited = progress?.status === 'visited';
+                        const isNext = nextStop?.id === stopId;
+                        const mapsUrl = stop.destination?.googleMapsUrl ||
+                          (stop.destination?.latitude && stop.destination?.longitude
+                            ? `https://www.google.com/maps/search/?api=1&query=${stop.destination.latitude},${stop.destination.longitude}`
+                            : undefined);
 
-                    return (
-                      <div key={`${selectedRoute.id}-${stop.destinationId}-${index}`} className={`relative rounded-lg border p-4 transition-colors duration-150 ${visited ? 'border-emerald-200 bg-emerald-50/55' : isNext ? 'border-orange-200 bg-orange-50/55' : 'border-slate-200 bg-white'}`}>
-                        <div className="flex gap-4">
-                          <div className={`z-10 flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-sm font-black ${visited ? 'bg-emerald-600 text-white' : isNext ? 'bg-primary text-white' : 'bg-white text-slate-500 ring-1 ring-slate-200'}`}>
-                            {visited ? <CheckCircle2 className="h-5 w-5" /> : index + 1}
-                          </div>
-                          <div className="min-w-0 flex-1">
-                            <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
-                              <div>
-                                <h3 className="text-lg font-black text-slate-950">{stop.destination?.name || `Destinasi ${stop.destinationId}`}</h3>
-                                <p className="mt-1 flex items-center gap-1.5 text-sm font-bold text-slate-500">
-                                  <MapPin className="h-4 w-4 text-primary" />
-                                  {stop.destination?.city}, {stop.destination?.province}
-                                </p>
+                        return (
+                          <div key={`${selectedRoute.id}-${stop.destinationId}-${index}`} className={`relative rounded-lg border p-4 transition-colors duration-150 ${visited ? 'border-emerald-200 bg-emerald-50/55' : isNext ? 'border-orange-200 bg-orange-50/55' : 'border-slate-200 bg-white'}`}>
+                            <div className="flex gap-4">
+                              <div className={`z-10 flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-sm font-black ${visited ? 'bg-emerald-600 text-white' : isNext ? 'bg-primary text-white' : 'bg-white text-slate-500 ring-1 ring-slate-200'}`}>
+                                {visited ? <CheckCircle2 className="h-5 w-5" /> : index + 1}
                               </div>
-                              <span className={`w-fit rounded-lg px-3 py-1.5 text-xs font-black ${visited ? 'bg-white text-emerald-700' : isNext ? 'bg-white text-primary' : 'bg-white text-slate-500'}`}>
-                                {visited ? 'Sudah dikunjungi' : isNext ? 'Tujuan berikutnya' : 'Menunggu'}
-                              </span>
-                            </div>
+                              <div className="min-w-0 flex-1">
+                                <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+                                  <div>
+                                    <h3 className="text-lg font-black text-slate-950">{stop.destination?.name || `Destinasi ${stop.destinationId}`}</h3>
+                                    <p className="mt-1 flex items-center gap-1.5 text-sm font-bold text-slate-500">
+                                      <MapPin className="h-4 w-4 text-primary" />
+                                      {stop.destination?.city}, {stop.destination?.province}
+                                    </p>
+                                  </div>
+                                  <span className={`w-fit rounded-lg px-3 py-1.5 text-xs font-black ${visited ? 'bg-white text-emerald-700' : isNext ? 'bg-white text-primary' : 'bg-white text-slate-500'}`}>
+                                    {visited ? 'Sudah dikunjungi' : isNext ? 'Tujuan berikutnya' : 'Menunggu'}
+                                  </span>
+                                </div>
 
-                            <div className="mt-3 flex flex-wrap gap-2 text-xs font-black">
-                              {stop.distanceToNextKm !== null && stop.distanceToNextKm !== undefined && (
-                                <span className="rounded-lg bg-white px-3 py-1.5 text-ai">Ke stop berikutnya {stop.distanceToNextKm.toFixed(1)} km</span>
-                              )}
-                              {progress?.visitedAt && (
-                                <span className="rounded-lg bg-white px-3 py-1.5 text-emerald-700">
-                                  <Clock className="mr-1 inline h-3.5 w-3.5" />
-                                  {new Date(progress.visitedAt).toLocaleDateString('id-ID')}
-                                </span>
-                              )}
-                            </div>
+                                <div className="mt-3 flex flex-wrap gap-2 text-xs font-black">
+                                  {stop.distanceToNextKm !== null && stop.distanceToNextKm !== undefined && (
+                                    <span className="rounded-lg bg-white px-3 py-1.5 text-ai">Ke stop berikutnya {stop.distanceToNextKm.toFixed(1)} km</span>
+                                  )}
+                                  {progress?.visitedAt && (
+                                    <span className="rounded-lg bg-white px-3 py-1.5 text-emerald-700">
+                                      <Clock className="mr-1 inline h-3.5 w-3.5" />
+                                      {new Date(progress.visitedAt).toLocaleDateString('id-ID')}
+                                    </span>
+                                  )}
+                                </div>
 
-                            <div className="mt-4 flex flex-wrap gap-2">
-                              {stopId && (
-                                <button
-                                  type="button"
-                                  disabled={updatingStopId === stopId}
-                                  onClick={() => updateStop(selectedRoute, stopId, !visited)}
-                                  className={`inline-flex min-h-10 items-center justify-center gap-2 rounded-lg px-4 text-sm font-black transition disabled:opacity-60 ${visited ? 'border border-emerald-200 bg-white text-emerald-700' : 'bg-primary text-white'}`}
-                                >
-                                  {visited ? <RotateCcw className="h-4 w-4" /> : <CheckCircle2 className="h-4 w-4" />}
-                                  {visited ? 'Batal tandai' : 'Tandai dikunjungi'}
-                                </button>
-                              )}
-                              {mapsUrl && (
-                                <a href={mapsUrl} target="_blank" rel="noreferrer" className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-sky-100 bg-white px-4 text-sm font-black text-ai">
-                                  <Navigation className="h-4 w-4" />
-                                  Buka Maps
-                                </a>
-                              )}
-                              {stop.destination?.slug && (
-                                <Link href={`/destinations/${stop.destination.slug}`} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 text-sm font-black text-slate-700">
-                                  Detail destinasi
-                                </Link>
-                              )}
+                                <div className="mt-4 flex flex-wrap gap-2">
+                                  {stopId && (
+                                    <button
+                                      type="button"
+                                      disabled={updatingStopId === stopId}
+                                      onClick={() => updateStop(selectedRoute, stopId, !visited)}
+                                      className={`inline-flex min-h-10 items-center justify-center gap-2 rounded-lg px-4 text-sm font-black transition disabled:opacity-60 ${visited ? 'border border-emerald-200 bg-white text-emerald-700' : 'bg-primary text-white'}`}
+                                    >
+                                      {visited ? <RotateCcw className="h-4 w-4" /> : <CheckCircle2 className="h-4 w-4" />}
+                                      {visited ? 'Batal tandai' : 'Tandai dikunjungi'}
+                                    </button>
+                                  )}
+                                  {mapsUrl && (
+                                    <a href={mapsUrl} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-sky-100 bg-white px-4 text-sm font-black text-ai">
+                                      <Navigation className="h-4.5 w-4.5" />
+                                      Buka Maps
+                                    </a>
+                                  )}
+                                  {stop.destination?.slug && (
+                                    <Link href={`/destinations/${stop.destination.slug}`} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 text-sm font-black text-slate-700">
+                                      Detail destinasi
+                                    </Link>
+                                  )}
+                                </div>
+                              </div>
                             </div>
                           </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div className="space-y-6 xl:sticky xl:top-24 xl:h-fit">
+                    <div className="grid grid-cols-3 gap-2 rounded-lg border border-slate-100 bg-slate-50/50 p-4 text-center text-xs font-black">
+                      <Stat label="Stop" value={selectedRoute.stops.length.toString()} />
+                      <Stat label="Jarak" value={`${selectedRoute.totalDistanceKm?.toFixed(1) || '-'} km`} />
+                      <Stat label="Durasi" value={formatRouteDuration(selectedRoute.estimatedDurationMinutes)} />
+                    </div>
+
+                    <button
+                      type="button"
+                      disabled={unsavingRouteId === selectedRoute.id}
+                      onClick={() => handleUnsave(selectedRoute.id)}
+                      className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-rose-100 bg-rose-50 px-5 text-sm font-black text-rose-600 disabled:opacity-60 transition-colors hover:bg-rose-100"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      Hapus dari Tersimpan
+                    </button>
+
+                    {/* Interactive Mapcn Map for Saved Route Tracker */}
+                    {routeCoordinates.length > 0 && (
+                      <div className="overflow-hidden rounded-lg border border-slate-200 bg-white p-1.5 shadow-sm">
+                        <div className="h-[320px] w-full rounded-md overflow-hidden bg-slate-100">
+                          <Map center={routeCoordinates[0]} zoom={12}>
+                            {/* Draw full route line */}
+                            <MapRoute coordinates={routeCoordinates} color="#f97316" width={4} />
+
+                            {/* Render markers ONLY for destinations that have NOT been visited yet */}
+                            {selectedRoute.stops.map((stop, index) => {
+                              const stopId = stop.id;
+                              const isVisited = stopId ? visitedStopIds.has(stopId) : false;
+                              if (isVisited) return null; // Hide marker if already visited!
+
+                              const lng = Number(stop.destination?.longitude);
+                              const lat = Number(stop.destination?.latitude);
+                              if (!lng || !lat || isNaN(lng) || isNaN(lat)) return null;
+
+                              const isNext = nextStop?.id === stopId;
+
+                              return (
+                                <MapMarker
+                                  key={`saved-stop-${stop.destinationId}-${index}`}
+                                  longitude={lng}
+                                  latitude={lat}
+                                >
+                                  <div className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-black text-white border-2 border-white shadow-md hover:scale-110 transition-transform ${isNext ? 'bg-primary animate-pulse' : 'bg-slate-500'}`}>
+                                    {index + 1}
+                                  </div>
+                                </MapMarker>
+                              );
+                            })}
+                          </Map>
                         </div>
                       </div>
-                    );
-                  })}
+                    )}
+                  </div>
                 </div>
               </section>
             )}

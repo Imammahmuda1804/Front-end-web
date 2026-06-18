@@ -40,4 +40,12 @@ export interface TopicReview {
   reviewDate: string | null;
   sentiment: string | null;
   likesCount: number | null;
+  topicAssignments?: TopicReviewAssignment[];
+}
+
+export interface TopicReviewAssignment {
+  topicId: number;
+  score: number;
+  isPrimary: boolean;
+  assignmentMethod: string;
 }

@@ -28,7 +28,7 @@ export function SearchResultCardStatic({ destination }: { destination: SearchDes
   const slug = destination.slug || String(destination.id);
 
   return (
-    <article className="group flex h-full min-h-[34rem] flex-col overflow-hidden rounded-xl border border-slate-200 bg-white/95 shadow-sm shadow-slate-200/60 backdrop-blur transition hover:-translate-y-0.5 hover:border-orange-200 hover:shadow-lg hover:shadow-orange-100/60">
+    <article className="group flex h-full min-h-[34rem] flex-col overflow-hidden rounded-lg border border-slate-200 bg-white/95 shadow-sm shadow-slate-200/60 backdrop-blur transition hover:-translate-y-0.5 hover:border-orange-200 hover:shadow-lg hover:shadow-orange-100/60">
       <div className="relative aspect-[16/10] shrink-0 bg-slate-100">
         <Image
           src={getImage(destination)}
@@ -49,7 +49,7 @@ export function SearchResultCardStatic({ destination }: { destination: SearchDes
 
       <div className="flex min-w-0 flex-1 flex-col p-5">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="rounded-lg bg-sky-50 px-3 py-1 text-xs font-black text-ai">AI score {score ? Math.round(score * 100) : '-'}</span>
+          <span className="rounded-lg bg-sky-50 px-3 py-1 text-xs font-black text-ai">Skor rekomendasi {score ? Math.round(score * 100) : '-'}</span>
         </div>
 
         <h3 className="mt-3 line-clamp-2 min-h-[3.5rem] text-2xl font-black leading-tight text-slate-950">{destination.name}</h3>

@@ -16,7 +16,7 @@ const getImage = (destination: SearchDestination) =>
     : '/images/auth-bg.jpg';
 
 const getTopicLabel = (topic: SearchDestinationTopic) =>
-  topic.topic_name?.replace(/Topic \d+: /, '') || topic.name || 'Vibe';
+  topic.topic_name?.replace(/Topic \d+: /, '') || topic.name || 'Topik';
 
 const getDescription = (destination: SearchDestination) => {
   const raw = destination.shortDescription || destination.short_description || destination.description;
@@ -35,7 +35,7 @@ export function DestinationCatalogCard({ destination, index }: DestinationCatalo
   const isFeatured = index === 0;
 
   return (
-    <article className={`group relative flex h-full flex-col overflow-hidden rounded-xl border border-slate-200/90 bg-white/95 shadow-sm shadow-slate-900/[0.04] transition-[border-color,box-shadow] duration-200 hover:border-orange-200 hover:shadow-md ${
+    <article className={`group relative flex h-full flex-col overflow-hidden rounded-lg border border-slate-200/90 bg-white/95 shadow-sm shadow-slate-900/[0.04] transition-[border-color,box-shadow] duration-200 hover:border-orange-200 hover:shadow-md ${
       isFeatured ? 'md:col-span-2 xl:col-span-2' : ''
     }`}>
       <div className={`relative overflow-hidden bg-slate-100 ${isFeatured ? 'aspect-[16/8]' : 'aspect-[4/3]'}`}>
@@ -69,7 +69,7 @@ export function DestinationCatalogCard({ destination, index }: DestinationCatalo
       <div className="flex flex-1 flex-col p-5">
         <p className="line-clamp-3 min-h-[4.5rem] text-sm font-semibold leading-6 text-slate-600">{getDescription(destination)}</p>
 
-        <div className="mt-4 grid grid-cols-3 divide-x divide-slate-200 border-y border-slate-200 py-3">
+        <div className="mt-4 grid grid-cols-3 divide-x divide-slate-200 border-y border-slate-200 py-2.5">
           <Metric icon={Sparkles} label="Skor" value={formatScore(score)} tone="text-ai bg-ai-container" />
           <Metric icon={ThumbsUp} label="Positif" value={formatPercent(positiveRatio)} tone="text-emerald-700 bg-emerald-50" />
           <Metric icon={Star} label="Rating" value={(destination.googleRating ?? destination.google_rating)?.toFixed(1) || '-'} tone="text-amber-700 bg-amber-50" />
@@ -78,7 +78,7 @@ export function DestinationCatalogCard({ destination, index }: DestinationCatalo
         <div className="mt-4 h-7 overflow-hidden">
           {topics.length > 0 ? (
             <span className="block max-w-full truncate rounded-md border border-sky-100 bg-sky-50 px-2.5 py-1 text-[11px] font-bold text-ai" title={getTopicLabel(topics[0])}>
-              Topik utama: {getTopicLabel(topics[0])}
+              Paling dibahas: {getTopicLabel(topics[0])}
             </span>
           ) : (
             <span className="w-fit rounded-md bg-slate-100 px-2.5 py-1 text-[11px] font-bold text-slate-500">Topik belum tersedia</span>
@@ -117,12 +117,12 @@ function Metric({
   tone: string;
 }) {
   return (
-    <div className="px-3 first:pl-0 last:pr-0">
+    <div className="px-2.5 first:pl-0 last:pr-0">
       <div className={`mb-1 flex items-center gap-1 ${tone.split(' ')[0]}`}>
-        <Icon className="h-3.5 w-3.5" />
-        <span className="truncate text-[10px] font-semibold text-slate-500">{label}</span>
+        <Icon className="h-3 w-3" />
+        <span className="truncate text-[10px] font-bold text-slate-500">{label}</span>
       </div>
-      <span className="block text-base font-extrabold leading-none text-slate-950">{value}</span>
+      <span className="block text-sm font-extrabold leading-none text-slate-950">{value}</span>
     </div>
   );
 }

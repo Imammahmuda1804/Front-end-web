@@ -64,7 +64,7 @@
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
 
-  /* RANAHINSIGHT Theme Variables - Joy Vibes Minimalist */
+  /* RANAHINSIGHT theme variables */
   --color-primary: var(--explore);
   --color-primary-foreground: #ffffff;
   --color-primary-container: #FFeedb;
@@ -226,7 +226,7 @@
     @apply h-14 w-full rounded-lg border border-slate-200 bg-slate-50 px-5 text-slate-900 transition-[border-color,background-color,box-shadow] duration-200 placeholder:text-slate-400 focus:border-primary focus:bg-white focus:outline-none focus:ring-[3px] focus:ring-primary/15;
   }
   
-  /* Joy Vibes Button */
+  /* Primary action button */
   .btn-joy {
     @apply flex h-14 w-full items-center justify-center gap-2 rounded-lg bg-primary font-bold tracking-wide text-white transition-[transform,background-color,box-shadow] duration-150 hover:bg-primary/90 hover:shadow-md hover:shadow-primary/20 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:shadow-none disabled:active:scale-100;
   }

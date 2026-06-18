@@ -22,11 +22,11 @@ export function RouteCard({ route }: { route: TravelRoute }) {
   const href = `/routes/${route.shareSlug}`;
 
   return (
-    <article className="overflow-hidden rounded-xl border border-slate-200 bg-white/95 shadow-sm transition-[border-color,box-shadow] duration-200 hover:border-orange-200 hover:shadow-md">
+    <article className="overflow-hidden rounded-lg border border-white/60 bg-white/96 shadow-sm backdrop-blur transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-orange-200 hover:shadow-md">
       <Link href={href} className="block">
         <div className="relative aspect-[16/9] bg-slate-100">
           <Image src={image} alt={route.title} fill className="object-cover" sizes="(max-width: 768px) 100vw, 33vw" />
-          <div className="absolute left-3 top-3 rounded-lg bg-white px-3 py-1 text-xs font-black text-primary shadow-sm">
+          <div className="absolute left-3 top-3 rounded-md bg-white px-3 py-1 text-xs font-black text-primary shadow-sm">
             {route.isAdminCurated ? 'Pilihan admin' : route.visibility === 'private' ? 'Private' : 'Shareable'}
           </div>
         </div>
@@ -36,15 +36,15 @@ export function RouteCard({ route }: { route: TravelRoute }) {
             {route.description || `${route.stops.length} destinasi dalam satu rute kunjungan.`}
           </p>
           <div className="mt-4 flex flex-wrap gap-2 text-xs font-black">
-            <span className="inline-flex items-center gap-1 rounded-lg bg-orange-50 px-3 py-1.5 text-primary">
+            <span className="inline-flex items-center gap-1 rounded-md bg-orange-50 px-3 py-1.5 text-primary">
               <RouteIcon className="h-3.5 w-3.5" />
               {route.stops.length} stop
             </span>
-            <span className="inline-flex items-center gap-1 rounded-lg bg-sky-50 px-3 py-1.5 text-ai">
+            <span className="inline-flex items-center gap-1 rounded-md bg-sky-50 px-3 py-1.5 text-ai">
               <Navigation className="h-3.5 w-3.5" />
               {route.totalDistanceKm?.toFixed(1) || '-'} km
             </span>
-            <span className="inline-flex items-center gap-1 rounded-lg bg-slate-100 px-3 py-1.5 text-slate-700">
+            <span className="inline-flex items-center gap-1 rounded-md bg-slate-100 px-3 py-1.5 text-slate-700">
               <Clock className="h-3.5 w-3.5" />
               {formatRouteDuration(route.estimatedDurationMinutes)}
             </span>
@@ -72,9 +72,9 @@ export function RouteStopList({ route }: { route: TravelRoute }) {
             : undefined);
 
         return (
-          <div key={`${stop.destinationId}-${index}`} className="rounded-xl border border-slate-200 bg-white p-4">
+          <div key={`${stop.destinationId}-${index}`} className="rounded-lg border border-white/60 bg-white/96 p-4 shadow-sm backdrop-blur">
             <div className="flex gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary text-sm font-black text-white">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-primary text-sm font-black text-white">
                 {index + 1}
               </div>
               <div className="min-w-0 flex-1">
@@ -84,12 +84,12 @@ export function RouteStopList({ route }: { route: TravelRoute }) {
                 </p>
                 <div className="mt-3 flex flex-wrap gap-2 text-xs font-black">
                   {stop.distanceToNextKm !== null && stop.distanceToNextKm !== undefined && (
-                    <span className="rounded-lg bg-sky-50 px-3 py-1.5 text-ai">
+                    <span className="rounded-md bg-sky-50 px-3 py-1.5 text-ai">
                       Ke stop berikutnya {stop.distanceToNextKm.toFixed(1)} km
                     </span>
                   )}
                   {stop.estimatedVisitMinutes && (
-                    <span className="rounded-lg bg-slate-100 px-3 py-1.5 text-slate-700">
+                    <span className="rounded-md bg-slate-100 px-3 py-1.5 text-slate-700">
                       {stop.estimatedVisitMinutes} menit
                     </span>
                   )}
@@ -101,10 +101,10 @@ export function RouteStopList({ route }: { route: TravelRoute }) {
                   href={mapsUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-orange-50 text-primary transition hover:bg-primary hover:text-white"
+                  className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-orange-50 text-primary transition hover:bg-primary hover:text-white"
                   aria-label={`Buka ${stop.destination?.name || 'destinasi'} di Google Maps`}
                 >
-                  <Navigation className="h-4 w-4" />
+                  <Navigation className="h-4.5 w-4.5" />
                 </a>
               )}
             </div>

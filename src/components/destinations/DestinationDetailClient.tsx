@@ -176,7 +176,7 @@ export default function DestinationDetailClient({ destination }: Props) {
     || 'Deskripsi belum tersedia untuk destinasi ini. Gunakan insight ulasan, galeri, dan lokasi untuk membantu memilih rencana perjalanan.';
   const navItems = React.useMemo<[string, string][]>(() => [
     ['#ringkasan', 'Ringkasan'],
-    ['#vibe', 'Vibe & Sentimen'],
+    ['#vibe', 'Pengalaman & Sentimen'],
     ...(destination.youtubeUrl ? ([['#trailer', 'Trailer']] as [string, string][]) : []),
     ['#galeri', 'Galeri'],
     ['#ulasan', 'Ulasan'],
@@ -205,6 +205,28 @@ export default function DestinationDetailClient({ destination }: Props) {
       needsCheck: [...rows].sort((a, b) => b.negativeRatio - a.negativeRatio || b.total - a.total)[0],
     };
   }, [destination.destinationTopics, destination.topicSentimentBreakdown]);
+
+  const sentimentReading = React.useMemo(() => {
+    const totals = Object.values(destination.topicSentimentBreakdown || {}).reduce(
+      (acc, item) => ({
+        positive: acc.positive + item.positive,
+        neutral: acc.neutral + item.neutral,
+        negative: acc.negative + item.negative,
+      }),
+      { positive: 0, neutral: 0, negative: 0 },
+    );
+    const total = totals.positive + totals.neutral + totals.negative;
+    const positiveRate = total > 0 ? Math.round((totals.positive / total) * 100) : Math.round((destination.positiveRatio || 0) * 100);
+    const negativeRate = total > 0 ? Math.round((totals.negative / total) * 100) : 0;
+    const strength = total >= 80 ? 'Data kuat' : total >= 25 ? 'Data cukup' : total > 0 ? 'Data terbatas' : 'Data belum cukup';
+    const headline = negativeRate >= 30
+      ? 'Ada beberapa catatan yang perlu dibaca sebelum berangkat.'
+      : positiveRate >= 65
+        ? 'Mayoritas sinyal ulasan mendukung destinasi ini.'
+        : 'Pendapat pengunjung masih perlu dibaca lebih dekat.';
+
+    return { total, positiveRate, negativeRate, strength, headline };
+  }, [destination.positiveRatio, destination.topicSentimentBreakdown]);
 
   React.useEffect(() => {
     const sectionIds = navItems.map(([href]) => href.replace('#', ''));
@@ -237,7 +259,7 @@ export default function DestinationDetailClient({ destination }: Props) {
     : { initial: { opacity: 0, y: 18 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.45 } };
 
   return (
-    <main id="main-content" className="min-h-screen bg-slate-50 pt-20 pb-20">
+    <main id="main-content" className="min-h-screen pt-20 pb-20">
       <div className="mx-auto max-w-[100rem] px-4 sm:px-6 lg:px-8">
         <DestinationTopActions
           isFavorite={isFavorite}
@@ -262,7 +284,7 @@ export default function DestinationDetailClient({ destination }: Props) {
 
         <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
           <div className="space-y-6">
-            <section id="ringkasan" className="scroll-mt-32 rounded-xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+            <section id="ringkasan" className="scroll-mt-32 rounded-lg border border-white/60 bg-white/96 p-6 shadow-sm backdrop-blur sm:p-8">
               <SectionHeader
                 eyebrow="Kenapa cocok dikunjungi"
                 title="Sinyal praktis sebelum menentukan rute"
@@ -270,15 +292,32 @@ export default function DestinationDetailClient({ destination }: Props) {
               />
 
               <div className="mt-6 grid gap-4 md:grid-cols-3">
-                <InfoTile icon={Star} label="Trust rating" value={`${googleRating.toFixed(1)} / 5`} helper={`${googleCount} ulasan Google`} tone="blue" />
-                <InfoTile icon={Sparkles} label="Vibe dominan" value={positivePercentage} helper="Porsi sentimen positif" tone="emerald" />
-                <InfoTile icon={ThumbsUp} label="Social proof" value={platformRating ? `${platformRating.toFixed(1)} / 5` : '-'} helper={`${platformCount} ulasan pengguna`} tone="orange" />
+                <InfoTile icon={Star} label="Rating Google" value={`${googleRating.toFixed(1)} / 5`} helper={`${googleCount} ulasan Google`} tone="blue" />
+                <InfoTile icon={Sparkles} label="Sentimen positif" value={positivePercentage} helper="Porsi ulasan bernada positif" tone="emerald" />
+                <InfoTile icon={ThumbsUp} label="Ulasan pengguna" value={platformRating ? `${platformRating.toFixed(1)} / 5` : '-'} helper={`${platformCount} ulasan pengguna`} tone="orange" />
+              </div>
+
+              <div className="mt-5 rounded-lg border border-sky-100 bg-sky-50/80 p-5">
+                <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                  <div className="max-w-3xl">
+                    <p className="text-xs font-black uppercase tracking-[0.16em] text-ai">Pembacaan sentimen</p>
+                    <h3 className="mt-1 text-xl font-black text-slate-950">{sentimentReading.headline}</h3>
+                    <p className="mt-2 text-sm font-semibold leading-6 text-slate-600">
+                      Angka sentimen dipakai sebagai sinyal awal. Untuk keputusan final, buka topik di bawah dan baca contoh ulasan yang menjadi bukti.
+                    </p>
+                  </div>
+                  <div className="grid min-w-64 grid-cols-3 gap-2 text-center text-[11px] font-black">
+                    <span className="rounded-md bg-white px-2 py-2 text-emerald-700">{sentimentReading.positiveRate}% positif</span>
+                    <span className="rounded-md bg-white px-2 py-2 text-rose-700">{sentimentReading.negativeRate}% negatif</span>
+                    <span className="rounded-md bg-white px-2 py-2 text-ai">{sentimentReading.strength}</span>
+                  </div>
+                </div>
               </div>
             </section>
 
-            <section id="vibe" className="scroll-mt-32 rounded-xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+            <section id="vibe" className="scroll-mt-32 rounded-lg border border-white/60 bg-white/96 p-6 shadow-sm backdrop-blur sm:p-8">
               <SectionHeader
-                eyebrow="Vibe Intelligence"
+                eyebrow="Pola pengalaman"
                 title="Topik yang paling sering muncul"
                 description="Lihat aspek yang sering dibicarakan wisatawan, lalu buka contoh ulasan untuk membaca konteksnya."
               />
@@ -301,7 +340,7 @@ export default function DestinationDetailClient({ destination }: Props) {
             </section>
 
             {destination.youtubeUrl && (
-              <section id="trailer" className="scroll-mt-32 overflow-hidden rounded-xl border border-orange-200 bg-orange-50/70 shadow-sm">
+              <section id="trailer" className="scroll-mt-32 overflow-hidden rounded-lg border border-orange-200 bg-orange-50/80 shadow-sm backdrop-blur">
                 <div className="flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
                   <SectionHeader
                     eyebrow="Trailer"
@@ -355,7 +394,7 @@ export default function DestinationDetailClient({ destination }: Props) {
               )}
             />
 
-            <section id="ulasan" className="scroll-mt-32 rounded-xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+            <section id="ulasan" className="scroll-mt-32 rounded-lg border border-white/60 bg-white/96 p-6 shadow-sm backdrop-blur sm:p-8">
               <SectionHeader
                 eyebrow="Ulasan"
                 title="Cerita wisatawan"
@@ -366,7 +405,7 @@ export default function DestinationDetailClient({ destination }: Props) {
                 {reviewPreview.length > 0 ? reviewPreview.map((review) => (
                   <ReviewCard key={review.id} review={review} />
                 )) : (
-                  <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 p-8 text-center lg:col-span-3">
+                  <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50 p-8 text-center lg:col-span-3">
                     <MessageSquare className="mx-auto mb-3 h-10 w-10 text-slate-300" />
                     <h3 className="text-lg font-black text-slate-900">Belum ada ulasan</h3>
                     <p className="mt-1 text-sm font-semibold text-slate-500">Jadilah yang pertama mengulas destinasi ini.</p>
@@ -392,9 +431,9 @@ export default function DestinationDetailClient({ destination }: Props) {
           </div>
 
           <aside className="space-y-6 xl:sticky xl:top-32 xl:self-start">
-            <div className="rounded-xl border border-sky-100 bg-white p-6 shadow-sm">
+            <div className="rounded-lg border border-white/60 bg-white/96 p-6 shadow-sm backdrop-blur">
               <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-sky-50 text-ai">
+                <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-sky-50 text-ai">
                   <TrendingUp className="h-5 w-5" />
                 </div>
                 <div>
@@ -438,14 +477,14 @@ export default function DestinationDetailClient({ destination }: Props) {
                   </div>
                 </>
               ) : (
-                <div className="mt-5 rounded-xl border border-dashed border-slate-200 bg-slate-50 p-8 text-center">
+                <div className="mt-5 rounded-lg border border-dashed border-slate-200 bg-slate-50 p-8 text-center">
                   <TrendingUp className="mx-auto mb-3 h-8 w-8 text-slate-300" />
                   <p className="text-sm font-bold text-slate-500">Data sentimen belum tersedia.</p>
                 </div>
               )}
             </div>
 
-            <div className="rounded-xl border border-orange-200 bg-orange-50/70 p-6 shadow-sm">
+            <div className="rounded-lg border border-orange-200 bg-orange-50/85 p-6 shadow-sm backdrop-blur">
               <h2 className="text-lg font-black text-slate-950">Aksi cepat</h2>
               <p className="mt-1 text-sm font-semibold leading-6 text-slate-600">
                 Buka lokasi, simpan destinasi, atau baca ulang insight yang paling relevan.
@@ -462,7 +501,7 @@ export default function DestinationDetailClient({ destination }: Props) {
                     Google Maps
                   </a>
                 ) : (
-                  <div className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-center text-sm font-black text-slate-500">
+                  <div className="rounded-lg border border-slate-200 bg-white px-4 py-3 text-center text-sm font-black text-slate-500">
                     Link Google Maps belum tersedia untuk destinasi ini.
                   </div>
                 )}

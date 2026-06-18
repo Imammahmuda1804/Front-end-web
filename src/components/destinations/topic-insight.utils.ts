@@ -27,6 +27,24 @@ export function getSentimentPercentages(breakdown: SentimentBreakdown | undefine
   };
 }
 
+export function getSentimentTotal(breakdown: SentimentBreakdown | undefined) {
+  return breakdown ? breakdown.positive + breakdown.negative + breakdown.neutral : 0;
+}
+
+export function getDominantSentiment(breakdown: SentimentBreakdown | undefined) {
+  if (!breakdown || getSentimentTotal(breakdown) === 0) {
+    return { key: 'unknown', label: 'Belum cukup data', count: 0 };
+  }
+
+  const entries = [
+    { key: 'positive', label: 'Positif', count: breakdown.positive },
+    { key: 'neutral', label: 'Netral', count: breakdown.neutral },
+    { key: 'negative', label: 'Negatif', count: breakdown.negative },
+  ].sort((a, b) => b.count - a.count);
+
+  return entries[0];
+}
+
 export function getSentimentBucket(breakdown: SentimentBreakdown | undefined) {
   const percentages = getSentimentPercentages(breakdown);
   if (percentages.positive >= 60) return 'positive';
@@ -45,4 +63,42 @@ export function getSentimentCrowd(breakdown: SentimentBreakdown | undefined) {
 
 export function cleanTopicName(name?: string) {
   return name?.replace(/^Topic \d+:\s*/, '').trim() || 'Topik perjalanan';
+}
+
+export function topicDecisionCopy(topicName: string, breakdown: SentimentBreakdown | undefined) {
+  const percentages = getSentimentPercentages(breakdown);
+  const total = getSentimentTotal(breakdown);
+
+  if (total === 0) {
+    return {
+      headline: 'Data belum cukup kuat',
+      detail: `${topicName} sudah terdeteksi, tetapi belum punya cukup ulasan untuk disimpulkan.`,
+    };
+  }
+
+  if (percentages.positive >= 60) {
+    return {
+      headline: 'Bisa jadi alasan utama berkunjung',
+      detail: `${topicName} cenderung dipuji pengunjung. Cocok dijadikan pertimbangan positif saat memilih destinasi.`,
+    };
+  }
+
+  if (percentages.negative >= 45) {
+    return {
+      headline: 'Perlu dicek sebelum berangkat',
+      detail: `${topicName} cukup sering muncul dalam ulasan negatif. Baca contoh ulasan untuk memahami konteksnya.`,
+    };
+  }
+
+  if (percentages.neutral >= 50) {
+    return {
+      headline: 'Belum menunjukkan arah kuat',
+      detail: `${topicName} banyak muncul sebagai informasi netral. Gunakan bersama rating, foto, dan ulasan terbaru.`,
+    };
+  }
+
+  return {
+    headline: 'Pendapat pengunjung beragam',
+    detail: `${topicName} punya sinyal campuran. Cocok dibaca lebih detail karena pengalaman tiap pengunjung bisa berbeda.`,
+  };
 }

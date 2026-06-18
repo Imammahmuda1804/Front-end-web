@@ -6,7 +6,7 @@ import type { TopicGroupItem, TopicItem } from '@/services/admin/topic.service';
 import type { SortKey } from './topics-client.types';
 import { getTopicStatus } from './topics-client.utils';
 import { SortButton, StatusBadge } from './topics-client.panels';
-export function TaxonomyTable({
+export function TopicReviewTable({
   topics,
   totalTopics,
   filteredCount,
@@ -58,11 +58,11 @@ export function TaxonomyTable({
   );
 
   return (
-    <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+    <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
       <div className="flex flex-col gap-3 border-b border-slate-100 bg-slate-50/70 p-5 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="text-xs font-black uppercase tracking-[0.16em] text-primary">Taxonomy table</p>
-          <h3 className="mt-1 text-xl font-black text-slate-950">Daftar Topik</h3>
+          <p className="text-xs font-black uppercase tracking-[0.16em] text-primary">Daftar pembahasan</p>
+          <h3 className="mt-1 text-xl font-black text-slate-950">Topik dari ulasan</h3>
         </div>
         <p className="text-sm font-bold text-slate-500">
           Menampilkan {startItem}-{endItem} dari {filteredCount} hasil, total {totalTopics} topik
@@ -82,7 +82,7 @@ export function TaxonomyTable({
                 <SortButton active={sortKey === 'name'} onClick={() => onSort('name')}>Nama Topik</SortButton>
               </TableHead>
               <TableHead>Status</TableHead>
-              <TableHead>Group</TableHead>
+              <TableHead>Kelompok</TableHead>
               <TableHead>Visibilitas</TableHead>
               <TableHead>Kata Kunci</TableHead>
               <TableHead className="w-36">
@@ -105,15 +105,16 @@ export function TaxonomyTable({
               topics.map((topic) => {
                 const status = getTopicStatus(topic, maxDestinations);
                 const ratio = maxDestinations > 0 ? (topic.total_destinations / maxDestinations) * 100 : 0;
+                const hasDestinationFilter = typeof topic.selected_destination_reviews === 'number';
                 return (
                   <TableRow key={topic.id} className="hover:bg-slate-50/80">
                     <TableCell className="font-mono text-xs font-bold text-slate-400">{topic.id}</TableCell>
                     <TableCell>
                       <div className="max-w-[18rem]">
-                        <p className={`truncate font-black ${status.label === 'Perlu nama AI' ? 'text-amber-700' : 'text-slate-900'}`}>
+                        <p className={`truncate font-black ${status.label === 'Perlu nama' ? 'text-amber-700' : 'text-slate-900'}`}>
                           {topic.topic_name}
                         </p>
-                        <p className="mt-1 text-xs font-bold text-slate-500">{topic.keywords?.length || 0} keyword pendukung</p>
+                        <p className="mt-1 text-xs font-bold text-slate-500">{topic.keywords?.length || 0} kata kunci pendukung</p>
                       </div>
                     </TableCell>
                     <TableCell>
@@ -121,13 +122,13 @@ export function TaxonomyTable({
                     </TableCell>
                     <TableCell>
                       <NativeSelect
-                        aria-label={`Pilih group untuk topik ${topic.topic_name}`}
+                        aria-label={`Pilih kelompok untuk topik ${topic.topic_name}`}
                         value={topic.group_id ? String(topic.group_id) : 'none'}
                         onValueChange={(value) =>
                           onGroupChange(topic, value === 'none' ? null : Number(value))
                         }
                         options={[
-                          { value: 'none', label: 'Belum dipetakan' },
+                          { value: 'none', label: 'Belum dikelompokkan' },
                           ...groups.map((group) => ({
                             value: String(group.id),
                             label: group.group_name,
@@ -147,7 +148,7 @@ export function TaxonomyTable({
                               onVisibilityChange(topic, 'isSearchVisible', event.target.checked)
                             }
                           />
-                          Search
+                            Pencarian
                         </label>
                         <label className="flex items-center gap-2 text-xs font-black text-slate-600">
                           <input
@@ -157,24 +158,24 @@ export function TaxonomyTable({
                               onVisibilityChange(topic, 'isDetailVisible', event.target.checked)
                             }
                           />
-                          Detail
+                            Detail destinasi
                         </label>
                       </div>
                     </TableCell>
                     <TableCell>
                       <div className="flex max-w-md flex-wrap gap-1.5">
                         {(topic.keywords || []).slice(0, 5).map((keyword, index) => (
-                          <span key={`${topic.id}-keyword-${index}-${keyword || 'empty'}`} className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-bold text-slate-600">
+                          <span key={`${topic.id}-keyword-${index}-${keyword || 'empty'}`} className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-bold text-slate-600">
                             {keyword}
                           </span>
                         ))}
                         {(topic.keywords || []).length > 5 && (
-                          <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-black text-slate-500">
+                          <span className="rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-black text-slate-500">
                             +{topic.keywords.length - 5}
                           </span>
                         )}
                         {(!topic.keywords || topic.keywords.length === 0) && (
-                          <span className="rounded-full bg-rose-50 px-2.5 py-1 text-xs font-black text-rose-700">Tanpa keyword</span>
+                          <span className="rounded-lg bg-rose-50 px-2.5 py-1 text-xs font-black text-rose-700">Tanpa kata kunci</span>
                         )}
                       </div>
                     </TableCell>
@@ -183,7 +184,14 @@ export function TaxonomyTable({
                         <div className="h-2 w-20 overflow-hidden rounded-full bg-slate-100">
                           <div className="h-full rounded-full bg-primary" style={{ width: `${Math.min(100, ratio)}%` }} />
                         </div>
-                        <span className="text-sm font-black tabular-nums text-slate-800">{topic.total_destinations}</span>
+                        <div className="min-w-0">
+                          <span className="text-sm font-black tabular-nums text-slate-800">
+                            {hasDestinationFilter ? topic.selected_destination_reviews : topic.total_destinations}
+                          </span>
+                          <p className="mt-0.5 text-[10px] font-black uppercase tracking-[0.08em] text-slate-400">
+                            {hasDestinationFilter ? 'ulasan di destinasi' : 'destinasi'}
+                          </p>
+                        </div>
                       </div>
                     </TableCell>
                     <TableCell className="text-right">
@@ -265,7 +273,7 @@ export function TaxonomyTable({
             type="button"
             onClick={() => onPageChange(Math.max(1, page - 1))}
             disabled={page <= 1}
-            className="min-h-10 rounded-full border border-slate-200 bg-white px-4 text-sm font-black text-slate-700 transition hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-40"
+            className="min-h-10 rounded-lg border border-slate-200 bg-white px-4 text-sm font-black text-slate-700 transition hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-40"
           >
             Sebelumnya
           </button>
@@ -279,7 +287,7 @@ export function TaxonomyTable({
                   type="button"
                   onClick={() => onPageChange(item)}
                   aria-current={page === item ? 'page' : undefined}
-                  className={`flex h-10 min-w-10 items-center justify-center rounded-full border px-3 text-sm font-black transition ${
+                  className={`flex h-10 min-w-10 items-center justify-center rounded-lg border px-3 text-sm font-black transition ${
                     page === item
                       ? 'border-primary bg-orange-50 text-primary'
                       : 'border-slate-200 bg-white text-slate-700 hover:border-primary hover:text-primary'
@@ -294,7 +302,7 @@ export function TaxonomyTable({
             type="button"
             onClick={() => onPageChange(Math.min(totalPages, page + 1))}
             disabled={page >= totalPages}
-            className="min-h-10 rounded-full border border-slate-200 bg-white px-4 text-sm font-black text-slate-700 transition hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-40"
+            className="min-h-10 rounded-lg border border-slate-200 bg-white px-4 text-sm font-black text-slate-700 transition hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-40"
           >
             Berikutnya
           </button>

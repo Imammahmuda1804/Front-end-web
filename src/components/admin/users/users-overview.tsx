@@ -29,7 +29,7 @@ export function UsersOverview({
 }) {
   return (
     <>
-      <section className="overflow-hidden rounded-xl border border-explore/20 bg-explore-container shadow-sm">
+      <section className="overflow-hidden rounded-lg border border-explore/20 bg-explore-container shadow-sm">
         <div className="grid gap-6 p-6 md:p-8 xl:grid-cols-[minmax(0,1.25fr)_minmax(360px,0.75fr)]">
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-2 rounded-full bg-explore px-4 py-2 text-xs font-extrabold uppercase tracking-[0.18em] text-white shadow-sm">

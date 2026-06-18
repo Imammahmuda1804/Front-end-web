@@ -54,7 +54,7 @@ const getDestinationScore = (destination: SearchDestination) => destination.reco
 export const getDestinationMatch = (destination: SearchDestination) => destination.hybrid_score ?? destination.similarity;
 
 const getDestinationTopicLabel = (topic: SearchDestinationTopic) =>
-  topic.topic_name?.replace(/Topic \d+: /, '') || topic.name || 'Vibe';
+  topic.topic_name?.replace(/Topic \d+: /, '') || topic.name || 'Nuansa';
 
 const getDestinationDescription = (destination: SearchDestination) => {
   const rawDescription = destination.short_description || destination.shortDescription || destination.description;
@@ -88,7 +88,7 @@ export default function SearchResultCard({
       initial={prefersReduced ? false : { opacity: 0, y: 18 }}
       animate={prefersReduced ? undefined : { opacity: 1, y: 0 }}
       transition={{ duration: 0.32, delay: Math.min(index * 0.04, 0.16), ease: easeOutExpo }}
-      className={`group overflow-hidden rounded-xl border bg-white shadow-sm shadow-slate-200/60 transition-[border-color,box-shadow] duration-200 hover:border-orange-200 hover:shadow-md hover:shadow-slate-200/70 ${
+      className={`group overflow-hidden rounded-lg border bg-white shadow-sm shadow-slate-200/60 transition-[border-color,box-shadow] duration-200 hover:border-orange-200 hover:shadow-md hover:shadow-slate-200/70 ${
         featured ? 'border-explore/20 bg-surface-warm' : 'border-slate-200'
       }`}
     >
@@ -103,19 +103,19 @@ export default function SearchResultCard({
               className="object-cover transition-transform duration-700 motion-safe:group-hover:scale-105"
             />
             {!featured && (
-              <div className="absolute inset-x-2 bottom-2 rounded-full bg-white/95 px-2 py-1 text-center text-[11px] font-black text-ai shadow-sm">
+              <div className="absolute inset-x-2 bottom-2 rounded-lg bg-white/95 px-2 py-1 text-center text-[11px] font-black text-ai shadow-sm">
                 {searchMode === 'semantic' && matchScore !== undefined ? `${formatPercent(matchScore)} sesuai` : 'Detail'}
               </div>
             )}
             <div className={`absolute flex flex-wrap gap-2 ${featured ? 'left-4 top-4' : 'left-2 top-2'}`}>
               {featured && (
-                <span className="inline-flex items-center gap-1.5 rounded-full border-2 border-white bg-explore px-3 py-1.5 text-xs font-black text-white shadow-sm">
+                <span className="inline-flex items-center gap-1.5 rounded-lg border-2 border-white bg-explore px-3 py-1.5 text-xs font-black text-white shadow-sm">
                   {searchMode === 'semantic' ? <Sparkles className="h-3.5 w-3.5" /> : <Star className="h-3.5 w-3.5 fill-white" />}
                   {searchMode === 'semantic' ? 'Paling sesuai' : 'Hasil teratas'}
                 </span>
               )}
               {searchMode === 'semantic' && matchScore !== undefined && (
-                <span className="inline-flex items-center gap-1.5 rounded-full border-2 border-white bg-ai px-3 py-1.5 text-xs font-black text-white shadow-sm">
+                <span className="inline-flex items-center gap-1.5 rounded-lg border-2 border-white bg-ai px-3 py-1.5 text-xs font-black text-white shadow-sm">
                   <Sparkles className="h-3.5 w-3.5 text-white" />
                   {(matchScore * 100).toFixed(0)}% sesuai
                 </span>
@@ -136,20 +136,20 @@ export default function SearchResultCard({
               </div>
 
               {recommendationScore !== undefined && featured && (
-                <div className="shrink-0 rounded-xl bg-ai-container px-2.5 py-1.5 text-right text-ai">
-                  <span className="block text-[10px] font-black uppercase tracking-[0.14em] text-ai/75">Skor AI</span>
+                <div className="shrink-0 rounded-lg bg-ai-container px-2.5 py-1.5 text-right text-ai">
+                  <span className="block text-[10px] font-black uppercase tracking-[0.14em] text-ai/75">Skor rekomendasi</span>
                   <span className={`${featured ? 'text-2xl' : 'text-xl'} font-black leading-none text-ai`}>{(recommendationScore * 100).toFixed(0)}</span>
                 </div>
               )}
             </div>
 
             <div className={`${featured ? 'mb-4' : 'mb-3'} flex flex-wrap gap-1.5`}>
-              <span className="rounded-full border border-explore/15 bg-explore-container px-2.5 py-1 text-[11px] font-black text-explore">
+              <span className="rounded-lg border border-explore/15 bg-explore-container px-2.5 py-1 text-[11px] font-black text-explore">
                 {getDestinationCategoryLabel(destination.category)}
               </span>
               {topTopics.map((topic, topicIndex) => (
-                <span key={`${destination.id}-top-topic-${topic.id}-${topicIndex}`} className="max-w-full truncate rounded-full border border-ai/15 bg-ai-container px-2.5 py-1 text-[11px] font-extrabold text-ai">
-                  {topicIndex === 0 ? 'Top topik: ' : ''}
+                <span key={`${destination.id}-top-topic-${topic.id}-${topicIndex}`} className="max-w-full truncate rounded-lg border border-ai/15 bg-ai-container px-2.5 py-1 text-[11px] font-extrabold text-ai">
+                  {topicIndex === 0 ? 'Paling dibahas: ' : ''}
                   {getDestinationTopicLabel(topic)}
                 </span>
               ))}
@@ -170,7 +170,7 @@ export default function SearchResultCard({
                   Positif: <span className="font-black text-slate-900">{formatPercent(positiveRatio)}</span>
                 </span>
               </div>
-              <span className="inline-flex min-h-11 shrink-0 items-center justify-center gap-1 rounded-full bg-ai px-3.5 text-sm font-black text-white transition-colors group-hover:bg-explore group-hover:text-white">
+              <span className="inline-flex min-h-11 shrink-0 items-center justify-center gap-1 rounded-lg bg-ai px-3.5 text-sm font-black text-white transition-colors group-hover:bg-explore group-hover:text-white">
                 <ImageIcon className="h-4 w-4" />
                 {featured ? 'Lihat detail' : 'Buka'}
                 <ArrowRight className="h-4 w-4 transition-transform motion-safe:group-hover:translate-x-1" />

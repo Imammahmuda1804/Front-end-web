@@ -6,7 +6,7 @@ export type QuickFilter = 'all' | 'unnamed' | 'dominant' | 'longtail' | 'noKeywo
 export type Tone = 'orange' | 'blue' | 'emerald' | 'amber' | 'rose' | 'slate';
 
 export type TopicStatus = {
-  label: 'Perlu nama AI' | 'Dominan' | 'Long-tail' | 'Normal';
+  label: 'Perlu nama' | 'Dominan' | 'Topik kecil' | 'Normal';
   tone: Tone;
 };
 

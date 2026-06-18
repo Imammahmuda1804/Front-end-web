@@ -5,7 +5,7 @@ import { NamingDebtPanel, TopicActionQueue, TopicCloud } from './topics-client.p
 import type { ActionItem, DistributionBucket } from './topics-client.types';
 
 const TopicChartSkeleton = ({ height = 'h-72' }: { height?: string }) => (
-  <div className={`${height} animate-pulse rounded-xl bg-white ring-1 ring-slate-200`} />
+  <div className={`${height} animate-pulse rounded-lg bg-white ring-1 ring-slate-200`} />
 );
 
 const TopicCoverageParetoChart = dynamic(

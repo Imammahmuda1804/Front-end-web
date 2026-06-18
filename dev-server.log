@@ -1,0 +1,5 @@
+
+> temp@0.1.0 dev
+> node scripts/clean-next-route-cache.mjs && cross-env NODE_OPTIONS="--max-old-space-size=4096 --max-semi-space-size=128" DANGEROUSLY_DISABLE_PRIVATE_IP_CHECKS=1 next dev --webpack -p 3001
+
+[?25h

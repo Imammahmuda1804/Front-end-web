@@ -7,11 +7,11 @@ export function isUnnamed(topic: TopicItem) {
 }
 
 export function getTopicStatus(topic: TopicItem, maxDestinations: number): TopicStatus {
-  if (isUnnamed(topic)) return { label: 'Perlu nama AI', tone: 'amber' };
+  if (isUnnamed(topic)) return { label: 'Perlu nama', tone: 'amber' };
   if (maxDestinations > 0 && topic.total_destinations >= Math.max(10, maxDestinations * 0.6)) {
     return { label: 'Dominan', tone: 'orange' };
   }
-  if (topic.total_destinations <= 1) return { label: 'Long-tail', tone: 'blue' };
+  if (topic.total_destinations <= 1) return { label: 'Topik kecil', tone: 'blue' };
   return { label: 'Normal', tone: 'emerald' };
 }
 

@@ -19,7 +19,7 @@ interface TopDestinationsListProps {
 
 export default function TopDestinationsList({ destinations }: TopDestinationsListProps) {
   return (
-    <Card className="overflow-hidden rounded-xl border border-slate-200 bg-white py-0 shadow-sm">
+    <Card className="overflow-hidden rounded-lg border border-slate-200 bg-white py-0 shadow-sm">
       <CardHeader className="flex flex-row items-start justify-between border-b border-slate-100 p-6">
         <div>
           <CardTitle className="text-lg font-black text-slate-950">Destinasi Teratas</CardTitle>
@@ -56,7 +56,7 @@ export default function TopDestinationsList({ destinations }: TopDestinationsLis
             ))}
           </div>
         ) : (
-          <div className="rounded-xl border border-dashed border-slate-200 py-8 text-center text-sm font-bold text-slate-400">
+          <div className="rounded-lg border border-dashed border-slate-200 py-8 text-center text-sm font-bold text-slate-400">
             Data destinasi belum tersedia.
           </div>
         )}

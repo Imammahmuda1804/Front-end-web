@@ -2,11 +2,16 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import dynamic from 'next/dynamic';
 import { ArrowDown, ArrowUp, Eye, MapPin, Plus, Route as RouteIcon, Sparkles, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select';
 import { api } from '@/lib/axios';
 import { routesService, RoutePayload, RouteVisibility, TravelRoute } from '@/services/routes.service';
+
+const Map = dynamic(() => import('@/components/ui/map').then((mod) => mod.Map), { ssr: false });
+const MapMarker = dynamic(() => import('@/components/ui/map').then((mod) => mod.MapMarker), { ssr: false });
+const MapRoute = dynamic(() => import('@/components/ui/map').then((mod) => mod.MapRoute), { ssr: false });
 
 type DestinationOption = {
   id: number;
@@ -24,9 +29,9 @@ type DraftStop = {
 };
 
 const VISIBILITY_OPTIONS: NativeSelectOption[] = [
-  { value: 'private', label: 'Private', description: 'Hanya bisa dilihat oleh pembuat rute' },
-  { value: 'public', label: 'Public', description: 'Tampil di katalog rute publik' },
-  { value: 'link_only', label: 'Link only', description: 'Bisa dibuka lewat tautan share' },
+  { value: 'private', label: 'Pribadi', description: 'Hanya bisa dilihat oleh pembuat rute' },
+  { value: 'public', label: 'Publik', description: 'Tampil di katalog rute publik' },
+  { value: 'link_only', label: 'Lewat tautan', description: 'Bisa dibuka melalui link yang dibagikan' },
 ];
 
 export function RouteBuilderClient({
@@ -60,6 +65,16 @@ export function RouteBuilderClient({
   const [saving, setSaving] = useState(false);
   const isEditing = Boolean(initialRoute);
 
+  const routeCoordinates = useMemo<[number, number][]>(() => {
+    return stops
+      .map((stop) => {
+        const dest = destinations.find((item) => item.id === stop.destinationId);
+        if (!dest || !dest.longitude || !dest.latitude) return null;
+        return [Number(dest.longitude), Number(dest.latitude)] as [number, number];
+      })
+      .filter((coord): coord is [number, number] => coord !== null);
+  }, [stops, destinations]);
+
   useEffect(() => {
     api
       .get('/api/destinations', { params: { limit: 100 } })
@@ -70,14 +85,14 @@ export function RouteBuilderClient({
   const selectedIds = useMemo(() => new Set(stops.map((stop) => stop.destinationId)), [stops]);
   const availableDestinations = destinations.filter((destination) => !selectedIds.has(destination.id));
   const heroShellClass = admin
-    ? 'rounded-xl border border-orange-100 bg-orange-50 p-6 md:p-8'
-    : 'on-photo-rule border-b pb-8 pt-4';
+    ? 'rounded-lg border border-orange-100 bg-orange-50 p-6 md:p-8'
+    : 'border-b pb-8 pt-4';
   const heroKickerClass = admin
     ? 'inline-flex items-center gap-2 rounded-lg bg-white px-3 py-1.5 text-xs font-black uppercase tracking-[0.16em] text-primary'
-    : 'on-photo-kicker inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.16em]';
+    : 'inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.16em]';
   const heroTitleClass = admin
     ? 'mt-4 text-3xl font-black text-slate-950'
-    : 'on-photo-heading mt-4 text-3xl font-black';
+    : 'mt-4 text-3xl font-black tracking-tight md:text-5xl';
   const destinationOptions = useMemo<NativeSelectOption[]>(
     () =>
       availableDestinations.map((destination) => ({
@@ -95,6 +110,13 @@ export function RouteBuilderClient({
     setSelectedDestination('');
   };
 
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      addStop();
+    }
+  };
+
   const moveStop = (index: number, direction: -1 | 1) => {
     setStops((current) => {
       const next = [...current];
@@ -106,7 +128,22 @@ export function RouteBuilderClient({
   };
 
   const removeStop = (index: number) => {
+    const stopToRemove = stops[index];
     setStops((current) => current.filter((_, itemIndex) => itemIndex !== index));
+
+    toast('Destinasi dihapus dari rute', {
+      action: {
+        label: 'Undo',
+        onClick: () => {
+          setStops((current) => {
+            const next = [...current];
+            next.splice(index, 0, stopToRemove);
+            return next;
+          });
+          toast.success('Destinasi dikembalikan');
+        },
+      },
+    });
   };
 
   const autoSort = async () => {
@@ -182,26 +219,26 @@ export function RouteBuilderClient({
         <div className={heroShellClass}>
           <p className={heroKickerClass}>
             <RouteIcon className="h-4 w-4" />
-            {admin ? 'Admin curated route' : 'Custom route'}
+            {admin ? 'Rute pilihan admin' : 'Rute buatan sendiri'}
           </p>
           <h1 className={heroTitleClass}>
             {isEditing ? 'Edit rute wisata' : admin ? 'Buat rute pilihan admin' : 'Buat rute wisata'}
           </h1>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
-          <div className="space-y-4 rounded-xl border border-slate-200 bg-white p-6">
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_24rem]">
+          <div className="space-y-4 rounded-lg border border-slate-200 bg-white p-6">
             <input
               value={title}
               onChange={(event) => setTitle(event.target.value)}
               placeholder="Judul rute"
-              className="min-h-12 w-full rounded-xl border border-slate-200 px-4 text-sm font-bold outline-none focus:border-primary"
+              className="min-h-11 w-full rounded-lg border border-slate-200 px-4 text-sm font-bold outline-none focus:border-primary"
             />
             <textarea
               value={description}
               onChange={(event) => setDescription(event.target.value)}
               placeholder="Deskripsi singkat"
-              className="min-h-28 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm font-bold outline-none focus:border-primary"
+              className="min-h-24 w-full rounded-lg border border-slate-200 px-4 py-3 text-sm font-bold outline-none focus:border-primary"
             />
             <NativeSelect
               aria-label="Visibilitas rute"
@@ -211,7 +248,7 @@ export function RouteBuilderClient({
               leftIcon={<Eye className="h-4 w-4" />}
               placeholder="Pilih visibilitas"
             />
-            <div className="flex flex-col gap-2 sm:flex-row">
+            <div className="flex flex-col gap-2 sm:flex-row" onKeyDown={handleKeyDown}>
               <NativeSelect
                 aria-label="Pilih destinasi untuk rute"
                 value={selectedDestination}
@@ -223,30 +260,63 @@ export function RouteBuilderClient({
                 searchPlaceholder="Cari destinasi..."
                 wrapperClassName="flex-1"
               />
-              <button type="button" onClick={addStop} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-primary px-5 text-sm font-black text-white">
+              <button type="button" onClick={addStop} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-primary px-5 text-sm font-black text-white">
                 <Plus className="h-4 w-4" />
                 Tambah
               </button>
             </div>
           </div>
 
-          <aside className="h-fit rounded-xl border border-slate-200 bg-white p-6">
-            <h2 className="font-black text-slate-950">Aksi</h2>
-            <div className="mt-4 space-y-3">
-              <button type="button" onClick={autoSort} className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-sky-100 bg-sky-50 px-5 text-sm font-black text-ai">
-                <Sparkles className="h-4 w-4" />
-                Auto sort
-              </button>
-              <button disabled={saving} type="button" onClick={save} className="inline-flex min-h-11 w-full items-center justify-center rounded-lg bg-primary px-5 text-sm font-black text-white disabled:opacity-60">
-                {isEditing ? 'Update rute' : 'Simpan rute'}
-              </button>
-            </div>
-          </aside>
+          <div className="space-y-6 lg:sticky lg:top-24 lg:h-fit">
+            <aside className="rounded-lg border border-slate-200 bg-white p-6">
+              <h2 className="font-black text-slate-950">Aksi</h2>
+              <div className="mt-4 space-y-3">
+                <div>
+                  <button type="button" onClick={autoSort} className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-sky-100 bg-sky-50 px-5 text-sm font-black text-ai">
+                    <Sparkles className="h-4 w-4" />
+                    Urutkan otomatis
+                  </button>
+                  <p className="mt-1.5 text-center text-[10px] font-bold text-slate-400">
+                    Mengurutkan destinasi rute berdasarkan jarak terdekat.
+                  </p>
+                </div>
+                <button disabled={saving} type="button" onClick={save} className="inline-flex min-h-11 w-full items-center justify-center rounded-lg bg-primary px-5 text-sm font-black text-white disabled:opacity-60">
+                  {isEditing ? 'Update rute' : 'Simpan rute'}
+                </button>
+              </div>
+            </aside>
+
+            {routeCoordinates.length > 0 && (
+              <div className="rounded-lg border border-slate-200 bg-white p-2 shadow-sm">
+                <div className="h-[360px] w-full rounded-md overflow-hidden bg-slate-100">
+                  <Map center={routeCoordinates[0]} zoom={12}>
+                    <MapRoute coordinates={routeCoordinates} color="#f97316" width={4} />
+                    {stops.map((stop, index) => {
+                      const dest = destinations.find((item) => item.id === stop.destinationId);
+                      if (!dest || !dest.longitude || !dest.latitude) return null;
+
+                      return (
+                        <MapMarker
+                          key={`builder-stop-${stop.destinationId}-${index}`}
+                          longitude={Number(dest.longitude)}
+                          latitude={Number(dest.latitude)}
+                        >
+                          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-xs font-black text-white border-2 border-white shadow-md hover:scale-110 transition-transform">
+                            {index + 1}
+                          </div>
+                        </MapMarker>
+                      );
+                    })}
+                  </Map>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="mt-6 space-y-3">
           {stops.map((stop, index) => (
-            <div key={`${stop.destinationId}-${index}`} className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-4">
+            <div key={`${stop.destinationId}-${index}`} className="flex items-center gap-3 rounded-lg border border-slate-200 bg-white p-4">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-sm font-black text-white">{index + 1}</div>
               <div className="min-w-0 flex-1 font-black text-slate-900">{destinationLabel(stop.destinationId)}</div>
               <button

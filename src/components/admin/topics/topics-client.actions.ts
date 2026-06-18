@@ -15,8 +15,8 @@ export function buildTopicActionItems(
 ): ActionItem[] {
   return [
     {
-      label: 'Selesaikan naming debt',
-      helper: metrics.unnamed.length > 0 ? 'Perlu rename' : 'Aman',
+      label: 'Rapikan nama generik',
+      helper: metrics.unnamed.length > 0 ? 'Perlu diberi nama jelas' : 'Aman',
       value: String(metrics.unnamed.length),
       tone: metrics.unnamed.length > 0 ? 'amber' : 'emerald',
       icon: Sparkles,
@@ -31,16 +31,16 @@ export function buildTopicActionItems(
       onClick: metrics.dominant.length > 0 ? () => setQuickFilter('dominant') : undefined,
     },
     {
-      label: 'Rapikan long-tail',
-      helper: metrics.longTail.length > 0 ? 'Cek merge' : 'Aman',
+      label: 'Rapikan topik kecil',
+      helper: metrics.longTail.length > 0 ? 'Cek penggabungan' : 'Aman',
       value: String(metrics.longTail.length),
       tone: metrics.longTail.length > 0 ? 'blue' : 'emerald',
       icon: Layers3,
       onClick: metrics.longTail.length > 0 ? () => setQuickFilter('longtail') : undefined,
     },
     {
-      label: 'Lengkapi keyword',
-      helper: metrics.withoutKeywords.length > 0 ? 'Perlu keyword' : 'Lengkap',
+      label: 'Lengkapi kata kunci',
+      helper: metrics.withoutKeywords.length > 0 ? 'Perlu kata kunci' : 'Lengkap',
       value: String(metrics.withoutKeywords.length),
       tone: metrics.withoutKeywords.length > 0 ? 'rose' : 'emerald',
       icon: Database,

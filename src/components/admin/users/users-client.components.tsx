@@ -21,8 +21,8 @@ export function HeroMetric({
   }[tone];
 
   return (
-    <div className="rounded-xl border border-white/80 bg-white/80 p-4 shadow-sm">
-      <div className={`mb-3 flex h-10 w-10 items-center justify-center rounded-xl ${toneClass}`}>
+    <div className="rounded-lg border border-white/80 bg-white/80 p-4 shadow-sm">
+      <div className={`mb-3 flex h-10 w-10 items-center justify-center rounded-lg ${toneClass}`}>
         <Icon className="h-5 w-5" />
       </div>
       <p className="text-2xl font-black text-slate-950">{value}</p>
@@ -52,13 +52,13 @@ export function HealthCard({
   }[tone];
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">{label}</p>
           <p className="mt-3 text-3xl font-black text-slate-950">{value}</p>
         </div>
-        <div className={`flex h-11 w-11 items-center justify-center rounded-xl ${toneClass}`}>
+        <div className={`flex h-11 w-11 items-center justify-center rounded-lg ${toneClass}`}>
           <Icon className="h-5 w-5" />
         </div>
       </div>
@@ -172,7 +172,7 @@ export function DistributionCard({
   const secondPercent = 100 - firstPercent;
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
       <h3 className="text-sm font-black text-slate-950">{title}</h3>
       <p className="mt-2 text-sm font-medium leading-6 text-slate-500">{description}</p>
       <div className="mt-5 flex h-3 overflow-hidden rounded-full bg-slate-100" aria-hidden="true">
@@ -189,7 +189,7 @@ export function DistributionCard({
 
 function DistributionLegend({ label, value, color }: { label: string; value: number; color: string }) {
   return (
-    <div className="rounded-xl bg-slate-50 p-3">
+    <div className="rounded-lg bg-slate-50 p-3">
       <div className="flex items-center gap-2">
         <span className={`h-2.5 w-2.5 rounded-full ${color}`} />
         <span className="text-xs font-bold text-slate-500">{label}</span>
@@ -217,8 +217,8 @@ export function QueueItem({
   }[tone];
 
   return (
-    <div className="flex gap-3 rounded-xl border border-slate-100 bg-slate-50/70 p-3">
-      <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${toneClass}`}>
+    <div className="flex gap-3 rounded-lg border border-slate-100 bg-slate-50/70 p-3">
+      <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${toneClass}`}>
         <Icon className="h-4 w-4" />
       </div>
       <div>

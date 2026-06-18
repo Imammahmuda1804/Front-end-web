@@ -17,13 +17,13 @@ export default function ReviewSourceMixChart({ breakdown }: Props) {
   const userRatio = total > 0 ? Math.round((breakdown.user_submitted / total) * 100) : 0;
 
   return (
-    <Card className="rounded-xl border border-slate-200 bg-white py-0 shadow-sm">
+    <Card className="rounded-lg border border-slate-200 bg-white py-0 shadow-sm">
       <CardHeader className="border-b border-slate-100 p-6">
         <CardTitle className="text-lg font-black text-slate-950">Komposisi Sumber Ulasan</CardTitle>
         <CardDescription className="mt-1 font-semibold">Perbandingan hasil scraping dan kontribusi pengguna.</CardDescription>
       </CardHeader>
       <CardContent className="p-6">
-        <div className="mb-5 rounded-xl border border-orange-100 bg-orange-50 p-4">
+        <div className="mb-5 rounded-lg border border-orange-100 bg-orange-50 p-4">
           <p className="text-xs font-black uppercase tracking-[0.14em] text-primary">Kontribusi pengguna</p>
           <p className="mt-1 text-3xl font-black text-slate-950">{userRatio}%</p>
           <p className="mt-1 text-sm font-semibold text-slate-600">Dari total {total.toLocaleString()} ulasan</p>

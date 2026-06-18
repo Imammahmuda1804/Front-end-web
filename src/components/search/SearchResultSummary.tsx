@@ -32,7 +32,7 @@ export function SearchResultSummary({
   onClearAll: () => void;
 }) {
   return (
-    <div className="mb-5 rounded-xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/70">
+    <div className="mb-5 rounded-lg border border-white/60 bg-white/92 p-4 shadow-sm shadow-slate-900/10 backdrop-blur-xl">
       <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
         <div className="min-w-0">
           <p className="text-xs font-black uppercase tracking-[0.16em] text-explore">Hasil pencarian</p>
@@ -46,14 +46,14 @@ export function SearchResultSummary({
         </div>
 
         {searchMode === 'semantic' && (
-          <div className="w-full rounded-xl border border-ai/15 bg-ai-container p-2 shadow-sm shadow-blue-900/5 sm:w-auto">
+          <div className="w-full rounded-lg border border-ai/15 bg-ai-container p-2 shadow-sm shadow-blue-900/5 sm:w-auto">
             <span className="mb-2 block px-2 text-[11px] font-black uppercase tracking-[0.14em] text-ai">Urutan hasil</span>
             <div className="grid grid-cols-2 gap-1" role="group" aria-label="Urutan hasil semantik">
               <button
                 type="button"
                 onClick={() => onSortChange('hybrid')}
                 aria-pressed={semanticSort === 'hybrid'}
-                className={`min-h-11 rounded-xl px-3 text-sm font-black transition-colors ${
+                className={`min-h-11 rounded-lg px-3 text-sm font-black transition-colors ${
                   semanticSort === 'hybrid' ? 'bg-explore text-white shadow-sm shadow-orange-900/15' : 'text-slate-700 hover:bg-white hover:text-explore'
                 }`}
               >
@@ -63,7 +63,7 @@ export function SearchResultSummary({
                 type="button"
                 onClick={() => onSortChange('relevance')}
                 aria-pressed={semanticSort === 'relevance'}
-                className={`min-h-11 rounded-xl px-3 text-sm font-black transition-colors ${
+                className={`min-h-11 rounded-lg px-3 text-sm font-black transition-colors ${
                   semanticSort === 'relevance' ? 'bg-ai text-white shadow-sm shadow-blue-900/15' : 'text-slate-700 hover:bg-white hover:text-ai'
                 }`}
               >
@@ -78,42 +78,42 @@ export function SearchResultSummary({
         <motion.div layout className="mt-4 flex flex-wrap items-center gap-2 border-t border-slate-100 pt-4">
           <span className="text-sm font-bold text-slate-500">Filter aktif:</span>
           {activeQuery && (
-            <motion.span layout className="inline-flex min-h-11 items-center gap-1.5 rounded-full bg-explore-container px-3 text-sm font-bold text-explore">
+            <motion.span layout className="inline-flex min-h-11 items-center gap-1.5 rounded-lg bg-explore-container px-3 text-sm font-bold text-explore">
               {searchMode === 'semantic' && <Brain className="h-3.5 w-3.5" />}
               {activeQuery}
               <button
                 type="button"
                 aria-label="Hapus query aktif"
                 onClick={onClearQuery}
-                className="-mr-3 flex h-11 w-11 items-center justify-center rounded-full hover:bg-explore/10"
+                className="-mr-3 flex h-11 w-11 items-center justify-center rounded-lg hover:bg-explore/10"
               >
                 <X className="h-3.5 w-3.5" />
               </button>
             </motion.span>
           )}
           {selectedCity && (
-            <motion.span layout className="inline-flex min-h-11 items-center gap-1.5 rounded-full bg-ai-container px-3 text-sm font-bold text-ai">
+            <motion.span layout className="inline-flex min-h-11 items-center gap-1.5 rounded-lg bg-ai-container px-3 text-sm font-bold text-ai">
               <MapPin className="h-3.5 w-3.5" />
               {selectedCity}
               <button
                 type="button"
                 aria-label="Hapus filter kota"
                 onClick={() => onCityChange('')}
-                className="-mr-3 flex h-11 w-11 items-center justify-center rounded-full hover:bg-ai/10"
+                className="-mr-3 flex h-11 w-11 items-center justify-center rounded-lg hover:bg-ai/10"
               >
                 <X className="h-3.5 w-3.5" />
               </button>
             </motion.span>
           )}
           {selectedCategory && (
-            <motion.span layout className="inline-flex min-h-11 items-center gap-1.5 rounded-full bg-success-container px-3 text-sm font-bold text-success">
+            <motion.span layout className="inline-flex min-h-11 items-center gap-1.5 rounded-lg bg-success-container px-3 text-sm font-bold text-success">
               <Type className="h-3.5 w-3.5" />
               {getDestinationCategoryLabel(selectedCategory)}
               <button
                 type="button"
                 aria-label="Hapus filter kategori"
                 onClick={() => onCategoryChange('')}
-                className="-mr-3 flex h-11 w-11 items-center justify-center rounded-full hover:bg-success/10"
+                className="-mr-3 flex h-11 w-11 items-center justify-center rounded-lg hover:bg-success/10"
               >
                 <X className="h-3.5 w-3.5" />
               </button>
@@ -122,7 +122,7 @@ export function SearchResultSummary({
           <button
             type="button"
             onClick={onClearAll}
-            className="min-h-11 rounded-full px-3 text-sm font-black text-slate-500 transition-colors hover:bg-slate-100 hover:text-danger"
+            className="min-h-11 rounded-lg px-3 text-sm font-black text-slate-500 transition-colors hover:bg-slate-100 hover:text-danger"
           >
             Hapus semua
           </button>

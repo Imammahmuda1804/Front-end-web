@@ -69,9 +69,9 @@ export function NlpCommandPanel({
   ];
 
   return (
-    <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+    <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
       <div className="mb-5 flex items-center gap-3">
-        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-orange-50 text-primary">
+        <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-orange-50 text-primary">
           <BrainCircuit className="h-5 w-5" />
         </div>
         <div>
@@ -112,18 +112,18 @@ export function NlpCommandPanel({
               onDragOver={(event) => event.preventDefault()}
               onDrop={onDrop}
               onClick={() => fileInputRef.current?.click()}
-              className="flex min-h-52 w-full flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 bg-slate-50/70 p-6 text-center transition hover:border-primary hover:bg-orange-50/60 focus:outline-none focus:ring-4 focus:ring-primary/15"
+              className="flex min-h-52 w-full flex-col items-center justify-center rounded-lg border-2 border-dashed border-slate-200 bg-slate-50/70 p-6 text-center transition hover:border-primary hover:bg-orange-50/60 focus:outline-none focus:ring-4 focus:ring-primary/15"
             >
               <input ref={fileInputRef} type="file" accept=".xlsx,.xls,.csv" onChange={onFileChange} className="hidden" />
-              <span className="mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-white text-primary shadow-sm">
+              <span className="mb-4 flex h-14 w-14 items-center justify-center rounded-lg bg-white text-primary shadow-sm">
                 <Upload className="h-7 w-7" />
               </span>
               <span className="text-sm font-black text-slate-800">Klik atau seret file ke sini</span>
               <span className="mt-1 text-xs font-semibold text-slate-500">Excel atau CSV dari hasil scraping</span>
             </button>
           ) : (
-            <div className="flex items-center gap-3 rounded-xl border border-emerald-100 bg-emerald-50 p-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white text-emerald-700">
+            <div className="flex items-center gap-3 rounded-lg border border-emerald-100 bg-emerald-50 p-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-white text-emerald-700">
                 <FileSpreadsheet className="h-6 w-6" />
               </div>
               <div className="min-w-0 flex-1">
@@ -137,7 +137,7 @@ export function NlpCommandPanel({
           )}
         </div>
 
-        <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4">
+        <div className="rounded-lg border border-slate-200 bg-slate-50/70 p-4">
           <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">Pipeline readiness</p>
           <div className="mt-3 h-2 overflow-hidden rounded-full bg-white">
             <div className="h-full rounded-full bg-primary" style={{ width: `${Math.round((readiness / 3) * 100)}%` }} />
@@ -176,7 +176,7 @@ function PreflightPanel({
   selectedDestination: string;
 }) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-4">
+    <div className="rounded-lg border border-slate-200 bg-white p-4">
       <div className="mb-3 flex items-center justify-between gap-3">
         <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">Preflight file</p>
         {isPreflighting ? <RefreshCw className="h-4 w-4 animate-spin text-primary" /> : null}
@@ -187,7 +187,7 @@ function PreflightPanel({
           <div className="flex justify-between gap-3"><span>Review baru</span><span className="text-emerald-700">{preflight.new_reviews}</span></div>
           <div className="flex justify-between gap-3"><span>Duplikat</span><span className="text-amber-700">{preflight.duplicate_reviews}</span></div>
           {preflight.already_processed ? (
-            <div className="mt-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs leading-5 text-amber-800">
+            <div className="mt-2 rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs leading-5 text-amber-800">
               File ini pernah diproses. Gunakan &quot;Proses ulang&quot; jika ingin menghitung ulang analisis tanpa menambah review.
             </div>
           ) : null}
@@ -211,7 +211,7 @@ function ProcessModeSelector({
   onModeChange: (mode: NlpProcessingMode) => void;
 }) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4">
+    <div className="rounded-lg border border-slate-200 bg-slate-50/70 p-4">
       <p className="mb-3 text-xs font-black uppercase tracking-[0.16em] text-slate-500">Mode proses</p>
       <div className="grid gap-2">
         {modes.map((item) => (
@@ -220,7 +220,7 @@ function ProcessModeSelector({
             type="button"
             aria-pressed={mode === item.value}
             onClick={() => onModeChange(item.value)}
-            className={`rounded-xl border p-3 text-left transition ${
+            className={`rounded-lg border p-3 text-left transition ${
               mode === item.value
                 ? "border-primary bg-orange-50 ring-2 ring-primary/15"
                 : "border-slate-200 bg-white hover:border-slate-300"
@@ -232,7 +232,7 @@ function ProcessModeSelector({
         ))}
       </div>
       {mode === "replace_existing" ? (
-        <div className="mt-3 flex gap-2 rounded-xl border border-rose-200 bg-rose-50 p-3 text-xs font-semibold leading-5 text-rose-700">
+        <div className="mt-3 flex gap-2 rounded-lg border border-rose-200 bg-rose-50 p-3 text-xs font-semibold leading-5 text-rose-700">
           <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0" />
           Mode ini menghapus review scraping lama destinasi sebelum insert ulang.
         </div>
@@ -250,11 +250,11 @@ export function PipelineStepIndicator({ selectedDestination, fileReady, isProces
   ];
 
   return (
-    <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+    <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
       <p className="mb-4 text-xs font-black uppercase tracking-[0.16em] text-primary">Pipeline stepper</p>
       <div className="grid gap-3 md:grid-cols-4">
         {steps.map((step, index) => (
-          <div key={step.label} className={`rounded-xl border p-4 ${step.done ? "border-emerald-100 bg-emerald-50" : step.active ? "border-orange-100 bg-orange-50" : "border-slate-200 bg-slate-50"}`}>
+          <div key={step.label} className={`rounded-lg border p-4 ${step.done ? "border-emerald-100 bg-emerald-50" : step.active ? "border-orange-100 bg-orange-50" : "border-slate-200 bg-slate-50"}`}>
             <div className="mb-3 flex h-8 w-8 items-center justify-center rounded-full bg-white text-sm font-black text-slate-950">{index + 1}</div>
             <p className="text-sm font-black text-slate-950">{step.label}</p>
             <p className={`mt-1 text-xs font-bold ${step.done ? "text-emerald-700" : step.active ? "text-primary" : "text-slate-500"}`}>{step.done ? "Selesai" : step.active ? "Aktif" : "Menunggu"}</p>
@@ -287,7 +287,7 @@ export function NlpHistoryPanel({
   };
 
   return (
-    <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+    <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
       <div className="mb-4 flex items-center justify-between gap-3">
         <div>
           <p className="text-xs font-black uppercase tracking-[0.16em] text-ai">History process</p>
@@ -300,9 +300,9 @@ export function NlpHistoryPanel({
       </div>
 
       {error ? (
-        <div className="rounded-xl border border-rose-100 bg-rose-50 p-5 text-sm font-semibold text-rose-700">{error}</div>
+        <div className="rounded-lg border border-rose-100 bg-rose-50 p-5 text-sm font-semibold text-rose-700">{error}</div>
       ) : history.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-slate-200 p-5 text-sm font-semibold text-slate-500">
+        <div className="rounded-lg border border-dashed border-slate-200 p-5 text-sm font-semibold text-slate-500">
           Belum ada riwayat proses NLP. Riwayat baru dibuat setelah admin menekan tombol proses, bukan saat preflight.
         </div>
       ) : (
@@ -312,7 +312,7 @@ export function NlpHistoryPanel({
               key={item.id}
               type="button"
               onClick={() => onSelectHistory(selectedHistory?.id === item.id ? null : item)}
-              className="w-full rounded-xl border border-slate-200 bg-slate-50/60 p-4 text-left transition hover:border-primary/40 hover:bg-orange-50/40"
+              className="w-full rounded-lg border border-slate-200 bg-slate-50/60 p-4 text-left transition hover:border-primary/40 hover:bg-orange-50/40"
             >
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="min-w-0">
@@ -334,7 +334,7 @@ export function NlpHistoryPanel({
       )}
 
       {selectedHistory ? (
-        <div className="mt-4 rounded-xl border border-slate-200 bg-white p-4">
+        <div className="mt-4 rounded-lg border border-slate-200 bg-white p-4">
           <p className="text-sm font-black text-slate-950">Detail run #{selectedHistory.id}</p>
           <dl className="mt-3 grid gap-2 text-sm font-semibold text-slate-600 md:grid-cols-2">
             <div><dt className="text-xs uppercase tracking-[0.12em] text-slate-400">Admin</dt><dd>{selectedHistory.admin?.name || "-"}</dd></div>
@@ -343,7 +343,7 @@ export function NlpHistoryPanel({
             <div><dt className="text-xs uppercase tracking-[0.12em] text-slate-400">Hash file</dt><dd className="truncate">{selectedHistory.fileHash}</dd></div>
           </dl>
           {selectedHistory.errorMessage ? (
-            <div className="mt-3 rounded-xl border border-rose-100 bg-rose-50 p-3 text-xs font-semibold leading-5 text-rose-700">
+            <div className="mt-3 rounded-lg border border-rose-100 bg-rose-50 p-3 text-xs font-semibold leading-5 text-rose-700">
               {selectedHistory.errorMessage}
             </div>
           ) : null}
@@ -365,7 +365,7 @@ export function PipelineHeroPanel({
   insights: Array<{ label: string; value: string; helper: string; icon: ElementType; tone: Tone }>;
 }) {
   return (
-    <section className="rounded-xl border border-orange-100 bg-orange-50/70 p-6 shadow-sm shadow-orange-100/50">
+    <section className="rounded-lg border border-orange-100 bg-orange-50/70 p-6 shadow-sm shadow-orange-100/50">
       <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
         <div className="max-w-3xl">
           <p className="mb-3 inline-flex items-center gap-2 rounded-full bg-white px-3 py-1.5 text-xs font-black uppercase tracking-[0.16em] text-primary shadow-sm">
@@ -385,7 +385,7 @@ export function PipelineHeroPanel({
 
 function PipelineMetricCard({ icon: Icon, label, value, helper, tone }: { icon: ElementType; label: string; value: string; helper: string; tone: Tone }) {
   return (
-    <article className={`rounded-xl border p-4 shadow-sm ${getToneClass(tone)}`}>
+    <article className={`rounded-lg border p-4 shadow-sm ${getToneClass(tone)}`}>
       <Icon className="mb-3 h-5 w-5" />
       <p className="text-xs font-black uppercase tracking-[0.14em] opacity-80">{label}</p>
       <p className="mt-1 text-2xl font-black text-slate-950">{value}</p>

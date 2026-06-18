@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { AlertTriangle, BarChart3, CheckCircle2, ExternalLink, MapPin, Navigation, Search, Sparkles } from 'lucide-react';
+import { AlertTriangle, BarChart3, CheckCircle2, ExternalLink, Info, MapPin, Navigation, Search, Sparkles } from 'lucide-react';
 import { getDestinationCategoryLabel } from '@/lib/destination-categories';
 import type { ComparedDestination, DestinationMinimal, CompareFactorKey } from './CompareClient';
 import { cleanTopicName, formatPercent, imageUrl, normalizeScore, topicChips, totalReviews } from './CompareClient';
@@ -24,17 +24,17 @@ export function DestinationResultCard({ dest, fallback, tone, label }: { dest: C
   const risks = normalizedSignals(dest.risks, []).slice(0, 3);
 
   return (
-    <article className="overflow-hidden rounded-xl border border-slate-200 bg-slate-50/70">
+    <article className="overflow-hidden rounded-lg border border-slate-200 bg-slate-50/70">
       <div className="relative h-44 bg-slate-200">
         <Image src={thumbnailSource} alt={dest.name} fill sizes="(max-width: 768px) 100vw, 40vw" className="object-cover" />
-        <div className={`absolute left-4 top-4 rounded-full border px-3 py-1.5 text-xs font-black ${accent}`}>{label}</div>
+        <div className={`absolute left-4 top-4 rounded-md border px-3 py-1.5 text-xs font-black ${accent}`}>{label}</div>
       </div>
       <div className="p-5">
         <h3 className="line-clamp-2 text-xl font-black text-slate-950">{dest.name}</h3>
         {dest.city && (
           <p className="mt-1 flex items-center gap-1.5 text-sm font-bold text-slate-500">
             <MapPin className="h-4 w-4" />
-            {dest.city}{dest.category ? ` • ${getDestinationCategoryLabel(dest.category)}` : ''}
+            {dest.city}{dest.category ? ` / ${getDestinationCategoryLabel(dest.category)}` : ''}
           </p>
         )}
 
@@ -53,14 +53,14 @@ export function DestinationResultCard({ dest, fallback, tone, label }: { dest: C
           <span className="text-xs font-bold text-slate-500">{dest.review_count || totalReviews(dest)} ulasan dianalisis</span>
           <div className="flex gap-2">
             {mapsHref && (
-              <Link href={mapsHref} target="_blank" className="inline-flex min-h-10 items-center gap-1 rounded-full border border-slate-200 bg-white px-3 text-sm font-black text-slate-700 transition-colors hover:bg-slate-100">
+              <Link href={mapsHref} target="_blank" className="inline-flex min-h-10 items-center gap-1 rounded-lg border border-slate-200 bg-white px-3 text-sm font-black text-slate-700 transition-colors hover:bg-slate-100">
                 <Navigation className="h-4 w-4" />
                 Maps
               </Link>
             )}
             <Link
               href={detailHref}
-              className={`inline-flex min-h-10 items-center rounded-full px-4 text-sm font-black transition-colors ${
+              className={`inline-flex min-h-10 items-center rounded-lg px-4 text-sm font-black transition-colors ${
                 tone === 'orange' ? 'bg-primary text-white hover:bg-primary/90' : 'bg-ai text-white hover:bg-ai/90'
               }`}
             >
@@ -77,7 +77,7 @@ function SignalList({ title, icon, items, empty }: { title: string; icon: 'good'
   const Icon = icon === 'good' ? CheckCircle2 : AlertTriangle;
   const tone = icon === 'good' ? 'text-emerald-700 bg-emerald-50 border-emerald-100' : 'text-rose-700 bg-rose-50 border-rose-100';
   return (
-    <div className={`rounded-xl border p-3 ${tone}`}>
+    <div className={`rounded-lg border p-3 ${tone}`}>
       <p className="flex items-center gap-1.5 text-xs font-black uppercase tracking-[0.12em]">
         <Icon className="h-3.5 w-3.5" />
         {title}
@@ -91,9 +91,61 @@ function SignalList({ title, icon, items, empty }: { title: string; icon: 'good'
   );
 }
 
+export function SentimentDecisionPanel({ destination1, destination2 }: { destination1: ComparedDestination; destination2: ComparedDestination }) {
+  const insights = [destination1, destination2].map((destination) => buildSentimentDecision(destination));
+  const strongerPositive = insights[0].positiveRate >= insights[1].positiveRate ? insights[0] : insights[1];
+  const higherRisk = insights[0].negativeRate >= insights[1].negativeRate ? insights[0] : insights[1];
+
+  return (
+    <section className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm md:p-8">
+      <SectionHeader
+        eyebrow="Pembacaan sentimen"
+        title="Apa arti ulasan untuk keputusan perjalanan"
+        description="Sentimen tidak dibaca sebagai vonis mutlak. Bagian ini menjelaskan kecenderungan, risiko, dan kekuatan data dari ulasan yang tersedia."
+      />
+
+      <div className="mt-6 grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_18rem]">
+        {insights.map((item) => (
+          <article key={item.destination.id} className="rounded-lg border border-slate-200 bg-slate-50/80 p-5">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">Kecenderungan</p>
+                <h3 className="mt-1 text-lg font-black leading-6 text-slate-950">{item.destination.name}</h3>
+              </div>
+              <span className={`rounded-lg border px-2.5 py-1 text-xs font-black ${item.tone}`}>
+                {item.strength}
+              </span>
+            </div>
+
+            <p className="mt-4 text-sm font-black leading-6 text-slate-900">{item.headline}</p>
+            <p className="mt-1 text-sm font-semibold leading-6 text-slate-600">{item.detail}</p>
+
+            <div className="mt-4 grid grid-cols-3 gap-2 text-center text-[11px] font-black">
+              <span className="rounded-md bg-emerald-50 px-2 py-2 text-emerald-700">{item.positiveRate}% positif</span>
+              <span className="rounded-md bg-slate-100 px-2 py-2 text-slate-600">{item.neutralRate}% netral</span>
+              <span className="rounded-md bg-rose-50 px-2 py-2 text-rose-700">{item.negativeRate}% negatif</span>
+            </div>
+          </article>
+        ))}
+
+        <aside className="rounded-lg border border-sky-100 bg-sky-50/80 p-5 text-ai">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white">
+            <Info className="h-5 w-5" />
+          </div>
+          <p className="mt-4 text-sm font-black uppercase tracking-[0.14em]">Cara pakai</p>
+          <p className="mt-2 text-sm font-semibold leading-6">
+            {strongerPositive.destination.name} lebih kuat sebagai pilihan aman dari sisi sentimen positif.
+            {higherRisk.negativeRate >= 25 ? ` ${higherRisk.destination.name} perlu dibaca lebih hati-hati karena catatan negatifnya lebih tinggi.` : ' Keduanya belum menunjukkan risiko negatif yang dominan.'}
+          </p>
+        </aside>
+      </div>
+    </section>
+  );
+}
+
 export function MiniMetric({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-3">
+    <div className="rounded-lg border border-slate-200 bg-white p-3">
       <p className="text-[10px] font-black uppercase tracking-[0.12em] text-slate-500">{label}</p>
       <p className="mt-1 text-lg font-black text-slate-950">{value}</p>
     </div>
@@ -111,7 +163,7 @@ const FACTORS: Array<{ key: CompareFactorKey; label: string }> = [
 
 export function FactorMatrix({ destination1, destination2 }: { destination1: ComparedDestination; destination2: ComparedDestination }) {
   return (
-    <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm md:p-8">
+    <section className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm md:p-8">
       <SectionHeader
         eyebrow="Factor Matrix"
         title="Faktor perjalanan yang paling praktis"
@@ -135,7 +187,7 @@ export function FactorMatrix({ destination1, destination2 }: { destination1: Com
 
 function FactorRow({ label, value1, value2, name1, name2 }: { label: string; value1: number; value2: number; name1: string; name2: string }) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+    <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
       <div className="mb-3 flex items-center justify-between gap-4">
         <p className="font-black text-slate-900">{label}</p>
         <p className="text-xs font-bold text-slate-500">{value1 >= value2 ? name1 : name2} unggul</p>
@@ -163,7 +215,7 @@ function CompareBar({ label, value, className }: { label: string; value: number;
 
 export function HighlightRiskGrid({ destination1, destination2 }: { destination1: ComparedDestination; destination2: ComparedDestination }) {
   return (
-    <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm md:p-8">
+    <section className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm md:p-8">
       <SectionHeader
         eyebrow="Highlights vs Risks"
         title="Yang membuat menarik dan yang perlu dicek"
@@ -171,7 +223,7 @@ export function HighlightRiskGrid({ destination1, destination2 }: { destination1
       />
       <div className="mt-6 grid gap-5 md:grid-cols-2">
         {[destination1, destination2].map((dest) => (
-          <article key={dest.id} className="rounded-xl border border-slate-200 bg-slate-50 p-5">
+          <article key={dest.id} className="rounded-lg border border-slate-200 bg-slate-50 p-5">
             <h3 className="text-lg font-black text-slate-950">{dest.name}</h3>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               <SignalList title="Yang unggul" icon="good" items={normalizedSignals(dest.highlights, topicChips(dest)).slice(0, 4)} empty="Belum ada highlight kuat" />
@@ -187,11 +239,11 @@ export function HighlightRiskGrid({ destination1, destination2 }: { destination1
 export function LocationComparePanel({ destination1, destination2 }: { destination1: ComparedDestination; destination2: ComparedDestination }) {
   const distance = distanceKm(destination1, destination2);
   return (
-    <section className="rounded-xl border border-sky-100 bg-white p-6 shadow-sm">
+    <section className="rounded-lg border border-sky-100 bg-white p-6 shadow-sm">
       <p className="text-xs font-black uppercase tracking-[0.18em] text-ai">Lokasi & akses</p>
       <h2 className="mt-2 text-2xl font-black text-slate-950">Cek posisi sebelum memilih</h2>
       {distance !== null && (
-        <div className="mt-4 rounded-xl border border-sky-100 bg-sky-50 p-4 text-ai">
+        <div className="mt-4 rounded-lg border border-sky-100 bg-sky-50 p-4 text-ai">
           <p className="text-xs font-black uppercase tracking-[0.12em]">Jarak lurus antar destinasi</p>
           <p className="mt-1 text-3xl font-black">{distance.toFixed(1)} km</p>
         </div>
@@ -200,13 +252,13 @@ export function LocationComparePanel({ destination1, destination2 }: { destinati
         {[destination1, destination2].map((dest) => {
           const mapsHref = getMapsHref(dest);
           return (
-            <div key={dest.id} className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+            <div key={dest.id} className="rounded-lg border border-slate-200 bg-slate-50 p-4">
               <p className="font-black text-slate-950">{dest.name}</p>
               <p className="mt-1 text-sm font-bold text-slate-500">
-                {[dest.city, dest.province, dest.category ? getDestinationCategoryLabel(dest.category) : null].filter(Boolean).join(' • ')}
+                {[dest.city, dest.province, dest.category ? getDestinationCategoryLabel(dest.category) : null].filter(Boolean).join(' / ')}
               </p>
               {mapsHref ? (
-                <Link href={mapsHref} target="_blank" className="mt-3 inline-flex min-h-10 items-center gap-2 rounded-full bg-ai px-4 text-sm font-black text-white">
+                <Link href={mapsHref} target="_blank" className="mt-3 inline-flex min-h-10 items-center gap-2 rounded-lg bg-ai px-4 text-sm font-black text-white">
                   <ExternalLink className="h-4 w-4" />
                   Buka Maps
                 </Link>
@@ -221,18 +273,18 @@ export function LocationComparePanel({ destination1, destination2 }: { destinati
   );
 }
 
-export function VibeCard({ dest, tone }: { dest: ComparedDestination; tone: 'orange' | 'blue' }) {
+export function ExperienceTopicCard({ dest, tone }: { dest: ComparedDestination; tone: 'orange' | 'blue' }) {
   const accent = tone === 'orange' ? 'text-primary bg-orange-50 border-orange-200' : 'text-ai bg-sky-50 border-sky-200';
 
   return (
-    <article className="rounded-xl border border-slate-200 bg-slate-50/70 p-5">
+    <article className="rounded-lg border border-slate-200 bg-slate-50/70 p-5">
       <h3 className="text-lg font-black text-slate-950">{dest.name}</h3>
       {dest.topics && dest.topics.length > 0 ? (
         <div className="mt-4 space-y-3">
           {dest.topics.slice(0, 5).map((topic) => {
             const words = cleanTopicName(topic.topic_name).split(',').map((word) => word.trim()).filter(Boolean);
             return (
-              <div key={`${dest.id}-${topic.topic_name}`} className="rounded-xl border border-slate-200 bg-white p-4">
+              <div key={`${dest.id}-${topic.topic_name}`} className="rounded-lg border border-slate-200 bg-white p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="font-black capitalize text-slate-900">{words.slice(0, 2).join(', ') || 'Topik perjalanan'}</p>
@@ -247,7 +299,7 @@ export function VibeCard({ dest, tone }: { dest: ComparedDestination; tone: 'ora
           })}
         </div>
       ) : (
-        <div className="mt-4 rounded-xl border border-dashed border-slate-200 bg-white p-8 text-center">
+        <div className="mt-4 rounded-lg border border-dashed border-slate-200 bg-white p-8 text-center">
           <p className="text-sm font-semibold text-slate-500">Data topik belum tersedia.</p>
         </div>
       )}
@@ -257,6 +309,69 @@ export function VibeCard({ dest, tone }: { dest: ComparedDestination; tone: 'ora
 
 function normalizedSignals(primary?: string[], fallback?: string[]) {
   return [...new Set([...(primary || []), ...(fallback || [])].map((item) => item.trim()).filter(Boolean))];
+}
+
+function buildSentimentDecision(destination: ComparedDestination) {
+  const total = Math.max(0, totalReviews(destination));
+  const positiveRate = total > 0 ? Math.round((destination.sentiment.positive / total) * 100) : 0;
+  const neutralRate = total > 0 ? Math.round((destination.sentiment.neutral / total) * 100) : 0;
+  const negativeRate = total > 0 ? Math.round((destination.sentiment.negative / total) * 100) : 0;
+  const strength = total >= 80 ? 'Data kuat' : total >= 25 ? 'Data cukup' : total > 0 ? 'Data terbatas' : 'Belum ada data';
+  const tone = total >= 80
+    ? 'border-emerald-100 bg-emerald-50 text-emerald-700'
+    : total >= 25
+      ? 'border-sky-100 bg-sky-50 text-ai'
+      : 'border-amber-100 bg-amber-50 text-amber-700';
+
+  if (total === 0) {
+    return {
+      destination,
+      positiveRate,
+      neutralRate,
+      negativeRate,
+      strength,
+      tone,
+      headline: 'Belum cukup ulasan untuk disimpulkan',
+      detail: 'Gunakan foto, lokasi, dan rating sebagai pertimbangan sementara.',
+    };
+  }
+
+  if (negativeRate >= 30) {
+    return {
+      destination,
+      positiveRate,
+      neutralRate,
+      negativeRate,
+      strength,
+      tone,
+      headline: 'Ada risiko pengalaman yang perlu dibaca',
+      detail: 'Buka highlight dan risiko untuk memahami apakah keluhan itu relevan dengan rencana kunjungan Anda.',
+    };
+  }
+
+  if (positiveRate >= 65) {
+    return {
+      destination,
+      positiveRate,
+      neutralRate,
+      negativeRate,
+      strength,
+      tone,
+      headline: 'Mayoritas ulasan mendukung pilihan ini',
+      detail: 'Cocok dijadikan kandidat utama, terutama jika topik unggulnya sesuai kebutuhan perjalanan.',
+    };
+  }
+
+  return {
+    destination,
+    positiveRate,
+    neutralRate,
+    negativeRate,
+    strength,
+    tone,
+    headline: 'Pendapat pengunjung masih campuran',
+    detail: 'Bandingkan faktor akses, fasilitas, dan topik dominan sebelum menentukan pilihan akhir.',
+  };
 }
 
 function fallbackFactor(dest: ComparedDestination) {
@@ -306,22 +421,22 @@ export function EmptyCompareState({
   const quickPair = destinations.slice(0, 2);
 
   return (
-    <section className="rounded-xl border border-dashed border-orange-200 bg-white p-8 text-center shadow-sm">
-      <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-xl bg-orange-50 text-primary">
+    <section className="rounded-lg border border-dashed border-orange-200 bg-white p-8 text-center shadow-sm">
+      <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-lg bg-orange-50 text-primary">
         <BarChart3 className="h-8 w-8" />
       </div>
       <h2 className="text-2xl font-black text-slate-950">
         {selectedDest1 || selectedDest2 ? 'Pilih satu pembanding lagi' : 'Mulai dari dua destinasi'}
       </h2>
       <p className="mx-auto mt-3 max-w-xl text-sm font-semibold leading-7 text-slate-600">
-        Hasil perbandingan akan muncul sebagai ringkasan keputusan, kartu metrik, chart, dan vibe mapping setelah dua destinasi dipilih.
+        Hasil perbandingan akan muncul sebagai ringkasan keputusan, kartu metrik, chart, dan pemetaan nuansa setelah dua destinasi dipilih.
       </p>
       <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
         {quickPair.length === 2 && (
           <button
             type="button"
             onClick={() => onPickPair(quickPair[0].id, quickPair[1].id)}
-            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-primary px-5 text-sm font-black text-white transition-colors hover:bg-primary/90"
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-primary px-5 text-sm font-black text-white transition-colors hover:bg-primary/90"
           >
             <Sparkles className="h-4 w-4" />
             Coba pasangan pertama
@@ -329,7 +444,7 @@ export function EmptyCompareState({
         )}
         <Link
           href="/search"
-          className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-orange-200 bg-orange-50 px-5 text-sm font-black text-primary transition-colors hover:bg-orange-100"
+          className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-orange-200 bg-orange-50 px-5 text-sm font-black text-primary transition-colors hover:bg-orange-100"
         >
           <Search className="h-4 w-4" />
           Cari destinasi
@@ -342,16 +457,16 @@ export function EmptyCompareState({
 export function CompareSkeleton() {
   return (
     <section className="grid gap-6 xl:grid-cols-[minmax(0,0.95fr)_minmax(22rem,0.45fr)]" aria-label="Memuat hasil perbandingan">
-      <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm md:p-8">
+      <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm md:p-8">
         <div className="h-4 w-44 rounded-full bg-orange-100 motion-safe:animate-pulse" />
-        <div className="mt-4 h-10 w-3/4 rounded-xl bg-slate-200 motion-safe:animate-pulse" />
+        <div className="mt-4 h-10 w-3/4 rounded-lg bg-slate-200 motion-safe:animate-pulse" />
         <div className="mt-3 h-5 w-2/3 rounded bg-slate-200 motion-safe:animate-pulse" />
         <div className="mt-6 grid gap-4 md:grid-cols-2">
-          <div className="h-80 rounded-xl bg-slate-100 motion-safe:animate-pulse" />
-          <div className="h-80 rounded-xl bg-slate-100 motion-safe:animate-pulse" />
+          <div className="h-80 rounded-lg bg-slate-100 motion-safe:animate-pulse" />
+          <div className="h-80 rounded-lg bg-slate-100 motion-safe:animate-pulse" />
         </div>
       </div>
-      <div className="h-80 rounded-xl border border-slate-200 bg-white p-6 shadow-sm motion-safe:animate-pulse" />
+      <div className="h-80 rounded-lg border border-slate-200 bg-white p-6 shadow-sm motion-safe:animate-pulse" />
     </section>
   );
 }

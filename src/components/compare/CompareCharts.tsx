@@ -58,7 +58,7 @@ function CustomTooltip({ active, payload, label }: { active?: boolean; payload?:
   if (!active || !payload?.length) return null;
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-xl shadow-slate-200/60">
+    <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-xl shadow-slate-200/60">
       <p className="mb-2 text-sm font-black text-slate-950">{label}</p>
       <div className="space-y-1.5">
         {payload.map((entry, index) => (

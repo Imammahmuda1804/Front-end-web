@@ -30,7 +30,8 @@ import {
   HighlightRiskGrid,
   LocationComparePanel,
   SectionHeader,
-  VibeCard,
+  SentimentDecisionPanel,
+  ExperienceTopicCard,
 } from './compare-components';
 
 const CompareCharts = dynamic(() => import('./CompareCharts'), {
@@ -257,7 +258,7 @@ export default function CompareClient({ availableDestinations }: CompareClientPr
       balanced,
       scoreGap,
       reason: balanced
-        ? 'Kedua destinasi punya sinyal yang cukup seimbang. Gunakan vibe dan topik ulasan untuk menentukan pilihan akhir.'
+        ? 'Kedua destinasi punya sinyal yang cukup seimbang. Gunakan nuansa pengalaman dan topik ulasan untuk menentukan pilihan akhir.'
         : comparison.insights?.summary || `${winner?.name} lebih kuat pada skor rekomendasi, sentimen positif, dan sinyal ulasan yang tersedia.`,
     };
   }, [compareData]);
@@ -279,27 +280,27 @@ export default function CompareClient({ availableDestinations }: CompareClientPr
 
         <motion.section
           {...motionProps}
-          className="relative z-30 overflow-visible rounded-xl border border-white/30 bg-slate-950/42 p-6 shadow-[0_24px_70px_rgba(15,23,42,0.24)] backdrop-blur-xl md:p-8 lg:p-10"
+          className="relative z-30 overflow-visible rounded-lg border border-white/30 bg-slate-950/42 p-6 shadow-[0_24px_70px_rgba(15,23,42,0.24)] backdrop-blur-xl md:p-8 lg:p-10"
           aria-labelledby="compare-title"
         >
           <div className="grid gap-8 xl:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] xl:items-end">
             <div className="min-w-0">
               <span className="mb-4 inline-flex items-center gap-2 rounded-lg border border-orange-200/40 bg-primary px-4 py-2 text-xs font-black uppercase tracking-[0.18em] text-white shadow-sm shadow-orange-900/10">
                 <ArrowRightLeft className="h-3.5 w-3.5" />
-                Compare Command
+                Pusat Perbandingan
               </span>
               <h1 id="compare-title" className="on-photo-heading max-w-3xl text-4xl font-black leading-none tracking-tight md:text-6xl">
                 Bandingkan Destinasi
               </h1>
               <p className="on-photo-copy mt-4 max-w-2xl text-base font-semibold leading-7">
-                Letakkan dua destinasi berdampingan, baca pola sentimen, lihat vibe dominan, lalu pilih yang paling cocok untuk rencana perjalanan Anda.
+                Letakkan dua destinasi berdampingan, baca pola sentimen, lihat nuansa dominan, lalu pilih yang paling cocok untuk rencana perjalanan Anda.
               </p>
 
               <div className="mt-6 grid gap-3 sm:grid-cols-3">
                 {[
                   { label: 'Sentimen', icon: Brain },
                   { label: 'Rating', icon: Star },
-                  { label: 'Vibe', icon: Compass },
+                  { label: 'Nuansa', icon: Compass },
                 ].map(({ label, icon: Icon }) => (
                   <div key={label} className="flex min-h-14 items-center gap-3 rounded-lg border border-white/35 bg-white/82 px-4 text-sm font-black text-slate-800 shadow-sm backdrop-blur-xl">
                     <Icon className="h-4 w-4 text-primary" />
@@ -309,7 +310,7 @@ export default function CompareClient({ availableDestinations }: CompareClientPr
               </div>
             </div>
 
-            <div className="min-w-0 rounded-xl border border-white/50 bg-white/90 p-4 shadow-sm backdrop-blur-xl md:p-5">
+            <div className="min-w-0 rounded-lg border border-white/50 bg-white/90 p-4 shadow-sm backdrop-blur-xl md:p-5">
               <div className="grid grid-cols-1 gap-4 md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] md:items-center">
                 <DestinationSelect
                   label="Destinasi A"
@@ -364,7 +365,7 @@ export default function CompareClient({ availableDestinations }: CompareClientPr
         {isLoading && <CompareSkeleton />}
 
         {isError && (
-          <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-red-700">
+          <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-red-700">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div className="flex items-start gap-3">
                 <AlertCircle className="mt-0.5 h-6 w-6 shrink-0" />
@@ -377,14 +378,14 @@ export default function CompareClient({ availableDestinations }: CompareClientPr
                 <button
                   type="button"
                   onClick={() => void refetch()}
-                  className="inline-flex min-h-11 items-center rounded-full bg-red-600 px-4 text-sm font-black text-white transition-colors hover:bg-red-700"
+                  className="inline-flex min-h-11 items-center rounded-lg bg-red-600 px-4 text-sm font-black text-white transition-colors hover:bg-red-700"
                 >
                   Coba lagi
                 </button>
                 <button
                   type="button"
                   onClick={handleReset}
-                  className="inline-flex min-h-11 items-center rounded-full border border-red-200 bg-white px-4 text-sm font-black text-red-700 transition-colors hover:bg-red-100"
+                  className="inline-flex min-h-11 items-center rounded-lg border border-red-200 bg-white px-4 text-sm font-black text-red-700 transition-colors hover:bg-red-100"
                 >
                   Reset
                 </button>
@@ -408,7 +409,7 @@ export default function CompareClient({ availableDestinations }: CompareClientPr
         {compareData && !isLoading && !isError && decision && (
           <motion.div {...motionProps} className="space-y-6">
             <section className="grid gap-6 xl:grid-cols-[minmax(0,0.95fr)_minmax(22rem,0.45fr)]">
-              <div className="rounded-xl border border-orange-200 bg-white p-6 shadow-sm md:p-8">
+              <div className="rounded-lg border border-orange-200 bg-white p-6 shadow-sm md:p-8">
                 <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
                   <div>
                     <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">Ringkasan keputusan</p>
@@ -417,7 +418,7 @@ export default function CompareClient({ availableDestinations }: CompareClientPr
                     </h2>
                     <p className="mt-3 max-w-3xl text-sm font-semibold leading-7 text-slate-600 md:text-base">{decision.reason}</p>
                   </div>
-                  <div className="rounded-xl bg-orange-50 px-5 py-4 text-primary">
+                  <div className="rounded-lg bg-orange-50 px-5 py-4 text-primary">
                     <p className="text-xs font-black uppercase tracking-[0.16em] text-primary/70">Selisih skor</p>
                     <p className="mt-1 text-3xl font-black">{decision.scoreGap.toFixed(1)}%</p>
                   </div>
@@ -429,7 +430,7 @@ export default function CompareClient({ availableDestinations }: CompareClientPr
                 </div>
               </div>
 
-              <div className="rounded-xl border border-sky-100 bg-white p-6 shadow-sm">
+              <div className="rounded-lg border border-sky-100 bg-white p-6 shadow-sm">
                 <p className="text-xs font-black uppercase tracking-[0.18em] text-ai">Cocok untuk</p>
                 <div className="mt-4 space-y-4">
                   {[compareData.destination1, compareData.destination2].map((dest, idx) => (
@@ -437,7 +438,7 @@ export default function CompareClient({ availableDestinations }: CompareClientPr
                       <p className={`mb-2 text-sm font-black ${idx === 0 ? 'text-primary' : 'text-ai'}`}>{dest.name}</p>
                       <div className="flex flex-wrap gap-2">
                         {topicChips(dest).length > 0 ? topicChips(dest).map((topic) => (
-                          <span key={topic} className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-black text-slate-700">
+                          <span key={topic} className="rounded-md border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-black text-slate-700">
                             {topic}
                           </span>
                         )) : (
@@ -450,6 +451,8 @@ export default function CompareClient({ availableDestinations }: CompareClientPr
               </div>
             </section>
 
+            <SentimentDecisionPanel destination1={compareData.destination1} destination2={compareData.destination2} />
+
             <section className="grid gap-6 xl:grid-cols-[minmax(0,0.95fr)_minmax(22rem,0.45fr)]">
               <FactorMatrix destination1={compareData.destination1} destination2={compareData.destination2} />
               <LocationComparePanel destination1={compareData.destination1} destination2={compareData.destination2} />
@@ -457,7 +460,7 @@ export default function CompareClient({ availableDestinations }: CompareClientPr
 
             <HighlightRiskGrid destination1={compareData.destination1} destination2={compareData.destination2} />
 
-            <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm md:p-8">
+            <section className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm md:p-8">
               <SectionHeader
                 eyebrow="Detail metrik"
                 title="Bandingkan sinyal utama"
@@ -477,15 +480,15 @@ export default function CompareClient({ availableDestinations }: CompareClientPr
               </div>
             </section>
 
-            <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm md:p-8">
+            <section className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm md:p-8">
               <SectionHeader
-                eyebrow="Vibe Mapping"
+                eyebrow="Pemetaan nuansa"
                 title="Topik dominan dari masing-masing destinasi"
                 description="Topik ini berasal dari pola ulasan yang paling sering muncul, berguna untuk memilih suasana perjalanan yang paling sesuai."
               />
               <div className="mt-6 grid gap-5 md:grid-cols-2">
-                <VibeCard dest={compareData.destination1} tone="orange" />
-                <VibeCard dest={compareData.destination2} tone="blue" />
+                <ExperienceTopicCard dest={compareData.destination1} tone="orange" />
+                <ExperienceTopicCard dest={compareData.destination2} tone="blue" />
               </div>
             </section>
           </motion.div>

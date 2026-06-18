@@ -101,7 +101,7 @@ export default function RecentActivityFeed({ activity }: RecentActivityFeedProps
   };
 
   return (
-    <Card className="overflow-hidden rounded-xl border border-slate-200 bg-white py-0 shadow-sm">
+    <Card className="overflow-hidden rounded-lg border border-slate-200 bg-white py-0 shadow-sm">
       <CardHeader className="flex flex-row items-center justify-between border-b border-slate-100 p-6">
         <CardTitle className="text-xl font-black text-slate-950">Aktivitas Terbaru</CardTitle>
         <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-black text-slate-500">
@@ -113,9 +113,9 @@ export default function RecentActivityFeed({ activity }: RecentActivityFeedProps
         {allActivities.length > 0 ? (
           <div className="space-y-3">
             {allActivities.map((item) => (
-              <div key={item.id} className="flex flex-col justify-between gap-4 rounded-xl border border-transparent bg-slate-50 p-3 transition-colors hover:border-orange-100 hover:bg-orange-50/60 sm:flex-row sm:items-center">
+              <div key={item.id} className="flex flex-col justify-between gap-4 rounded-lg border border-transparent bg-slate-50 p-3 transition-colors hover:border-orange-100 hover:bg-orange-50/60 sm:flex-row sm:items-center">
                 <div className="flex min-w-0 items-center gap-4">
-                  <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border ${getIconBg(item.type, item.status)}`}>
+                  <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border ${getIconBg(item.type, item.status)}`}>
                     {getIcon(item.type, item.status)}
                   </div>
                   <div className="min-w-0">
@@ -132,7 +132,7 @@ export default function RecentActivityFeed({ activity }: RecentActivityFeedProps
             ))}
           </div>
         ) : (
-          <div className="rounded-xl border border-dashed border-slate-200 py-8 text-center text-sm font-bold text-slate-400">
+          <div className="rounded-lg border border-dashed border-slate-200 py-8 text-center text-sm font-bold text-slate-400">
             Belum ada aktivitas terbaru.
           </div>
         )}

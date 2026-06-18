@@ -22,7 +22,7 @@ export default function GlobalSentimentDonut({ distribution }: GlobalSentimentDo
   const positiveRatio = total > 0 ? Math.round((distribution.positive / total) * 100) : 0;
 
   return (
-    <Card className="rounded-xl border border-slate-200 bg-white py-0 shadow-sm">
+    <Card className="rounded-lg border border-slate-200 bg-white py-0 shadow-sm">
       <CardHeader className="border-b border-slate-100 p-6 text-center lg:text-left">
         <CardTitle className="text-lg font-black text-slate-950">Sentimen Global</CardTitle>
         <CardDescription className="mt-1 font-semibold">Komposisi seluruh ulasan yang sudah diproses.</CardDescription>
@@ -62,7 +62,7 @@ export default function GlobalSentimentDonut({ distribution }: GlobalSentimentDo
             </div>
           </>
         ) : (
-          <div className="flex h-[220px] items-center justify-center rounded-xl border border-dashed border-slate-200 text-sm font-bold text-slate-400">
+          <div className="flex h-[220px] items-center justify-center rounded-lg border border-dashed border-slate-200 text-sm font-bold text-slate-400">
             Data sentimen belum tersedia.
           </div>
         )}

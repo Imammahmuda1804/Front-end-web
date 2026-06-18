@@ -6,8 +6,8 @@ import { getImageUrl } from '@/lib/utils';
 import { scoreLabel, topicLabel, type Favorite, type Message, type Persona, type SortKey } from './ProfileClient';
 export function StatCard({ icon: Icon, label, value, helper }: { icon: React.ElementType; label: string; value: string; helper: string }) {
   return (
-    <div className="rounded-xl border border-white bg-white p-4 shadow-sm">
-      <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-orange-50 text-primary">
+    <div className="rounded-lg border border-white bg-white p-4 shadow-sm">
+      <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-orange-50 text-primary">
         <Icon className="h-5 w-5" />
       </div>
       <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">{label}</p>
@@ -49,7 +49,7 @@ export function ProfileCard({
   userName: string;
 }) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+    <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
       <div className="mb-8 flex items-center gap-4">
         <button
           type="button"
@@ -71,13 +71,13 @@ export function ProfileCard({
 
       {message.text && (
         <div
-          className={`mb-6 flex items-center justify-between gap-3 rounded-xl border px-4 py-3 text-sm font-bold ${
+          className={`mb-6 flex items-center justify-between gap-3 rounded-lg border px-4 py-3 text-sm font-bold ${
             message.type === 'success' ? 'border-emerald-100 bg-emerald-50 text-emerald-700' : 'border-red-100 bg-red-50 text-red-600'
           }`}
           role="status"
         >
           {message.text}
-          <button type="button" onClick={() => setMessage({ text: '', type: '' })} aria-label="Tutup notifikasi" className="rounded-full p-1 focus:outline-none focus:ring-4 focus:ring-current/15">
+          <button type="button" onClick={() => setMessage({ text: '', type: '' })} aria-label="Tutup notifikasi" className="rounded-md p-1 focus:outline-none focus:ring-4 focus:ring-current/15">
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -91,7 +91,7 @@ export function ProfileCard({
         <button
           type="submit"
           disabled={saving}
-          className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-primary px-6 text-sm font-black text-white shadow-lg shadow-orange-200 transition-[color,background-color,border-color,box-shadow,transform,opacity] hover:-translate-y-0.5 hover:bg-primary/90 focus:outline-none focus:ring-4 focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-70 sm:w-auto"
+          className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-primary px-6 text-sm font-black text-white shadow-lg shadow-orange-200 transition-[color,background-color,border-color,box-shadow,transform,opacity] hover:-translate-y-0.5 hover:bg-primary/90 focus:outline-none focus:ring-4 focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-70 sm:w-auto"
         >
           {saving && <Loader2 className="h-4 w-4 animate-spin" />}
           Simpan Perubahan
@@ -130,7 +130,7 @@ export function ProfileInput({
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-900 transition-[color,background-color,border-color,box-shadow,transform,opacity] placeholder:text-slate-400 focus:border-primary focus:bg-white focus:outline-none focus:ring-4 focus:ring-primary/10"
+        className="w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-900 transition-[color,background-color,border-color,box-shadow,transform,opacity] placeholder:text-slate-400 focus:border-primary focus:bg-white focus:outline-none focus:ring-4 focus:ring-primary/10"
         placeholder={placeholder}
         autoComplete={autoComplete}
         required={required}
@@ -141,18 +141,18 @@ export function ProfileInput({
 
 export function PersonaCard({ personas }: { personas: Persona[] }) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+    <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
       <h3 className="text-sm font-black uppercase tracking-[0.16em] text-slate-500">Persona Perjalanan</h3>
       {personas.length > 0 ? (
         <div className="mt-4 flex flex-wrap gap-2">
           {personas.map((persona) => (
-            <span key={persona.label} className={`rounded-full border px-4 py-2 text-sm font-black ${persona.bg} ${persona.text} ${persona.border}`}>
+            <span key={persona.label} className={`rounded-md border px-4 py-2 text-sm font-black ${persona.bg} ${persona.text} ${persona.border}`}>
               {persona.label}
             </span>
           ))}
         </div>
       ) : (
-        <div className="mt-4 flex items-start gap-3 rounded-xl bg-slate-50 p-4 text-sm font-semibold leading-6 text-slate-500">
+        <div className="mt-4 flex items-start gap-3 rounded-lg bg-slate-50 p-4 text-sm font-semibold leading-6 text-slate-500">
           <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
           <span>Simpan beberapa destinasi favorit untuk membaca pola perjalananmu.</span>
         </div>
@@ -163,7 +163,7 @@ export function PersonaCard({ personas }: { personas: Persona[] }) {
 
 export function AccountSafetyCard({ email }: { email: string }) {
   return (
-    <div className="rounded-xl border border-orange-100 bg-orange-50/60 p-6 shadow-sm">
+    <div className="rounded-lg border border-orange-100 bg-orange-50/60 p-6 shadow-sm">
       <div className="flex items-start gap-3">
         <ShieldCheck className="mt-1 h-5 w-5 text-primary" />
         <div>
@@ -182,12 +182,12 @@ export function FavoritesHeader({ filtered, isFavoritesPage, total }: { filtered
     <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
       <div>
         <p className="text-xs font-black uppercase tracking-[0.16em] text-primary">{isFavoritesPage ? 'Koleksi destinasi' : 'Favorit'}</p>
-        <h2 className="mt-1 text-3xl font-black tracking-tight text-slate-950">Vibe Favoritmu</h2>
+        <h2 className="mt-1 text-3xl font-black tracking-tight text-slate-950">Destinasi Favoritmu</h2>
         <p className="mt-1 text-sm font-semibold text-slate-500">
           Menampilkan {filtered} dari {total} destinasi tersimpan.
         </p>
       </div>
-      <Link href="/search" className="inline-flex min-h-11 w-fit items-center gap-2 rounded-full border border-orange-200 bg-white px-5 text-sm font-black text-primary transition-[color,background-color,border-color,box-shadow,transform,opacity] hover:-translate-y-0.5 hover:border-primary focus:outline-none focus:ring-4 focus:ring-primary/15">
+      <Link href="/search" className="inline-flex min-h-11 w-fit items-center gap-2 rounded-lg border border-orange-200 bg-white px-5 text-sm font-black text-primary transition-[color,background-color,border-color,box-shadow,transform,opacity] hover:-translate-y-0.5 hover:border-primary focus:outline-none focus:ring-4 focus:ring-primary/15">
         Jelajahi Destinasi
         <ArrowRight className="h-4 w-4" />
       </Link>
@@ -213,14 +213,14 @@ export function FavoriteToolbar({
   sortKey: SortKey;
 }) {
   return (
-    <div className="grid gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm lg:grid-cols-[minmax(0,1fr)_13rem_13rem]">
+    <div className="grid gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm lg:grid-cols-[minmax(0,1fr)_13rem_13rem]">
       <label className="relative block">
         <span className="sr-only">Cari favorit</span>
         <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="min-h-12 w-full rounded-full border border-slate-200 bg-slate-50 pl-11 pr-4 text-sm font-semibold text-slate-900 outline-none transition-[color,background-color,border-color,box-shadow,transform,opacity] placeholder:text-slate-400 focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10"
+          className="min-h-12 w-full rounded-lg border border-slate-200 bg-slate-50 pl-11 pr-4 text-sm font-semibold text-slate-900 outline-none transition-[color,background-color,border-color,box-shadow,transform,opacity] placeholder:text-slate-400 focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10"
           placeholder="Cari nama, kota, atau topik"
         />
       </label>
@@ -244,7 +244,7 @@ export function FavoriteToolbar({
           onValueChange={(nextValue) => setSortKey(nextValue as SortKey)}
           options={[
             { value: 'recent', label: 'Terbaru disimpan' },
-            { value: 'score', label: 'Skor vibe tertinggi' },
+            { value: 'score', label: 'Skor rekomendasi tertinggi' },
             { value: 'rating', label: 'Rating Google' },
             { value: 'name', label: 'Nama A-Z' },
           ]}
@@ -268,7 +268,7 @@ export function FavoriteCard({
   const topics = favorite.destination.topics?.map(topicLabel).filter(Boolean).slice(0, 3) || [];
 
   return (
-    <article className="group overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition-[color,background-color,border-color,box-shadow,transform,opacity] duration-300 hover:-translate-y-0.5 hover:border-orange-200 hover:shadow-xl hover:shadow-orange-100/60">
+    <article className="group overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition-[color,background-color,border-color,box-shadow,transform,opacity] duration-300 hover:-translate-y-0.5 hover:border-orange-200 hover:shadow-xl hover:shadow-orange-100/60">
       <div className="relative aspect-[16/10] overflow-hidden bg-slate-100">
         <Image
           src={favorite.destination.thumbnailUrl ? getImageUrl(favorite.destination.thumbnailUrl) : '/images/auth-bg.jpg'}
@@ -286,8 +286,8 @@ export function FavoriteCard({
         >
           <Heart className="h-5 w-5 fill-red-500" />
         </button>
-        <div className="absolute bottom-4 left-4 rounded-xl bg-white px-3 py-2 shadow-sm">
-          <span className="block text-[10px] font-black uppercase tracking-[0.16em] text-primary">Vibe</span>
+        <div className="absolute bottom-4 left-4 rounded-lg bg-white px-3 py-2 shadow-sm">
+          <span className="block text-[10px] font-black uppercase tracking-[0.16em] text-primary">Skor</span>
           <span className="text-lg font-black leading-none text-slate-950">{scoreLabel(favorite)}</span>
         </div>
       </div>
@@ -305,7 +305,7 @@ export function FavoriteCard({
               {favorite.destination.city}, {favorite.destination.province}
             </p>
           </div>
-          <div className="flex shrink-0 items-center gap-1 rounded-full bg-slate-50 px-2.5 py-1 text-xs font-black text-slate-700 ring-1 ring-slate-200">
+          <div className="flex shrink-0 items-center gap-1 rounded-md bg-slate-50 px-2.5 py-1 text-xs font-black text-slate-700 ring-1 ring-slate-200">
             <Star className="h-3.5 w-3.5 fill-orange-400 text-orange-400" />
             {favorite.destination.googleRating?.toFixed(1) || '-'}
           </div>
@@ -313,7 +313,7 @@ export function FavoriteCard({
 
         <div className="mb-4 flex min-h-7 flex-wrap gap-1.5">
           {topics.length > 0 ? topics.map((topic) => (
-            <span key={topic} className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-black capitalize text-slate-600">
+            <span key={topic} className="rounded-md bg-slate-100 px-2.5 py-1 text-[11px] font-black capitalize text-slate-600">
               #{topic}
             </span>
           )) : (
@@ -326,7 +326,7 @@ export function FavoriteCard({
             type="button"
             onClick={() => onToggleCompare(favorite.destination.id)}
             aria-pressed={isSelected}
-            className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-full border px-3 text-xs font-black transition-[color,background-color,border-color,box-shadow,transform,opacity] focus:outline-none focus:ring-4 focus:ring-primary/15 ${
+            className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border px-3 text-xs font-black transition-[color,background-color,border-color,box-shadow,transform,opacity] focus:outline-none focus:ring-4 focus:ring-primary/15 ${
               isSelected
                 ? 'border-primary bg-orange-50 text-primary'
                 : 'border-slate-200 bg-white text-slate-600 hover:border-primary hover:text-primary'
@@ -337,14 +337,14 @@ export function FavoriteCard({
           </button>
           <Link
             href={`/destinations/${favorite.destination.slug}`}
-            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-primary px-3 text-xs font-black text-white transition-[color,background-color,border-color,box-shadow,transform,opacity] hover:bg-primary/90 focus:outline-none focus:ring-4 focus:ring-primary/20"
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-primary px-3 text-xs font-black text-white transition-[color,background-color,border-color,box-shadow,transform,opacity] hover:bg-primary/90 focus:outline-none focus:ring-4 focus:ring-primary/20"
           >
             Detail
             <ArrowRight className="h-4 w-4" />
           </Link>
           <Link
             href={`/routes/new?destinationId=${favorite.destination.id}`}
-            className="col-span-2 inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-sky-100 bg-sky-50 px-3 text-xs font-black text-ai transition-[color,background-color,border-color,box-shadow,transform,opacity] hover:bg-ai hover:text-white focus:outline-none focus:ring-4 focus:ring-sky-100"
+            className="col-span-2 inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-sky-100 bg-sky-50 px-3 text-xs font-black text-ai transition-[color,background-color,border-color,box-shadow,transform,opacity] hover:bg-ai hover:text-white focus:outline-none focus:ring-4 focus:ring-sky-100"
           >
             Tambahkan ke rute
             <ArrowRight className="h-4 w-4" />
@@ -359,12 +359,12 @@ export function FavoritesSkeleton() {
   return (
     <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3" aria-label="Memuat favorit">
       {[1, 2, 3, 4, 5, 6].map((item) => (
-        <div key={item} className="overflow-hidden rounded-xl border border-slate-200 bg-white">
+        <div key={item} className="overflow-hidden rounded-lg border border-slate-200 bg-white">
           <div className="aspect-[16/10] animate-pulse bg-slate-200" />
           <div className="space-y-3 p-5">
-            <div className="h-5 w-3/4 animate-pulse rounded-full bg-slate-200" />
-            <div className="h-4 w-1/2 animate-pulse rounded-full bg-slate-100" />
-            <div className="h-10 animate-pulse rounded-full bg-slate-100" />
+            <div className="h-5 w-3/4 animate-pulse rounded-md bg-slate-200" />
+            <div className="h-4 w-1/2 animate-pulse rounded-md bg-slate-100" />
+            <div className="h-10 animate-pulse rounded-md bg-slate-100" />
           </div>
         </div>
       ))}
@@ -374,15 +374,15 @@ export function FavoritesSkeleton() {
 
 export function FavoritesEmptyState() {
   return (
-    <div className="rounded-xl border border-dashed border-orange-200 bg-white p-10 text-center shadow-sm">
+    <div className="rounded-lg border border-dashed border-orange-200 bg-white p-10 text-center shadow-sm">
       <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-orange-50">
         <Heart className="h-8 w-8 text-primary" />
       </div>
-      <h3 className="text-xl font-black text-slate-900">Belum ada vibe tersimpan</h3>
+      <h3 className="text-xl font-black text-slate-900">Belum ada destinasi tersimpan</h3>
       <p className="mx-auto mt-2 max-w-md text-sm font-semibold leading-6 text-slate-500">
         Mulai jelajahi dan simpan destinasi yang cocok dengan gaya perjalanan Anda.
       </p>
-      <Link href="/search" className="mt-6 inline-flex min-h-12 items-center rounded-full bg-primary px-7 text-sm font-black text-white shadow-lg shadow-orange-200 transition-[color,background-color,border-color,box-shadow,transform,opacity] hover:-translate-y-0.5 hover:bg-primary/90 focus:outline-none focus:ring-4 focus:ring-primary/20">
+      <Link href="/search" className="mt-6 inline-flex min-h-12 items-center rounded-lg bg-primary px-7 text-sm font-black text-white shadow-lg shadow-orange-200 transition-[color,background-color,border-color,box-shadow,transform,opacity] hover:-translate-y-0.5 hover:bg-primary/90 focus:outline-none focus:ring-4 focus:ring-primary/20">
         Jelajahi Destinasi
       </Link>
     </div>
@@ -391,13 +391,13 @@ export function FavoritesEmptyState() {
 
 export function NoResultsState({ onReset }: { onReset: () => void }) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-10 text-center shadow-sm">
+    <div className="rounded-lg border border-slate-200 bg-white p-10 text-center shadow-sm">
       <Compass className="mx-auto mb-4 h-10 w-10 text-slate-300" />
       <h3 className="text-xl font-black text-slate-900">Favorit tidak ditemukan</h3>
       <p className="mx-auto mt-2 max-w-md text-sm font-semibold leading-6 text-slate-500">
         Coba kata kunci lain atau reset filter kota dan urutan.
       </p>
-      <button type="button" onClick={onReset} className="mt-6 inline-flex min-h-11 items-center rounded-full border border-orange-200 bg-orange-50 px-6 text-sm font-black text-primary focus:outline-none focus:ring-4 focus:ring-primary/15">
+      <button type="button" onClick={onReset} className="mt-6 inline-flex min-h-11 items-center rounded-lg border border-orange-200 bg-orange-50 px-6 text-sm font-black text-primary focus:outline-none focus:ring-4 focus:ring-primary/15">
         Reset filter
       </button>
     </div>
@@ -410,26 +410,26 @@ export function CompareTray({ favorites, onClear }: { favorites: Favorite[]; onC
     : '/compare';
 
   return (
-    <div className="fixed inset-x-4 bottom-5 z-40 mx-auto max-w-4xl rounded-xl border border-orange-200 bg-white p-4 shadow-2xl shadow-slate-900/15">
+    <div className="fixed inset-x-4 bottom-5 z-40 mx-auto max-w-4xl rounded-lg border border-orange-200 bg-white p-4 shadow-2xl shadow-slate-900/15">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="min-w-0">
-          <p className="text-xs font-black uppercase tracking-[0.16em] text-primary">Compare tray</p>
+          <p className="text-xs font-black uppercase tracking-[0.16em] text-primary">Pilihan perbandingan</p>
           <div className="mt-2 flex flex-wrap gap-2">
             {favorites.map((favorite) => (
-              <span key={favorite.id} className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-black text-slate-700">
+              <span key={favorite.id} className="rounded-md bg-slate-100 px-3 py-1.5 text-xs font-black text-slate-700">
                 {favorite.destination.name}
               </span>
             ))}
           </div>
         </div>
         <div className="flex flex-col gap-2 sm:flex-row">
-          <button type="button" onClick={onClear} className="inline-flex min-h-11 items-center justify-center rounded-full border border-slate-200 px-5 text-sm font-black text-slate-600 focus:outline-none focus:ring-4 focus:ring-primary/15">
+          <button type="button" onClick={onClear} className="inline-flex min-h-11 items-center justify-center rounded-lg border border-slate-200 px-5 text-sm font-black text-slate-600 focus:outline-none focus:ring-4 focus:ring-primary/15">
             Bersihkan
           </button>
           <Link
             href={href}
             aria-disabled={favorites.length < 2}
-            className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-full px-5 text-sm font-black focus:outline-none focus:ring-4 focus:ring-primary/20 ${
+            className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-lg px-5 text-sm font-black focus:outline-none focus:ring-4 focus:ring-primary/20 ${
               favorites.length >= 2 ? 'bg-primary text-white' : 'pointer-events-none bg-slate-100 text-slate-400'
             }`}
           >

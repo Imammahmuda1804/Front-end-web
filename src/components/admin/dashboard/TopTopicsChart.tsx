@@ -12,7 +12,7 @@ interface TopTopicsChartProps {
 
 export default function TopTopicsChart({ topics }: TopTopicsChartProps) {
   return (
-    <Card className="rounded-xl border border-slate-200 bg-white py-0 shadow-sm">
+    <Card className="rounded-lg border border-slate-200 bg-white py-0 shadow-sm">
       <CardHeader className="border-b border-slate-100 p-6">
         <CardTitle className="text-xl font-black text-slate-950">Topik Paling Sering Dibahas</CardTitle>
         <CardDescription className="mt-1 font-semibold">Topik dominan dari ulasan lintas destinasi.</CardDescription>
@@ -49,7 +49,7 @@ export default function TopTopicsChart({ topics }: TopTopicsChartProps) {
             </ResponsiveContainer>
           </div>
         ) : (
-          <div className="flex h-[250px] items-center justify-center rounded-xl border border-dashed border-slate-200 text-sm font-bold text-slate-400">
+          <div className="flex h-[250px] items-center justify-center rounded-lg border border-dashed border-slate-200 text-sm font-bold text-slate-400">
             Data topik belum tersedia.
           </div>
         )}

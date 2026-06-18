@@ -19,14 +19,14 @@ import { getToneClass, sentimentPercent, sentimentTotal, type Tone } from "./nlp
 export function NlpResultWorkspace({ result, isProcessing, selectedDestinationId, positiveRatio, negativeRatio }: { result: NlpUploadResponse | null; isProcessing: boolean; selectedDestinationId: string; positiveRatio: number; negativeRatio: number }) {
   if (isProcessing) {
     return (
-      <section className="rounded-xl border border-slate-200 bg-white p-8 text-center shadow-sm">
-        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-xl bg-orange-50 text-primary">
+      <section className="rounded-lg border border-slate-200 bg-white p-8 text-center shadow-sm">
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-lg bg-orange-50 text-primary">
           <RefreshCw className="h-8 w-8 animate-spin" />
         </div>
         <h2 className="text-xl font-black text-slate-950">Pipeline NLP sedang berjalan</h2>
         <p className="mx-auto mt-2 max-w-md text-sm font-semibold leading-7 text-slate-500">Sistem membaca file, menyimpan review, menghitung rating, lalu menjalankan sentimen, topik, dan embedding.</p>
         <div className="mt-6 grid gap-3 md:grid-cols-3">
-          {[1, 2, 3].map((item) => <div key={item} className="h-20 animate-pulse rounded-xl bg-slate-100" />)}
+          {[1, 2, 3].map((item) => <div key={item} className="h-20 animate-pulse rounded-lg bg-slate-100" />)}
         </div>
       </section>
     );
@@ -34,7 +34,7 @@ export function NlpResultWorkspace({ result, isProcessing, selectedDestinationId
 
   if (!result) {
     return (
-      <section className="flex min-h-[28rem] flex-col items-center justify-center rounded-xl border border-dashed border-slate-200 bg-white p-8 text-center shadow-sm">
+      <section className="flex min-h-[28rem] flex-col items-center justify-center rounded-lg border border-dashed border-slate-200 bg-white p-8 text-center shadow-sm">
         <FileSpreadsheet className="mb-4 h-10 w-10 text-slate-300" />
         <h2 className="text-xl font-black text-slate-950">Belum ada hasil analisis</h2>
         <p className="mt-2 max-w-md text-sm font-semibold leading-7 text-slate-500">Pilih destinasi, upload file hasil scraping, lalu jalankan analisis NLP.</p>
@@ -44,7 +44,7 @@ export function NlpResultWorkspace({ result, isProcessing, selectedDestinationId
 
   return (
     <div className="space-y-6">
-      <section className="rounded-xl border border-emerald-100 bg-emerald-50 p-5">
+      <section className="rounded-lg border border-emerald-100 bg-emerald-50 p-5">
         <div className="flex items-start gap-3">
           <CheckCircle2 className="mt-1 h-5 w-5 text-emerald-700" />
           <div>
@@ -71,7 +71,7 @@ function SentimentStackedBar({ result, positiveRatio, negativeRatio }: { result:
   const total = sentimentTotal(result);
   const neutralRatio = sentimentPercent(result.nlp_summary.neutral, total);
   return (
-    <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+    <section className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
       <p className="text-xs font-black uppercase tracking-[0.16em] text-primary">Sentiment 100% stacked</p>
       <h3 className="mt-1 text-xl font-black text-slate-950">Distribusi Sentimen</h3>
       <div className="mt-5 flex h-5 overflow-hidden rounded-full bg-slate-100">
@@ -97,8 +97,8 @@ function PipelineActionPanel({ selectedDestinationId, negativeRatio }: { selecte
   ];
 
   return (
-    <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-      <div className={`mb-5 rounded-xl border p-4 ${needsAudit ? "border-rose-100 bg-rose-50 text-rose-700" : "border-emerald-100 bg-emerald-50 text-emerald-700"}`}>
+    <section className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+      <div className={`mb-5 rounded-lg border p-4 ${needsAudit ? "border-rose-100 bg-rose-50 text-rose-700" : "border-emerald-100 bg-emerald-50 text-emerald-700"}`}>
         <div className="flex items-start gap-3">
           {needsAudit ? <AlertTriangle className="mt-0.5 h-5 w-5" /> : <CheckCircle2 className="mt-0.5 h-5 w-5" />}
           <div>
@@ -112,7 +112,7 @@ function PipelineActionPanel({ selectedDestinationId, negativeRatio }: { selecte
         {links.map((item) => {
           const Icon = item.icon;
           return (
-            <Link key={item.label} href={item.href} className={`rounded-xl border p-4 transition hover:-translate-y-0.5 ${getToneClass(item.tone)}`}>
+            <Link key={item.label} href={item.href} className={`rounded-lg border p-4 transition hover:-translate-y-0.5 ${getToneClass(item.tone)}`}>
               <Icon className="mb-3 h-5 w-5" />
               <p className="font-black text-slate-950">{item.label}</p>
               <p className="mt-1 text-xs font-bold opacity-80">Lanjutkan tindak lanjut admin</p>
@@ -126,7 +126,7 @@ function PipelineActionPanel({ selectedDestinationId, negativeRatio }: { selecte
 
 function ResultMetricCard({ icon: Icon, label, value, helper, tone }: { icon: ElementType; label: string; value: string; helper: string; tone: Tone }) {
   return (
-    <article className={`rounded-xl border p-4 shadow-sm ${getToneClass(tone)}`}>
+    <article className={`rounded-lg border p-4 shadow-sm ${getToneClass(tone)}`}>
       <Icon className="mb-3 h-5 w-5" />
       <p className="text-xs font-black uppercase tracking-[0.14em] opacity-80">{label}</p>
       <p className="mt-1 text-2xl font-black text-slate-950">{value}</p>

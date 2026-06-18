@@ -13,7 +13,7 @@ import DataFreshnessPanel from './DataFreshnessPanel';
 import AdminActionQueue from './AdminActionQueue';
 
 const DashboardChartSkeleton = ({ height = 'h-80' }: { height?: string }) => (
-  <div className={`${height} animate-pulse rounded-xl bg-white ring-1 ring-slate-200`} />
+  <div className={`${height} animate-pulse rounded-lg bg-white ring-1 ring-slate-200`} />
 );
 
 const MonthlySentimentChart = dynamic(() => import('./MonthlySentimentChart'), {
@@ -165,7 +165,7 @@ export function AdminDashboardClient() {
 
   if (isError) {
     return (
-      <div className="rounded-xl border border-red-100 bg-red-50 p-8 text-center">
+      <div className="rounded-lg border border-red-100 bg-red-50 p-8 text-center">
         <AlertTriangle className="mx-auto mb-3 h-10 w-10 text-red-500" />
         <h1 className="text-xl font-black text-red-900">Gagal memuat dashboard</h1>
         <p className="mt-2 text-sm font-semibold text-red-600">Periksa koneksi API atau sesi admin, lalu muat ulang halaman.</p>
@@ -263,21 +263,21 @@ function InsightCard({
 function DashboardSkeleton() {
   return (
     <div className="space-y-6" aria-label="Memuat dashboard admin">
-      <div className="h-44 animate-pulse rounded-xl bg-orange-100/70" />
+      <div className="h-44 animate-pulse rounded-lg bg-orange-100/70" />
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {[1, 2, 3, 4].map((item) => (
-          <div key={item} className="h-36 animate-pulse rounded-xl bg-white ring-1 ring-slate-200" />
+          <div key={item} className="h-36 animate-pulse rounded-lg bg-white ring-1 ring-slate-200" />
         ))}
       </div>
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1.45fr)_minmax(22rem,0.8fr)]">
         <div className="space-y-6">
-          <div className="h-[25rem] animate-pulse rounded-xl bg-white ring-1 ring-slate-200" />
+          <div className="h-[25rem] animate-pulse rounded-lg bg-white ring-1 ring-slate-200" />
           <div className="grid gap-6 lg:grid-cols-2">
-            <div className="h-80 animate-pulse rounded-xl bg-white ring-1 ring-slate-200" />
-            <div className="h-80 animate-pulse rounded-xl bg-white ring-1 ring-slate-200" />
+            <div className="h-80 animate-pulse rounded-lg bg-white ring-1 ring-slate-200" />
+            <div className="h-80 animate-pulse rounded-lg bg-white ring-1 ring-slate-200" />
           </div>
         </div>
-        <div className="h-[42rem] animate-pulse rounded-xl bg-white ring-1 ring-slate-200" />
+        <div className="h-[42rem] animate-pulse rounded-lg bg-white ring-1 ring-slate-200" />
       </div>
     </div>
   );

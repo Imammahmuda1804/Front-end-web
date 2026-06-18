@@ -14,7 +14,7 @@ export function SearchHistoryPanel({
   onDeleteHistoryItem: (item: SearchHistoryItem) => void;
 }) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-200/70">
+    <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm shadow-slate-200/70">
       <div className="mb-4 flex items-center justify-between gap-3">
         <h2 className="text-sm font-black uppercase tracking-[0.16em] text-slate-700">Riwayat</h2>
         {history.length > 0 && (
@@ -34,7 +34,7 @@ export function SearchHistoryPanel({
               <button
                 type="button"
                 onClick={() => onHistoryClick(item.keyword)}
-                className="flex min-h-11 w-full items-center gap-3 rounded-xl px-2 text-left text-sm font-bold text-slate-700 transition-colors hover:bg-ai-container hover:text-ai"
+                className="flex min-h-11 w-full items-center gap-3 rounded-lg px-2 text-left text-sm font-bold text-slate-700 transition-colors hover:bg-ai-container hover:text-ai"
               >
                 <History className="h-4 w-4 shrink-0 text-ai" />
                 <span className="truncate">{item.keyword}</span>

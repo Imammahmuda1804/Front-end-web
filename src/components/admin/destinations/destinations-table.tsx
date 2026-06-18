@@ -342,7 +342,7 @@ export function DestinationsTable({ initialFilters }: DestinationsTableProps) {
         </div>
       </div>
 
-      <section className="rounded-xl border border-slate-200 bg-white shadow-sm shadow-slate-200/50">
+      <section className="rounded-lg border border-slate-200 bg-white shadow-sm shadow-slate-200/50">
         <div className="border-b border-slate-100 p-4">
           <DestinationFilterBar
             searchTerm={searchTerm}

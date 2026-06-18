@@ -1,7 +1,7 @@
 ﻿'use client';
 
 import * as React from 'react';
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import {
   ChevronDown,
@@ -12,6 +12,7 @@ import {
   Minus,
   Sparkles,
   Star,
+  Target,
   ThumbsDown,
   ThumbsUp,
 } from 'lucide-react';
@@ -22,10 +23,12 @@ import type { FineTopicDetail, SentimentBreakdown, TopicData, TopicGroupData, To
 import {
   API_BASE,
   cleanTopicName,
+  getDominantSentiment,
   getSentimentBucket,
   getSentimentColor,
-  getSentimentCrowd,
   getSentimentPercentages,
+  getSentimentTotal,
+  topicDecisionCopy,
 } from './topic-insight.utils';
 
 dayjs.locale('id');
@@ -58,6 +61,173 @@ function SentimentDot({ sentiment }: { sentiment: string | null }) {
   return <span className="inline-block h-2 w-2 rounded-full bg-amber-400" title="Netral" />;
 }
 
+function assignmentToneClass(isPrimary: boolean, isActiveTopic: boolean) {
+  if (isActiveTopic) return 'border-orange-200 bg-orange-50 text-primary';
+  if (isPrimary) return 'border-sky-100 bg-sky-50 text-ai';
+  return 'border-slate-200 bg-white text-slate-600';
+}
+
+function buildTopicNameMap(topics: TopicData[], topicGroups?: TopicGroupData[]) {
+  const map = new Map<number, string>();
+  topics.forEach((item) => map.set(item.topic.id, cleanTopicName(item.topic.topicName)));
+  topicGroups?.forEach((group) => {
+    group.topics.forEach((topic) => map.set(topic.id, cleanTopicName(topic.topicName)));
+  });
+  return map;
+}
+
+function topicNameFromMap(topicId: number, topicNameMap: Map<number, string>) {
+  return topicNameMap.get(topicId) || `Topik #${topicId}`;
+}
+
+function sentimentPhrase(sentiment: string | null) {
+  const normalized = (sentiment || '').toLowerCase();
+  if (normalized === 'positive' || normalized === 'positif') return 'bernada positif';
+  if (normalized === 'negative' || normalized === 'negatif') return 'bernada negatif';
+  if (normalized === 'neutral' || normalized === 'netral') return 'bernada netral';
+  return 'belum punya arah sentimen yang kuat';
+}
+
+function formatTopicList(items: string[]) {
+  if (items.length === 0) return '';
+  if (items.length === 1) return items[0];
+  if (items.length === 2) return `${items[0]} dan ${items[1]}`;
+  return `${items.slice(0, -1).join(', ')}, dan ${items[items.length - 1]}`;
+}
+
+function aggregateBreakdown(items: Array<SentimentBreakdown | undefined>) {
+  return items.reduce<SentimentBreakdown>((acc, item) => {
+    if (!item) return acc;
+    return {
+      positive: acc.positive + item.positive,
+      negative: acc.negative + item.negative,
+      neutral: acc.neutral + item.neutral,
+    };
+  }, { positive: 0, negative: 0, neutral: 0 });
+}
+
+function evidenceStrength(total: number) {
+  if (total >= 80) return { label: 'Data kuat', detail: 'Banyak ulasan mendukung pola ini.', tone: 'border-emerald-100 bg-emerald-50 text-emerald-700' };
+  if (total >= 25) return { label: 'Data cukup', detail: 'Cukup untuk membaca kecenderungan umum.', tone: 'border-sky-100 bg-sky-50 text-ai' };
+  if (total > 0) return { label: 'Data terbatas', detail: 'Gunakan sebagai petunjuk awal, bukan kesimpulan final.', tone: 'border-amber-100 bg-amber-50 text-amber-700' };
+  return { label: 'Belum ada data', detail: 'Belum cukup ulasan untuk membaca pola.', tone: 'border-slate-200 bg-slate-50 text-slate-600' };
+}
+
+function SentimentMeaningCard({
+  label,
+  topicName,
+  breakdown,
+}: {
+  label: string;
+  topicName: string;
+  breakdown: SentimentBreakdown | undefined;
+}) {
+  const percentages = getSentimentPercentages(breakdown);
+  const total = getSentimentTotal(breakdown);
+  const copy = topicDecisionCopy(topicName, breakdown);
+  const dominant = getDominantSentiment(breakdown);
+
+  return (
+    <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-[11px] font-black uppercase tracking-[0.12em] text-slate-400">{label}</p>
+          <h5 className="mt-1 line-clamp-2 text-base font-black leading-5 text-slate-950">{topicName}</h5>
+        </div>
+        <span className="shrink-0 rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-black text-slate-600">
+          {total} ulasan
+        </span>
+      </div>
+      <p className="mt-3 text-sm font-black leading-5 text-slate-900">{copy.headline}</p>
+      <p className="mt-1 text-xs font-semibold leading-5 text-slate-600">{copy.detail}</p>
+      <div className="mt-4 grid grid-cols-3 gap-1.5 text-center text-[10px] font-black">
+        <span className="rounded-md bg-emerald-50 px-2 py-1.5 text-emerald-700">{percentages.positive}% positif</span>
+        <span className="rounded-md bg-slate-100 px-2 py-1.5 text-slate-600">{percentages.neutral}% netral</span>
+        <span className="rounded-md bg-rose-50 px-2 py-1.5 text-rose-700">{percentages.negative}% negatif</span>
+      </div>
+      <p className="mt-2 text-[11px] font-semibold leading-5 text-slate-500">
+        Arah terbanyak: <span className="font-black text-slate-700">{dominant.label}</span>. Buka topik untuk membaca bukti ulasannya.
+      </p>
+    </div>
+  );
+}
+
+function ReviewTopicInsight({
+  review,
+  topicNameMap,
+  activeTopicId,
+}: {
+  review: TopicReview;
+  topicNameMap: Map<number, string>;
+  activeTopicId: number;
+}) {
+  const assignments = review.topicAssignments || [];
+  if (assignments.length === 0) return null;
+
+  const primary = assignments.find((assignment) => assignment.isPrimary) || assignments[0];
+  const supporting = assignments.filter((assignment) => assignment.topicId !== primary.topicId).slice(0, 4);
+  const primaryName = topicNameFromMap(primary.topicId, topicNameMap);
+  const activeAssignment = assignments.find((assignment) => assignment.topicId === activeTopicId);
+  const activeName = activeAssignment ? topicNameFromMap(activeAssignment.topicId, topicNameMap) : null;
+  const primaryScore = Math.round(Math.max(0, Math.min(primary.score || 0, 1)) * 100);
+  const supportingNames = supporting.map((assignment) => topicNameFromMap(assignment.topicId, topicNameMap));
+  const sentiment = sentimentPhrase(review.sentiment);
+  const meaning = supportingNames.length > 0
+    ? `Ulasan ini ${sentiment}, paling kuat membahas ${primaryName}, dan juga menyinggung ${formatTopicList(supportingNames.slice(0, 3))}.`
+    : `Ulasan ini ${sentiment} dan paling kuat membahas ${primaryName}.`;
+  const visitorValue = supportingNames.length > 0
+    ? 'Membantu melihat alasan di balik ulasan, termasuk hal pendukung yang bisa memengaruhi keputusan berkunjung.'
+    : 'Membantu menangkap hal paling kuat yang dirasakan pengunjung dari ulasan ini.';
+
+  return (
+    <div className="mt-3 rounded-lg border border-slate-200 bg-white/90 p-3 shadow-sm">
+      <div className="mb-2 flex flex-wrap items-center gap-2">
+        <span className="inline-flex items-center gap-1.5 rounded-lg border border-sky-100 bg-sky-50 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-ai">
+          <Target className="h-3 w-3" />
+          Hal paling terasa
+        </span>
+        <span
+          className="inline-flex max-w-full items-center gap-1.5 rounded-lg border border-orange-200 bg-orange-50 px-2.5 py-1 text-xs font-black text-primary"
+          title={`Confidence ${primaryScore}%`}
+        >
+          <span className="truncate">{primaryName}</span>
+          <span className="text-[10px] text-orange-500">{primaryScore}%</span>
+        </span>
+        {activeName && activeAssignment?.topicId !== primary.topicId ? (
+          <span className="inline-flex max-w-full items-center rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-1 text-[11px] font-black text-amber-700">
+            Cocok dengan topik dibuka: <span className="ml-1 truncate">{activeName}</span>
+          </span>
+        ) : null}
+      </div>
+
+      {supporting.length > 0 ? (
+        <div className="mb-2 flex flex-wrap items-center gap-1.5">
+          <span className="mr-1 text-[11px] font-black uppercase tracking-[0.12em] text-slate-400">Catatan pendukung</span>
+          {supporting.map((assignment) => {
+            const score = Math.round(Math.max(0, Math.min(assignment.score || 0, 1)) * 100);
+            const label = topicNameFromMap(assignment.topicId, topicNameMap);
+            return (
+              <span
+                key={`${review.id}-${assignment.topicId}`}
+                className={`inline-flex max-w-full items-center gap-1 rounded-lg border px-2 py-1 text-[11px] font-bold ${assignmentToneClass(assignment.isPrimary, assignment.topicId === activeTopicId)}`}
+                title={`Confidence ${score}%. Metode: ${assignment.assignmentMethod}`}
+              >
+                <span className="truncate">{label}</span>
+                <span className="opacity-70">{score}%</span>
+              </span>
+            );
+          })}
+        </div>
+      ) : null}
+
+      <div className="rounded-md border border-slate-100 bg-slate-50/80 px-3 py-2">
+        <p className="text-xs font-bold leading-5 text-slate-700">{meaning}</p>
+        <p className="mt-1 text-[11px] font-semibold leading-5 text-slate-500">{visitorValue}</p>
+      </div>
+    </div>
+  );
+}
+
 export default function TopicInsightSection({ destinationId, topics, sentimentBreakdown, topicGroups }: Props) {
   const [expandedTopicId, setExpandedTopicId] = useState<number | null>(null);
   const [topicReviews, setTopicReviews] = useState<TopicReview[]>([]);
@@ -66,6 +236,7 @@ export default function TopicInsightSection({ destinationId, topics, sentimentBr
   const [activeKeywords, setActiveKeywords] = useState<string[]>([]);
   const [showAllTopics, setShowAllTopics] = useState(false);
   const reduceMotion = useReducedMotion();
+  const topicNameMap = useMemo(() => buildTopicNameMap(topics, topicGroups), [topicGroups, topics]);
 
   const loadReviews = useCallback(async (topicId: number, page = 1, mode: 'topic' | 'group' = 'topic') => {
     setLoading(true);
@@ -134,6 +305,13 @@ export default function TopicInsightSection({ destinationId, topics, sentimentBr
   }));
   const sortedFineTopics = fineTopicDetails.sort((a, b) => (b.totalReviews || 0) - (a.totalReviews || 0));
   const detailPreview = sortedFineTopics.slice(0, 10);
+  const strongestPositive = detailPreview.find((topic) => getSentimentBucket(sentimentBreakdown[topic.id]) === 'positive');
+  const strongestNegative = detailPreview.find((topic) => getSentimentBucket(sentimentBreakdown[topic.id]) === 'negative');
+  const strongestMixed = detailPreview.find((topic) => getSentimentBucket(sentimentBreakdown[topic.id]) === 'mixed');
+  const overallBreakdown = aggregateBreakdown(detailPreview.map((topic) => sentimentBreakdown[topic.id]));
+  const overallTotal = getSentimentTotal(overallBreakdown);
+  const overallPercentages = getSentimentPercentages(overallBreakdown);
+  const strength = evidenceStrength(overallTotal);
   const sentimentClouds = [
     {
       id: 'positive',
@@ -166,7 +344,7 @@ export default function TopicInsightSection({ destinationId, topics, sentimentBr
 
   if (sorted.length === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 py-10 text-center">
+      <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50 py-10 text-center">
         <Hash className="mx-auto mb-3 h-10 w-10 text-slate-300" />
         <p className="font-bold text-slate-500">Belum ada topik yang teridentifikasi dari ulasan.</p>
       </div>
@@ -177,25 +355,64 @@ export default function TopicInsightSection({ destinationId, topics, sentimentBr
     <div>
       <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-sky-50 px-3 py-1.5 text-xs font-black uppercase tracking-[0.16em] text-ai">
+          <div className="mb-2 inline-flex items-center gap-2 rounded-lg bg-sky-50 px-3 py-1.5 text-xs font-black uppercase tracking-[0.16em] text-ai">
             <Sparkles className="h-3.5 w-3.5" />
-            Peta Topik
+            Peta Ulasan
           </div>
-          <h3 className="text-2xl font-black tracking-tight text-slate-950">Peta vibe dari ulasan</h3>
-          <p className="mt-1 text-sm font-semibold leading-6 text-slate-500">Klik topik untuk membaca contoh ulasan yang membentuk sentimen.</p>
+          <h3 className="text-2xl font-black tracking-tight text-slate-950">Peta pengalaman dari ulasan</h3>
+          <p className="mt-1 text-sm font-semibold leading-6 text-slate-500">Lihat hal yang paling sering dipuji, dikeluhkan, dan dibahas pengunjung sebelum menentukan rencana kunjungan.</p>
         </div>
       </div>
 
-      <div className="mb-8 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+      <div className="mb-5 grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(20rem,0.42fr)]">
+        <div className="rounded-lg border border-slate-200 bg-slate-950 p-5 text-white shadow-sm">
+          <p className="text-xs font-black uppercase tracking-[0.16em] text-orange-200">Cara membaca insight</p>
+          <h4 className="mt-2 text-xl font-black tracking-tight">Ini sinyal dari ulasan, bukan vonis mutlak</h4>
+          <p className="mt-2 text-sm font-semibold leading-6 text-slate-200">
+            Sistem membaca pola sentimen dan topik yang sering muncul. Gunakan sebagai pintu masuk untuk memahami alasan pengunjung puas, ragu, atau kecewa.
+          </p>
+          <div className="mt-4 grid gap-2 sm:grid-cols-3">
+            <span className="rounded-lg bg-white/10 px-3 py-2 text-xs font-black text-emerald-100">{overallPercentages.positive}% pujian</span>
+            <span className="rounded-lg bg-white/10 px-3 py-2 text-xs font-black text-slate-100">{overallPercentages.neutral}% netral</span>
+            <span className="rounded-lg bg-white/10 px-3 py-2 text-xs font-black text-rose-100">{overallPercentages.negative}% catatan</span>
+          </div>
+        </div>
+        <div className={`rounded-lg border p-5 shadow-sm ${strength.tone}`}>
+          <p className="text-xs font-black uppercase tracking-[0.16em] opacity-80">Kekuatan data</p>
+          <p className="mt-2 text-2xl font-black">{strength.label}</p>
+          <p className="mt-1 text-sm font-semibold leading-6">{strength.detail}</p>
+          <p className="mt-3 text-xs font-black opacity-80">{overallTotal} ulasan topik terbaca pada ringkasan ini</p>
+        </div>
+      </div>
+
+      <div className="mb-8 rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
         <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h4 className="text-sm font-black uppercase tracking-[0.14em] text-slate-500">Cloud sentimen topik detail</h4>
-            <p className="mt-1 text-sm font-semibold text-slate-600">Topik kecil dipecah menjadi tiga arah sentimen, terpisah dari topic group utama.</p>
+            <h4 className="text-sm font-black uppercase tracking-[0.14em] text-slate-500">Sinyal pengalaman pengunjung</h4>
+            <p className="mt-1 text-sm font-semibold text-slate-600">Bagian ini merangkum apa yang membuat destinasi terasa menarik, apa yang perlu dicek, dan hal yang masih punya opini campuran.</p>
           </div>
           <span className="inline-flex w-fit items-center gap-1.5 rounded-lg bg-sky-50 px-3 py-1.5 text-xs font-black text-ai">
             <Sparkles className="h-3.5 w-3.5" />
-            Fine topics
+            Dari ulasan asli
           </span>
+        </div>
+
+        <div className="mb-4 grid gap-2 md:grid-cols-3">
+          <SentimentMeaningCard
+            label="Paling sering dipuji"
+            topicName={strongestPositive ? cleanTopicName(strongestPositive.topicName) : 'Belum ada sinyal kuat'}
+            breakdown={strongestPositive ? sentimentBreakdown[strongestPositive.id] : undefined}
+          />
+          <SentimentMeaningCard
+            label="Perlu diwaspadai"
+            topicName={strongestNegative ? cleanTopicName(strongestNegative.topicName) : 'Belum ada keluhan dominan'}
+            breakdown={strongestNegative ? sentimentBreakdown[strongestNegative.id] : undefined}
+          />
+          <SentimentMeaningCard
+            label="Masih campuran"
+            topicName={strongestMixed ? cleanTopicName(strongestMixed.topicName) : 'Belum ada opini campuran'}
+            breakdown={strongestMixed ? sentimentBreakdown[strongestMixed.id] : undefined}
+          />
         </div>
 
         <div className="grid gap-3 lg:grid-cols-3">
@@ -239,66 +456,10 @@ export default function TopicInsightSection({ destinationId, topics, sentimentBr
         </div>
       </div>
 
-      <div className="hidden">
-        <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h4 className="text-sm font-black uppercase tracking-[0.14em] text-slate-500">Arah sentimen topik detail</h4>
-            <p className="mt-1 text-sm font-semibold text-slate-600">Topik kecil di dalam group, dipisahkan dari kartu topic group di bawah.</p>
-          </div>
-          <span className="inline-flex w-fit items-center gap-1.5 rounded-lg bg-sky-50 px-3 py-1.5 text-xs font-black text-ai">
-            <Sparkles className="h-3.5 w-3.5" />
-            Detail sentiment
-          </span>
-        </div>
-
-        <div className="grid gap-2 md:grid-cols-2">
-          {detailPreview.map((topic) => {
-            const breakdown = sentimentBreakdown[topic.id];
-            const percentages = getSentimentPercentages(breakdown);
-            const crowd = getSentimentCrowd(breakdown);
-            const CrowdIcon = crowd.icon;
-            const topicLabel = cleanTopicName(topic.topicName);
-
-            return (
-              <div key={`topic-detail-${topic.id}`} className="rounded-lg border border-slate-200 bg-slate-50/80 p-3">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-black text-slate-950" title={topicLabel}>{topicLabel}</p>
-                    <p className="mt-1 text-xs font-bold text-slate-500">
-                      {topic.groupName ? `${topic.groupName} â€¢ ` : ''}{topic.totalReviews || 0} ulasan terkait
-                    </p>
-                  </div>
-                  <span className={`inline-flex shrink-0 items-center gap-1 rounded-lg border px-2.5 py-1 text-[11px] font-black ${crowd.tone}`}>
-                    <CrowdIcon className="h-3 w-3" />
-                    {crowd.label}
-                  </span>
-                </div>
-                <div
-                  className="mt-3 h-2 overflow-hidden rounded-full bg-white"
-                  role="img"
-                  aria-label={`${topicLabel}: ${percentages.positive}% positif, ${percentages.neutral}% netral, ${percentages.negative}% negatif`}
-                >
-                  <div className="flex h-full w-full">
-                    <span className="bg-emerald-500" style={{ width: `${percentages.positive}%` }} />
-                    <span className="bg-slate-400" style={{ width: `${percentages.neutral}%` }} />
-                    <span className="bg-red-500" style={{ width: `${percentages.negative}%` }} />
-                  </div>
-                </div>
-                <div className="mt-2 flex justify-between text-[11px] font-black">
-                  <span className="text-emerald-600">{percentages.positive}% positif</span>
-                  <span className="text-slate-500">{percentages.neutral}% netral</span>
-                  <span className="text-red-500">{percentages.negative}% negatif</span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
       <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h4 className="text-sm font-black uppercase tracking-[0.14em] text-slate-500">Topic group utama</h4>
-          <p className="mt-1 text-sm font-semibold text-slate-600">Kartu group di bawah bisa diklik untuk membuka contoh ulasan.</p>
+          <h4 className="text-sm font-black uppercase tracking-[0.14em] text-slate-500">Pembahasan yang membentuk persepsi</h4>
+          <p className="mt-1 text-sm font-semibold text-slate-600">Buka satu pembahasan untuk melihat contoh ulasan dan alasan kenapa destinasi ini dipersepsikan seperti itu.</p>
         </div>
       </div>
 
@@ -317,7 +478,7 @@ export default function TopicInsightSection({ destinationId, topics, sentimentBr
                 type="button"
                 onClick={() => handleTopicClick(dt.topic.id, dt.topic.keywords, dt.isGroup ? 'group' : 'topic')}
                 aria-expanded={isExpanded}
-                className={`group w-full cursor-pointer rounded-xl border p-5 text-left transition-[color,background-color,border-color,box-shadow,transform,opacity] duration-200 focus:outline-none focus:ring-4 focus:ring-primary/15 ${
+                className={`group w-full cursor-pointer rounded-lg border p-5 text-left transition-[color,background-color,border-color,box-shadow,transform,opacity] duration-200 focus:outline-none focus:ring-4 focus:ring-primary/15 ${
                   isExpanded
                     ? 'border-orange-200 bg-orange-50/70 shadow-sm shadow-orange-100/60'
                     : 'border-slate-200 bg-slate-50/70 hover:-translate-y-0.5 hover:border-orange-200 hover:bg-white hover:shadow-sm'
@@ -325,7 +486,7 @@ export default function TopicInsightSection({ destinationId, topics, sentimentBr
               >
                 <div className="mb-3 flex items-start justify-between gap-3">
                   <span className="line-clamp-2 text-base font-black leading-snug text-slate-950">{topicLabel}</span>
-                  <div className={`flex shrink-0 items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-black ${sentiment.bg} ${sentiment.text} ${sentiment.border}`}>
+                  <div className={`flex shrink-0 items-center gap-1 rounded-lg border px-2.5 py-1 text-[11px] font-black ${sentiment.bg} ${sentiment.text} ${sentiment.border}`}>
                     <SentimentIcon className="h-3 w-3" />
                     <span className="hidden sm:inline">{sentiment.label}</span>
                   </div>
@@ -334,12 +495,12 @@ export default function TopicInsightSection({ destinationId, topics, sentimentBr
                 {dt.isGroup && dt.fineTopics && dt.fineTopics.length > 0 && (
                   <div className="mb-4 flex min-w-0 flex-wrap items-center gap-1.5">
                     {dt.fineTopics.slice(0, 3).map((topic) => (
-                      <span key={topic.id} className="max-w-full truncate rounded-full bg-sky-50 px-2.5 py-1 text-[10px] font-extrabold text-ai ring-1 ring-sky-100">
+                      <span key={topic.id} className="max-w-full truncate rounded-md bg-sky-50 px-2.5 py-1 text-[10px] font-extrabold text-ai ring-1 ring-sky-100">
                         {cleanTopicName(topic.topicName)}
                       </span>
                     ))}
                     {dt.fineTopics.length > 3 && (
-                      <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-black text-slate-500">
+                      <span className="rounded-md bg-slate-100 px-2.5 py-1 text-[10px] font-black text-slate-500">
                         +{dt.fineTopics.length - 3} topik
                       </span>
                     )}
@@ -378,7 +539,7 @@ export default function TopicInsightSection({ destinationId, topics, sentimentBr
                       animate={{ opacity: 1, height: 'auto' }}
                       exit={reduceMotion ? undefined : { opacity: 0, height: 0 }}
                       transition={{ duration: 0.25 }}
-                      className="mb-2 overflow-hidden rounded-xl border border-orange-200 bg-white p-5 shadow-sm"
+                      className="mb-2 overflow-hidden rounded-lg border border-orange-200 bg-white p-5 shadow-sm"
                     >
                       <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center">
                         <MessageSquare className="h-4 w-4 text-primary" />
@@ -402,11 +563,11 @@ export default function TopicInsightSection({ destinationId, topics, sentimentBr
                       ) : (
                         <div className="max-h-[400px] space-y-3 overflow-y-auto pr-1">
                           {topicReviews.map((review) => (
-                            <div key={review.id} className="rounded-xl border border-slate-200 bg-slate-50/80 p-4">
+                            <div key={review.id} className="rounded-lg border border-slate-200 bg-slate-50/80 p-4">
                               <div className="mb-2 flex items-center justify-between gap-3">
                                 <div className="flex items-center gap-2">
-                                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-orange-100 text-xs font-black text-primary">
-                                    ?
+                                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-100 text-xs font-black text-primary">
+                                    U
                                   </div>
                                   <div>
                                     <span className="text-xs font-black text-slate-800">Pengguna Anonim</span>
@@ -430,6 +591,7 @@ export default function TopicInsightSection({ destinationId, topics, sentimentBr
                                   {highlightKeywords(review.reviewText, activeKeywords)}
                                 </p>
                               )}
+                              <ReviewTopicInsight review={review} topicNameMap={topicNameMap} activeTopicId={dt.topic.id} />
                             </div>
                           ))}
                         </div>
@@ -441,7 +603,7 @@ export default function TopicInsightSection({ destinationId, topics, sentimentBr
                           onClick={() => loadReviews(dt.topic.id, reviewMeta.page + 1, dt.isGroup ? 'group' : 'topic')}
                           disabled={loading}
                           aria-label={`Muat ulasan tambahan untuk topik ${topicLabel}`}
-                          className="mt-3 min-h-11 w-full cursor-pointer rounded-full border border-orange-200 bg-orange-50 text-center text-xs font-black text-primary transition-colors hover:bg-orange-100 disabled:text-slate-400"
+                          className="mt-3 min-h-11 w-full cursor-pointer rounded-lg border border-orange-200 bg-orange-50 text-center text-xs font-black text-primary transition-colors hover:bg-orange-100 disabled:text-orange-300"
                         >
                           {loading ? 'Memuat...' : `Lihat Lebih Banyak (${reviewMeta.total - topicReviews.length} lagi)`}
                         </button>
@@ -461,12 +623,12 @@ export default function TopicInsightSection({ destinationId, topics, sentimentBr
             type="button"
             onClick={() => setShowAllTopics(!showAllTopics)}
             aria-expanded={showAllTopics}
-            className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-1.5 rounded-full border border-slate-200 bg-white px-5 py-2 text-sm font-black text-slate-600 transition-[color,background-color,border-color,box-shadow,transform,opacity] hover:-translate-y-0.5 hover:border-primary hover:text-primary focus:outline-none focus:ring-4 focus:ring-primary/15"
+            className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-white px-5 py-2 text-sm font-black text-slate-600 transition-[color,background-color,border-color,box-shadow,transform,opacity] hover:-translate-y-0.5 hover:border-primary hover:text-primary focus:outline-none focus:ring-4 focus:ring-primary/15"
           >
             {showAllTopics ? (
               <>Tampilkan Lebih Sedikit <ChevronUp className="h-4 w-4" /></>
             ) : (
-              <>Lihat Semua Topik ({sorted.length}) <ChevronDown className="h-4 w-4" /></>
+              <>Lihat semua pembahasan ({sorted.length}) <ChevronDown className="h-4 w-4" /></>
             )}
           </button>
         </div>

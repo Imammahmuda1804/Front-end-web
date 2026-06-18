@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
@@ -103,7 +103,7 @@ export function AdminReviewsClient({ initialFilters }: AdminReviewsClientProps) 
 
     return (
         <div className="space-y-5">
-            <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/50">
+            <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/50">
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
                     <div className="w-full lg:max-w-md">
                         <label className="mb-2 block text-sm font-semibold text-slate-800">Destinasi aktif</label>
@@ -130,13 +130,13 @@ export function AdminReviewsClient({ initialFilters }: AdminReviewsClientProps) 
                             <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
                                 Mode kerja
                             </p>
-                            <div className="grid rounded-xl bg-slate-100 p-1 sm:grid-cols-2" role="tablist" aria-label="Mode manajemen review">
+                            <div className="grid rounded-lg bg-slate-100 p-1 sm:grid-cols-2" role="tablist" aria-label="Mode manajemen review">
                                 <button
                                     type="button"
                                     role="tab"
                                     aria-selected={activeTab === 'reviews' ? 'true' : 'false'}
                                     onClick={() => updateQuery({ tab: 'reviews' })}
-                                    className={`flex min-h-10 items-center justify-center gap-2 rounded-xl px-4 text-sm font-semibold transition-[color,background-color,border-color,box-shadow,transform,opacity] ${
+                                    className={`flex min-h-10 items-center justify-center gap-2 rounded-lg px-4 text-sm font-semibold transition-[color,background-color,border-color,box-shadow,transform,opacity] ${
                                         activeTab === 'reviews'
                                             ? 'bg-white text-slate-950 shadow-sm shadow-slate-200'
                                             : 'text-slate-600 hover:text-slate-950'
@@ -150,7 +150,7 @@ export function AdminReviewsClient({ initialFilters }: AdminReviewsClientProps) 
                                     role="tab"
                                     aria-selected={activeTab === 'analytics' ? 'true' : 'false'}
                                     onClick={() => updateQuery({ tab: 'analytics' })}
-                                    className={`flex min-h-10 items-center justify-center gap-2 rounded-xl px-4 text-sm font-semibold transition-[color,background-color,border-color,box-shadow,transform,opacity] ${
+                                    className={`flex min-h-10 items-center justify-center gap-2 rounded-lg px-4 text-sm font-semibold transition-[color,background-color,border-color,box-shadow,transform,opacity] ${
                                         activeTab === 'analytics'
                                             ? 'bg-white text-slate-950 shadow-sm shadow-slate-200'
                                             : 'text-slate-600 hover:text-slate-950'
@@ -165,15 +165,15 @@ export function AdminReviewsClient({ initialFilters }: AdminReviewsClientProps) 
                 </div>
 
                 {selectedDestination && (
-                    <div className="mt-4 rounded-xl bg-slate-50 p-3 text-sm text-slate-600">
+                    <div className="mt-4 rounded-lg bg-slate-50 p-3 text-sm text-slate-600">
                         Review workspace untuk <span className="font-semibold text-slate-900">{selectedDestination.name}</span>, {selectedDestination.city}. Filter dan tab disimpan di URL.
                     </div>
                 )}
             </section>
 
             {!selectedDestinationId ? (
-                <div className="flex min-h-[360px] flex-col items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-16 text-center">
-                    <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-white text-orange-600 shadow-sm">
+                <div className="flex min-h-[360px] flex-col items-center justify-center rounded-lg border border-dashed border-slate-200 bg-slate-50 px-4 py-16 text-center">
+                    <div className="flex h-16 w-16 items-center justify-center rounded-lg bg-white text-orange-600 shadow-sm">
                         <MessageSquareText className="h-7 w-7" />
                     </div>
                     <h3 className="mt-5 text-lg font-semibold text-slate-950">Pilih destinasi untuk mulai moderasi</h3>

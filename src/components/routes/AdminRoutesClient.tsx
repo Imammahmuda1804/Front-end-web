@@ -104,7 +104,7 @@ export function AdminRoutesClient() {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-xl border border-orange-100 bg-orange-50 p-6">
+      <section className="rounded-lg border border-orange-100 bg-orange-50 p-6">
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
             <p className="inline-flex items-center gap-2 rounded-lg bg-white px-3 py-1.5 text-xs font-black uppercase tracking-[0.16em] text-primary">
@@ -129,7 +129,7 @@ export function AdminRoutesClient() {
       </section>
 
       {loading ? (
-        <div className="h-72 animate-pulse rounded-xl bg-white" />
+        <div className="h-72 animate-pulse rounded-lg bg-white" />
       ) : (
         <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
           {routes.map((route) => (
@@ -166,7 +166,7 @@ export function AdminRoutesClient() {
       )}
 
       <Dialog open={Boolean(routeToDelete)} onOpenChange={(open) => !open && setRouteToDelete(null)}>
-        <DialogContent className="rounded-xl border border-rose-100 bg-white p-0 shadow-2xl shadow-slate-950/15" showCloseButton={false}>
+        <DialogContent className="rounded-lg border border-rose-100 bg-white p-0 shadow-2xl shadow-slate-950/15" showCloseButton={false}>
           <DialogHeader className="p-5 pb-0">
             <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-lg bg-rose-50 text-rose-600">
               <Trash2 className="h-5 w-5" />

@@ -77,7 +77,7 @@ export function DestinationAnalytics({ destinationId }: DestinationAnalyticsProp
 
     if (!analytics) {
         return (
-            <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 py-16 text-center text-slate-500">
+            <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50 py-16 text-center text-slate-500">
                 Data analitik belum tersedia. Jalankan scraping dan NLP terlebih dahulu.
             </div>
         );
@@ -104,7 +104,7 @@ export function DestinationAnalytics({ destinationId }: DestinationAnalyticsProp
 
     return (
         <div className="space-y-5">
-            <div className="flex flex-col gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/50 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col gap-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/50 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                     <h3 className="text-lg font-semibold text-slate-950">Analitik review: {analytics.name}</h3>
                     <p className="mt-1 text-sm text-slate-500">
@@ -130,7 +130,7 @@ export function DestinationAnalytics({ destinationId }: DestinationAnalyticsProp
 
             <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                 <InsightCard icon={PieChartIcon} label="Dominan" value={dominantSentiment} hint="Sentimen terbesar" tone="slate" />
-                <InsightCard icon={Tags} label="Topik utama" value={topTopic?.topic_name || '-'} hint={`${topTopic?.total_reviews || 0} review`} tone="indigo" />
+                <InsightCard icon={Tags} label="Paling dibahas" value={topTopic?.topic_name || '-'} hint={`${topTopic?.total_reviews || 0} review`} tone="indigo" />
                 <InsightCard icon={TrendingDown} label="Rasio negatif" value={`${negativeRatio}%`} hint="Perlu dipantau admin" tone="rose" />
                 <InsightCard icon={Smile} label="Positif" value={String(sentiment.positive || 0)} hint="Sinyal kepuasan" tone="emerald" />
             </div>
@@ -221,7 +221,7 @@ function InsightCard({
     }[tone];
 
     return (
-        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/50">
+        <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/50">
             <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                     <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{label}</p>
@@ -248,7 +248,7 @@ function ChartPanel({
     children: React.ReactNode;
 }) {
     return (
-        <section className={`rounded-xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/50 ${className}`}>
+        <section className={`rounded-lg border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/50 ${className}`}>
             <div className="mb-4 flex items-start justify-between gap-3">
                 <div>
                     <h4 className="font-semibold text-slate-950">{title}</h4>
@@ -263,7 +263,7 @@ function ChartPanel({
 
 function ChartEmptyState({ label }: { label: string }) {
     return (
-        <div className="flex h-[260px] items-center justify-center rounded-xl bg-slate-50 text-sm text-slate-500">
+        <div className="flex h-[260px] items-center justify-center rounded-lg bg-slate-50 text-sm text-slate-500">
             {label}
         </div>
     );
@@ -272,16 +272,16 @@ function ChartEmptyState({ label }: { label: string }) {
 function AnalyticsSkeleton() {
     return (
         <div className="space-y-5">
-            <div className="h-24 animate-pulse rounded-xl bg-slate-100" />
+            <div className="h-24 animate-pulse rounded-lg bg-slate-100" />
             <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                 {Array.from({ length: 4 }).map((_, index) => (
-                    <div key={index} className="h-28 animate-pulse rounded-xl bg-slate-100" />
+                    <div key={index} className="h-28 animate-pulse rounded-lg bg-slate-100" />
                 ))}
             </div>
             <div className="grid gap-5 lg:grid-cols-3">
-                <div className="h-80 animate-pulse rounded-xl bg-slate-100" />
-                <div className="h-80 animate-pulse rounded-xl bg-slate-100 lg:col-span-2" />
-                <div className="h-96 animate-pulse rounded-xl bg-slate-100 lg:col-span-3" />
+                <div className="h-80 animate-pulse rounded-lg bg-slate-100" />
+                <div className="h-80 animate-pulse rounded-lg bg-slate-100 lg:col-span-2" />
+                <div className="h-96 animate-pulse rounded-lg bg-slate-100 lg:col-span-3" />
             </div>
         </div>
     );

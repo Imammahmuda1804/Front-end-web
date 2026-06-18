@@ -307,13 +307,13 @@ export default function ProfileClient({ initialView = 'profile' }: Props) {
 
   if (!isAuthenticated) {
     return (
-      <main className="flex min-h-screen flex-col items-center justify-center bg-slate-50 px-4 pb-20 pt-32 text-center">
+      <main className="flex min-h-screen flex-col items-center justify-center px-4 pb-20 pt-32 text-center">
         <ShieldCheck className="mb-4 h-12 w-12 text-primary" />
-        <h1 className="mb-3 text-2xl font-black text-slate-900">Silakan masuk terlebih dahulu</h1>
-        <p className="mb-6 max-w-md text-sm font-semibold leading-6 text-slate-500">
+        <h1 className="on-photo-heading mb-3 text-2xl font-black">Silakan masuk terlebih dahulu</h1>
+        <p className="on-photo-copy mb-6 max-w-md text-sm font-semibold leading-6">
           Profil dan favorit tersimpan hanya tersedia setelah Anda masuk.
         </p>
-        <Link href="/login" className="inline-flex min-h-12 items-center rounded-full bg-primary px-6 text-sm font-black text-white shadow-lg shadow-orange-200 transition-[color,background-color,border-color,box-shadow,transform,opacity] hover:-translate-y-0.5 hover:bg-primary/90 focus:outline-none focus:ring-4 focus:ring-primary/20">
+        <Link href="/login" className="inline-flex min-h-12 items-center rounded-lg bg-primary px-6 text-sm font-black text-white shadow-lg shadow-orange-950/20 transition-[color,background-color,border-color,box-shadow,transform,opacity] hover:-translate-y-0.5 hover:bg-primary/90 focus:outline-none focus:ring-4 focus:ring-primary/20">
           Masuk
         </Link>
       </main>
@@ -326,19 +326,19 @@ export default function ProfileClient({ initialView = 'profile' }: Props) {
   const isFavoritesPage = initialView === 'favorites';
 
   return (
-    <main className="min-h-screen bg-slate-50 pb-24 pt-28">
+    <main className="min-h-screen pb-24 pt-28">
       <div className="mx-auto max-w-[92rem] px-4 sm:px-6 lg:px-10">
-        <section className="mb-8 overflow-hidden rounded-xl border border-orange-100 bg-orange-50/70 p-6 shadow-sm shadow-orange-100/50 sm:p-8">
+        <section className="mb-8 overflow-hidden rounded-lg border border-white/30 bg-slate-950/42 p-6 shadow-[0_24px_70px_rgba(15,23,42,0.22)] backdrop-blur-xl sm:p-8">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-3xl">
-              <p className="mb-3 inline-flex items-center gap-2 rounded-full bg-white px-3 py-1.5 text-xs font-black uppercase tracking-[0.16em] text-primary shadow-sm">
+              <p className="mb-3 inline-flex items-center gap-2 rounded-lg border border-orange-200/40 bg-primary px-3 py-1.5 text-xs font-black uppercase tracking-[0.16em] text-white shadow-sm">
                 <Sparkles className="h-3.5 w-3.5" />
                 Ruang perjalanan pribadi
               </p>
-              <h1 className="text-4xl font-black tracking-tight text-slate-950 sm:text-5xl">
+              <h1 className="on-photo-heading text-4xl font-black tracking-tight sm:text-5xl">
                 {isFavoritesPage ? 'Favorit Saya' : 'Profil & Preferensi'}
               </h1>
-              <p className="mt-3 max-w-2xl text-base font-semibold leading-7 text-slate-600">
+              <p className="on-photo-copy mt-3 max-w-2xl text-base font-semibold leading-7">
                 {isFavoritesPage
                   ? 'Temukan ulang destinasi tersimpan, sortir berdasarkan vibe, lalu pilih kandidat untuk dibandingkan.'
                   : 'Kelola detail pribadi, lihat pola perjalanan, dan lanjutkan eksplorasi dari destinasi favorit Anda.'}
@@ -427,12 +427,12 @@ export default function ProfileClient({ initialView = 'profile' }: Props) {
           role="status"
           aria-live="polite"
         >
-          <div className="flex items-center justify-between gap-4 rounded-xl bg-slate-950 px-5 py-3 text-white shadow-xl">
+          <div className="flex items-center justify-between gap-4 rounded-lg bg-slate-950 px-5 py-3 text-white shadow-xl">
             <span className="text-sm font-semibold">Favorit dihapus.</span>
             <button
               type="button"
               onClick={handleUndoRemove}
-              className="inline-flex min-h-10 items-center gap-1.5 rounded-full px-2 text-sm font-black text-orange-200 transition-colors hover:text-white focus:outline-none focus:ring-4 focus:ring-white/15"
+              className="inline-flex min-h-10 items-center gap-1.5 rounded-lg px-2 text-sm font-black text-orange-200 transition-colors hover:text-white focus:outline-none focus:ring-4 focus:ring-white/15"
             >
               <Undo2 className="h-4 w-4" />
               Batalkan

@@ -203,7 +203,7 @@ export function UsersClient() {
 
       <section className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
         <div className="space-y-6">
-          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm md:p-5">
+          <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm md:p-5">
             <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
               <div className="grid flex-1 gap-3 md:grid-cols-[minmax(0,1fr)_11rem_12rem]">
                 <div className="space-y-2">
@@ -215,7 +215,7 @@ export function UsersClient() {
                     <Input
                       id="user-search"
                       placeholder="Nama atau email pengguna"
-                      className="h-12 rounded-xl border-slate-200 pl-11 font-semibold shadow-none focus-visible:ring-[var(--explore)]"
+                      className="h-12 rounded-lg border-slate-200 pl-11 font-semibold shadow-none focus-visible:ring-[var(--explore)]"
                       value={searchTerm}
                       onChange={(event) => setSearchTerm(event.target.value)}
                     />
@@ -268,7 +268,7 @@ export function UsersClient() {
             </div>
           </div>
 
-          <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+          <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
             <div className="flex flex-col gap-3 border-b border-slate-100 px-5 py-4 md:flex-row md:items-center md:justify-between">
               <div>
                 <p className="text-xs font-black uppercase tracking-[0.18em] text-explore">
@@ -300,7 +300,7 @@ export function UsersClient() {
                     Array.from({ length: 5 }).map((_, index) => (
                       <TableRow key={index}>
                         <TableCell colSpan={5} className="px-5 py-4">
-                          <div className="h-14 animate-pulse rounded-xl bg-slate-100" />
+                          <div className="h-14 animate-pulse rounded-lg bg-slate-100" />
                         </TableCell>
                       </TableRow>
                     ))
@@ -336,7 +336,7 @@ export function UsersClient() {
                       <TableRow key={user.id} className="hover:bg-orange-50/40">
                         <TableCell className="px-5 py-4">
                           <div className="flex items-center gap-3">
-                            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-explore-container text-sm font-black text-explore ring-1 ring-explore/20">
+                            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-explore-container text-sm font-black text-explore ring-1 ring-explore/20">
                               {getInitial(user.name)}
                             </div>
                             <div className="min-w-0">
@@ -439,7 +439,7 @@ export function UsersClient() {
             secondValue={userCount}
             secondColor="bg-ai"
           />
-          <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
             <p className="text-xs font-black uppercase tracking-[0.18em] text-explore">
               Action Queue
             </p>

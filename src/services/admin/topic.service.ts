@@ -5,6 +5,13 @@ export interface TopicItem {
   topic_name: string;
   keywords: string[];
   total_destinations: number;
+  selected_destination?: {
+    id: number;
+    name: string;
+    slug?: string;
+    city?: string;
+  } | null;
+  selected_destination_reviews?: number | null;
   group_id?: number | null;
   group_name?: string | null;
   label_type?: string;
@@ -74,6 +81,7 @@ export interface TopicReviewItem {
   review_date?: string | null;
   sentiment?: string | null;
   sentiment_confidence?: number | null;
+  topic_assignments?: TopicReviewAssignment[];
   destination: {
     id: number;
     name: string;
@@ -82,6 +90,13 @@ export interface TopicReviewItem {
     province?: string;
     thumbnailUrl?: string | null;
   };
+}
+
+export interface TopicReviewAssignment {
+  topicId: number;
+  score: number;
+  isPrimary: boolean;
+  assignmentMethod: string;
 }
 
 export interface TopicReviewsResponse {
@@ -107,8 +122,8 @@ export interface TopicReviewsResponse {
 
 // Service API untuk manajemen topik dan topic group.
 class AdminTopicService {
-  async getTopics(): Promise<TopicItem[]> {
-    const response = await api.get('/api/topics');
+  async getTopics(params?: { destinationId?: number }): Promise<TopicItem[]> {
+    const response = await api.get('/api/topics', { params });
     const rawData = response.data?.data || response.data;
     return Array.isArray(rawData) ? rawData : [];
   }

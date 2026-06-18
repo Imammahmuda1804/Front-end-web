@@ -24,30 +24,30 @@ export function RenameTopicDialog({
     <Dialog open={Boolean(topic)} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Rename Topik</DialogTitle>
+          <DialogTitle>Rapikan Nama Topik</DialogTitle>
         </DialogHeader>
         <div className="space-y-4 py-2">
           <div>
-            <label className="mb-1.5 block text-sm font-bold text-slate-700">Nama Topik Saat Ini</label>
+            <label className="mb-1.5 block text-sm font-bold text-slate-700">Nama topik saat ini</label>
             <p className="text-sm font-semibold italic text-slate-500">{topic?.topic_name}</p>
           </div>
           <div>
-            <label className="mb-1.5 block text-sm font-bold text-slate-700">Kata Kunci</label>
+            <label className="mb-1.5 block text-sm font-bold text-slate-700">Kata kunci pendukung</label>
             <div className="flex flex-wrap gap-1">
               {(topic?.keywords || []).map((keyword, index) => (
-                <span key={`${topic?.id || 'topic'}-dialog-keyword-${index}-${keyword || 'empty'}`} className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-bold text-slate-600">
+                <span key={`${topic?.id || 'topic'}-dialog-keyword-${index}-${keyword || 'empty'}`} className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-bold text-slate-600">
                   {keyword}
                 </span>
               ))}
             </div>
           </div>
           <div>
-            <label htmlFor="rename-input" className="mb-1.5 block text-sm font-bold text-slate-700">Nama Baru</label>
+            <label htmlFor="rename-input" className="mb-1.5 block text-sm font-bold text-slate-700">Nama baru</label>
             <Input
               id="rename-input"
               value={value}
               onChange={(event) => onValueChange(event.target.value)}
-              placeholder="Masukkan nama topik baru..."
+              placeholder="Masukkan nama yang lebih jelas..."
               autoFocus
             />
           </div>
@@ -86,9 +86,9 @@ export function DeleteTopicDialog({
         </DialogHeader>
         <div className="space-y-3 py-2">
           <p className="text-sm font-semibold leading-6 text-slate-600">
-            Apakah Anda yakin ingin menghapus topik berikut? Relasi destinasi dan review terkait akan kehilangan taxonomy ini.
+            Apakah Anda yakin ingin menghapus topik berikut? Relasi destinasi dan ulasan terkait akan kehilangan pengelompokan pembahasan ini.
           </p>
-          <div className="rounded-xl border border-rose-100 bg-rose-50 p-4">
+          <div className="rounded-lg border border-rose-100 bg-rose-50 p-4">
             <p className="font-black text-slate-900">{topic?.topic_name}</p>
             <p className="mt-1 text-xs font-bold text-rose-700">{topic?.total_destinations || 0} destinasi terkait</p>
           </div>
@@ -149,19 +149,19 @@ export function MergeTopicsDialog({
           </DialogTitle>
         </DialogHeader>
         <div className="grid gap-4 py-2 md:grid-cols-[0.9fr_1.1fr]">
-          <section className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-            <p className="text-xs font-black uppercase tracking-[0.14em] text-ai">Target dipertahankan</p>
+          <section className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+            <p className="text-xs font-black uppercase tracking-[0.14em] text-ai">Topik acuan dipertahankan</p>
             <Input
               value={targetSearch}
               onChange={(event) => setTargetSearch(event.target.value)}
-              placeholder="Cari target topic..."
-              className="mt-3 min-h-11 rounded-xl bg-white font-semibold"
+              placeholder="Cari topik acuan..."
+              className="mt-3 min-h-11 rounded-lg bg-white font-semibold"
             />
             <div className="mt-3 max-h-72 space-y-2 overflow-y-auto pr-1">
               {visibleTargets.map((topic) => (
                 <label
                   key={topic.id}
-                  className="flex cursor-pointer items-start gap-3 rounded-xl border border-white bg-white p-3 text-sm font-bold text-slate-700 transition hover:border-sky-200 hover:bg-sky-50"
+                  className="flex cursor-pointer items-start gap-3 rounded-lg border border-white bg-white p-3 text-sm font-bold text-slate-700 transition hover:border-sky-200 hover:bg-sky-50"
                 >
                   <input
                     type="radio"
@@ -179,22 +179,22 @@ export function MergeTopicsDialog({
             </div>
           </section>
 
-          <section className="rounded-xl border border-slate-200 bg-white p-4">
-            <p className="text-xs font-black uppercase tracking-[0.14em] text-primary">Source digabung</p>
+          <section className="rounded-lg border border-slate-200 bg-white p-4">
+            <p className="text-xs font-black uppercase tracking-[0.14em] text-primary">Topik yang digabung</p>
             <p className="mt-1 text-sm font-semibold leading-6 text-slate-500">
-              Review dan relasi destinasi dari source akan dipindahkan ke target{target ? ` "${target.topic_name}"` : ''}.
+              Ulasan dan relasi destinasi dari topik terpilih akan dipindahkan ke topik utama{target ? ` "${target.topic_name}"` : ''}.
             </p>
             <Input
               value={sourceSearch}
               onChange={(event) => setSourceSearch(event.target.value)}
-              placeholder="Cari source topic..."
-              className="mt-3 min-h-11 rounded-xl bg-slate-50 font-semibold"
+              placeholder="Cari topik yang akan digabung..."
+              className="mt-3 min-h-11 rounded-lg bg-slate-50 font-semibold"
             />
             <div className="mt-3 max-h-72 space-y-2 overflow-y-auto pr-1">
               {visibleSources.map((topic) => (
                   <label
                     key={topic.id}
-                    className="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-100 bg-slate-50 p-3 text-sm font-bold text-slate-700 transition hover:border-orange-200 hover:bg-orange-50"
+                    className="flex cursor-pointer items-start gap-3 rounded-lg border border-slate-100 bg-slate-50 p-3 text-sm font-bold text-slate-700 transition hover:border-orange-200 hover:bg-orange-50"
                   >
                     <input
                       type="checkbox"

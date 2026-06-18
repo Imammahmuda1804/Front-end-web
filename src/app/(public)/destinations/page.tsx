@@ -66,7 +66,7 @@ export default async function DestinationsPage() {
         </div>
 
         {destinations.length === 0 ? (
-          <div className="mt-8 rounded-xl border border-dashed border-slate-200 bg-white p-10 text-center text-sm font-bold text-slate-500">
+          <div className="mt-8 rounded-lg border border-dashed border-slate-200 bg-white/95 p-10 text-center text-sm font-bold text-slate-500 shadow-sm">
             Belum ada destinasi yang bisa ditampilkan.
           </div>
         ) : (

@@ -33,14 +33,14 @@ export default function DestinationQualityMatrix({ destinations }: Props) {
     .slice(0, 4);
 
   return (
-    <Card className="rounded-xl border border-slate-200 bg-white py-0 shadow-sm">
+    <Card className="rounded-lg border border-slate-200 bg-white py-0 shadow-sm">
       <CardHeader className="border-b border-slate-100 p-6">
         <CardTitle className="text-xl font-black text-slate-950">Destination Quality Matrix</CardTitle>
         <CardDescription className="mt-1 font-semibold">Sebaran rating Google dan skor rekomendasi untuk menemukan anomali kualitas.</CardDescription>
       </CardHeader>
       <CardContent className="p-6">
         {data.length === 0 ? (
-          <div className="flex h-80 items-center justify-center rounded-xl border border-dashed border-slate-200 text-sm font-bold text-slate-400">
+          <div className="flex h-80 items-center justify-center rounded-lg border border-dashed border-slate-200 text-sm font-bold text-slate-400">
             Data kualitas destinasi belum tersedia.
           </div>
         ) : (
@@ -74,7 +74,7 @@ export default function DestinationQualityMatrix({ destinations }: Props) {
                       if (!active || !payload?.[0]?.payload) return null;
                       const item = payload[0].payload as typeof data[number];
                       return (
-                        <div className="rounded-xl border border-slate-200 bg-white p-3 text-xs shadow-xl">
+                        <div className="rounded-lg border border-slate-200 bg-white p-3 text-xs shadow-xl">
                           <p className="font-black text-slate-950">{item.name}</p>
                           <p className="mt-1 font-bold text-slate-500">{item.city}</p>
                           <p className="mt-2 font-bold text-slate-700">Rating {item.rating.toFixed(1)} | Skor {item.score}</p>
@@ -87,17 +87,17 @@ export default function DestinationQualityMatrix({ destinations }: Props) {
               </ResponsiveContainer>
             </div>
             <div className="space-y-3">
-              <div className="rounded-xl border border-orange-100 bg-orange-50 p-4">
+              <div className="rounded-lg border border-orange-100 bg-orange-50 p-4">
                 <p className="text-xs font-black uppercase tracking-[0.14em] text-primary">Hidden gems</p>
                 <p className="mt-1 text-sm font-semibold leading-6 text-slate-600">Skor tinggi dengan rating Google yang masih bisa naik.</p>
               </div>
               {hiddenGems.length > 0 ? hiddenGems.map((destination) => (
-                <Link key={destination.id} href={`/admin/destinations/${destination.id}`} className="block rounded-xl border border-slate-200 bg-slate-50 p-3 transition-colors hover:border-orange-200 hover:bg-orange-50">
+                <Link key={destination.id} href={`/admin/destinations/${destination.id}`} className="block rounded-lg border border-slate-200 bg-slate-50 p-3 transition-colors hover:border-orange-200 hover:bg-orange-50">
                   <p className="truncate text-sm font-black text-slate-950">{destination.name}</p>
                   <p className="mt-1 text-xs font-bold text-slate-500">{destination.city} | Skor {destination.score}</p>
                 </Link>
               )) : (
-                <p className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm font-bold text-slate-500">
+                <p className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm font-bold text-slate-500">
                   Belum ada kandidat hidden gem.
                 </p>
               )}

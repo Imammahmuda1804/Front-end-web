@@ -339,7 +339,7 @@ export default function SearchClient() {
               initial={shouldReduceMotion ? false : { opacity: 0, y: -10 }}
               animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
               transition={{ duration: 0.22, ease: easeOutExpo }}
-              className="mb-5 flex flex-col gap-3 rounded-xl border border-danger/15 bg-surface-danger p-4 text-sm font-semibold text-danger sm:flex-row sm:items-center sm:justify-between"
+              className="mb-5 flex flex-col gap-3 rounded-lg border border-danger/15 bg-surface-danger p-4 text-sm font-semibold text-danger sm:flex-row sm:items-center sm:justify-between"
             >
               <div className="flex items-start gap-3">
                 <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" />

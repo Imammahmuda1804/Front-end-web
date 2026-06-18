@@ -1,0 +1,10 @@
+
+> temp@0.1.0 dev
+> node scripts/clean-next-route-cache.mjs && cross-env NODE_OPTIONS="--max-old-space-size=4096 --max-semi-space-size=128" DANGEROUSLY_DISABLE_PRIVATE_IP_CHECKS=1 next dev --webpack -p 3002
+
+▲ Next.js 16.2.6 (webpack)
+- Local:         http://localhost:3002
+- Network:       http://192.168.56.1:3002
+- Environments: .env.local
+✓ Ready in 795ms
+

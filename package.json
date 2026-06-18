@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "node scripts/clean-next-route-cache.mjs && cross-env DANGEROUSLY_DISABLE_PRIVATE_IP_CHECKS=1 next dev",
+    "dev": "node scripts/clean-next-route-cache.mjs && cross-env NODE_OPTIONS=\"--max-old-space-size=4096 --max-semi-space-size=128\" DANGEROUSLY_DISABLE_PRIVATE_IP_CHECKS=1 next dev --webpack",
+    "dev:turbo": "node scripts/clean-next-route-cache.mjs && cross-env NODE_OPTIONS=\"--max-old-space-size=4096 --max-semi-space-size=128\" DANGEROUSLY_DISABLE_PRIVATE_IP_CHECKS=1 next dev --turbo",
     "build": "node scripts/clean-next-route-cache.mjs && next build",
     "start": "next start",
     "lint": "eslint"
@@ -23,6 +24,7 @@
     "framer-motion": "^12.38.0",
     "gsap": "^3.15.0",
     "lucide-react": "^1.14.0",
+    "maplibre-gl": "^5.0.0",
     "next": "16.2.6",
     "next-themes": "^0.4.6",
     "react": "19.2.4",

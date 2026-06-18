@@ -39,15 +39,15 @@ export function SearchCommandSurface({
       animate={shouldReduceMotion ? undefined : 'visible'}
       variants={panelMotion}
       transition={{ duration: 0.36, ease: easeOutExpo }}
-      className="relative overflow-hidden rounded-xl border border-explore/15 bg-surface-warm p-4 text-slate-950 shadow-sm shadow-orange-900/5 md:p-6"
+      className="relative overflow-hidden rounded-lg border border-white/60 bg-white/90 p-4 text-slate-950 shadow-[0_18px_50px_rgba(15,23,42,0.14)] backdrop-blur-xl md:p-6"
     >
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute right-0 top-0 h-40 w-56 opacity-60"
+          className="pointer-events-none absolute right-0 top-0 h-40 w-56 opacity-45"
         style={{
           backgroundImage:
-            'radial-gradient(circle at 1px 1px, rgba(255, 123, 84, 0.22) 1px, transparent 0)',
-          backgroundSize: '16px 16px',
+            'radial-gradient(circle at 1px 1px, rgba(255, 123, 84, 0.18) 1px, transparent 0)',
+          backgroundSize: '18px 18px',
           maskImage: 'linear-gradient(135deg, black, transparent 72%)',
         }}
       />
@@ -61,20 +61,20 @@ export function SearchCommandSurface({
         </div>
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-          <div className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-full border px-4 text-sm font-black shadow-sm ${
+          <div className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border px-4 text-sm font-black shadow-sm ${
             searchMode === 'semantic'
-              ? 'border-ai/15 bg-ai-container text-ai shadow-blue-900/5'
-              : 'border-explore/15 bg-white text-explore shadow-orange-900/5'
+              ? 'border-ai/20 bg-ai-container text-ai shadow-blue-900/5'
+              : 'border-explore/20 bg-white text-explore shadow-orange-900/5'
           }`}>
             <ActiveModeIcon className="h-4 w-4" />
             Mode aktif: {searchMode === 'semantic' ? 'Semantik' : 'Kata kunci'}
           </div>
-          <div className="flex rounded-full border border-explore/15 bg-white p-1 shadow-sm shadow-orange-900/5">
+          <div className="flex rounded-lg border border-slate-200 bg-white/95 p-1 shadow-sm shadow-orange-900/5">
             <button
               type="button"
               onClick={() => onModeSwitch('keyword')}
               aria-pressed={searchMode === 'keyword'}
-              className={`flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full px-4 text-sm font-black transition-colors sm:flex-none ${
+              className={`flex min-h-11 flex-1 items-center justify-center gap-2 rounded-md px-4 text-sm font-black transition-colors sm:flex-none ${
                 searchMode === 'keyword' ? 'bg-explore text-white shadow-sm shadow-orange-900/15' : 'text-slate-600 hover:bg-explore-container hover:text-explore'
               }`}
             >
@@ -85,7 +85,7 @@ export function SearchCommandSurface({
               type="button"
               onClick={() => onModeSwitch('semantic')}
               aria-pressed={searchMode === 'semantic'}
-              className={`flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full px-4 text-sm font-black transition-colors sm:flex-none ${
+              className={`flex min-h-11 flex-1 items-center justify-center gap-2 rounded-md px-4 text-sm font-black transition-colors sm:flex-none ${
                 searchMode === 'semantic' ? 'bg-ai text-white shadow-sm shadow-blue-900/15' : 'text-slate-600 hover:bg-ai-container hover:text-ai'
               }`}
             >
@@ -98,7 +98,7 @@ export function SearchCommandSurface({
             onClick={onToggleModeInfo}
             aria-label="Tampilkan informasi mode pencarian"
             whileTap={shouldReduceMotion ? undefined : { scale: 0.97 }}
-            className="flex min-h-11 items-center justify-center gap-2 rounded-full border border-slate-200 bg-white px-4 text-sm font-black text-slate-700 shadow-sm transition-colors hover:border-explore/30 hover:bg-explore-container hover:text-explore"
+            className="flex min-h-11 items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 text-sm font-black text-slate-700 shadow-sm transition-colors hover:border-explore/30 hover:bg-explore-container hover:text-explore"
           >
             <Sparkles className="h-4 w-4" />
             Bedanya apa?
@@ -119,7 +119,7 @@ export function SearchCommandSurface({
               id="search-main"
               type="text"
               placeholder={searchMode === 'semantic' ? 'Contoh: pantai tenang untuk keluarga' : 'Contoh: Jam Gadang atau Bukittinggi'}
-              className="min-h-16 w-full rounded-xl border-2 border-explore/15 bg-white py-3 pl-13 pr-4 text-base font-bold text-slate-900 outline-none transition-[color,background-color,border-color,box-shadow,transform,opacity] placeholder:text-slate-400 focus:border-explore focus:bg-white focus:ring-4 focus:ring-explore/20"
+                className="min-h-16 w-full rounded-lg border-2 border-slate-200 bg-white/95 py-3 pl-13 pr-4 text-base font-bold text-slate-900 outline-none transition-[color,background-color,border-color,box-shadow,transform,opacity] placeholder:text-slate-400 focus:border-explore focus:bg-white focus:ring-4 focus:ring-explore/20"
               value={query}
               onChange={(e) => onQueryChange(e.target.value)}
             />
@@ -128,7 +128,7 @@ export function SearchCommandSurface({
             type="submit"
             disabled={isLoading || !query.trim()}
             whileTap={shouldReduceMotion ? undefined : { scale: 0.98 }}
-            className="flex min-h-16 items-center justify-center gap-2 rounded-xl bg-explore px-8 text-sm font-black text-white shadow-sm shadow-primary/20 transition-[color,background-color,border-color,box-shadow,transform,opacity] motion-safe:hover:-translate-y-0.5 hover:bg-explore/90 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
+            className="flex min-h-16 items-center justify-center gap-2 rounded-lg bg-explore px-8 text-sm font-black text-white shadow-sm shadow-primary/20 transition-[color,background-color,border-color,box-shadow,transform,opacity] motion-safe:hover:-translate-y-0.5 hover:bg-explore/90 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
           >
             <Search className="h-4 w-4" />
             Cari destinasi
@@ -143,7 +143,7 @@ export function SearchCommandSurface({
         className="mt-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between"
       >
         <div className="flex flex-wrap items-center gap-2">
-          <span className="inline-flex min-h-9 items-center gap-1.5 rounded-full border border-explore/15 bg-white px-3 text-xs font-black uppercase tracking-[0.12em] text-explore shadow-sm shadow-orange-900/5">
+          <span className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-explore/15 bg-white px-3 text-xs font-black uppercase tracking-[0.12em] text-explore shadow-sm shadow-orange-900/5">
             <Sparkles className="h-3.5 w-3.5" />
             Rekomendasi cepat
           </span>
@@ -161,7 +161,7 @@ export function SearchCommandSurface({
                 whileTap={shouldReduceMotion ? undefined : { scale: 0.97 }}
                 onClick={() => onQuickPrompt(prompt)}
                 aria-pressed={isActivePrompt}
-                className={`inline-flex min-h-11 items-center gap-2 rounded-full border px-3 text-sm font-black shadow-sm transition-[color,background-color,border-color,box-shadow,transform,opacity] ${
+                className={`inline-flex min-h-11 items-center gap-2 rounded-lg border px-3 text-sm font-black shadow-sm transition-[color,background-color,border-color,box-shadow,transform,opacity] ${
                   isActivePrompt
                     ? 'border-primary bg-primary text-white shadow-primary/20'
                     : `text-slate-700 hover:border-explore hover:bg-explore-container hover:text-explore ${prompt.tone}`
@@ -185,16 +185,16 @@ export function SearchCommandSurface({
             animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
             exit={shouldReduceMotion ? undefined : { opacity: 0, y: -8 }}
             transition={{ duration: 0.18, ease: easeOutExpo }}
-            className="mt-5 grid gap-3 rounded-xl border border-slate-200 bg-white p-4 text-slate-900 shadow-sm shadow-slate-200/60 md:grid-cols-2"
+            className="mt-5 grid gap-3 rounded-lg border border-slate-200 bg-white p-4 text-slate-900 shadow-sm shadow-slate-200/60 md:grid-cols-2"
           >
-            <div className="rounded-xl bg-explore-container p-4">
+            <div className="rounded-lg bg-explore-container p-4">
               <div className="mb-2 flex items-center gap-2 text-sm font-black text-slate-900">
                 <Type className="h-4 w-4 text-slate-600" />
                 Pencarian kata kunci
               </div>
               <p className="text-sm leading-6 text-slate-600">Cocok untuk nama destinasi atau kota yang sudah Anda tahu.</p>
             </div>
-            <div className="rounded-xl bg-ai-container p-4">
+            <div className="rounded-lg bg-ai-container p-4">
               <div className="mb-2 flex items-center gap-2 text-sm font-black text-slate-900">
                 <Brain className="h-4 w-4 text-ai" />
                 Pencarian semantik

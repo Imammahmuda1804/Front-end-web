@@ -31,7 +31,7 @@ export function DestinationHeroSection({
   return (
     <motion.section
       {...motionProps}
-      className="overflow-hidden rounded-xl border border-orange-200 bg-orange-50/60 shadow-xl shadow-orange-100/50"
+      className="overflow-hidden rounded-lg border border-orange-200 bg-orange-50/60 shadow-xl shadow-orange-100/50"
       aria-labelledby="destination-title"
     >
       <div className="grid gap-0 lg:grid-cols-[minmax(0,1.12fr)_minmax(26rem,0.88fr)]">
@@ -47,7 +47,7 @@ export function DestinationHeroSection({
           <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-slate-950/45 to-transparent" />
           <div className="absolute bottom-5 left-5 flex flex-wrap gap-2">
             {tags.slice(0, 3).map((tag) => (
-              <span key={tag} className="rounded-full bg-white px-3 py-1.5 text-xs font-extrabold text-slate-800 shadow-sm">
+              <span key={tag} className="rounded-md bg-white px-3 py-1.5 text-xs font-extrabold text-slate-800 shadow-sm">
                 {tag}
               </span>
             ))}
@@ -56,9 +56,9 @@ export function DestinationHeroSection({
 
         <div className="flex flex-col justify-between gap-8 p-6 sm:p-8 lg:p-10">
           <div className="space-y-5">
-            <div className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-xs font-black uppercase tracking-[0.18em] text-white shadow-lg shadow-orange-200">
+            <div className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-xs font-black uppercase tracking-[0.18em] text-white shadow-lg shadow-orange-200">
               <Sparkles className="h-4 w-4" />
-              Destination Dossier
+              Ringkasan Destinasi
             </div>
 
             <div className="max-w-2xl">
@@ -94,7 +94,7 @@ export function DestinationHeroSection({
                 Buka Google Maps
               </a>
             ) : (
-              <div className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-full border border-slate-200 bg-slate-100 px-6 py-3 text-center text-sm font-black text-slate-500">
+              <div className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-lg border border-slate-200 bg-slate-100 px-6 py-3 text-center text-sm font-black text-slate-500">
                 <AlertTriangle className="h-4 w-4" />
                 Maps belum tersedia
               </div>

@@ -25,7 +25,7 @@ export function MetricCard({ label, value, suffix, tone }: { label: string; valu
   }[tone];
 
   return (
-    <div className={`rounded-xl border p-4 shadow-sm ${toneClass}`}>
+    <div className={`rounded-lg border p-4 shadow-sm ${toneClass}`}>
       <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">{label}</p>
       <div className="mt-2 flex items-end gap-1">
         <span className="text-3xl font-black leading-none">{value}</span>
@@ -56,8 +56,8 @@ export function InfoTile({
   }[tone];
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-5">
-      <div className={`mb-4 flex h-11 w-11 items-center justify-center rounded-xl border ${toneClass}`}>
+    <div className="rounded-lg border border-slate-200 bg-slate-50/60 p-5">
+      <div className={`mb-4 flex h-11 w-11 items-center justify-center rounded-lg border ${toneClass}`}>
         <Icon className="h-5 w-5" />
       </div>
       <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">{label}</p>
@@ -87,7 +87,7 @@ export function InsightPill({
   }[tone];
 
   return (
-    <div className={`rounded-xl border p-3 ${toneClass}`}>
+    <div className={`rounded-lg border p-3 ${toneClass}`}>
       <div className="flex items-start gap-3">
         <Icon className="mt-0.5 h-4 w-4 shrink-0" />
         <div className="min-w-0">
@@ -108,7 +108,7 @@ export function ReviewCard({ review }: { review: UserReview }) {
     : null;
 
   return (
-    <article className="rounded-xl border border-slate-200 bg-slate-50/70 p-5">
+    <article className="rounded-lg border border-slate-200 bg-slate-50/70 p-5">
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 items-center gap-3">
           <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-orange-100 text-sm font-black text-primary">

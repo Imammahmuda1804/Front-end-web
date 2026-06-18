@@ -10,6 +10,7 @@ import {
   TopicItem,
   TopicReviewSentiment,
 } from '@/services/admin/topic.service';
+import { adminDestinationService } from '@/services/admin/destination.service';
 import { DeleteTopicDialog, MergeTopicsDialog, RenameTopicDialog } from './topics-client.dialogs';
 import { TopicDestinationsDrawer, TopicReviewsDrawer } from './topics-client.drawers';
 import { TopicAnalyticsWorkspace } from './topics-client.analytics';
@@ -17,17 +18,18 @@ import { buildTopicActionItems } from './topics-client.actions';
 import {
   EmptyTopicsState,
   TopicCommandPanel,
+  TopicDestinationContextPanel,
   TopicHeroPanel,
   TopicMetricsGrid,
   TopicsErrorState,
   TopicsSkeleton,
 } from './topics-client.panels';
 import { TopicGroupManager } from './topics-client.group-manager';
-import { TaxonomyTable } from './topics-client.table';
+import { TopicReviewTable } from './topics-client.table';
 import type { ActionItem, DistributionBucket, QuickFilter, SortDir, SortKey } from './topics-client.types';
 import { formatAverage, getCoverageBucket, getTopicStatus, isUnnamed, topicMatchesFilter } from './topics-client.utils';
 
-// Mengelola taxonomy topik, group, rename, visibility, dan AI naming.
+// Mengelola topik ulasan, kelompok, penamaan, visibility, dan bantuan AI.
 export function TopicsClient() {
   const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
@@ -35,6 +37,7 @@ export function TopicsClient() {
   const [sortDir, setSortDir] = useState<SortDir>('desc');
   const [quickFilter, setQuickFilter] = useState<QuickFilter>('all');
   const [groupFilter, setGroupFilter] = useState('all');
+  const [topicDestinationFilter, setTopicDestinationFilter] = useState<number | 'all'>('all');
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [renameTarget, setRenameTarget] = useState<TopicItem | null>(null);
@@ -48,6 +51,7 @@ export function TopicsClient() {
   const [reviewTopic, setReviewTopic] = useState<TopicItem | null>(null);
   const [reviewPage, setReviewPage] = useState(1);
   const [reviewSentiment, setReviewSentiment] = useState<TopicReviewSentiment | 'all'>('all');
+  const [reviewDestinationId, setReviewDestinationId] = useState<number | 'all'>('all');
 
   const {
     data: topics = [],
@@ -55,14 +59,28 @@ export function TopicsClient() {
     isError,
     refetch,
   } = useQuery({
-    queryKey: ['admin-topics'],
-    queryFn: () => adminTopicService.getTopics(),
+    queryKey: ['admin-topics', topicDestinationFilter],
+    queryFn: () =>
+      adminTopicService.getTopics({
+        destinationId:
+          topicDestinationFilter === 'all' ? undefined : topicDestinationFilter,
+      }),
   });
 
   const { data: topicGroups = [] } = useQuery({
     queryKey: ['admin-topic-groups'],
     queryFn: () => adminTopicService.getTopicGroups(),
   });
+
+  const { data: destinationsResponse, isFetching: destinationsLoading } = useQuery({
+    queryKey: ['admin-topic-destination-filter-options'],
+    queryFn: () => adminDestinationService.getDestinations({ page: 1, limit: 100 }),
+  });
+
+  const destinationOptions = destinationsResponse?.data || [];
+  const selectedTopicDestination = topicDestinationFilter === 'all'
+    ? null
+    : destinationOptions.find((destination) => destination.id === topicDestinationFilter) || null;
 
   const {
     data: topicDestinations,
@@ -77,13 +95,23 @@ export function TopicsClient() {
     data: topicReviews,
     isFetching: isFetchingTopicReviews,
   } = useQuery({
-    queryKey: ['admin-topic-reviews', reviewTopic?.id, reviewPage, reviewSentiment],
+    queryKey: ['admin-topic-reviews', reviewTopic?.id, reviewPage, reviewSentiment, reviewDestinationId],
     queryFn: () =>
       adminTopicService.getTopicReviews(reviewTopic!.id, {
         page: reviewPage,
         limit: 8,
         sentiment: reviewSentiment === 'all' ? undefined : reviewSentiment,
+        destinationId: reviewDestinationId === 'all' ? undefined : reviewDestinationId,
       }),
+    enabled: Boolean(reviewTopic),
+  });
+
+  const {
+    data: reviewTopicDestinations,
+    isFetching: isFetchingReviewTopicDestinations,
+  } = useQuery({
+    queryKey: ['admin-topic-review-destinations', reviewTopic?.id],
+    queryFn: () => adminTopicService.getTopicDestinations(reviewTopic!.id, 1, 50),
     enabled: Boolean(reviewTopic),
   });
 
@@ -91,9 +119,9 @@ export function TopicsClient() {
     mutationFn: () => adminTopicService.triggerAiRename(),
     onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ['admin-topics'] });
-      toast.success(`AI Rename selesai: ${result.renamed} berhasil, ${result.failed} gagal dari ${result.total} topik`);
+      toast.success(`Bantuan penamaan selesai: ${result.renamed} berhasil, ${result.failed} gagal dari ${result.total} topik`);
     },
-    onError: () => toast.error('Gagal menjalankan AI Rename. Cek quota Gemini API.'),
+    onError: () => toast.error('Gagal menjalankan bantuan penamaan. Cek kuota Gemini API.'),
   });
 
   const renameMutation = useMutation({
@@ -101,9 +129,9 @@ export function TopicsClient() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-topics'] });
       setRenameTarget(null);
-      toast.success('Topik berhasil di-rename');
+      toast.success('Nama topik berhasil diperbarui');
     },
-    onError: () => toast.error('Gagal me-rename topik'),
+    onError: () => toast.error('Gagal memperbarui nama topik'),
   });
 
   const mergeMutation = useMutation({
@@ -159,9 +187,9 @@ export function TopicsClient() {
     mutationFn: (data: TopicGroupPayload) => adminTopicService.createGroup(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-topic-groups'] });
-      toast.success('Topic group berhasil ditambahkan');
+      toast.success('Kelompok topik berhasil ditambahkan');
     },
-    onError: () => toast.error('Gagal menambahkan topic group'),
+    onError: () => toast.error('Gagal menambahkan kelompok topik'),
   });
 
   const updateGroupMutation = useMutation({
@@ -170,9 +198,9 @@ export function TopicsClient() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-topic-groups'] });
       queryClient.invalidateQueries({ queryKey: ['admin-topics'] });
-      toast.success('Topic group berhasil diperbarui');
+      toast.success('Kelompok topik berhasil diperbarui');
     },
-    onError: () => toast.error('Gagal memperbarui topic group'),
+    onError: () => toast.error('Gagal memperbarui kelompok topik'),
   });
 
   const deleteGroupMutation = useMutation({
@@ -180,9 +208,9 @@ export function TopicsClient() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-topic-groups'] });
       queryClient.invalidateQueries({ queryKey: ['admin-topics'] });
-      toast.success('Topic group berhasil dihapus');
+      toast.success('Kelompok topik berhasil dihapus');
     },
-    onError: () => toast.error('Gagal menghapus topic group'),
+    onError: () => toast.error('Gagal menghapus kelompok topik'),
   });
 
   const maxDestinations = useMemo(
@@ -217,7 +245,7 @@ export function TopicsClient() {
     const longTail = topics.filter((topic) => topic.total_destinations <= 1);
     const dominant = topics.filter((topic) => getTopicStatus(topic, maxDestinations).label === 'Dominan');
     const averageDestinations = topics.length > 0 ? totalDestLinks / topics.length : 0;
-    const taxonomyHealth = topics.length === 0
+    const topicHealth = topics.length === 0
       ? 0
       : Math.max(0, Math.round(((topics.length - unnamed.length - withoutKeywords.length * 0.5) / topics.length) * 100));
 
@@ -228,7 +256,7 @@ export function TopicsClient() {
       longTail,
       dominant,
       averageDestinations,
-      taxonomyHealth,
+      topicHealth,
     };
   }, [maxDestinations, topics]);
 
@@ -275,6 +303,7 @@ export function TopicsClient() {
     setSearch('');
     setQuickFilter('all');
     setGroupFilter('all');
+    setTopicDestinationFilter('all');
     setSortKey('destinations');
     setSortDir('desc');
   };
@@ -292,7 +321,7 @@ export function TopicsClient() {
   return (
     <div className="space-y-6">
       <TopicHeroPanel
-        taxonomyHealth={metrics.taxonomyHealth}
+        topicHealth={metrics.topicHealth}
         namingDebt={metrics.unnamed.length}
         coverage={metrics.totalDestLinks}
       />
@@ -309,6 +338,9 @@ export function TopicsClient() {
             sortDir={sortDir}
             quickFilter={quickFilter}
             groupFilter={groupFilter}
+            destinationFilter={topicDestinationFilter}
+            destinations={destinationOptions}
+            destinationsLoading={destinationsLoading}
             groups={topicGroups}
             unnamedCount={metrics.unnamed.length}
             aiRenamePending={aiRenameMutation.isPending}
@@ -332,6 +364,10 @@ export function TopicsClient() {
               setGroupFilter(value);
               setPage(1);
             }}
+            onDestinationFilterChange={(value) => {
+              setTopicDestinationFilter(value);
+              setPage(1);
+            }}
             onAiRename={() => aiRenameMutation.mutate()}
             onOpenMerge={() => {
               setMergeOpen(true);
@@ -341,7 +377,17 @@ export function TopicsClient() {
             onReset={clearControls}
           />
 
-          <TaxonomyTable
+          <TopicDestinationContextPanel
+            destination={selectedTopicDestination}
+            topicsCount={filtered.length}
+            totalReviewSignals={topics.reduce((sum, topic) => sum + (topic.selected_destination_reviews || 0), 0)}
+            onClear={() => {
+              setTopicDestinationFilter('all');
+              setPage(1);
+            }}
+          />
+
+          <TopicReviewTable
             topics={paginatedTopics}
             totalTopics={topics.length}
             filteredCount={filtered.length}
@@ -371,6 +417,7 @@ export function TopicsClient() {
               setReviewTopic(topic);
               setReviewPage(1);
               setReviewSentiment('all');
+              setReviewDestinationId('all');
             }}
             groups={topicGroups}
             onGroupChange={(topic, groupId) =>
@@ -394,7 +441,7 @@ export function TopicsClient() {
               settingsMutation.mutate({ id: topic.id, groupId })
             }
             onDelete={(group) => {
-              if (window.confirm(`Hapus topic group "${group.group_name}"? Topik di dalamnya akan menjadi belum dipetakan.`)) {
+              if (window.confirm(`Hapus kelompok topik "${group.group_name}"? Topik di dalamnya akan menjadi belum dipetakan.`)) {
                 deleteGroupMutation.mutate(group.id);
               }
             }}
@@ -485,8 +532,16 @@ export function TopicsClient() {
         loading={isFetchingTopicReviews}
         page={reviewPage}
         sentiment={reviewSentiment}
+        destinationId={reviewDestinationId}
+        destinations={reviewTopicDestinations?.data || []}
+        destinationsLoading={isFetchingReviewTopicDestinations}
+        topics={topics}
         onSentimentChange={(value) => {
           setReviewSentiment(value);
+          setReviewPage(1);
+        }}
+        onDestinationChange={(value) => {
+          setReviewDestinationId(value);
           setReviewPage(1);
         }}
         onPageChange={setReviewPage}

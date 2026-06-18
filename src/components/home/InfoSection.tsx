@@ -71,7 +71,7 @@ export function InfoSection() {
           whileInView={prefersReduced ? undefined : { opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-80px' }}
           transition={{ duration: 0.5, delay: prefersReduced ? 0 : 0.06, ease: easeOutExpo }}
-          className="overflow-hidden rounded-xl border border-slate-800 bg-slate-950 text-white"
+          className="overflow-hidden rounded-lg border border-slate-800 bg-slate-950 text-white"
         >
           <div className="grid gap-8 border-b border-white/10 p-6 md:grid-cols-[1fr_auto] md:p-9">
             <div>

@@ -89,15 +89,15 @@ export function TopicGroupManager({
   };
 
   const editor = (
-    <div className="rounded-xl border border-sky-100 bg-sky-50/70 p-4">
+    <div className="rounded-lg border border-sky-100 bg-sky-50/70 p-4">
       <div className="grid gap-3 md:grid-cols-[1fr_0.7fr_7rem]">
         <label>
-          <span className="mb-1.5 block text-xs font-black uppercase tracking-[0.14em] text-ai">Nama group</span>
+          <span className="mb-1.5 block text-xs font-black uppercase tracking-[0.14em] text-ai">Nama kelompok</span>
           <Input
             value={form.groupName}
             onChange={(event) => setForm((current) => ({ ...current, groupName: event.target.value }))}
             placeholder="Contoh: Akses & Transportasi"
-            className="min-h-11 rounded-xl bg-white font-bold"
+            className="min-h-11 rounded-lg bg-white font-bold"
             autoFocus
           />
         </label>
@@ -107,7 +107,7 @@ export function TopicGroupManager({
             value={form.keywordsText}
             onChange={(event) => setForm((current) => ({ ...current, keywordsText: event.target.value }))}
             placeholder="akses, parkir, jalan"
-            className="min-h-11 rounded-xl bg-white font-bold"
+            className="min-h-11 rounded-lg bg-white font-bold"
           />
         </label>
         <label>
@@ -116,7 +116,7 @@ export function TopicGroupManager({
             type="number"
             value={form.displayOrder}
             onChange={(event) => setForm((current) => ({ ...current, displayOrder: Number(event.target.value) }))}
-            className="min-h-11 rounded-xl bg-white font-bold"
+            className="min-h-11 rounded-lg bg-white font-bold"
           />
         </label>
       </div>
@@ -125,44 +125,44 @@ export function TopicGroupManager({
         <Input
           value={form.description}
           onChange={(event) => setForm((current) => ({ ...current, description: event.target.value }))}
-          placeholder="Penjelasan singkat fungsi group ini"
-          className="min-h-11 rounded-xl bg-white font-bold"
+          placeholder="Penjelasan singkat fungsi kelompok ini"
+          className="min-h-11 rounded-lg bg-white font-bold"
         />
       </label>
       <div className="mt-4 flex flex-wrap gap-2">
-        <Button type="button" onClick={submitForm} disabled={pending || !form.groupName.trim()} className="min-h-10 rounded-full bg-ai text-white hover:bg-ai/90">
+        <Button type="button" onClick={submitForm} disabled={pending || !form.groupName.trim()} className="min-h-10 rounded-lg bg-ai text-white hover:bg-ai/90">
           {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-          {isCreating ? 'Tambah group' : 'Simpan group'}
+          {isCreating ? 'Tambah kelompok' : 'Simpan kelompok'}
         </Button>
-        <Button type="button" variant="outline" onClick={cancelEdit} className="min-h-10 rounded-full">
+        <Button type="button" variant="outline" onClick={cancelEdit} className="min-h-10 rounded-lg">
           <X className="h-4 w-4" />
           Batal
         </Button>
       </div>
 
       {!isCreating && editingGroupId ? (
-        <div className="mt-5 rounded-xl border border-slate-200 bg-white p-4">
+        <div className="mt-5 rounded-lg border border-slate-200 bg-white p-4">
           <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
             <div>
-              <p className="text-xs font-black uppercase tracking-[0.14em] text-primary">Topik detail dalam group</p>
+              <p className="text-xs font-black uppercase tracking-[0.14em] text-primary">Topik detail dalam kelompok</p>
               <p className="mt-1 text-sm font-semibold text-slate-500">
-                {groupTopics.length} topik sudah berada dalam group ini. Centang topik untuk memasukkan atau memindahkannya dari group lain.
+                {groupTopics.length} topik sudah berada dalam kelompok ini. Centang topik untuk memasukkan atau memindahkannya dari kelompok lain.
               </p>
             </div>
-            <Input value={topicSearch} onChange={(event) => setTopicSearch(event.target.value)} placeholder="Cari topik detail..." className="min-h-11 rounded-xl bg-slate-50 font-semibold md:w-72" />
+            <Input value={topicSearch} onChange={(event) => setTopicSearch(event.target.value)} placeholder="Cari topik detail..." className="min-h-11 rounded-lg bg-slate-50 font-semibold md:w-72" />
           </div>
           <div className="mt-4 grid max-h-72 gap-2 overflow-y-auto pr-1 md:grid-cols-2 xl:grid-cols-3">
             {candidateTopics.length === 0 ? (
-              <div className="rounded-xl border border-dashed border-slate-200 p-4 text-sm font-semibold text-slate-500 md:col-span-2 xl:col-span-3">
+              <div className="rounded-lg border border-dashed border-slate-200 p-4 text-sm font-semibold text-slate-500 md:col-span-2 xl:col-span-3">
                 Tidak ada topik yang cocok dengan pencarian.
               </div>
             ) : (
               candidateTopics.map((topic) => {
                 const checked = topic.group_id === editingGroupId;
                 const membershipLabel = checked
-                  ? 'Di group ini'
+                  ? 'Di kelompok ini'
                   : topic.group_id
-                    ? `Dari ${topic.group_name || 'group lain'}`
+                    ? `Dari ${topic.group_name || 'kelompok lain'}`
                     : 'Belum dipetakan';
                 const membershipClass = checked
                   ? 'bg-emerald-50 text-emerald-700'
@@ -172,7 +172,7 @@ export function TopicGroupManager({
                 return (
                   <label
                     key={topic.id}
-                    className={`flex cursor-pointer items-start gap-3 rounded-xl border p-3 text-sm font-bold text-slate-700 transition hover:border-orange-200 hover:bg-orange-50 ${
+                    className={`flex cursor-pointer items-start gap-3 rounded-lg border p-3 text-sm font-bold text-slate-700 transition hover:border-orange-200 hover:bg-orange-50 ${
                       checked ? 'border-emerald-100 bg-emerald-50/60' : 'border-slate-100 bg-slate-50'
                     }`}
                   >
@@ -185,7 +185,7 @@ export function TopicGroupManager({
                     <span className="min-w-0">
                       <span className="flex min-w-0 items-center gap-2">
                         <span className="truncate font-black text-slate-950">{topic.topic_name}</span>
-                        <span className={`shrink-0 rounded-full px-2 py-0.5 text-[0.68rem] font-black ${membershipClass}`}>
+                        <span className={`shrink-0 rounded-md px-2 py-0.5 text-[0.68rem] font-black ${membershipClass}`}>
                           {membershipLabel}
                         </span>
                       </span>
@@ -202,16 +202,16 @@ export function TopicGroupManager({
   );
 
   return (
-    <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+    <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
       <div className="mb-4 flex items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-black uppercase tracking-[0.16em] text-ai">Topic group</p>
-          <h3 className="mt-1 text-xl font-black text-slate-950">Kelola topic group</h3>
-          <p className="mt-1 text-sm font-semibold text-slate-500">Tambah, edit, atau hapus group taxonomy luas.</p>
+          <p className="text-xs font-black uppercase tracking-[0.16em] text-ai">Kelompok topik</p>
+          <h3 className="mt-1 text-xl font-black text-slate-950">Kelola kelompok pengalaman</h3>
+          <p className="mt-1 text-sm font-semibold text-slate-500">Tambah, edit, atau hapus kelompok topik agar insight ulasan lebih mudah dibaca admin.</p>
         </div>
-        <Button type="button" onClick={startCreate} variant="outline" className="min-h-11 rounded-full font-black text-ai">
+        <Button type="button" onClick={startCreate} variant="outline" className="min-h-11 rounded-lg font-black text-ai">
           <Plus className="h-4 w-4" />
-          Tambah group
+          Tambah kelompok
         </Button>
       </div>
 
@@ -219,7 +219,7 @@ export function TopicGroupManager({
 
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
         {groups.map((group) => (
-          <div key={group.id} className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+          <div key={group.id} className="rounded-lg border border-slate-200 bg-slate-50 p-3">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <p className="truncate font-black text-slate-950">{group.group_name}</p>
@@ -228,7 +228,7 @@ export function TopicGroupManager({
                 {(group.keywords || []).length > 0 ? (
                   <div className="mt-2 flex flex-wrap gap-1">
                     {(group.keywords || []).slice(0, 3).map((keyword) => (
-                      <span key={`${group.id}-${keyword}`} className="rounded-full bg-white px-2 py-0.5 text-[11px] font-black text-ai">
+                      <span key={`${group.id}-${keyword}`} className="rounded-md bg-white px-2 py-0.5 text-[11px] font-black text-ai">
                         {keyword}
                       </span>
                     ))}
@@ -236,10 +236,10 @@ export function TopicGroupManager({
                 ) : null}
               </div>
               <div className="flex shrink-0 gap-2">
-                <button type="button" onClick={() => startEdit(group)} aria-label={`Edit group ${group.group_name}`} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white text-slate-600 shadow-sm transition hover:bg-ai-container hover:text-ai">
+                <button type="button" onClick={() => startEdit(group)} aria-label={`Edit kelompok ${group.group_name}`} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white text-slate-600 shadow-sm transition hover:bg-ai-container hover:text-ai">
                   <Pencil className="h-4 w-4" />
                 </button>
-                <button type="button" onClick={() => onDelete(group)} aria-label={`Hapus group ${group.group_name}`} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white text-slate-600 shadow-sm transition hover:bg-rose-50 hover:text-rose-600">
+                <button type="button" onClick={() => onDelete(group)} aria-label={`Hapus kelompok ${group.group_name}`} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white text-slate-600 shadow-sm transition hover:bg-rose-50 hover:text-rose-600">
                   <Trash2 className="h-4 w-4" />
                 </button>
               </div>
