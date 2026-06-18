@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { RouteBuilderClient } from '@/components/routes/RouteBuilderClient';
+import { RouteBuilderClient } from '@/features/routes';
 
 export default function NewRoutePage() {
   return (

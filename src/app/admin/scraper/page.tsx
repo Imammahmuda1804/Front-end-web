@@ -1,5 +1,5 @@
 import React from "react";
-import ScraperClient from "@/components/admin/scraper/ScraperClient";
+import { ScraperClient } from "@/features/scraper";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {

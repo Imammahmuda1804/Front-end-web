@@ -1,5 +1,5 @@
 import React from "react";
-import NlpProcessingClient from "@/components/admin/nlp/NlpProcessingClient";
+import { NlpProcessingClient } from "@/features/topics";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {

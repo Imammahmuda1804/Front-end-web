@@ -1,4 +1,4 @@
-import { SavedRoutesClient } from '@/components/routes/SavedRoutesClient';
+import { SavedRoutesClient } from '@/features/routes';
 
 export const metadata = {
   title: 'Rute Tersimpan - RANAHINSIGHT',

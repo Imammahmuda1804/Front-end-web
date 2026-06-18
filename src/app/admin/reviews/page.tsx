@@ -1,6 +1,6 @@
 import React from 'react';
 import { Metadata } from 'next';
-import { AdminReviewsClient } from '@/components/admin/reviews/AdminReviewsClient';
+import { AdminReviewsClient } from '@/features/admin';
 
 export const metadata: Metadata = {
     title: 'Manajemen Review & Analisis - Admin Dashboard',

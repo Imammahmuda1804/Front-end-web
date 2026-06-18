@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useAuthStore } from '@/store/auth.store';
+import { useAuthStore } from '@/features/auth';
 import { buttonVariants } from '@/components/ui/button';
 import { Menu, User } from 'lucide-react';
 import {

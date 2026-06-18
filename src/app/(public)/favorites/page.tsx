@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 
-import ProfileClient from '@/components/profile/ProfileClient';
+import ProfileClient from '@/features/favorites';
 
 export const metadata: Metadata = {
   title: 'Favorit Saya - RANAHINSIGHT',

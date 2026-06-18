@@ -1,5 +1,5 @@
 import React from "react";
-import { DestinationsTable } from "@/components/admin/destinations/destinations-table";
+import { DestinationsTable } from "@/features/admin";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {

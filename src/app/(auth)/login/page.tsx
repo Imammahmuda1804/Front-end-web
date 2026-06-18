@@ -10,7 +10,7 @@ import * as z from 'zod';
 import { isAxiosError } from 'axios';
 import { CredentialResponse, GoogleLogin } from '@react-oauth/google';
 import { api } from '@/lib/axios';
-import { useAuthStore } from '@/store/auth.store';
+import { useAuthStore } from '@/features/auth';
 import { toast } from 'sonner';
 
 const loginSchema = z.object({

@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
-import DestinationDetailClient from '@/components/destinations/DestinationDetailClient';
+import DestinationDetailClient from '@/features/destination';
 
 interface Props {
   params: Promise<{ slug: string }>;

@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { AdminDashboardClient } from '@/components/admin/dashboard/AdminDashboardClient';
+import { AdminDashboardClient } from '@/features/analytics';
 
 export const metadata: Metadata = {
   title: 'Admin Dashboard | RANAHINSIGHT',

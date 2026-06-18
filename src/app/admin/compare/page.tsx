@@ -1,4 +1,4 @@
-import { CompareClient } from '@/components/admin/compare/CompareClient';
+import { CompareClient } from '@/features/analytics';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {

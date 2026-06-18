@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { useAuthStore } from '@/store/auth.store';
+import { useAuthStore } from '@/features/auth';
 
 // Menentukan base URL API dari env atau localhost.
 export const API_BASE_URL =

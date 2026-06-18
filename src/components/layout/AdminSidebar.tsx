@@ -16,7 +16,7 @@ import {
   BrainCircuit,
   Route,
 } from 'lucide-react';
-import { useAuthStore } from '@/store/auth.store';
+import { useAuthStore } from '@/features/auth';
 
 const sidebarGroups = [
   {

@@ -1,4 +1,4 @@
-import { AnalyticsSkeleton } from '@/components/admin/compare/admin-compare.skeleton';
+import { AnalyticsSkeleton } from '@/features/analytics';
 
 export default function AdminDetailLoading() {
   return (

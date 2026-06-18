@@ -4,7 +4,7 @@ import * as React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { useAuthStore, writeAuthCookie } from '@/store/auth.store';
+import { useAuthStore, writeAuthCookie } from '@/features/auth';
 import { getImageUrl } from '@/lib/utils';
 import { Compass, GitCompareArrows, LogOut, MapPinned, Menu, Route as RouteIcon, User } from 'lucide-react';
 import {

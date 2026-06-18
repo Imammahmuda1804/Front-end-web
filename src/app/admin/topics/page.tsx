@@ -1,5 +1,5 @@
 import React from 'react';
-import { TopicsClient } from '@/components/admin/topics/TopicsClient';
+import { TopicsClient } from '@/features/topics';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {

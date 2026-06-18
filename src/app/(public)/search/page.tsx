@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 import { Loader2 } from 'lucide-react';
-import { SearchClientBoundary } from '@/components/search/SearchClientBoundary';
+import { SearchClientBoundary } from '@/features/search';
 
 export const metadata = {
   title: 'Pencarian Destinasi - RANAHINSIGHT',

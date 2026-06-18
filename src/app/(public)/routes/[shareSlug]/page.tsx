@@ -1,4 +1,4 @@
-import { RouteDetailClient } from '@/components/routes/RouteDetailClient';
+import { RouteDetailClient } from '@/features/routes';
 
 type Props = {
   params: Promise<{ shareSlug: string }>;

@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { AdminSingleAnalysisClient } from '@/components/admin/compare/AdminSingleAnalysisClient';
+import { AdminSingleAnalysisClient } from '@/features/analytics';
 
 export const metadata: Metadata = {
   title: 'Analitik Detail Destinasi | RANAHINSIGHT Admin',

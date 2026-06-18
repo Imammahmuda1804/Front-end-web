@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 import { Metadata } from 'next';
-import CompareClient from '@/components/compare/CompareClient';
+import CompareClient from '@/features/comparison';
 
 export const metadata: Metadata = {
   title: 'Bandingkan Destinasi | RanahInsight',

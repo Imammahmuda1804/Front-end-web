@@ -1,4 +1,4 @@
-import { RoutesClient } from '@/components/routes/RoutesClient';
+import { RoutesClient } from '@/features/routes';
 
 export default function RoutesPage() {
   return <RoutesClient />;

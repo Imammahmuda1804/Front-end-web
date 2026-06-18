@@ -1,7 +1,7 @@
 import { Compass, MapPinned, Route as RouteIcon } from 'lucide-react';
 import Link from 'next/link';
-import { type SearchDestination } from '@/components/search/SearchResultCard';
-import { DestinationCatalogCard } from '@/components/destinations/DestinationCatalogCard';
+import { type SearchDestination } from '@/features/search';
+import { DestinationCatalogCard } from '@/features/destination';
 
 export const metadata = {
   title: 'Semua Destinasi - RANAHINSIGHT',

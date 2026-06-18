@@ -1,5 +1,5 @@
 import React from "react";
-import { UsersClient } from "@/components/admin/users/UsersClient";
+import { UsersClient } from "@/features/admin";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
