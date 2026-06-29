@@ -97,16 +97,15 @@ export function TrendingCarousel({ destinations }: TrendingCarouselProps) {
   if (!active) return null;
 
   return (
-    <section aria-labelledby="destination-rail-title" className="bg-[oklch(0.975_0.01_62)] py-20 md:py-28">
+    <section aria-labelledby="destination-rail-title" className="bg-slate-50 py-20 md:py-28">
       <div className="mx-auto max-w-7xl px-6 md:px-12">
         <header className="mb-10 grid gap-5 border-b border-slate-300/70 pb-7 lg:grid-cols-[minmax(0,1fr)_28rem] lg:items-end">
           <div>
-            <p className="editorial-kicker">Pilihan berdasarkan ulasan wisatawan</p>
             <h2
               id="destination-rail-title"
-              className="mt-3 max-w-4xl text-4xl font-extrabold leading-[1.02] tracking-tight text-slate-950 md:text-6xl"
+              className="max-w-4xl text-4xl font-extrabold leading-[1.02] tracking-tight text-slate-950 md:text-6xl"
             >
-              Destinasi yang layak masuk perjalanan berikutnya
+              Destinasi Yang Layak Masuk <div className='text-orange-300'>Perjalanan Berikutnya</div>
             </h2>
           </div>
           <p className="max-w-lg text-sm font-medium leading-7 text-slate-600 md:text-base">
@@ -115,7 +114,7 @@ export function TrendingCarousel({ destinations }: TrendingCarouselProps) {
         </header>
 
         <div className="grid gap-7 lg:grid-cols-[minmax(0,1.55fr)_minmax(19rem,0.65fr)] lg:gap-10">
-          <article className="group relative min-h-[34rem] overflow-hidden rounded-lg bg-slate-950 md:min-h-[42rem]">
+          <article className="group relative min-h-136 overflow-hidden rounded-lg bg-slate-950 md:min-h-168">
             <Image
               key={active.id}
               src={destinationImage(active)}
@@ -123,7 +122,7 @@ export function TrendingCarousel({ destinations }: TrendingCarouselProps) {
               fill
               priority={false}
               sizes="(max-width: 1024px) 100vw, 68vw"
-              className="object-cover transition-[opacity,transform] duration-[480ms] ease-[var(--ease-ui-out)] motion-safe:group-hover:scale-[1.015]"
+              className="object-cover transition-[opacity,transform] duration-480 ease-(--ease-ui-out)] motion-safe:group-hover:scale-[1.015]"
             />
             <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(15,23,42,0.08)_20%,rgba(15,23,42,0.9)_100%)]" />
 
@@ -151,7 +150,7 @@ export function TrendingCarousel({ destinations }: TrendingCarouselProps) {
               </p>
               <Link
                 href={destinationHref(active)}
-                className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-lg bg-primary px-5 text-sm font-bold text-white transition-[background-color,transform] duration-150 ease-[var(--ease-ui-out)] hover:bg-primary/90 active:scale-[0.98]"
+                className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-lg bg-primary px-5 text-sm font-bold text-white transition-[background-color,transform] duration-150 ease-(--ease-ui-out) hover:bg-primary/90 active:scale-[0.98]"
               >
                 {active.isFallback ? 'Lihat katalog destinasi' : 'Baca detail destinasi'}
                 <ArrowRight className="h-4 w-4" />
@@ -173,8 +172,8 @@ export function TrendingCarousel({ destinations }: TrendingCarouselProps) {
                     key={destination.id}
                     type="button"
                     onClick={() => setActiveId(destination.id)}
-                    aria-pressed={selected}
-                    className={`group/rail grid min-w-[17rem] grid-cols-[4.75rem_minmax(0,1fr)_auto] items-center gap-3 border-b px-2 py-3 text-left transition-[background-color,border-color,color] duration-150 ease-[var(--ease-ui-out)] lg:min-w-0 ${
+                    aria-pressed={selected ? "true" : "false"}
+                    className={`group/rail grid min-w-68 grid-cols-[4.75rem_minmax(0,1fr)_auto] items-center gap-3 border-b px-2 py-3 text-left transition-[background-color,border-color,color] duration-150 ease-(--ease-ui-out) lg:min-w-0 ${
                       selected
                         ? 'border-primary bg-orange-50/80'
                         : 'border-slate-200/80 hover:border-orange-200 hover:bg-white/65'
@@ -186,7 +185,7 @@ export function TrendingCarousel({ destinations }: TrendingCarouselProps) {
                         alt=""
                         fill
                         sizes="76px"
-                        className="object-cover transition-transform duration-300 ease-[var(--ease-ui-out)] motion-safe:group-hover/rail:scale-[1.03]"
+                        className="object-cover transition-transform duration-300 ease-(--ease-ui-out) motion-safe:group-hover/rail:scale-[1.03]"
                       />
                     </span>
                     <span className="min-w-0">

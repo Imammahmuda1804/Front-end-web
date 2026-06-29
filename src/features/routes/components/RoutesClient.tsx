@@ -68,16 +68,16 @@ export function RoutesClient({ mode = 'public' }: { mode?: 'public' | 'mine' }) 
     <main className="min-h-screen pt-24">
       <section className="mx-auto max-w-7xl px-6 pb-10 pt-8 md:px-12">
         <div className="border-b pb-8 pt-4">
-          <p className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.16em]">
+          <p className="inline-flex items-center gap-2 text-white text-xs font-black uppercase tracking-[0.16em]">
             <RouteIcon className="h-4 w-4" />
             Route Planner
           </p>
           <div className="mt-4 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div>
-              <h1 className="text-3xl font-black tracking-tight md:text-5xl">
-                {mode === 'mine' ? 'Rute saya' : 'Rute wisata siap pakai'}
+              <h1 className="text-3xl font-black text-amber-300 tracking-tight md:text-5xl">
+                Rute wisata siap pakai
               </h1>
-              <p className="mt-3 max-w-2xl text-sm font-semibold leading-7">
+              <p className="mt-3 max-w-2xl text-sm font-semibold leading-7 text-white">
                 Simpan rute publik, pantau progres kunjungan, atau buat urutan perjalanan dari destinasi favorit.
               </p>
             </div>
@@ -86,7 +86,7 @@ export function RoutesClient({ mode = 'public' }: { mode?: 'public' | 'mine' }) 
                 <Bookmark className="h-4 w-4" />
                 Rute saya
               </Link>
-              <Link href="/routes/saved" className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-lg border border-sky-100 bg-white/92 px-4 text-sm font-black text-ai shadow-sm backdrop-blur sm:flex-none">
+              <Link href="/routes/saved" className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-lg border border-sky-100 bg-white/92 px-4 text-sm font-black text-primary shadow-sm backdrop-blur sm:flex-none">
                 <Bookmark className="h-4 w-4" />
                 Tersimpan
               </Link>
@@ -108,7 +108,7 @@ export function RoutesClient({ mode = 'public' }: { mode?: 'public' | 'mine' }) 
           <div className="mt-8 space-y-10">
             {mode !== 'mine' && (
               <section>
-                <h2 className="mb-4 flex items-center gap-2 text-xl font-black text-orange-300">
+                <h2 className="mb-4 flex items-center gap-2 text-xl font-black text-amber-300">
                   <Sparkles className="h-5 w-5 text-orange-200" />
                   Pilihan admin
                 </h2>
@@ -119,8 +119,8 @@ export function RoutesClient({ mode = 'public' }: { mode?: 'public' | 'mine' }) 
             )}
 
             <section>
-              <h2 className="mb-4 text-xl font-black">
-                {mode === 'mine' ? 'Dibuat oleh saya' : 'Rute dari pengguna'}
+              <h2 className="mb-4 text-xl text-amber-300 font-bold">
+                Rute dari pengguna
               </h2>
               {userRoutes.length === 0 ? (
                 <div className="rounded-lg border border-dashed border-slate-200 bg-white/95 p-10 text-center text-sm font-bold text-slate-500 shadow-sm">

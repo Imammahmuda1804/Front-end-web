@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic';
 import { useQuery } from '@tanstack/react-query';
 import { AlertTriangle, Clock, Database, ShieldCheck } from 'lucide-react';
 
-import { api } from '@/lib/axios';
+import { adminService } from '@/features/admin/services/admin.service';
 import SummaryCards from './SummaryCards';
 import TopDestinationsList from './TopDestinationsList';
 import RecentActivityFeed, { type ActivityData } from './RecentActivityFeed';
@@ -112,16 +112,16 @@ export function AdminDashboardClient() {
   const { data: summary, isLoading: loadingSummary, isError: summaryError } = useQuery<DashboardSummary>({
     queryKey: ['admin', 'dashboard', 'summary'],
     queryFn: async () => {
-      const res = await api.get('/api/admin/dashboard/summary');
-      return res.data.data;
+      const data = await adminService.getDashboardSummary();
+      return data.data;
     },
   });
 
   const { data: activity, isLoading: loadingActivity, isError: activityError } = useQuery<ActivityData>({
     queryKey: ['admin', 'dashboard', 'activity'],
     queryFn: async () => {
-      const res = await api.get('/api/admin/dashboard/activity');
-      return res.data.data;
+      const data = await adminService.getDashboardActivity();
+      return data.data;
     },
   });
 
@@ -175,15 +175,11 @@ export function AdminDashboardClient() {
 
   return (
     <div className="space-y-6">
-      <section className="border-b border-slate-300/80 pb-7 pt-2">
+      <section className="border-b border-border pb-7 pt-2">
         <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
           <div className="max-w-3xl">
-            <p className="mb-3 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.12em] text-primary">
-              <Clock className="h-3.5 w-3.5" />
-              Admin intelligence
-            </p>
-            <h1 className="text-3xl font-extrabold tracking-tight text-slate-950 md:text-5xl">Dashboard Operasional</h1>
-            <p className="mt-3 max-w-2xl text-sm font-medium leading-7 text-slate-600 md:text-base">
+            <h1 className="text-3xl font-extrabold tracking-tight text-foreground md:text-5xl">Dashboard Operasional</h1>
+            <p className="mt-3 max-w-2xl text-sm font-medium leading-7 text-muted-foreground md:text-base">
               Pantau kualitas data, kesehatan scraping, sentimen ulasan, dan prioritas tindakan admin dalam satu ruang analisis.
             </p>
           </div>

@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 import { Loader2 } from 'lucide-react';
-import { SearchClientBoundary } from '@/features/search';
+import SearchClient from '@/features/search/components/SearchClient';
 
 export const metadata = {
   title: 'Pencarian Destinasi - RANAHINSIGHT',
@@ -12,7 +12,7 @@ export default function SearchPage() {
     <main className="min-h-screen pt-24 pb-12">
       <div className="mx-auto max-w-[100rem] px-4 sm:px-6 lg:px-8 2xl:px-10">
         <Suspense fallback={<SearchFallback />}>
-          <SearchClientBoundary fallback={<SearchFallback />} />
+          <SearchClient />
         </Suspense>
       </div>
     </main>
@@ -22,7 +22,8 @@ export default function SearchPage() {
 function SearchFallback() {
   return (
     <div className="flex h-[60vh] items-center justify-center">
-      <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <Loader2 className="h-8 w-8 animate-spin text-primary" aria-label="Memuat pencarian..." />
+      <span className="sr-only">Memuat pencarian...</span>
     </div>
   );
 }

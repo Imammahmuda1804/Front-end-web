@@ -1,5 +1,5 @@
 import React from "react";
-import { ScraperClient } from "@/features/scraper";
+import ScraperClient from "@/features/scraper/components/ScraperClient";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -9,9 +9,9 @@ export const metadata: Metadata = {
 
 export default function AdminScraperPage() {
   return (
-    <div className="flex-1 bg-slate-50/60 p-4 pt-6 md:p-8">
+    <main className="flex-1 bg-slate-50 p-4 pt-6 md:p-8 dark:bg-slate-950">
       <ScraperClient />
-    </div>
+    </main>
   );
 }
 

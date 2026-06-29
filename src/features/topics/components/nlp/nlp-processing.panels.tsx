@@ -218,7 +218,7 @@ function ProcessModeSelector({
           <button
             key={item.value}
             type="button"
-            aria-pressed={mode === item.value}
+            aria-pressed={mode === item.value ? "true" : "false"}
             onClick={() => onModeChange(item.value)}
             className={`rounded-lg border p-3 text-left transition ${
               mode === item.value

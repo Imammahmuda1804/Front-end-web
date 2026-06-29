@@ -8,28 +8,35 @@ import { toast } from 'sonner';
 import { routesService, TravelRoute } from '../services/routes.service';
 import { formatRouteDuration, RouteStopList } from './RouteCards';
 import { useAuthStore } from '@/features/auth';
+import type { RouteWaypoint } from './RoutePlannerMap';
 
-const Map = dynamic(() => import('@/components/ui/map').then((mod) => mod.Map), { ssr: false });
-const MapMarker = dynamic(() => import('@/components/ui/map').then((mod) => mod.MapMarker), { ssr: false });
-const MapRoute = dynamic(() => import('@/components/ui/map').then((mod) => mod.MapRoute), { ssr: false });
+const RoutePlannerMap = dynamic(
+  () => import('./RoutePlannerMap').then((mod) => mod.RoutePlannerMap),
+  { ssr: false },
+);
 
 export function RouteDetailClient({ shareSlug }: { shareSlug: string }) {
   const [route, setRoute] = useState<TravelRoute | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
+  const [routeStats, setRouteStats] = useState<{ duration: number; distance: number } | null>(null);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
-  const routeCoordinates = useMemo<[number, number][]>(() => {
-    if (!route || !route.stops) return [];
+  const waypoints = useMemo(() => {
+    if (!route?.stops) return [];
     return route.stops
       .map((stop) => {
         const lng = Number(stop.destination?.longitude);
         const lat = Number(stop.destination?.latitude);
         if (!lng || !lat || isNaN(lng) || isNaN(lat)) return null;
-        return [lng, lat] as [number, number];
+        return {
+          coordinates: [lng, lat] as [number, number],
+          name: stop.destination?.name ?? undefined,
+          markerLabel: String(route.stops.indexOf(stop) + 1),
+        };
       })
-      .filter((coord): coord is [number, number] => coord !== null);
+      .filter(Boolean) as RouteWaypoint[];
   }, [route]);
 
   useEffect(() => {
@@ -109,27 +116,35 @@ export function RouteDetailClient({ shareSlug }: { shareSlug: string }) {
       <section className="mx-auto grid max-w-7xl gap-6 px-6 pb-10 pt-8 md:px-12 lg:grid-cols-[minmax(0,1fr)_24rem]">
         <div>
           <div className="border-b pb-8 pt-4">
-            <p className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.16em]">
+            <p className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.16em] text-amber-400">
               <RouteIcon className="h-4 w-4" />
               {route.isAdminCurated ? 'Pilihan admin' : 'Rute buatan pengguna'}
             </p>
-            <h1 className="mt-4 text-3xl font-black tracking-tight md:text-5xl">{route.title}</h1>
-            <p className="mt-3 max-w-3xl text-sm font-semibold leading-7">
+            <h1 className="mt-4 text-3xl font-black tracking-tight md:text-5xl text-white">{route.title}</h1>
+            <p className="mt-3 max-w-3xl text-sm font-semibold leading-7 text-white">
               {route.description || `${route.stops.length} destinasi dalam urutan kunjungan.`}
             </p>
           </div>
           <div className="mt-6">
-            <RouteStopList route={route} />
+            <RouteStopList route={route} routeStats={routeStats} />
           </div>
         </div>
 
         <div className="space-y-6 lg:sticky lg:top-24 lg:h-fit">
-          <aside className="rounded-lg border border-white/60 bg-white/96 p-6 shadow-sm backdrop-blur">
+          <aside className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
             <h2 className="text-lg font-black text-slate-950">Ringkasan rute</h2>
             <div className="mt-4 space-y-3 text-sm font-bold text-slate-600">
               <p>{route.stops.length} destinasi</p>
-              <p>{route.totalDistanceKm?.toFixed(1) || '-'} km estimasi garis lurus</p>
-              <p>{formatRouteDuration(route.estimatedDurationMinutes)}</p>
+              <p>
+                {routeStats
+                  ? `${(routeStats.distance / 1000).toFixed(1)} km estimasi jalan raya`
+                  : `${route.totalDistanceKm?.toFixed(1) || '-'} km estimasi`}
+              </p>
+              <p>
+                {routeStats
+                  ? formatRouteDuration(Math.round(routeStats.duration / 60))
+                  : formatRouteDuration(route.estimatedDurationMinutes)}
+              </p>
               {route.city && <p>{route.city}</p>}
             </div>
             <div className="mt-6 space-y-3">
@@ -163,28 +178,12 @@ export function RouteDetailClient({ shareSlug }: { shareSlug: string }) {
             </div>
           </aside>
 
-          {routeCoordinates.length > 0 && (
-            <div className="overflow-hidden rounded-lg border border-white/60 bg-white/96 p-2 shadow-sm backdrop-blur">
-              <div className="h-[360px] w-full rounded-md overflow-hidden bg-slate-100">
-                <Map center={routeCoordinates[0]} zoom={12}>
-                  <MapRoute coordinates={routeCoordinates} color="#f97316" width={4} />
-
-                  {route.stops.map((stop, index) => {
-                    const lng = Number(stop.destination?.longitude);
-                    const lat = Number(stop.destination?.latitude);
-                    if (!lng || !lat || isNaN(lng) || isNaN(lat)) return null;
-
-                    return (
-                      <MapMarker key={`stop-${stop.destinationId}-${index}`} longitude={lng} latitude={lat}>
-                        <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-xs font-black text-white border-2 border-white shadow-md hover:scale-110 transition-transform">
-                          {index + 1}
-                        </div>
-                      </MapMarker>
-                    );
-                  })}
-                </Map>
-              </div>
-            </div>
+          {waypoints.length >= 2 && (
+            <RoutePlannerMap
+              waypoints={waypoints}
+              theme="light"
+              onRouteChange={setRouteStats}
+            />
           )}
         </div>
       </section>

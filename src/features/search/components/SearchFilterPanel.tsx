@@ -43,7 +43,7 @@ export function SearchFilterPanel({
       <div className="space-y-5">
         <div>
           <label htmlFor="city-filter" className="mb-2 flex items-center gap-2 text-sm font-black text-slate-950">
-            <span className="flex h-7 w-7 items-center justify-center rounded-md bg-ai-container text-ai">
+            <span className="flex h-7 w-7 items-center justify-center rounded-md text-ai border-amber-100 bg-amber-400">
               <MapPin className="h-3.5 w-3.5" />
             </span>
             Kota

@@ -13,6 +13,13 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
   ]),
+  {
+    rules: {
+      // eslint-plugin-jsx-a11y 6.10.x has a false-positive on
+      // aria-pressed JSX expressions (reads them as literal "{expression}").
+      "jsx-a11y/aria-proptypes": "off",
+    },
+  },
 ]);
 
 export default eslintConfig;

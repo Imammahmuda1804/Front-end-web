@@ -21,7 +21,7 @@ const scenes: CinematicScene[] = [
   {
     image: '/images/landing-motion/lembah-harau.jpg',
     alt: 'Lembah Harau dengan tebing dan sawah hijau',
-    invitation: 'Mulai dari lembah yang tenang, lalu biarkan rute terbaik terbuka.',
+    invitation: ' WISATA ALAM',
     placement: 'left',
     top: '26%',
     widthClass: 'w-[min(72vw,31rem)] md:w-[min(35vw,32rem)]',
@@ -30,7 +30,7 @@ const scenes: CinematicScene[] = [
   {
     image: '/images/landing-motion/ngarai-sianok.png',
     alt: 'Ngarai Sianok dengan bentang lembah hijau',
-    invitation: 'Geser lebih dalam ke lanskap yang membuat perjalanan terasa luas.',
+    invitation: 'ADVENTURE',
     placement: 'right',
     top: '37%',
     widthClass: 'w-[min(72vw,32rem)] md:w-[min(36vw,33rem)]',
@@ -39,7 +39,7 @@ const scenes: CinematicScene[] = [
   {
     image: '/images/landing-motion/istano-basa-pagaruyung.jpg',
     alt: 'Istano Basa Pagaruyung dengan arsitektur Minangkabau',
-    invitation: 'Temukan budaya yang tidak hanya dilihat, tetapi dipahami.',
+    invitation: 'BUDAYA',
     placement: 'left',
     top: '42%',
     widthClass: 'w-[min(72vw,32rem)] md:w-[min(36vw,33rem)]',
@@ -48,7 +48,7 @@ const scenes: CinematicScene[] = [
   {
     image: '/images/landing-motion/masjid-raya-sumbar.jpg',
     alt: 'Masjid Raya Sumatera Barat dari udara',
-    invitation: 'Lihat ikon kota, baca pengalaman, lalu pilih dengan yakin.',
+    invitation: 'RELIGI',
     placement: 'right',
     top: '24%',
     widthClass: 'w-[min(66vw,28rem)] md:w-[min(30vw,28rem)]',
@@ -57,7 +57,7 @@ const scenes: CinematicScene[] = [
   {
     image: '/images/landing-motion/mande-pantai.jpg',
     alt: 'Pantai dan laut jernih dari udara',
-    invitation: 'Tutup perjalanan dengan arah yang lebih personal dan terencana.',
+    invitation: 'PANTAI',
     placement: 'center',
     top: '34%',
     widthClass: 'w-[min(68vw,29rem)] md:w-[min(31vw,29rem)]',
@@ -312,11 +312,11 @@ export function HeroSection() {
 
   return (
     <section ref={sectionRef} className="relative h-[540vh] bg-[oklch(0.975_0.01_62)]">
-      <div className="sticky top-0 min-h-[100dvh] overflow-hidden bg-slate-950">
+      <div className="sticky top-0 min-h-dvh overflow-hidden bg-slate-950">
         <div className="absolute inset-0">
           <div
             ref={backgroundRef}
-            className="absolute inset-0 [backface-visibility:hidden] will-change-transform"
+            className="absolute inset-0 backface-hidden will-change-transform"
           >
             <Image
               src="/images/sumbar-tourism-bg-optimized.jpg"
@@ -329,8 +329,7 @@ export function HeroSection() {
             />
           </div>
 
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_48%_40%,rgba(255,255,255,0.08),transparent_35%),linear-gradient(180deg,rgba(5,10,20,0.2)_0%,rgba(5,10,20,0.06)_46%,rgba(5,10,20,0.32)_100%)]" />
-          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(5,10,20,0.5)_0%,rgba(5,10,20,0.16)_40%,rgba(5,10,20,0.24)_100%)]" />
+          <div className="absolute inset-0 bg-slate-950/40" />
 
           <div
             ref={stageRef}
@@ -343,10 +342,10 @@ export function HeroSection() {
                 ref={(node) => {
                   windowRefs.current[index] = node;
                 }}
-                className={`absolute ${scene.widthClass} overflow-hidden rounded-md border border-white/25 bg-white/8 p-1 opacity-0 shadow-[0_46px_120px_rgba(4,10,20,0.5)] backdrop-blur-[1.5px] will-change-transform`}
+                className={`absolute ${scene.widthClass} overflow-hidden rounded-md border border-white/20 bg-slate-900/40 p-1 opacity-0 will-change-transform`}
                 style={getPanelPosition(scene)}
               >
-                <div className="relative aspect-[16/10] overflow-hidden rounded-md bg-slate-950 shadow-[inset_0_1px_0_rgba(255,255,255,0.22)]">
+                <div className="relative aspect-16/10 overflow-hidden rounded-md bg-slate-950">
                   <Image
                     src={scene.image}
                     alt={scene.alt}
@@ -370,32 +369,32 @@ export function HeroSection() {
           />
         </div>
 
-        <div className="relative z-50 mx-auto flex min-h-[100dvh] w-full max-w-7xl flex-col items-center justify-center px-6 pb-20 pt-28 text-center md:px-12">
+        <div className="relative z-50 mx-auto flex min-h-dvh w-full max-w-7xl flex-col items-center justify-center px-6 pb-20 pt-28 text-center md:px-12">
           <div ref={introRef} className="flex max-w-5xl flex-col items-center will-change-transform">
             <motion.p
               initial={prefersReduced ? false : { opacity: 0, y: 18 }}
               animate={prefersReduced ? undefined : { opacity: 1, y: 0 }}
               transition={{ duration: 0.6, ease: easeOutExpo }}
-              className="inline-flex items-center gap-2 rounded-lg border border-white/25 bg-slate-950/18 px-4 py-2 text-xs font-black uppercase tracking-[0.18em] text-orange-100 shadow-xl shadow-slate-950/20 backdrop-blur-md"
+              className="inline-flex items-center gap-2 rounded-lg bg-orange-500/10 px-4 py-2 text-sm font-semibold text-orange-200"
             >
               <Sparkles className="h-4 w-4 text-orange-300" />
-              RANAHINSIGHT
+              RanahInsight
             </motion.p>
 
             <motion.h1
               initial={prefersReduced ? false : { opacity: 0, y: 28 }}
               animate={prefersReduced ? undefined : { opacity: 1, y: 0 }}
               transition={{ duration: 0.76, delay: 0.1, ease: easeOutExpo }}
-              className="mt-7 max-w-5xl text-6xl font-black leading-[0.88] tracking-tight text-white drop-shadow-[0_16px_42px_rgba(0,0,0,0.5)] md:text-8xl xl:text-[8.5rem]"
+              className="mt-6 font-black leading-[0.88] tracking-tight text-white md:text-12xl xl:text-[8.5rem]"
             >
-              Masuk ke perjalanan Sumatera Barat.
+              MULAI PERJALANAN ANDA.
             </motion.h1>
 
             <motion.p
               initial={prefersReduced ? false : { opacity: 0, y: 22 }}
               animate={prefersReduced ? undefined : { opacity: 1, y: 0 }}
               transition={{ duration: 0.68, delay: 0.18, ease: easeOutExpo }}
-              className="mt-7 max-w-2xl text-base font-semibold leading-7 text-slate-100 drop-shadow-[0_2px_14px_rgba(15,23,42,0.7)] md:text-xl"
+              className="mt-6 max-w-2xl text-base font-medium leading-7 text-slate-200 md:text-xl"
             >
               Jelajahi destinasi, pahami pengalaman wisatawan, lalu susun rute perjalanan yang lebih meyakinkan.
             </motion.p>
@@ -403,9 +402,9 @@ export function HeroSection() {
             <form
               ref={searchRef}
               onSubmit={handleSearch}
-              className="mt-9 flex w-full max-w-2xl items-center border-b border-white/65 bg-slate-950/8 px-1 pb-2 text-left shadow-[0_16px_34px_rgba(5,10,20,0.12)] backdrop-blur-[2px] will-change-transform"
+              className="mt-9 flex w-full max-w-2xl items-center rounded-lg border border-slate-700 bg-slate-900 px-1 py-1 text-left will-change-transform focus-within:border-orange-500 focus-within:ring-1 focus-within:ring-orange-500/50"
             >
-              <Compass className="mx-3 h-5 w-5 shrink-0 text-orange-200" />
+              <Compass className="mx-3 h-5 w-5 shrink-0 text-slate-400" />
               <label htmlFor="hero-search" className="sr-only">
                 Cari destinasi wisata
               </label>

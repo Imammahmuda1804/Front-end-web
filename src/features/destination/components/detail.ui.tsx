@@ -17,11 +17,12 @@ export function SectionHeader({ eyebrow, title, description }: { eyebrow: string
   );
 }
 
-export function MetricCard({ label, value, suffix, tone }: { label: string; value: string; suffix?: string; tone: 'orange' | 'blue' | 'emerald' }) {
+export function MetricCard({ label, value, suffix, tone }: { label: string; value: string; suffix?: string; tone: 'orange' | 'blue' | 'emerald' | 'amber' }) {
   const toneClass = {
     orange: 'border-orange-200 bg-white text-primary',
     blue: 'border-sky-200 bg-white text-ai',
     emerald: 'border-emerald-200 bg-white text-emerald-600',
+    amber: 'border-amber-200 bg-white text-amber-600',
   }[tone];
 
   return (
@@ -82,7 +83,7 @@ export function InsightPill({
 }) {
   const toneClass = {
     emerald: 'bg-emerald-50 text-emerald-700 border-emerald-100',
-    blue: 'bg-sky-50 text-ai border-sky-100',
+    blue: 'bg-sky-50 text-black border-sky-100',
     amber: 'bg-amber-50 text-amber-700 border-amber-100',
   }[tone];
 

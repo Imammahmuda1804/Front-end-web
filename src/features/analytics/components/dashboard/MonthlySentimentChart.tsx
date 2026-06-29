@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { Loader2 } from 'lucide-react';
 
-import { api } from '@/lib/axios';
+import { adminService } from '@/features/admin/services/admin.service';
 import { NativeSelect } from '@/components/ui/native-select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -35,8 +35,8 @@ export default function MonthlySentimentChart() {
   const { data, isLoading } = useQuery<{ period: Period; trends: TrendPoint[] }>({
     queryKey: ['admin', 'dashboard', 'trends', period],
     queryFn: async () => {
-      const res = await api.get(`/api/admin/dashboard/trends?period=${period}`);
-      return res.data.data;
+      const data = await adminService.getDashboardTrends(period);
+      return data.data;
     },
   });
 

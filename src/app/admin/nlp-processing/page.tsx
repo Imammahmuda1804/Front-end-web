@@ -10,9 +10,9 @@ export const metadata: Metadata = {
 
 export default function NlpProcessingPage() {
   return (
-    <div className="flex-1 bg-slate-50/60 p-4 pt-6 md:p-8">
+    <main className="flex-1 bg-slate-50 p-4 pt-6 md:p-8 dark:bg-slate-950">
       <NlpProcessingClient />
-    </div>
+    </main>
   );
 }
 

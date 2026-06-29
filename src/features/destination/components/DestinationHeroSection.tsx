@@ -65,8 +65,8 @@ export function DestinationHeroSection({
               <h1 id="destination-title" className="text-4xl font-black leading-[0.98] tracking-tight text-slate-950 sm:text-5xl lg:text-6xl">
                 {destination.name}
               </h1>
-              <p className="mt-4 flex items-center gap-2 text-base font-bold text-slate-600 sm:text-lg">
-                <MapPin className="h-5 w-5 text-primary" />
+              <p className="mt-4 flex items-center gap-2 text-base font-bold text-white sm:text-lg">
+                <MapPin className="h-5 w-5 text-amber-500" />
                 {destination.city}, {destination.province}
               </p>
             </div>
@@ -77,9 +77,9 @@ export function DestinationHeroSection({
           </div>
 
           <div className="grid gap-3 sm:grid-cols-3">
-            <MetricCard label="Skor AI" value={aiScore !== null ? String(aiScore) : 'N/A'} tone="orange" suffix={aiScore !== null ? '/100' : undefined} />
+            <MetricCard label="Skor AI" value={aiScore !== null ? String(aiScore) : 'N/A'} tone="amber" suffix={aiScore !== null ? '/100' : undefined} />
             <MetricCard label="Sentimen positif" value={positivePercentage} tone="emerald" />
-            <MetricCard label="Rating Google" value={ratingText(googleRating)} tone="blue" suffix="/5" />
+            <MetricCard label="Rating Google" value={ratingText(googleRating)} tone="amber" suffix="/5" />
           </div>
 
           <div className="flex flex-col gap-3 sm:flex-row">
@@ -102,7 +102,7 @@ export function DestinationHeroSection({
             {destination.youtubeUrl && (
               <a
                 href="#trailer"
-                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border border-sky-200 bg-white px-6 py-3 text-sm font-bold text-ai shadow-sm transition-[border-color,background-color,transform] duration-150 hover:border-ai active:scale-[0.98] focus:outline-none focus:ring-4 focus:ring-sky-100"
+                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border border-sky-200 bg-white px-6 py-3 text-sm font-bold text-red-500 shadow-sm transition-[border-color,background-color,transform] duration-150 hover:border-ai active:scale-[0.98] focus:outline-none focus:ring-4 focus:ring-sky-100"
               >
                 <PlayCircle className="h-4 w-4" />
                 Lihat Trailer

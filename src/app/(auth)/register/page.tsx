@@ -8,7 +8,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { isAxiosError } from 'axios';
-import { api } from '@/lib/axios';
+import { authService } from '@/features/auth/services/auth.service';
 import { toast } from 'sonner';
 
 const registerSchema = z.object({
@@ -49,9 +49,9 @@ export default function RegisterPage() {
     try {
       setIsLoading(true);
       const payload = data;
-      
-      await api.post('/api/auth/register', payload);
-      
+
+      await authService.register(payload);
+
       toast.success('Pendaftaran berhasil! Silakan login untuk memulai.');
       router.push('/login');
     } catch (error: unknown) {
@@ -185,8 +185,8 @@ export default function RegisterPage() {
       </section>
 
       
-      <section className="hidden lg:block lg:w-1/2 relative z-10 pb-16">
-        <div className="w-full h-full relative rounded-bl-[100px] overflow-hidden shadow-2xl">
+      <section className="hidden lg:block lg:w-1/2 relative z-10 pb-16 bg-slate-100">
+        <div className="w-full h-full relative rounded-bl-[100px] overflow-hidden shadow-sm">
           <Image
             className="object-cover"
             alt="Ilustrasi Wisata Sumatera Barat"
@@ -195,32 +195,10 @@ export default function RegisterPage() {
             sizes="50vw"
             priority
           />
-          
-          
-          <div className="absolute top-10 right-10 z-20 flex items-center gap-3 bg-white px-6 py-3 rounded-full border border-slate-200 shadow-lg">
-            <span className="text-slate-900 font-black tracking-tight text-xl">RANAHINSIGHT</span>
-            <Image src="/images/logo-icon.png" alt="RanahInsight" width={40} height={40} className="object-contain drop-shadow-sm" />
-          </div>
 
-          
-          <div className="absolute bottom-24 right-10 z-20 bg-white border border-slate-200 p-5 rounded-2xl shadow-xl">
-            <p className="text-slate-500 font-bold text-xs uppercase tracking-wider mb-1">Contoh Sentimen</p>
-            <div className="flex items-center justify-end gap-3">
-              <p className="text-slate-700 font-medium text-sm max-w-[100px] text-right leading-tight">Wisatawan sangat puas</p>
-              <div className="w-12 h-12 rounded-full border-4 border-primary border-t-transparent flex items-center justify-center bg-white shadow-sm">
-                 <span className="text-primary font-bold text-sm">85%</span>
-              </div>
-            </div>
+          <div className="absolute top-10 right-10 z-20 flex items-center gap-3 px-6 py-3">
+            <span className="text-white font-black tracking-tight text-xl drop-shadow-md">RanahInsight</span>
           </div>
-          
-          <div className="absolute top-1/3 left-10 z-20 bg-white border border-slate-200 p-5 rounded-2xl shadow-xl text-left">
-             <p className="text-slate-500 font-bold text-xs uppercase tracking-wider mb-1">Contoh Topik</p>
-             <p className="text-slate-900 font-black text-xl mb-1">Alam & Budaya</p>
-             <p className="text-slate-600 font-medium text-sm">Rekomendasi AI teratas</p>
-          </div>
-
-          
-          <div className="absolute inset-0 bg-gradient-to-tl from-primary/50 via-primary/10 to-transparent pointer-events-none z-10"></div>
         </div>
       </section>
     </main>

@@ -274,7 +274,7 @@ export function TopicDestinationContextPanel({
             Menampilkan topik yang muncul pada destinasi ini. Gunakan daftar ini untuk mengecek pembahasan yang paling memengaruhi persepsi pengunjung.
           </p>
         </div>
-        <div className="grid shrink-0 gap-2 sm:grid-cols-3 lg:min-w-[32rem]">
+        <div className="grid shrink-0 gap-2 sm:grid-cols-3 lg:min-w-lg">
           <div className="rounded-lg border border-white bg-white p-3">
             <p className="text-[11px] font-black uppercase tracking-[0.12em] text-slate-400">Topik terbaca</p>
             <p className="mt-1 text-2xl font-black text-slate-950">{topicsCount}</p>

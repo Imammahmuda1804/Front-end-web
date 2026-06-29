@@ -42,9 +42,8 @@ export function InfoSection() {
           transition={{ duration: 0.46, ease: easeOutExpo }}
           className="lg:sticky lg:top-28 lg:h-fit"
         >
-          <p className="editorial-kicker">Cara membaca RANAHINSIGHT</p>
-          <h2 className="mt-4 text-4xl font-extrabold leading-[1.03] tracking-tight text-slate-950 md:text-5xl">
-            Dari suara wisatawan menjadi keputusan perjalanan
+          <h2 className="text-4xl font-extrabold leading-[1.03] tracking-tight text-slate-950 md:text-5xl">
+            Dari Suara Wisatawan Menjadi Keputusan Perjalanan
           </h2>
           <p className="mt-5 max-w-xl text-base font-medium leading-8 text-slate-600">
             Sistem tidak menggantikan pengalaman manusia. Ia menyusun pola dari ulasan agar Anda tahu apa yang disukai, apa yang perlu dicek, dan destinasi mana yang paling relevan.
@@ -75,8 +74,7 @@ export function InfoSection() {
         >
           <div className="grid gap-8 border-b border-white/10 p-6 md:grid-cols-[1fr_auto] md:p-9">
             <div>
-              <p className="text-xs font-bold uppercase tracking-[0.12em] text-orange-300">Contoh pembacaan sentimen</p>
-              <h3 className="mt-3 max-w-xl text-3xl font-extrabold leading-tight md:text-4xl">
+              <h3 className="max-w-xl text-3xl font-extrabold leading-tight md:text-4xl">
                 Ringkasan rasa yang tetap menunjukkan ketidakpastian
               </h3>
             </div>

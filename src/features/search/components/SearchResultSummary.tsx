@@ -52,7 +52,7 @@ export function SearchResultSummary({
               <button
                 type="button"
                 onClick={() => onSortChange('hybrid')}
-                aria-pressed={semanticSort === 'hybrid'}
+                aria-pressed={semanticSort === 'hybrid' ? "true" : "false"}
                 className={`min-h-11 rounded-lg px-3 text-sm font-black transition-colors ${
                   semanticSort === 'hybrid' ? 'bg-explore text-white shadow-sm shadow-orange-900/15' : 'text-slate-700 hover:bg-white hover:text-explore'
                 }`}
@@ -62,7 +62,7 @@ export function SearchResultSummary({
               <button
                 type="button"
                 onClick={() => onSortChange('relevance')}
-                aria-pressed={semanticSort === 'relevance'}
+                aria-pressed={semanticSort === 'relevance' ? "true" : "false"}
                 className={`min-h-11 rounded-lg px-3 text-sm font-black transition-colors ${
                   semanticSort === 'relevance' ? 'bg-ai text-white shadow-sm shadow-blue-900/15' : 'text-slate-700 hover:bg-white hover:text-ai'
                 }`}

@@ -15,7 +15,7 @@ export function SectionHeader({ eyebrow, title, description }: { eyebrow: string
 }
 
 export function DestinationResultCard({ dest, fallback, tone, label }: { dest: ComparedDestination; fallback: DestinationMinimal | null; tone: 'orange' | 'blue'; label: string }) {
-  const accent = tone === 'orange' ? 'text-primary bg-orange-50 border-orange-200' : 'text-ai bg-sky-50 border-sky-200';
+  const accent = tone === 'orange' ? 'text-primary bg-orange-50 border-orange-200' : 'text-primary bg-sky-50 border-sky-200';
   const detailTarget = dest.slug || fallback?.slug || String(dest.id);
   const detailHref = `/destinations/${detailTarget}`;
   const thumbnailSource = imageUrl({ ...fallback, ...dest });
@@ -32,7 +32,7 @@ export function DestinationResultCard({ dest, fallback, tone, label }: { dest: C
       <div className="p-5">
         <h3 className="line-clamp-2 text-xl font-black text-slate-950">{dest.name}</h3>
         {dest.city && (
-          <p className="mt-1 flex items-center gap-1.5 text-sm font-bold text-slate-500">
+          <p className="mt-1 flex items-center gap-1.5 text-sm font-bold text-slate-950">
             <MapPin className="h-4 w-4" />
             {dest.city}{dest.category ? ` / ${getDestinationCategoryLabel(dest.category)}` : ''}
           </p>
@@ -61,7 +61,7 @@ export function DestinationResultCard({ dest, fallback, tone, label }: { dest: C
             <Link
               href={detailHref}
               className={`inline-flex min-h-10 items-center rounded-lg px-4 text-sm font-black transition-colors ${
-                tone === 'orange' ? 'bg-primary text-white hover:bg-primary/90' : 'bg-ai text-white hover:bg-ai/90'
+                tone === 'orange' ? 'bg-primary text-white hover:bg-primary/90' : 'bg-primary text-white hover:bg-primary/90'
               }`}
             >
               Detail
@@ -128,7 +128,7 @@ export function SentimentDecisionPanel({ destination1, destination2 }: { destina
           </article>
         ))}
 
-        <aside className="rounded-lg border border-sky-100 bg-sky-50/80 p-5 text-ai">
+        <aside className="rounded-lg border border-sky-100 bg-sky-50/80 p-5 txt-amber-500">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white">
             <Info className="h-5 w-5" />
           </div>
@@ -194,7 +194,7 @@ function FactorRow({ label, value1, value2, name1, name2 }: { label: string; val
       </div>
       <CompareBar label={name1} value={value1} className="bg-primary" />
       <div className="mt-2" />
-      <CompareBar label={name2} value={value2} className="bg-ai" />
+      <CompareBar label={name2} value={value2} className="bg-primary" />
     </div>
   );
 }
@@ -239,11 +239,12 @@ export function HighlightRiskGrid({ destination1, destination2 }: { destination1
 export function LocationComparePanel({ destination1, destination2 }: { destination1: ComparedDestination; destination2: ComparedDestination }) {
   const distance = distanceKm(destination1, destination2);
   return (
-    <section className="rounded-lg border border-sky-100 bg-white p-6 shadow-sm">
-      <p className="text-xs font-black uppercase tracking-[0.18em] text-ai">Lokasi & akses</p>
+    <section className="rounded-lg border border-sky-100 bg-white p-6 shadow-sm self-start
+    ">
+      <p className="text-xs font-black uppercase tracking-[0.18em] text-amber-500">Lokasi & akses</p>
       <h2 className="mt-2 text-2xl font-black text-slate-950">Cek posisi sebelum memilih</h2>
       {distance !== null && (
-        <div className="mt-4 rounded-lg border border-sky-100 bg-sky-50 p-4 text-ai">
+        <div className="mt-4 rounded-lg border border-sky-100 bg-sky-50 p-4 text-amber-500">
           <p className="text-xs font-black uppercase tracking-[0.12em]">Jarak lurus antar destinasi</p>
           <p className="mt-1 text-3xl font-black">{distance.toFixed(1)} km</p>
         </div>
@@ -258,7 +259,7 @@ export function LocationComparePanel({ destination1, destination2 }: { destinati
                 {[dest.city, dest.province, dest.category ? getDestinationCategoryLabel(dest.category) : null].filter(Boolean).join(' / ')}
               </p>
               {mapsHref ? (
-                <Link href={mapsHref} target="_blank" className="mt-3 inline-flex min-h-10 items-center gap-2 rounded-lg bg-ai px-4 text-sm font-black text-white">
+                <Link href={mapsHref} target="_blank" className="mt-3 inline-flex min-h-10 items-center gap-2 rounded-lg bg-white px-4 text-sm font-black text-amber-500">
                   <ExternalLink className="h-4 w-4" />
                   Buka Maps
                 </Link>
@@ -288,9 +289,9 @@ export function ExperienceTopicCard({ dest, tone }: { dest: ComparedDestination;
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="font-black capitalize text-slate-900">{words.slice(0, 2).join(', ') || 'Topik perjalanan'}</p>
-                    {words.length > 2 && <p className="mt-1 text-xs font-semibold text-slate-500">{words.slice(2).join(', ')}</p>}
+                    {words.length > 2 && <p className="mt-1 text-xs font-semibold text-slate-600">{words.slice(2).join(', ')}</p>}
                   </div>
-                  <span className={`shrink-0 rounded-full border px-3 py-1 text-xs font-black ${accent}`}>
+                  <span className={`shrink-0 rounded-full border px-3 py-1 text-xs font-black text-primary ${accent}`}>
                     {topic.total_reviews} ulasan
                   </span>
                 </div>

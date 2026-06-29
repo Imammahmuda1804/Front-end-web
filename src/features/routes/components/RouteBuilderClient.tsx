@@ -6,12 +6,13 @@ import dynamic from 'next/dynamic';
 import { ArrowDown, ArrowUp, Eye, MapPin, Plus, Route as RouteIcon, Sparkles, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select';
-import { api } from '@/lib/axios';
 import { routesService, RoutePayload, RouteVisibility, TravelRoute } from '../services/routes.service';
+import type { RouteWaypoint } from './RoutePlannerMap';
 
-const Map = dynamic(() => import('@/components/ui/map').then((mod) => mod.Map), { ssr: false });
-const MapMarker = dynamic(() => import('@/components/ui/map').then((mod) => mod.MapMarker), { ssr: false });
-const MapRoute = dynamic(() => import('@/components/ui/map').then((mod) => mod.MapRoute), { ssr: false });
+const RoutePlannerMap = dynamic(
+  () => import('./RoutePlannerMap').then((mod) => mod.RoutePlannerMap),
+  { ssr: false },
+);
 
 type DestinationOption = {
   id: number;
@@ -59,20 +60,24 @@ export function RouteBuilderClient({
           estimatedVisitMinutes: stop.estimatedVisitMinutes || undefined,
         }))
       : initialDestinationId
-        ? [{ destinationId: initialDestinationId, estimatedVisitMinutes: 90 }]
+        ? [{ destinationId: initialDestinationId, estimatedVisitMinutes: 60 }]
         : [],
   );
   const [saving, setSaving] = useState(false);
   const isEditing = Boolean(initialRoute);
 
-  const routeCoordinates = useMemo<[number, number][]>(() => {
+  const waypoints = useMemo(() => {
     return stops
-      .map((stop) => {
+      .map((stop, index) => {
         const dest = destinations.find((item) => item.id === stop.destinationId);
         if (!dest || !dest.longitude || !dest.latitude) return null;
-        return [Number(dest.longitude), Number(dest.latitude)] as [number, number];
+        return {
+          coordinates: [Number(dest.longitude), Number(dest.latitude)] as [number, number],
+          name: dest.name,
+          markerLabel: String(index + 1),
+        };
       })
-      .filter((coord): coord is [number, number] => coord !== null);
+      .filter(Boolean) as RouteWaypoint[];
   }, [stops, destinations]);
 
   useEffect(() => {
@@ -106,7 +111,7 @@ export function RouteBuilderClient({
   const addStop = () => {
     const destinationId = Number(selectedDestination);
     if (!destinationId) return;
-    setStops((current) => [...current, { destinationId, estimatedVisitMinutes: 90 }]);
+    setStops((current) => [...current, { destinationId, estimatedVisitMinutes: 60 }]);
     setSelectedDestination('');
   };
 
@@ -286,30 +291,8 @@ export function RouteBuilderClient({
               </div>
             </aside>
 
-            {routeCoordinates.length > 0 && (
-              <div className="rounded-lg border border-slate-200 bg-white p-2 shadow-sm">
-                <div className="h-[360px] w-full rounded-md overflow-hidden bg-slate-100">
-                  <Map center={routeCoordinates[0]} zoom={12}>
-                    <MapRoute coordinates={routeCoordinates} color="#f97316" width={4} />
-                    {stops.map((stop, index) => {
-                      const dest = destinations.find((item) => item.id === stop.destinationId);
-                      if (!dest || !dest.longitude || !dest.latitude) return null;
-
-                      return (
-                        <MapMarker
-                          key={`builder-stop-${stop.destinationId}-${index}`}
-                          longitude={Number(dest.longitude)}
-                          latitude={Number(dest.latitude)}
-                        >
-                          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-xs font-black text-white border-2 border-white shadow-md hover:scale-110 transition-transform">
-                            {index + 1}
-                          </div>
-                        </MapMarker>
-                      );
-                    })}
-                  </Map>
-                </div>
-              </div>
+            {waypoints.length >= 2 && (
+              <RoutePlannerMap waypoints={waypoints} />
             )}
           </div>
         </div>

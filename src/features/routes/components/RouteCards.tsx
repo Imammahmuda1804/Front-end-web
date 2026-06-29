@@ -14,12 +14,22 @@ export function formatRouteDuration(minutes?: number | null) {
   return remaining > 0 ? `${hours} jam ${remaining} menit` : `${hours} jam`;
 }
 
+/** Hitung estimasi durasi & jarak dari distanceToNextKm per stop (rumus backend: 3 menit/km) */
+export function estimateFromStops(stops: { distanceToNextKm?: number | null }[]) {
+  const totalKm = stops.reduce((s, stop) => s + (stop.distanceToNextKm || 0), 0);
+  return { km: Math.round(totalKm * 100) / 100, min: Math.round(totalKm * 3) };
+}
+
 export function RouteCard({ route }: { route: TravelRoute }) {
   const firstStop = route.stops?.[0];
   const image = firstStop?.destination?.thumbnailUrl
     ? getImageUrl(firstStop.destination.thumbnailUrl)
     : '/images/auth-bg.jpg';
   const href = `/routes/${route.shareSlug}`;
+  // ponytail: kalkulasi langsung dari stops, abaikan DB value yang stale
+  const displayStats = estimateFromStops(route.stops);
+  const displayKm = displayStats.km > 0 ? displayStats.km : route.totalDistanceKm;
+  const displayMin = displayStats.min > 0 ? displayStats.min : route.estimatedDurationMinutes;
 
   return (
     <article className="overflow-hidden rounded-lg border border-white/60 bg-white/96 shadow-sm backdrop-blur transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-orange-200 hover:shadow-md">
@@ -42,11 +52,11 @@ export function RouteCard({ route }: { route: TravelRoute }) {
             </span>
             <span className="inline-flex items-center gap-1 rounded-md bg-sky-50 px-3 py-1.5 text-ai">
               <Navigation className="h-3.5 w-3.5" />
-              {route.totalDistanceKm?.toFixed(1) || '-'} km
+              {displayKm?.toFixed(1) || '-'} km
             </span>
             <span className="inline-flex items-center gap-1 rounded-md bg-slate-100 px-3 py-1.5 text-slate-700">
               <Clock className="h-3.5 w-3.5" />
-              {formatRouteDuration(route.estimatedDurationMinutes)}
+              {formatRouteDuration(displayMin)}
             </span>
           </div>
           {route.city && (
@@ -61,7 +71,13 @@ export function RouteCard({ route }: { route: TravelRoute }) {
   );
 }
 
-export function RouteStopList({ route }: { route: TravelRoute }) {
+export function RouteStopList({ route, routeStats }: { route: TravelRoute; routeStats?: { duration: number; distance: number } | null }) {
+  // ponytail: distribusi OSRM total secara proporsional per stop biar totalnya sinkron
+  const totalSegments = route.stops.reduce((s, st) => s + (st.distanceToNextKm || 0), 0);
+  const scale = routeStats && totalSegments > 0
+    ? { km: (routeStats.distance / 1000) / totalSegments, min: (routeStats.duration / 60) / totalSegments }
+    : null;
+
   return (
     <div className="space-y-3">
       {route.stops.map((stop, index) => {
@@ -70,6 +86,13 @@ export function RouteStopList({ route }: { route: TravelRoute }) {
           (stop.destination?.latitude && stop.destination?.longitude
             ? `https://www.google.com/maps/search/?api=1&query=${stop.destination.latitude},${stop.destination.longitude}`
             : undefined);
+        const rawKm = stop.distanceToNextKm;
+        const segment = (() => {
+          if (!rawKm) return null;
+          const km = scale ? Math.round(rawKm * scale.km * 100) / 100 : rawKm;
+          const min = scale ? Math.round(rawKm * scale.min) : Math.round(rawKm * 3);
+          return { km, min };
+        })();
 
         return (
           <div key={`${stop.destinationId}-${index}`} className="rounded-lg border border-white/60 bg-white/96 p-4 shadow-sm backdrop-blur">
@@ -83,14 +106,9 @@ export function RouteStopList({ route }: { route: TravelRoute }) {
                   {stop.destination?.city}, {stop.destination?.province}
                 </p>
                 <div className="mt-3 flex flex-wrap gap-2 text-xs font-black">
-                  {stop.distanceToNextKm !== null && stop.distanceToNextKm !== undefined && (
-                    <span className="rounded-md bg-sky-50 px-3 py-1.5 text-ai">
-                      Ke stop berikutnya {stop.distanceToNextKm.toFixed(1)} km
-                    </span>
-                  )}
-                  {stop.estimatedVisitMinutes && (
-                    <span className="rounded-md bg-slate-100 px-3 py-1.5 text-slate-700">
-                      {stop.estimatedVisitMinutes} menit
+                  {segment && (
+                    <span className="rounded-md bg-sky-50 px-3 py-1.5 text-emerald-400">
+                      Ke stop berikutnya {segment.km.toFixed(1)} km · ~{segment.min} menit
                     </span>
                   )}
                 </div>

@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useSyncExternalStore } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, useReducedMotion } from 'framer-motion';
 import {
@@ -10,7 +10,6 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 
-import { api } from '@/lib/axios';
 import { useAuthStore } from '@/features/auth';
 import { DESTINATION_CATEGORIES } from '@/lib/destination-categories';
 import { SearchCommandSurface } from './SearchCommandSurface';
@@ -26,6 +25,8 @@ import {
   fetchSearchCategories,
   fetchSearchCities,
   fetchSearchHistory,
+  executeSemanticSearch,
+  executeKeywordSearch,
 } from '../services/search.api';
 import type { QuickPrompt } from '../constants/search.constants';
 import type {
@@ -37,20 +38,16 @@ import type {
   SemanticSort,
 } from '../types/search.types';
 import {
-  easeOutExpo,
-  getHydratedSnapshot,
-  getServerHydratedSnapshot,
   isSearchMode,
   isSemanticSort,
-  railMotion,
-  subscribeToHydration,
 } from '../utils/search.utils';
 // Mengelola state pencarian, filter, history, dan hasil destinasi.
 export default function SearchClient() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const prefersReduced = useReducedMotion();
-  const hasMounted = React.useSyncExternalStore(subscribeToHydration, getHydratedSnapshot, getServerHydratedSnapshot);
+  // ponytail: useSyncExternalStore hydration guard — always hydrated on client
+  const hasMounted = useSyncExternalStore(() => () => {}, () => true, () => false);
   const shouldReduceMotion = !hasMounted || Boolean(prefersReduced);
   const { isAuthenticated } = useAuthStore();
 
@@ -139,14 +136,14 @@ export default function SearchClient() {
 
       try {
         if (searchQuery && mode === 'semantic') {
-          const res = await api.post('/api/search', {
+          const res = await executeSemanticSearch({
             query: searchQuery,
             sort,
             ...(city ? { city } : {}),
             ...(category ? { category } : {}),
           });
-          setResults(res.data.data || []);
-          setTotalResults(res.data.data?.length || 0);
+          setResults(res.data || []);
+          setTotalResults(res.data?.length || 0);
           setActiveQuery(searchQuery);
         } else if (searchQuery || city || category) {
           const params: DestinationSearchParams = { limit: 20 };
@@ -154,9 +151,9 @@ export default function SearchClient() {
           if (city) params.city = city;
           if (category) params.category = category;
 
-          const res = await api.get('/api/destinations', { params });
-          setResults(res.data.data || []);
-          setTotalResults(res.data.meta?.total || res.data.data?.length || 0);
+          const res = await executeKeywordSearch(params);
+          setResults(res.data || []);
+          setTotalResults(res.meta?.total || res.data?.length || 0);
           setActiveQuery(searchQuery);
         } else {
           setResults([]);
@@ -308,8 +305,8 @@ export default function SearchClient() {
           initial={shouldReduceMotion ? false : 'hidden'}
           whileInView={shouldReduceMotion ? undefined : 'visible'}
           viewport={{ once: true, margin: '-60px' }}
-          variants={railMotion}
-          transition={{ duration: 0.3, ease: easeOutExpo }}
+          variants={{ hidden: { opacity: 0, x: -18 }, visible: { opacity: 1, x: 0 } }}
+          transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
           className="space-y-4 lg:sticky lg:top-24"
         >
           <SearchFilterPanel
@@ -338,7 +335,7 @@ export default function SearchClient() {
             <motion.div
               initial={shouldReduceMotion ? false : { opacity: 0, y: -10 }}
               animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
-              transition={{ duration: 0.22, ease: easeOutExpo }}
+              transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
               className="mb-5 flex flex-col gap-3 rounded-lg border border-danger/15 bg-surface-danger p-4 text-sm font-semibold text-danger sm:flex-row sm:items-center sm:justify-between"
             >
               <div className="flex items-start gap-3">
@@ -361,7 +358,7 @@ export default function SearchClient() {
               layout
               initial={shouldReduceMotion ? false : { opacity: 0, y: 14 }}
               animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
-              transition={{ duration: 0.26, ease: easeOutExpo }}
+              transition={{ duration: 0.26, ease: [0.16, 1, 0.3, 1] }}
             >
               <SearchResultSummary
                 activeQuery={activeQuery}
@@ -389,7 +386,7 @@ export default function SearchClient() {
             <motion.div
               initial={shouldReduceMotion ? false : { opacity: 0, y: 12 }}
               animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
-              transition={{ duration: 0.2, ease: easeOutExpo }}
+              transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
             >
               <SearchLoadingGrid searchMode={searchMode} prefersReduced={shouldReduceMotion} />
             </motion.div>
@@ -430,7 +427,7 @@ export default function SearchClient() {
             <motion.div
               initial={shouldReduceMotion ? false : { opacity: 0, y: 16 }}
               animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
-              transition={{ duration: 0.28, ease: easeOutExpo }}
+              transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
             >
               <SearchEmptyState
                 searchMode={searchMode}

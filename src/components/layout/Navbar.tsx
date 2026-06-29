@@ -50,7 +50,7 @@ export function Navbar() {
   ];
   return (
     <nav aria-label="Navigasi Utama" className="fixed left-0 right-0 top-0 z-50 w-full px-3 pt-3">
-      <div className="container mx-auto flex h-16 items-center justify-between overflow-hidden rounded-lg border border-white/45 bg-[oklch(0.98_0.01_70/0.7)] px-4 shadow-[0_14px_40px_rgba(15,23,42,0.18)] ring-1 ring-slate-950/[0.08] backdrop-blur-2xl supports-[backdrop-filter]:bg-[oklch(0.98_0.01_70/0.62)] md:px-6">
+      <div className="container mx-auto flex h-16 items-center justify-between overflow-hidden rounded-lg border border-white/45 bg-[oklch(0.98_0.01_70/0.7)] px-4 shadow-[0_14px_40px_rgba(15,23,42,0.18)] ring-1 ring-slate-950/8 backdrop-blur-2xl supports-backdrop-filter:bg-[oklch(0.98_0.01_70/0.62)] md:px-6">
         <div className="flex items-center gap-8 md:gap-12">
           <Link href="/" className="group flex items-center space-x-3 rounded-lg py-1.5 pr-2 transition-colors hover:bg-white/30">
             <span className="flex h-10 w-10 items-center justify-center rounded-lg border border-white/50 bg-white/70 shadow-sm">
@@ -100,21 +100,21 @@ export function Navbar() {
                 </div>
                 <DropdownMenuSeparator className="bg-slate-100" />
                 {user.role === 'ADMIN' && (
-                  <DropdownMenuItem className="rounded-md focus:!bg-orange-50 focus:!text-primary cursor-pointer text-slate-700 font-medium transition-colors">
+                  <DropdownMenuItem className="rounded-md focus:bg-orange-50 focus:text-primary cursor-pointer text-slate-700 font-medium transition-colors">
                     <Link href="/admin" className="w-full">Admin Dashboard</Link>
                   </DropdownMenuItem>
                 )}
-                <DropdownMenuItem className="rounded-md focus:!bg-orange-50 focus:!text-primary cursor-pointer text-slate-700 font-medium transition-colors">
+                <DropdownMenuItem className="rounded-md focus:bg-orange-50 focus:text-primary cursor-pointer text-slate-700 font-medium transition-colors">
                   <Link href="/profile" className="w-full">Profil Saya</Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem className="rounded-md focus:!bg-orange-50 focus:!text-primary cursor-pointer text-slate-700 font-medium transition-colors">
+                <DropdownMenuItem className="rounded-md focus:bg-orange-50 focus:text-primary cursor-pointer text-slate-700 font-medium transition-colors">
                   <Link href="/favorites" className="w-full">Favorit</Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem className="rounded-md focus:!bg-orange-50 focus:!text-primary cursor-pointer text-slate-700 font-medium transition-colors">
+                <DropdownMenuItem className="rounded-md focus:bg-orange-50 focus:text-primary cursor-pointer text-slate-700 font-medium transition-colors">
                   <Link href="/routes/saved" className="w-full">Rute tersimpan</Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator className="bg-slate-100" />
-                <DropdownMenuItem onClick={handleLogout} className="text-red-600 focus:!text-red-700 focus:!bg-red-50 rounded-md cursor-pointer font-bold mt-1 transition-colors">
+                <DropdownMenuItem onClick={handleLogout} className="text-red-600 focus:text-red-700 focus:bg-red-50 rounded-md cursor-pointer font-bold mt-1 transition-colors">
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Keluar</span>
                 </DropdownMenuItem>

@@ -34,9 +34,9 @@ export function SearchHistoryPanel({
               <button
                 type="button"
                 onClick={() => onHistoryClick(item.keyword)}
-                className="flex min-h-11 w-full items-center gap-3 rounded-lg px-2 text-left text-sm font-bold text-slate-700 transition-colors hover:bg-ai-container hover:text-ai"
+                className="flex min-h-11 w-full items-center gap-3 rounded-lg px-2 text-left text-sm font-bold text-slate-700 transition-colors hover:bg-ai-container "
               >
-                <History className="h-4 w-4 shrink-0 text-ai" />
+                <History className="h-4 w-4 shrink-0 " />
                 <span className="truncate">{item.keyword}</span>
               </button>
               {item.id && (
@@ -46,7 +46,7 @@ export function SearchHistoryPanel({
                   aria-label={`Hapus riwayat ${item.keyword}`}
                   className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-danger-container hover:text-danger"
                 >
-                  <Trash2 className="h-4 w-4" />
+                  <Trash2 className=" h-4 w-4" />
                 </button>
               )}
             </li>

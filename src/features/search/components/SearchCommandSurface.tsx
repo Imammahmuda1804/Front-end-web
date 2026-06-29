@@ -4,7 +4,7 @@ import type { FormEvent } from 'react';
 
 import { quickPrompts, type QuickPrompt } from '../constants/search.constants';
 import type { SearchMode } from '../types/search.types';
-import { easeOutExpo, panelMotion } from '../utils/search.utils';
+// ponytail: motion constants inlined
 
 export function SearchCommandSurface({
   query,
@@ -37,8 +37,8 @@ export function SearchCommandSurface({
     <motion.section
       initial={shouldReduceMotion ? false : 'hidden'}
       animate={shouldReduceMotion ? undefined : 'visible'}
-      variants={panelMotion}
-      transition={{ duration: 0.36, ease: easeOutExpo }}
+      variants={{ hidden: { opacity: 0, y: 18 }, visible: { opacity: 1, y: 0 } }}
+      transition={{ duration: 0.36, ease: [0.16, 1, 0.3, 1] }}
       className="relative overflow-hidden rounded-lg border border-white/60 bg-white/90 p-4 text-slate-950 shadow-[0_18px_50px_rgba(15,23,42,0.14)] backdrop-blur-xl md:p-6"
     >
       <div
@@ -61,10 +61,10 @@ export function SearchCommandSurface({
         </div>
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-          <div className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border px-4 text-sm font-black shadow-sm ${
+          <div className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border px-4 text-sm font-black bg-amber-400 shadow-sm ${
             searchMode === 'semantic'
-              ? 'border-ai/20 bg-ai-container text-ai shadow-blue-900/5'
-              : 'border-explore/20 bg-white text-explore shadow-orange-900/5'
+              ? 'border-ai/20 bg-ai-container text-ai shadow-amber-900/5'
+              : 'border-explore/20 bg-white text-explore shadow-amber-900/5'
           }`}>
             <ActiveModeIcon className="h-4 w-4" />
             Mode aktif: {searchMode === 'semantic' ? 'Semantik' : 'Kata kunci'}
@@ -73,9 +73,9 @@ export function SearchCommandSurface({
             <button
               type="button"
               onClick={() => onModeSwitch('keyword')}
-              aria-pressed={searchMode === 'keyword'}
+              aria-pressed={searchMode === 'keyword' ? "true" : "false"}
               className={`flex min-h-11 flex-1 items-center justify-center gap-2 rounded-md px-4 text-sm font-black transition-colors sm:flex-none ${
-                searchMode === 'keyword' ? 'bg-explore text-white shadow-sm shadow-orange-900/15' : 'text-slate-600 hover:bg-explore-container hover:text-explore'
+                searchMode === 'keyword' ? 'bg-explore text-white shadow-sm shadow-amber-900/15' : 'text-slate-600 hover:bg-explore-container hover:text-explore'
               }`}
             >
               <Type className="h-4 w-4" />
@@ -84,9 +84,9 @@ export function SearchCommandSurface({
             <button
               type="button"
               onClick={() => onModeSwitch('semantic')}
-              aria-pressed={searchMode === 'semantic'}
-              className={`flex min-h-11 flex-1 items-center justify-center gap-2 rounded-md px-4 text-sm font-black transition-colors sm:flex-none ${
-                searchMode === 'semantic' ? 'bg-ai text-white shadow-sm shadow-blue-900/15' : 'text-slate-600 hover:bg-ai-container hover:text-ai'
+              aria-pressed={searchMode === 'semantic' ? "true" : "false"}
+              className={`flex min-h-11 flex-1 items-center justify-center gap-2 rounded-md px-4 text-sm font-black  sm:flex-none ${
+                searchMode === 'semantic' ? 'bg-amber-400 text-white shadow-sm shadow-amber-900/15' : 'text-slate-600 hover:bg-amber-400 hover:text-ai'
               }`}
             >
               <Brain className="h-4 w-4" />
@@ -139,7 +139,7 @@ export function SearchCommandSurface({
       <motion.div
         initial={shouldReduceMotion ? false : { opacity: 0, y: 10 }}
         animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
-        transition={{ duration: 0.28, delay: 0.12, ease: easeOutExpo }}
+        transition={{ duration: 0.28, delay: 0.12, ease: [0.16, 1, 0.3, 1] }}
         className="mt-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between"
       >
         <div className="flex flex-wrap items-center gap-2">
@@ -157,10 +157,10 @@ export function SearchCommandSurface({
                 type="button"
                 initial={shouldReduceMotion ? false : { opacity: 0, y: 8 }}
                 animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
-                transition={{ duration: 0.24, delay: 0.16 + index * 0.04, ease: easeOutExpo }}
+                transition={{ duration: 0.24, delay: 0.16 + index * 0.04, ease: [0.16, 1, 0.3, 1] }}
                 whileTap={shouldReduceMotion ? undefined : { scale: 0.97 }}
                 onClick={() => onQuickPrompt(prompt)}
-                aria-pressed={isActivePrompt}
+                aria-pressed={isActivePrompt ? "true" : "false"}
                 className={`inline-flex min-h-11 items-center gap-2 rounded-lg border px-3 text-sm font-black shadow-sm transition-[color,background-color,border-color,box-shadow,transform,opacity] ${
                   isActivePrompt
                     ? 'border-primary bg-primary text-white shadow-primary/20'
@@ -174,7 +174,7 @@ export function SearchCommandSurface({
           })}
         </div>
         <p className="max-w-md text-sm font-semibold leading-6 text-slate-600 lg:text-right">
-          Pilih prompt, lalu sesuaikan kata kuncinya dengan mood perjalanan Anda.
+          Cari berdasarkan mood perjalanan.
         </p>
       </motion.div>
 
@@ -184,7 +184,7 @@ export function SearchCommandSurface({
             initial={shouldReduceMotion ? false : { opacity: 0, y: -8 }}
             animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
             exit={shouldReduceMotion ? undefined : { opacity: 0, y: -8 }}
-            transition={{ duration: 0.18, ease: easeOutExpo }}
+            transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
             className="mt-5 grid gap-3 rounded-lg border border-slate-200 bg-white p-4 text-slate-900 shadow-sm shadow-slate-200/60 md:grid-cols-2"
           >
             <div className="rounded-lg bg-explore-container p-4">

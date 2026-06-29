@@ -20,8 +20,8 @@ import {
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
-import { api } from '@/lib/axios';
 import { useAuthStore } from '@/features/auth';
+import { destinationService } from '../services/destination.service';
 import { getImageUrl } from '@/lib/utils';
 import TopicInsightSection from './TopicInsightSection';
 import ReviewFormSection from './ReviewFormSection';
@@ -62,9 +62,9 @@ export default function DestinationDetailClient({ destination }: Props) {
     let cancelled = false;
     void (async () => {
       try {
-        const res = await api.get(`/api/favorites/check/${destination.id}`);
+        const data = await destinationService.checkFavorite(destination.id);
         if (!cancelled) {
-          setIsFavorite(res.data.data?.isFavorite || res.data.isFavorite || false);
+          setIsFavorite(data?.data?.isFavorite || data?.isFavorite || false);
         }
       } catch (error) {
         console.error('Failed to check favorite status', error);
@@ -79,9 +79,9 @@ export default function DestinationDetailClient({ destination }: Props) {
   React.useEffect(() => {
     if (typeof destination.latitude !== 'number' || typeof destination.longitude !== 'number') return;
     let cancelled = false;
-    void api.get('/api/destinations', { params: { limit: 100, city: destination.city } })
-      .then((res) => {
-        const rows = (res.data.data?.data || res.data.data || []) as NearbyDestination[];
+    void destinationService.getDestinations({ limit: 100, city: destination.city })
+      .then((data) => {
+        const rows = (data?.data?.data || data?.data || []) as NearbyDestination[];
         const nearby = rows
           .filter((item) => item.id !== destination.id)
           .map((item) => ({ ...item, distance: distanceKm(destination, item) }))
@@ -107,11 +107,11 @@ export default function DestinationDetailClient({ destination }: Props) {
     setSavingFavorite(true);
     try {
       if (isFavorite) {
-        await api.delete(`/api/favorites/${destination.id}`);
+        await destinationService.removeFavorite(destination.id);
         setIsFavorite(false);
         toast.success('Destinasi dihapus dari favorit');
       } else {
-        await api.post(`/api/favorites/${destination.id}`);
+        await destinationService.addFavorite(destination.id);
         setIsFavorite(true);
         toast.success('Destinasi ditambahkan ke favorit');
       }
@@ -260,7 +260,7 @@ export default function DestinationDetailClient({ destination }: Props) {
 
   return (
     <main id="main-content" className="min-h-screen pt-20 pb-20">
-      <div className="mx-auto max-w-[100rem] px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-400 px-4 sm:px-6 lg:px-8">
         <DestinationTopActions
           isFavorite={isFavorite}
           savingFavorite={savingFavorite}
@@ -292,7 +292,7 @@ export default function DestinationDetailClient({ destination }: Props) {
               />
 
               <div className="mt-6 grid gap-4 md:grid-cols-3">
-                <InfoTile icon={Star} label="Rating Google" value={`${googleRating.toFixed(1)} / 5`} helper={`${googleCount} ulasan Google`} tone="blue" />
+                <InfoTile icon={Star} label="Rating Google" value={`${googleRating.toFixed(1)} / 5`} helper={`${googleCount} ulasan Google`} tone="orange" />
                 <InfoTile icon={Sparkles} label="Sentimen positif" value={positivePercentage} helper="Porsi ulasan bernada positif" tone="emerald" />
                 <InfoTile icon={ThumbsUp} label="Ulasan pengguna" value={platformRating ? `${platformRating.toFixed(1)} / 5` : '-'} helper={`${platformCount} ulasan pengguna`} tone="orange" />
               </div>
@@ -309,7 +309,7 @@ export default function DestinationDetailClient({ destination }: Props) {
                   <div className="grid min-w-64 grid-cols-3 gap-2 text-center text-[11px] font-black">
                     <span className="rounded-md bg-white px-2 py-2 text-emerald-700">{sentimentReading.positiveRate}% positif</span>
                     <span className="rounded-md bg-white px-2 py-2 text-rose-700">{sentimentReading.negativeRate}% negatif</span>
-                    <span className="rounded-md bg-white px-2 py-2 text-ai">{sentimentReading.strength}</span>
+                    <span className="rounded-md bg-white px-2 py-2 text-amber-700">{sentimentReading.strength}</span>
                   </div>
                 </div>
               </div>
@@ -418,11 +418,7 @@ export default function DestinationDetailClient({ destination }: Props) {
                 destinationId={destination.id}
                 isAuthenticated={isAuthenticated}
                 onSuccess={async () => {
-                  await fetch('/api/revalidate', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ tag: `destination-${destination.slug}` }),
-                  });
+                  await destinationService.revalidateDestination(destination.slug);
                   setRefreshKey((prev) => prev + 1);
                   router.refresh();
                 }}
@@ -433,7 +429,7 @@ export default function DestinationDetailClient({ destination }: Props) {
           <aside className="space-y-6 xl:sticky xl:top-32 xl:self-start">
             <div className="rounded-lg border border-white/60 bg-white/96 p-6 shadow-sm backdrop-blur">
               <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-sky-50 text-ai">
+                <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-sky-50 text-amber-500">
                   <TrendingUp className="h-5 w-5" />
                 </div>
                 <div>
@@ -516,7 +512,7 @@ export default function DestinationDetailClient({ destination }: Props) {
                 </button>
                 <Link
                   href={`/routes/new?destinationId=${destination.id}`}
-                  className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-lg border border-sky-100 bg-sky-50 px-5 py-3 text-sm font-bold text-ai transition-colors hover:bg-ai hover:text-white focus:outline-none focus:ring-4 focus:ring-sky-100"
+                  className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-lg border border-sky-100 bg-sky-50 px-5 py-3 text-sm font-bold text-amber-400 transition-colors hover:bg-ai hover:text-white focus:outline-none focus:ring-4 focus:ring-sky-100"
                 >
                   <Route className="h-4 w-4" />
                   Tambahkan ke rute

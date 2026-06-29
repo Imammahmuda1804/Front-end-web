@@ -9,7 +9,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { isAxiosError } from 'axios';
 import { CredentialResponse, GoogleLogin } from '@react-oauth/google';
-import { api } from '@/lib/axios';
+import { authService } from '@/features/auth/services/auth.service';
 import { useAuthStore } from '@/features/auth';
 import { toast } from 'sonner';
 
@@ -68,9 +68,9 @@ function LoginContent() {
   const onSubmit = async (data: LoginFormValues) => {
     try {
       setIsLoading(true);
-      const response = await api.post('/api/auth/login', data);
-      
-      const { user, access_token, refresh_token } = response.data.data;
+      const responseData = await authService.login(data);
+
+      const { user, access_token, refresh_token } = responseData.data;
       completeLogin(user, access_token, refresh_token);
     } catch (error: unknown) {
       toast.error(getErrorMessage(error, 'Gagal login. Periksa email dan password Anda.'));
@@ -87,10 +87,8 @@ function LoginContent() {
 
     try {
       setIsGoogleLoading(true);
-      const response = await api.post('/api/auth/google', {
-        id_token: credentialResponse.credential,
-      });
-      const { user, access_token, refresh_token } = response.data.data;
+      const responseData = await authService.googleLogin(credentialResponse.credential);
+      const { user, access_token,refresh_token } = responseData.data;
       completeLogin(user, access_token, refresh_token);
     } catch (error: unknown) {
       toast.error(getErrorMessage(error, 'Login Google gagal. Coba lagi.'));
@@ -113,7 +111,7 @@ function LoginContent() {
                 RANAH<span className="text-primary">INSIGHT</span>
               </h1>
             </div>
-            <p className="text-sm text-slate-500 font-medium max-w-[280px] mx-auto leading-relaxed">
+            <p className="text-sm text-slate-500 font-medium max-w-70 mx-auto leading-relaxed">
               Temukan dan jelajahi wisata terbaik Sumatera Barat dengan AI & Data Insight
             </p>
           </div>
@@ -247,8 +245,8 @@ function LoginContent() {
       </section>
 
       
-      <section className="hidden lg:block lg:w-1/2 relative z-10 pb-16">
-        <div className="w-full h-full relative rounded-br-[100px] overflow-hidden shadow-2xl">
+      <section className="hidden lg:block lg:w-1/2 relative z-10 pb-16 bg-slate-100">
+        <div className="w-full h-full relative rounded-br-[100px] overflow-hidden shadow-sm">
           <Image
             className="object-cover"
             alt="Ilustrasi Wisata Sumatera Barat"
@@ -257,32 +255,10 @@ function LoginContent() {
             sizes="50vw"
             priority
           />
-          
-          
-          <div className="absolute top-10 left-10 z-20 flex items-center gap-3 bg-white px-6 py-3 rounded-full border border-slate-200 shadow-lg">
-            <Image src="/images/logo-icon.png" alt="RanahInsight" width={40} height={40} className="object-contain drop-shadow-sm" />
-            <span className="text-slate-900 font-black tracking-tight text-xl">RANAHINSIGHT</span>
-          </div>
 
-          
-          <div className="absolute bottom-24 left-10 z-20 bg-white border border-slate-200 p-5 rounded-2xl shadow-xl">
-            <p className="text-slate-500 font-bold text-xs uppercase tracking-wider mb-1">Contoh Sentimen</p>
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full border-4 border-primary border-t-transparent flex items-center justify-center bg-white shadow-sm">
-                 <span className="text-primary font-bold text-sm">85%</span>
-              </div>
-              <p className="text-slate-700 font-medium text-sm max-w-25 leading-tight">Wisatawan sangat puas</p>
-            </div>
+          <div className="absolute top-10 left-10 z-20 flex items-center gap-3 px-6 py-3">
+            <span className="text-white font-black tracking-tight text-xl drop-shadow-md">RanahInsight</span>
           </div>
-          
-          <div className="absolute top-1/3 right-10 z-20 bg-white border border-slate-200 p-5 rounded-2xl shadow-xl text-right">
-             <p className="text-slate-500 font-bold text-xs uppercase tracking-wider mb-1">Contoh Topik</p>
-             <p className="text-slate-900 font-black text-xl mb-1">Alam & Budaya</p>
-             <p className="text-slate-600 font-medium text-sm">Rekomendasi AI teratas</p>
-          </div>
-
-          
-          <div className="absolute inset-0 bg-gradient-to-tr from-primary/50 via-primary/10 to-transparent pointer-events-none z-10"></div>
         </div>
       </section>
     </main>

@@ -23,11 +23,7 @@ export function getYouTubeEmbedUrl(url?: string | null) {
   }
 }
 
-// Membersihkan nama topik dari label teknis model.
-export function cleanTopicName(name?: string) {
-  const cleaned = name?.replace(/^Topic \d+:\s*/, '').trim();
-  return cleaned || 'Topik perjalanan';
-}
+export { cleanTopicName } from '@/lib/utils';
 
 export function formatPercent(value: number | null) {
   return value !== null ? `${Math.round(value * 100)}%` : 'N/A';

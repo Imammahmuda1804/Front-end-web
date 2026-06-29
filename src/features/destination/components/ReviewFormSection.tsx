@@ -6,7 +6,7 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { Star, Send, Loader2, CheckCircle, LogIn } from 'lucide-react';
 import Link from 'next/link';
 
-import { api } from '@/lib/axios';
+import { destinationService } from '../services/destination.service';
 
 interface Props {
   destinationId: number;
@@ -45,11 +45,7 @@ export default function ReviewFormSection({ destinationId, isAuthenticated, onSu
     setError(null);
     setSubmitting(true);
     try {
-      await api.post('/api/user-reviews', {
-        destination_id: destinationId,
-        rating,
-        review_text: reviewText.trim() || undefined,
-      });
+      await destinationService.submitReview(destinationId, rating, reviewText);
       setSubmitted(true);
       setRating(0);
       setReviewText('');

@@ -1,4 +1,5 @@
 import { api } from '@/lib/axios';
+import { unwrapApiData } from '@/lib/utils';
 
 export interface AnalyticsSummary {
   totalSearches: number;
@@ -56,7 +57,6 @@ export interface CompareResult {
 }
 
 type RawSentiment = Partial<Record<'positive' | 'negative' | 'neutral' | 'positif' | 'negatif' | 'netral', number>>;
-type ApiEnvelope<T> = { data: T };
 
 type RawDestinationAnalytics = Partial<{
   id: number;
@@ -86,20 +86,6 @@ function numberOrZero(value: number | null | undefined) {
 
 function numberOrNull(value: number | null | undefined) {
   return typeof value === 'number' && Number.isFinite(value) ? value : null;
-}
-
-// Membuka response backend yang bisa terbungkus interceptor.
-function unwrapApiData<T>(payload: T | ApiEnvelope<T>): T {
-  if (
-    payload &&
-    typeof payload === 'object' &&
-    'data' in payload &&
-    (payload as ApiEnvelope<T>).data !== undefined
-  ) {
-    return (payload as ApiEnvelope<T>).data;
-  }
-
-  return payload as T;
 }
 
 function normalizeSentiment(sentiment?: RawSentiment): DestinationAnalytics['sentiment'] {

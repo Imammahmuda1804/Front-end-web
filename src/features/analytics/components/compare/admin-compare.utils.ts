@@ -1,12 +1,9 @@
+export { cleanTopicName } from '@/lib/utils';
 import type { DestinationAnalytics } from '../../services/analytics.service';
 import type { MetricRow } from './admin-compare.types';
 
 export function formatMonth(date: string) {
   return new Date(date).toLocaleDateString('id-ID', { month: 'short' });
-}
-
-export function cleanTopicName(name: string) {
-  return name.replace(/^Topic \d+:\s*/, '').trim();
 }
 
 export function formatMetric(value: number, format: MetricRow['format']) {

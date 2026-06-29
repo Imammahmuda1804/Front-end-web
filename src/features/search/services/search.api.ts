@@ -29,3 +29,13 @@ export async function deleteSearchHistoryItem(id: number) {
 export async function clearSearchHistory() {
   await api.delete('/api/search/history');
 }
+
+export async function executeSemanticSearch(payload: any) {
+  const res = await api.post('/api/search', payload);
+  return res.data;
+}
+
+export async function executeKeywordSearch(params: any) {
+  const res = await api.get('/api/destinations', { params });
+  return res.data;
+}

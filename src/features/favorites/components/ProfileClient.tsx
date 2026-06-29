@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 
-import { api } from '@/lib/axios';
+import { favoritesService } from '../services/favorites.service';
 import { getImageUrl } from '@/lib/utils';
 import { useAuthStore } from '@/features/auth';
 import {
@@ -171,8 +171,8 @@ export default function ProfileClient({ initialView = 'profile' }: Props) {
 
   const fetchFavorites = useCallback(async () => {
     try {
-      const res = await api.get('/api/favorites?limit=50');
-      setFavorites(Array.isArray(res.data.data) ? res.data.data : []);
+      const res = await favoritesService.getFavorites(50);
+      setFavorites(Array.isArray(res.data) ? res.data : []);
     } catch (error: unknown) {
       console.error('Failed to fetch favorites', error);
     } finally {
@@ -238,8 +238,8 @@ export default function ProfileClient({ initialView = 'profile' }: Props) {
       const updateData: ProfileUpdatePayload = { name, email };
       if (password) updateData.password = password;
 
-      const res = await api.put('/api/users/me', updateData);
-      updateUser(res.data.data);
+      const res = await favoritesService.updateProfile(updateData);
+      updateUser(res.data);
       setMessage({ text: 'Profil berhasil diperbarui.', type: 'success' });
       setPassword('');
     } catch (error: unknown) {
@@ -258,8 +258,8 @@ export default function ProfileClient({ initialView = 'profile' }: Props) {
 
     try {
       setSaving(true);
-      const res = await api.post('/api/users/me/avatar', formData);
-      updateUser(res.data.data);
+      const res = await favoritesService.updateAvatar(formData);
+      updateUser(res.data);
       setMessage({ text: 'Foto profil diperbarui.', type: 'success' });
     } catch (error: unknown) {
       setMessage({ text: getErrorMessage(error, 'Gagal mengupload foto.'), type: 'error' });
@@ -277,11 +277,11 @@ export default function ProfileClient({ initialView = 'profile' }: Props) {
 
     if (undoToast) {
       clearTimeout(undoToast.timer);
-      api.delete(`/api/favorites/${undoToast.fav.destination.id}`).catch(() => {});
+      favoritesService.removeFavorite(undoToast.fav.destination.id).catch(() => {});
     }
 
     const timer = setTimeout(() => {
-      api.delete(`/api/favorites/${destinationId}`).catch((error: unknown) => {
+      favoritesService.removeFavorite(destinationId).catch((error: unknown) => {
         console.error('Failed to remove favorite', error);
         setFavorites((prev) => [...prev, removedFav]);
       });

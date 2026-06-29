@@ -1,4 +1,4 @@
-﻿import Image from 'next/image';
+import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight, Camera, Compass, GitCompareArrows, Heart, Loader2, MapPin, Search, ShieldCheck, Sparkles, Star, X } from 'lucide-react';
 import { NativeSelect } from '@/components/ui/native-select';
@@ -57,7 +57,7 @@ export function ProfileCard({
           onClick={() => fileInputRef.current?.click()}
           aria-label="Ubah foto profil"
         >
-          <Image src={avatarUrl} alt={userName} width={72} height={72} className="h-[72px] w-[72px] rounded-full border-4 border-orange-50 object-cover shadow-sm" />
+          <Image src={avatarUrl} alt={userName} width={72} height={72} className="h-18 w-18 rounded-full border-4 border-orange-50 object-cover shadow-sm" />
           <span className="absolute inset-0 flex items-center justify-center rounded-full bg-slate-950/45 opacity-0 transition-opacity group-hover/avatar:opacity-100">
             <Camera className="h-6 w-6 text-white" />
           </span>
@@ -163,7 +163,7 @@ export function PersonaCard({ personas }: { personas: Persona[] }) {
 
 export function AccountSafetyCard({ email }: { email: string }) {
   return (
-    <div className="rounded-lg border border-orange-100 bg-orange-50/60 p-6 shadow-sm">
+    <div className="rounded-lg border border-orange-100 bg-orange-50 p-6 shadow-sm">
       <div className="flex items-start gap-3">
         <ShieldCheck className="mt-1 h-5 w-5 text-primary" />
         <div>
@@ -181,9 +181,9 @@ export function FavoritesHeader({ filtered, isFavoritesPage, total }: { filtered
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
       <div>
-        <p className="text-xs font-black uppercase tracking-[0.16em] text-primary">{isFavoritesPage ? 'Koleksi destinasi' : 'Favorit'}</p>
-        <h2 className="mt-1 text-3xl font-black tracking-tight text-orange-300">Destinasi Favoritmu</h2>
-        <p className="mt-1 text-sm font-semibold text-orange-200">
+        <p className="text-xs font-black uppercase tracking-[0.16em] text-white">{isFavoritesPage ? 'Koleksi destinasi' : 'Favorit'}</p>
+        <h2 className="mt-1 text-3xl font-black tracking-tight text-amber-400">Destinasi Favoritmu</h2>
+        <p className="mt-1 text-sm font-semibold text-amber-400">
           Menampilkan {filtered} dari {total} destinasi tersimpan.
         </p>
       </div>
@@ -269,7 +269,7 @@ export function FavoriteCard({
 
   return (
     <article className="group overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition-[color,background-color,border-color,box-shadow,transform,opacity] duration-300 hover:-translate-y-0.5 hover:border-orange-200 hover:shadow-xl hover:shadow-orange-100/60">
-      <div className="relative aspect-[16/10] overflow-hidden bg-slate-100">
+      <div className="relative aspect-16/10 overflow-hidden bg-slate-100">
         <Image
           src={favorite.destination.thumbnailUrl ? getImageUrl(favorite.destination.thumbnailUrl) : '/images/auth-bg.jpg'}
           alt={favorite.destination.name}
@@ -277,7 +277,7 @@ export function FavoriteCard({
           sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
           className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
         />
-        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-slate-950/65 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-24 bg-linear-to-t from-slate-950/65 to-transparent" />
         <button
           type="button"
           onClick={() => onRemove(favorite.destination.id)}
@@ -325,7 +325,7 @@ export function FavoriteCard({
           <button
             type="button"
             onClick={() => onToggleCompare(favorite.destination.id)}
-            aria-pressed={isSelected}
+            aria-pressed={isSelected ? "true" : "false"}
             className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border px-3 text-xs font-black transition-[color,background-color,border-color,box-shadow,transform,opacity] focus:outline-none focus:ring-4 focus:ring-primary/15 ${
               isSelected
                 ? 'border-primary bg-orange-50 text-primary'
@@ -344,7 +344,7 @@ export function FavoriteCard({
           </Link>
           <Link
             href={`/routes/new?destinationId=${favorite.destination.id}`}
-            className="col-span-2 inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-sky-100 bg-sky-50 px-3 text-xs font-black text-ai transition-[color,background-color,border-color,box-shadow,transform,opacity] hover:bg-ai hover:text-white focus:outline-none focus:ring-4 focus:ring-sky-100"
+            className="col-span-2 inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-sky-100 bg-sky-50 px-3 text-xs font-black text-amber-500 transition-[color,background-color,border-color,box-shadow,transform,opacity] hover:bg-ai hover:text-white focus:outline-none focus:ring-4 focus:ring-sky-100"
           >
             Tambahkan ke rute
             <ArrowRight className="h-4 w-4" />
@@ -360,7 +360,7 @@ export function FavoritesSkeleton() {
     <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3" aria-label="Memuat favorit">
       {[1, 2, 3, 4, 5, 6].map((item) => (
         <div key={item} className="overflow-hidden rounded-lg border border-slate-200 bg-white">
-          <div className="aspect-[16/10] animate-pulse bg-slate-200" />
+          <div className="aspect-16/10 animate-pulse bg-slate-200" />
           <div className="space-y-3 p-5">
             <div className="h-5 w-3/4 animate-pulse rounded-md bg-slate-200" />
             <div className="h-4 w-1/2 animate-pulse rounded-md bg-slate-100" />

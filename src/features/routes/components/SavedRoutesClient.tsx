@@ -7,11 +7,13 @@ import { ArrowRight, CheckCircle2, Clock, LogIn, MapPin, Navigation, Plus, Rotat
 import { toast } from 'sonner';
 import { routesService, SavedRouteProgressItem, TravelRoute } from '../services/routes.service';
 import { useAuthStore } from '@/features/auth';
-import { formatRouteDuration } from './RouteCards';
+import { formatRouteDuration, estimateFromStops } from './RouteCards';
+import type { RouteWaypoint } from './RoutePlannerMap';
 
-const Map = dynamic(() => import('@/components/ui/map').then((mod) => mod.Map), { ssr: false });
-const MapMarker = dynamic(() => import('@/components/ui/map').then((mod) => mod.MapMarker), { ssr: false });
-const MapRoute = dynamic(() => import('@/components/ui/map').then((mod) => mod.MapRoute), { ssr: false });
+const RoutePlannerMap = dynamic(
+  () => import('./RoutePlannerMap').then((mod) => mod.RoutePlannerMap),
+  { ssr: false },
+);
 
 type ProgressMap = Record<number, SavedRouteProgressItem[]>;
 
@@ -23,6 +25,7 @@ export function SavedRoutesClient() {
   const [loading, setLoading] = useState(true);
   const [updatingStopId, setUpdatingStopId] = useState<number | null>(null);
   const [unsavingRouteId, setUnsavingRouteId] = useState<number | null>(null);
+  const [routeStats, setRouteStats] = useState<{ duration: number; distance: number } | null>(null);
 
   const handleUnsave = async (routeId: number) => {
     setUnsavingRouteId(routeId);
@@ -61,6 +64,7 @@ export function SavedRoutesClient() {
         setRoutes(result.data);
         setProgressByRoute(Object.fromEntries(progressEntries));
         setSelectedRouteId((current) => current || result.data[0]?.id || null);
+        setRouteStats(null);
       } catch {
         toast.error('Gagal memuat rute tersimpan');
       } finally {
@@ -81,17 +85,21 @@ export function SavedRoutesClient() {
   const visitedStopIds = useMemo(() => new Set(selectedProgress.filter((item) => item.status === 'visited').map((item) => item.routeStopId)), [selectedProgress]);
   const nextStop = selectedRoute?.stops.find((stop) => stop.id && !visitedStopIds.has(stop.id));
 
-  const routeCoordinates = useMemo<[number, number][]>(() => {
+  const waypoints = useMemo(() => {
     if (!selectedRoute || !selectedRoute.stops) return [];
     return selectedRoute.stops
       .filter((stop) => !stop.id || !visitedStopIds.has(stop.id))
-      .map((stop) => {
+      .map((stop, index) => {
         const lng = Number(stop.destination?.longitude);
         const lat = Number(stop.destination?.latitude);
         if (!lng || !lat || isNaN(lng) || isNaN(lat)) return null;
-        return [lng, lat] as [number, number];
+        return {
+          coordinates: [lng, lat] as [number, number],
+          name: stop.destination?.name ?? undefined,
+          markerLabel: String(index + 1),
+        };
       })
-      .filter((coord): coord is [number, number] => coord !== null);
+      .filter(Boolean) as RouteWaypoint[];
   }, [selectedRoute, visitedStopIds]);
 
   const updateStop = async (route: TravelRoute, routeStopId: number, visited: boolean) => {
@@ -136,13 +144,13 @@ export function SavedRoutesClient() {
     <main className="min-h-screen pt-24 pb-14">
       <section className="mx-auto max-w-7xl px-6 md:px-12">
         <div className="border-b pb-8 pt-4">
-          <p className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.16em]">
+          <p className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.16em] text-amber-500">
             <RouteIcon className="h-4 w-4" />
             Route Tracker
           </p>
           <div className="mt-4 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <h1 className="text-4xl font-extrabold tracking-tight md:text-6xl">Rute tersimpan</h1>
+              <h1 className="text-4xl font-extrabold tracking-tight md:text-6xl text-white">Rute tersimpan</h1>
               <p className="mt-3 max-w-2xl text-sm font-semibold leading-7 md:text-base">
                 Tandai lokasi yang sudah dikunjungi dan lihat destinasi berikutnya tanpa kehilangan urutan rute.
               </p>
@@ -181,14 +189,14 @@ export function SavedRoutesClient() {
                   >
                     <span className="text-sm font-black text-slate-950">{route.title}</span>
                     <span className="mt-2 block text-xs font-bold text-slate-500">{visited}/{route.stops.length} dikunjungi</span>
-                    <span className="mt-2 line-clamp-1 text-xs font-bold text-ai">Selanjutnya: {currentNext?.destination?.name || 'Selesai'}</span>
+                    <span className="mt-2 line-clamp-1 text-xs font-bold text-amber-500">Selanjutnya: {currentNext?.destination?.name || 'Selesai'}</span>
                   </button>
                 );
               })}
             </aside>
 
             {selectedRoute && (
-              <section className="rounded-lg border border-white/60 bg-white/96 p-5 shadow-sm backdrop-blur md:p-6">
+              <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm md:p-6">
                 <div className="border-b border-slate-100 pb-5">
                   <h2 className="text-2xl font-black text-slate-950">{selectedRoute.title}</h2>
                   <p className="mt-2 text-sm font-semibold leading-6 text-slate-500">
@@ -239,7 +247,7 @@ export function SavedRoutesClient() {
 
                                 <div className="mt-3 flex flex-wrap gap-2 text-xs font-black">
                                   {stop.distanceToNextKm !== null && stop.distanceToNextKm !== undefined && (
-                                    <span className="rounded-lg bg-white px-3 py-1.5 text-ai">Ke stop berikutnya {stop.distanceToNextKm.toFixed(1)} km</span>
+                                    <span className="rounded-lg bg-white px-3 py-1.5 text-emerald-300">Ke stop berikutnya {stop.distanceToNextKm.toFixed(1)} km</span>
                                   )}
                                   {progress?.visitedAt && (
                                     <span className="rounded-lg bg-white px-3 py-1.5 text-emerald-700">
@@ -262,7 +270,7 @@ export function SavedRoutesClient() {
                                     </button>
                                   )}
                                   {mapsUrl && (
-                                    <a href={mapsUrl} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-sky-100 bg-white px-4 text-sm font-black text-ai">
+                                    <a href={mapsUrl} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-sky-100 bg-white px-4 text-sm font-black text-amber-500">
                                       <Navigation className="h-4.5 w-4.5" />
                                       Buka Maps
                                     </a>
@@ -284,8 +292,15 @@ export function SavedRoutesClient() {
                   <div className="space-y-6 xl:sticky xl:top-24 xl:h-fit">
                     <div className="grid grid-cols-3 gap-2 rounded-lg border border-slate-100 bg-slate-50/50 p-4 text-center text-xs font-black">
                       <Stat label="Stop" value={selectedRoute.stops.length.toString()} />
-                      <Stat label="Jarak" value={`${selectedRoute.totalDistanceKm?.toFixed(1) || '-'} km`} />
-                      <Stat label="Durasi" value={formatRouteDuration(selectedRoute.estimatedDurationMinutes)} />
+                      {(() => {
+                        const fromStops = estimateFromStops(selectedRoute.stops);
+                        const km = routeStats ? (routeStats.distance / 1000) : (fromStops.km > 0 ? fromStops.km : (selectedRoute.totalDistanceKm ?? 0));
+                        const min = routeStats ? Math.round(routeStats.duration / 60) : (fromStops.min > 0 ? fromStops.min : (selectedRoute.estimatedDurationMinutes ?? 0));
+                        return <>
+                          <Stat label="Jarak" value={`${km.toFixed(1)} km`} />
+                          <Stat label="Durasi" value={formatRouteDuration(min)} />
+                        </>;
+                      })()}
                     </div>
 
                     <button
@@ -298,41 +313,8 @@ export function SavedRoutesClient() {
                       Hapus dari Tersimpan
                     </button>
 
-                    {/* Interactive Mapcn Map for Saved Route Tracker */}
-                    {routeCoordinates.length > 0 && (
-                      <div className="overflow-hidden rounded-lg border border-slate-200 bg-white p-1.5 shadow-sm">
-                        <div className="h-[320px] w-full rounded-md overflow-hidden bg-slate-100">
-                          <Map center={routeCoordinates[0]} zoom={12}>
-                            {/* Draw full route line */}
-                            <MapRoute coordinates={routeCoordinates} color="#f97316" width={4} />
-
-                            {/* Render markers ONLY for destinations that have NOT been visited yet */}
-                            {selectedRoute.stops.map((stop, index) => {
-                              const stopId = stop.id;
-                              const isVisited = stopId ? visitedStopIds.has(stopId) : false;
-                              if (isVisited) return null; // Hide marker if already visited!
-
-                              const lng = Number(stop.destination?.longitude);
-                              const lat = Number(stop.destination?.latitude);
-                              if (!lng || !lat || isNaN(lng) || isNaN(lat)) return null;
-
-                              const isNext = nextStop?.id === stopId;
-
-                              return (
-                                <MapMarker
-                                  key={`saved-stop-${stop.destinationId}-${index}`}
-                                  longitude={lng}
-                                  latitude={lat}
-                                >
-                                  <div className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-black text-white border-2 border-white shadow-md hover:scale-110 transition-transform ${isNext ? 'bg-primary animate-pulse' : 'bg-slate-500'}`}>
-                                    {index + 1}
-                                  </div>
-                                </MapMarker>
-                              );
-                            })}
-                          </Map>
-                        </div>
-                      </div>
+                    {waypoints.length >= 2 && (
+                      <RoutePlannerMap waypoints={waypoints} theme="light" onRouteChange={setRouteStats} />
                     )}
                   </div>
                 </div>

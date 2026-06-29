@@ -20,8 +20,7 @@ export function BentoGrid() {
       >
         <div className="grid gap-10 lg:grid-cols-[minmax(0,1.25fr)_minmax(20rem,0.75fr)] lg:items-end">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.12em] text-orange-300">Mulai menyusun perjalanan</p>
-            <h2 className="mt-4 max-w-4xl text-4xl font-extrabold leading-[1.02] tracking-tight md:text-6xl">
+            <h2 className="max-w-4xl text-4xl font-extrabold leading-[1.02] tracking-tight md:text-6xl">
               Pilih dengan data, lalu tetap beri ruang untuk rasa penasaran
             </h2>
             <p className="mt-5 max-w-2xl text-base font-medium leading-8 text-slate-300">
@@ -32,14 +31,14 @@ export function BentoGrid() {
           <div className="flex flex-col gap-3 sm:flex-row lg:justify-end">
             <Link
               href="/search"
-              className="group inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-primary px-6 text-sm font-bold text-white transition-[background-color,transform] duration-150 ease-[var(--ease-ui-out)] hover:bg-primary/90 active:scale-[0.98]"
+              className="group inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-primary px-6 text-sm font-bold text-white transition-[background-color,transform] duration-150 ease(--ease-ui-out) hover:bg-primary/90 active:scale-[0.98]"
             >
               Mulai eksplorasi
               <ArrowRight className="h-4 w-4 transition-transform duration-150 group-hover:translate-x-0.5" />
             </Link>
             <Link
               href="/register"
-              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border border-white/25 px-6 text-sm font-bold text-white transition-colors duration-150 hover:bg-white/[0.08]"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border border-white/25 px-6 text-sm font-bold text-white transition-colors duration-150 hover:bg-white/8"
             >
               <UserPlus className="h-4 w-4" />
               Buat akun
@@ -49,7 +48,7 @@ export function BentoGrid() {
 
         <div className="mt-12 grid border-y border-white/12 md:grid-cols-2">
           <Link href="/compare" className="group flex items-start gap-4 border-b border-white/12 py-6 md:border-b-0 md:border-r md:pr-8">
-            <GitCompare className="mt-1 h-5 w-5 text-primary" />
+            <GitCompare className="mt-1 h-5 w-5 text-primary-500" />
             <span>
               <span className="flex items-center gap-2 text-lg font-bold">
                 Bandingkan destinasi
@@ -61,7 +60,7 @@ export function BentoGrid() {
             </span>
           </Link>
           <Link href="/routes" className="group flex items-start gap-4 py-6 md:pl-8">
-            <Map className="mt-1 h-5 w-5 text-primary" />
+            <Map className="mt-1 h-5 w-5 text-primary-500"/>
             <span>
               <span className="flex items-center gap-2 text-lg font-bold">
                 Gunakan rute perjalanan

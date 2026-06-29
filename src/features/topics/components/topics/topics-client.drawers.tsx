@@ -366,7 +366,7 @@ export function TopicReviewsDrawer({
               <button
                 key={filter.value}
                 type="button"
-                aria-pressed={sentiment === filter.value}
+                aria-pressed={sentiment === filter.value ? "true" : "false"}
                 onClick={() => onSentimentChange(filter.value)}
                 className={`rounded-lg border px-3 py-2 text-left text-xs font-black transition ${
                   sentiment === filter.value

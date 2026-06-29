@@ -19,9 +19,9 @@ import {
 import dayjs from 'dayjs';
 import 'dayjs/locale/id';
 
+import { destinationService } from '../services/destination.service';
 import type { FineTopicDetail, SentimentBreakdown, TopicData, TopicGroupData, TopicReview } from './topic-insight.types';
 import {
-  API_BASE,
   cleanTopicName,
   getDominantSentiment,
   getSentimentBucket,
@@ -241,11 +241,7 @@ export default function TopicInsightSection({ destinationId, topics, sentimentBr
   const loadReviews = useCallback(async (topicId: number, page = 1, mode: 'topic' | 'group' = 'topic') => {
     setLoading(true);
     try {
-      const endpoint = mode === 'group'
-        ? `${API_BASE}/api/destinations/${destinationId}/reviews-by-topic-group?groupId=${topicId}&page=${page}&limit=5`
-        : `${API_BASE}/api/destinations/${destinationId}/reviews-by-topic?topicId=${topicId}&page=${page}&limit=5`;
-      const res = await fetch(endpoint);
-      const json = await res.json();
+      const json = await destinationService.getTopicReviews(destinationId, topicId, page, mode);
       const reviews = Array.isArray(json.data) ? json.data : [];
       const meta = json.meta || null;
       if (page === 1) {
@@ -391,7 +387,7 @@ export default function TopicInsightSection({ destinationId, topics, sentimentBr
             <h4 className="text-sm font-black uppercase tracking-[0.14em] text-slate-500">Sinyal pengalaman pengunjung</h4>
             <p className="mt-1 text-sm font-semibold text-slate-600">Bagian ini merangkum apa yang membuat destinasi terasa menarik, apa yang perlu dicek, dan hal yang masih punya opini campuran.</p>
           </div>
-          <span className="inline-flex w-fit items-center gap-1.5 rounded-lg bg-sky-50 px-3 py-1.5 text-xs font-black text-ai">
+          <span className="inline-flex w-fit items-center gap-1.5 rounded-lg bg-sky-50 px-3 py-1.5 text-xs font-black text-amber-400">
             <Sparkles className="h-3.5 w-3.5" />
             Dari ulasan asli
           </span>

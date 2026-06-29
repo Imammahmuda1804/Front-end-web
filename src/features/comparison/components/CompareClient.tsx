@@ -5,7 +5,6 @@ import { useEffect, useMemo, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useQuery } from '@tanstack/react-query';
 import { useSearchParams, useRouter } from 'next/navigation';
-import axios, { AxiosError } from 'axios';
 import { motion, useReducedMotion } from 'framer-motion';
 import {
   AlertCircle,
@@ -21,7 +20,9 @@ import {
 import Link from 'next/link';
 import DestinationSelect from './DestinationSelect';
 import { ChartLoadingPanel } from '@/components/charts/ChartPanel';
+import { comparisonService } from '../services/comparison.service';
 import { getImageUrl } from '@/lib/utils';
+import axios, { type AxiosError } from 'axios';
 import {
   CompareSkeleton,
   DestinationResultCard,
@@ -196,10 +197,8 @@ export default function CompareClient({ availableDestinations }: CompareClientPr
     queryKey: ['compare', dest1Id, dest2Id],
     queryFn: async () => {
       if (!dest1Id || !dest2Id) return null;
-      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/analytics/compare`, {
-        params: { destination1: dest1Id, destination2: dest2Id },
-      });
-      return res.data.data;
+      const data = await comparisonService.getCompareData(dest1Id, dest2Id);
+      return data.data;
     },
     enabled: !!dest1Id && !!dest2Id,
   });
@@ -327,7 +326,7 @@ export default function CompareClient({ availableDestinations }: CompareClientPr
                   onClick={handleSwap}
                   disabled={!dest1Id && !dest2Id}
                   aria-label="Tukar destinasi yang dibandingkan"
-                  className="mx-auto inline-flex h-12 w-12 items-center justify-center rounded-lg border border-sky-200 bg-sky-50 text-ai transition-[color,background-color,border-color,box-shadow,transform,opacity] hover:-translate-y-0.5 hover:border-ai disabled:cursor-not-allowed disabled:opacity-40 md:mt-7"
+                  className="mx-auto inline-flex h-12 w-12 items-center justify-center rounded-lg border border-sky-200 bg-sky-50 text-black transition-[color,background-color,border-color,box-shadow,transform,opacity] hover:-translate-y-0.5 hover:border-ai disabled:cursor-not-allowed disabled:opacity-40 md:mt-7"
                 >
                   <ArrowRightLeft className="h-5 w-5" />
                 </button>
@@ -339,7 +338,7 @@ export default function CompareClient({ availableDestinations }: CompareClientPr
                   selectedId={dest2Id}
                   onSelect={setDest2Id}
                   disabledId={dest1Id}
-                  tone="blue"
+                  tone="orange"
                 />
               </div>
 
@@ -430,12 +429,12 @@ export default function CompareClient({ availableDestinations }: CompareClientPr
                 </div>
               </div>
 
-              <div className="rounded-lg border border-sky-100 bg-white p-6 shadow-sm">
-                <p className="text-xs font-black uppercase tracking-[0.18em] text-ai">Cocok untuk</p>
+              <div className="rounded-lg border border-sky-100 bg-white p-6 shadow-sm self-start">
+                <p className="text-xs font-black uppercase tracking-[0.18em] text-sky-400">Cocok untuk</p>
                 <div className="mt-4 space-y-4">
                   {[compareData.destination1, compareData.destination2].map((dest, idx) => (
                     <div key={dest.id}>
-                      <p className={`mb-2 text-sm font-black ${idx === 0 ? 'text-primary' : 'text-ai'}`}>{dest.name}</p>
+                      <p className={`mb-2 text-sm font-black ${idx === 0 ? 'text-primary' : 'text-primary'}`}>{dest.name}</p>
                       <div className="flex flex-wrap gap-2">
                         {topicChips(dest).length > 0 ? topicChips(dest).map((topic) => (
                           <span key={topic} className="rounded-md border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-black text-slate-700">

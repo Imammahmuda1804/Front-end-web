@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { NativeSelect } from "@/components/ui/native-select";
 import { destinationSchema, DestinationFormValues } from "@/lib/validations/destination";
 import { DESTINATION_CATEGORIES } from "@/lib/destination-categories";
-import { api } from "@/lib/axios";
+import { adminService } from "../../services/admin.service";
 import { ThumbnailUploader } from "./thumbnail-uploader";
 import { GalleryUploader, ExistingImage } from "./gallery-uploader";
 import { toast } from "sonner";
@@ -87,8 +87,8 @@ export function DestinationFormModal({ open, onOpenChange, onSuccess, initialDat
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await api.get("/api/destinations/categories");
-        const raw = res.data?.data ?? res.data;
+        const data = await adminService.getCategories();
+        const raw = data?.data ?? data;
         const list = Array.isArray(raw) ? raw : Array.isArray(raw?.data) ? raw.data : [];
         const normalized = (list as RawCategoryOption[])
           .map((item) => ({
@@ -113,11 +113,7 @@ export function DestinationFormModal({ open, onOpenChange, onSuccess, initialDat
       
       const slug = initialData?.slug;
       if (slug) {
-        fetch('/api/revalidate', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ tag: `destination-${slug}` }),
-        }).catch(e => console.error(e));
+        adminService.revalidateTag(`destination-${slug}`).catch(e => console.error(e));
       }
 
       toast.success("Gambar berhasil dihapus");
@@ -208,11 +204,7 @@ export function DestinationFormModal({ open, onOpenChange, onSuccess, initialDat
       const slug = initialData?.slug || data?.name?.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
       if (slug) {
         try {
-          await fetch('/api/revalidate', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ tag: `destination-${slug}` }),
-          });
+          await adminService.revalidateTag(`destination-${slug}`);
         } catch (e) {
           console.error("Failed to revalidate cache", e);
         }

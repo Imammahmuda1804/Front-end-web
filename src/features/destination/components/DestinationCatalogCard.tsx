@@ -77,7 +77,7 @@ export function DestinationCatalogCard({ destination, index }: DestinationCatalo
 
         <div className="mt-4 h-7 overflow-hidden">
           {topics.length > 0 ? (
-            <span className="block max-w-full truncate rounded-md border border-sky-100 bg-sky-50 px-2.5 py-1 text-[11px] font-bold text-ai" title={getTopicLabel(topics[0])}>
+            <span className="block max-w-full truncate rounded-md border border-sky-100 bg-amber-200 px-2.5 py-1 text-[11px] font-bold text-" title={getTopicLabel(topics[0])}>
               Paling dibahas: {getTopicLabel(topics[0])}
             </span>
           ) : (
@@ -90,8 +90,8 @@ export function DestinationCatalogCard({ destination, index }: DestinationCatalo
             Detail
             <ArrowRight className="h-4 w-4" />
           </Link>
-          <Link href={`/compare?d1=${destination.id}`} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-sky-100 bg-sky-50 px-4 text-sm font-bold text-ai transition-colors hover:border-ai/30">
-            <GitCompareArrows className="h-4 w-4" />
+          <Link href={`/compare?d1=${destination.id}`} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-amber-100 bg-amber-400 px-4 text-sm font-bold text-ai transition-colors hover:border-ai/30">
+            <GitCompareArrows className="h-4 w-4 " />
             <span className="sr-only">Bandingkan {destination.name}</span>
           </Link>
         </div>

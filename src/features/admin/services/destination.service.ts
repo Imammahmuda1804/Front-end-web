@@ -1,9 +1,5 @@
 import { api } from "@/lib/axios";
-
-export interface DestinationImage {
-  id: number;
-  imageUrl: string;
-}
+import type { DestinationImage } from "@/features/destination/components/detail.types";
 
 export interface DestinationData {
   name: string;

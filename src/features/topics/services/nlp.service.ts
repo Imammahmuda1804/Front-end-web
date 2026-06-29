@@ -1,4 +1,5 @@
 import { api } from '@/lib/axios';
+import { unwrapApiData } from '@/lib/utils';
 
 export type NlpProcessingMode = 'skip_existing' | 'reprocess_existing' | 'replace_existing';
 
@@ -69,17 +70,6 @@ export interface NlpHistoryResponse {
   };
 }
 
-function unwrapApiData<T>(payload: unknown): T {
-  if (
-    payload &&
-    typeof payload === 'object' &&
-    'data' in payload
-  ) {
-    return (payload as { data: T }).data;
-  }
-  return payload as T;
-}
-
 function normalizeHistoryResponse(payload: unknown): NlpHistoryResponse {
   const unwrapped = unwrapApiData<unknown>(payload);
   const nested = unwrapApiData<unknown>(unwrapped);
@@ -107,19 +97,14 @@ function normalizeHistoryResponse(payload: unknown): NlpHistoryResponse {
   };
 }
 
-class AdminNlpService {
-  private static instance: AdminNlpService;
-
-  private constructor() {}
-
-  public static getInstance(): AdminNlpService {
-    if (!AdminNlpService.instance) {
-      AdminNlpService.instance = new AdminNlpService();
-    }
-    return AdminNlpService.instance;
-  }
-
-  async preflight(file: File, destinationId: number): Promise<NlpPreflightResponse> {
+// ponytail: plain object, no singleton pattern
+export const adminNlpService: {
+  preflight(file: File, destinationId: number): Promise<NlpPreflightResponse>;
+  uploadAndProcess(file: File, destinationId: number, mode?: NlpProcessingMode): Promise<NlpUploadResponse>;
+  getHistory(params?: { destinationId?: number; status?: string; page?: number; limit?: number }): Promise<NlpHistoryResponse>;
+  getHistoryDetail(id: number): Promise<NlpHistoryItem>;
+} = {
+  async preflight(file, destinationId) {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('destination_id', destinationId.toString());
@@ -130,7 +115,7 @@ class AdminNlpService {
     });
 
     return unwrapApiData<NlpPreflightResponse>(res.data);
-  }
+  },
 
   async uploadAndProcess(
     file: File,
@@ -148,7 +133,7 @@ class AdminNlpService {
     });
 
     return unwrapApiData<NlpUploadResponse>(res.data);
-  }
+  },
 
   async getHistory(params: {
     destinationId?: number;
@@ -166,12 +151,10 @@ class AdminNlpService {
     });
 
     return normalizeHistoryResponse(res.data);
-  }
+  },
 
-  async getHistoryDetail(id: number): Promise<NlpHistoryItem> {
+  async getHistoryDetail(id) {
     const res = await api.get(`/api/admin/nlp/history/${id}`);
     return unwrapApiData<NlpHistoryItem>(res.data);
-  }
-}
-
-export const adminNlpService = AdminNlpService.getInstance();
+  },
+};

@@ -147,84 +147,57 @@ function fallbackDownloadFileName(jobId: number) {
 }
 
 // Service API untuk pencarian Maps, job scraping, history, dan download.
-class AdminScraperService {
-  private static instance: AdminScraperService;
-
-  private constructor() {}
-
-  public static getInstance(): AdminScraperService {
-    if (!AdminScraperService.instance) {
-      AdminScraperService.instance = new AdminScraperService();
-    }
-    return AdminScraperService.instance;
-  }
-
-  // Mencari tempat di Google Maps.
-  async searchMaps(query: string): Promise<PlaceResult[]> {
+// ponytail: plain object, no singleton pattern
+export const adminScraperService: {
+  searchMaps(query: string): Promise<PlaceResult[]>;
+  startScraping(data: StartScrapingRequest): Promise<StartScrapingResponse>;
+  getOverview(destinationId: number, mapsUrl?: string): Promise<ScraperOverview>;
+  getJobStatus(jobId: number): Promise<ScrapingJob>;
+  getAllJobs(page?: number, limit?: number, status?: string): Promise<PaginatedResponse<ScrapingJob>>;
+  getHistory(page?: number, limit?: number, destinationId?: number): Promise<PaginatedResponse<ScrapingHistoryItem>>;
+  downloadResults(jobId: number): Promise<DownloadResult>;
+} = {
+  async searchMaps(query) {
     const res = await api.get('/api/admin/scraper/search', { params: { q: query } });
-    // Dukung response array langsung atau terbungkus.
     return res.data?.data ?? res.data ?? [];
-  }
+  },
 
-  // Memulai job scraping baru.
-  async startScraping(data: StartScrapingRequest): Promise<StartScrapingResponse> {
+  async startScraping(data) {
     const res = await api.post('/api/admin/scraper/start', data);
     return res.data?.data ?? res.data;
-  }
+  },
 
-  // Mengambil ringkasan live Google Maps dan data yang sudah diproses.
-  async getOverview(destinationId: number, mapsUrl?: string): Promise<ScraperOverview> {
+  async getOverview(destinationId, mapsUrl) {
     const res = await api.get('/api/admin/scraper/overview', {
-      params: {
-        destination_id: destinationId,
-        ...(mapsUrl ? { maps_url: mapsUrl } : {}),
-      },
+      params: { destination_id: destinationId, ...(mapsUrl ? { maps_url: mapsUrl } : {}) },
     });
     return res.data?.data ?? res.data;
-  }
+  },
 
-  // Mengecek status job scraping.
-  async getJobStatus(jobId: number): Promise<ScrapingJob> {
+  async getJobStatus(jobId) {
     const res = await api.get(`/api/admin/scraper/status/${jobId}`);
     return res.data?.data ?? res.data;
-  }
+  },
 
-  // Mengambil daftar job scraping.
-  async getAllJobs(
-    page = 1,
-    limit = 20,
-    status?: string,
-  ): Promise<PaginatedResponse<ScrapingJob>> {
+  async getAllJobs(page = 1, limit = 20, status?) {
     const res = await api.get('/api/admin/scraper/jobs', {
       params: { page, limit, ...(status ? { status } : {}) },
     });
     return res.data?.meta ? res.data : res.data?.data ?? res.data;
-  }
+  },
 
-  // Mengambil riwayat scraping destinasi.
-  async getHistory(
-    page = 1,
-    limit = 10,
-    destinationId?: number,
-  ): Promise<PaginatedResponse<ScrapingHistoryItem>> {
+  async getHistory(page = 1, limit = 10, destinationId?) {
     const res = await api.get('/api/admin/scraper/history', {
       params: { page, limit, ...(destinationId ? { destination_id: destinationId } : {}) },
     });
     return res.data?.meta ? res.data : res.data?.data ?? res.data;
-  }
+  },
 
-  // Mengunduh hasil scraping.
-  async downloadResults(jobId: number): Promise<DownloadResult> {
-    const res = await api.get(`/api/admin/scraper/download/${jobId}`, {
-      responseType: 'blob',
-    });
+  async downloadResults(jobId) {
+    const res = await api.get(`/api/admin/scraper/download/${jobId}`, { responseType: 'blob' });
     return {
       blob: res.data,
-      filename:
-        parseDownloadFileName(res.headers['content-disposition']) ??
-        fallbackDownloadFileName(jobId),
+      filename: parseDownloadFileName(res.headers['content-disposition']) ?? fallbackDownloadFileName(jobId),
     };
-  }
-}
-
-export const adminScraperService = AdminScraperService.getInstance();
+  },
+};

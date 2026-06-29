@@ -95,19 +95,25 @@ type RawRoute = TravelRoute & {
 };
 
 function normalizeRoute(route: RawRoute): TravelRoute {
+  const stops: RouteStop[] = Array.isArray(route.stops) ? route.stops : [];
+  // ponytail: kalkulasi ulang dari stops — jangan pake DB value yg mungkin stale/buggy
+  const totalKm = stops.reduce((s, st) => s + (st.distanceToNextKm || 0), 0);
+  const calcKm = totalKm > 0 ? Math.round(totalKm * 100) / 100 : null;
+  const calcMin = totalKm > 0 ? Math.round(totalKm * 3) : null;
+
   return {
     ...route,
     shareSlug: route.shareSlug || route.share_slug || String(route.id),
     isAdminCurated: route.isAdminCurated ?? route.is_admin_curated ?? false,
-    totalDistanceKm: route.totalDistanceKm ?? route.total_distance_km,
-    estimatedDurationMinutes: route.estimatedDurationMinutes ?? route.estimated_duration_minutes,
+    totalDistanceKm: calcKm ?? route.totalDistanceKm ?? route.total_distance_km,
+    estimatedDurationMinutes: calcMin,
     createdAt: route.createdAt || route.created_at || '',
     updatedAt: route.updatedAt || route.updated_at || '',
     savedRoutes: route.savedRoutes || route.saved_routes?.map((item) => ({
       id: item.id,
       userId: item.userId ?? item.user_id ?? 0,
     })),
-    stops: Array.isArray(route.stops) ? route.stops : [],
+    stops,
   };
 }
 

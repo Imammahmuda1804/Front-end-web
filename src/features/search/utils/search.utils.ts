@@ -1,21 +1,5 @@
 import type { CategoryOption, SearchMode, SemanticSort } from '../types/search.types';
 
-export const easeOutExpo = [0.16, 1, 0.3, 1] as const;
-
-export const panelMotion = {
-  hidden: { opacity: 0, y: 18 },
-  visible: { opacity: 1, y: 0 },
-};
-
-export const railMotion = {
-  hidden: { opacity: 0, x: -18 },
-  visible: { opacity: 1, x: 0 },
-};
-
-export const subscribeToHydration = () => () => {};
-export const getHydratedSnapshot = () => true;
-export const getServerHydratedSnapshot = () => false;
-
 export const isSearchMode = (value: string | null): value is SearchMode =>
   value === 'keyword' || value === 'semantic';
 

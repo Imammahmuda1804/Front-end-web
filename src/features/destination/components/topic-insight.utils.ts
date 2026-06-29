@@ -61,9 +61,7 @@ export function getSentimentCrowd(breakdown: SentimentBreakdown | undefined) {
   return { label: 'Sentimen campuran', tone: 'bg-amber-50 text-amber-700 border-amber-100', icon: Minus };
 }
 
-export function cleanTopicName(name?: string) {
-  return name?.replace(/^Topic \d+:\s*/, '').trim() || 'Topik perjalanan';
-}
+export { cleanTopicName } from '@/lib/utils';
 
 export function topicDecisionCopy(topicName: string, breakdown: SentimentBreakdown | undefined) {
   const percentages = getSentimentPercentages(breakdown);
