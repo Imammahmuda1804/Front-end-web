@@ -24,8 +24,8 @@ type DistributionBucket = {
   count: number;
 };
 
-const DEST_A_COLOR = 'var(--explore)';
-const DEST_B_COLOR = 'var(--ai)';
+const DEST_A_COLOR = 'var(--success)';
+const DEST_B_COLOR = 'var(--success)';
 
 function ChartShell({ title, description, icon: Icon, children }: { title: string; description: string; icon: ElementType; children: ReactNode }) {
   return (
@@ -57,7 +57,7 @@ export function TopicCoverageParetoChart({ topics, maxDestinations }: { topics: 
 
   return (
     <ChartShell title="Topik paling dominan" description="Pembahasan dengan relasi destinasi terbesar. Gunakan untuk menemukan topik yang terlalu luas atau perlu dipecah." icon={BarChart3}>
-      <div className="relative h-[24rem] min-h-[24rem] w-full min-w-0 overflow-hidden">
+      <div className="relative h-96 min-h-96 w-full min-w-0 overflow-hidden">
         <ResponsiveContainer width="100%" height={384} minWidth={1} minHeight={1}>
           <BarChart data={data} layout="vertical" margin={{ top: 4, right: 24, left: 20, bottom: 4 }}>
             <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e2e8f0" />
@@ -84,7 +84,7 @@ export function CoverageDistributionChart({ data }: { data: DistributionBucket[]
             <Tooltip contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '12px' }} />
             <Bar dataKey="count" name="Jumlah topik" radius={[10, 10, 0, 0]} barSize={44}>
               {data.map((entry, index) => (
-                <Cell key={`${entry.name || 'bucket'}-${index}`} fill={index === 0 ? DEST_B_COLOR : index === 3 ? DEST_A_COLOR : '#94a3b8'} />
+                <Cell key={`${entry.name || 'bucket'}-${index}`} fill={index === 0 ? DEST_B_COLOR : index === 3 ? DEST_A_COLOR : index > 3 ? DEST_A_COLOR : DEST_B_COLOR} />
               ))}
             </Bar>
           </BarChart>

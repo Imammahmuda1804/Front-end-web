@@ -38,7 +38,7 @@ export function ComparisonHeroPanel({
           </p>
         </div>
 
-        <div className="grid gap-3 md:grid-cols-3 xl:min-w-[42rem]">
+        <div className="grid gap-3 md:grid-cols-3 xl:min-w-2xl">
           <HeroInsightCard label="Selisih skor" value={comparisonGap} helper={biggestDelta?.label || 'Pilih destinasi'} icon={Target} tone="orange" />
           <HeroInsightCard label="Tren positif" value={trendSignal} helper="Rasio positif" icon={TrendingUp} tone="emerald" />
           <HeroInsightCard label="Topik pembeda" value={activeTab === 'compare' ? String((dA?.topics?.length || 0) + (dB?.topics?.length || 0)) : String(singleData?.topics?.length || 0)} helper="Topik aktif" icon={Tags} tone="blue" />
@@ -51,7 +51,7 @@ export function ComparisonHeroPanel({
 export function HeroInsightCard({ icon: Icon, label, value, helper, tone }: { icon: ElementType; label: string; value: string; helper: string; tone: 'orange' | 'blue' | 'emerald' }) {
   const toneClass = {
     orange: 'border-orange-100 bg-white text-primary',
-    blue: 'border-sky-100 bg-sky-50 text-ai',
+    blue: 'border-sky-100 bg-white text-amber-500',
     emerald: 'border-emerald-100 bg-emerald-50 text-emerald-700',
   }[tone];
 
@@ -84,7 +84,7 @@ export function ModeButton({ mode, activeTab, onClick, icon: Icon, label }: { mo
 }
 
 export function DestinationSelect({ label, value, destinations, tone, onChange }: { label: string; value: number | ''; destinations: DestinationOption[]; tone: 'orange' | 'blue'; onChange: (value: number | '') => void }) {
-  const accent = tone === 'orange' ? 'text-primary' : 'text-ai';
+  const accent = tone === 'orange' ? 'text-primary' : 'text-primary';
   const options = destinations.map((destination) => ({
     value: String(destination.id),
     label: destination.name,

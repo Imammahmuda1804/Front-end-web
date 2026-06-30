@@ -278,7 +278,7 @@ export function RouteBuilderClient({
               <h2 className="font-black text-slate-950">Aksi</h2>
               <div className="mt-4 space-y-3">
                 <div>
-                  <button type="button" onClick={autoSort} className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-sky-100 bg-sky-50 px-5 text-sm font-black text-ai">
+                  <button type="button" onClick={autoSort} className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-sky-100 bg-sky-50 px-5 text-sm font-black text-amber-500">
                     <Sparkles className="h-4 w-4" />
                     Urutkan otomatis
                   </button>

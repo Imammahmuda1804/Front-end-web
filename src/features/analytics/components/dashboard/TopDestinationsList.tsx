@@ -40,7 +40,7 @@ export default function TopDestinationsList({ destinations }: TopDestinationsLis
                     <span className="text-sm leading-none mb-1">#{i + 1}</span>
                   </div>
                   <div>
-                    <Link href={`/admin/destinations/${dest.id}`} className="font-bold text-slate-800 group-hover:text-primary transition-colors text-sm line-clamp-1">
+                    <Link href={`/admin/detail?destinationId=${dest.id}`} className="font-bold text-slate-800 group-hover:text-primary transition-colors text-sm line-clamp-1">
                       {dest.name}
                     </Link>
                     <div className="mt-0.5 flex items-center gap-1.5 text-xs font-bold text-emerald-600">
@@ -49,7 +49,7 @@ export default function TopDestinationsList({ destinations }: TopDestinationsLis
                     </div>
                   </div>
                 </div>
-                <Link href={`/admin/destinations/${dest.id}`} className="w-8 h-8 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-primary group-hover:text-white group-hover:border-primary transition-[color,background-color,border-color,box-shadow,transform,opacity]">
+                <Link href={`/admin/detail?destinationId=${dest.id}`} className="w-8 h-8 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-primary group-hover:text-white group-hover:border-primary transition-[color,background-color,border-color,box-shadow,transform,opacity]">
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
                 </Link>
               </div>

@@ -31,7 +31,7 @@ export function ScrapingHistoryPanel({
     <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
       <div className="flex flex-col gap-4 border-b border-slate-100 bg-blue-50/60 p-5 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <p className="text-xs font-black uppercase tracking-[0.16em] text-ai">Review hasil scraping</p>
+          <p className="text-xs font-black uppercase tracking-[0.16em] text-amber-500">Review hasil scraping</p>
           <h2 className="mt-1 text-xl font-black text-slate-950">Scraping History</h2>
           <p className="mt-1 text-sm font-bold text-slate-500">File dan batch review yang sudah pernah dihasilkan scraper.</p>
         </div>
@@ -56,7 +56,7 @@ export function ScrapingHistoryPanel({
           <button
             type="button"
             onClick={onRefresh}
-            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-blue-100 bg-white px-4 text-sm font-black text-ai transition hover:bg-ai-container"
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-blue-100 bg-white px-4 text-sm font-black text-blue-500 transition hover:bg-ai-container"
           >
             <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
             Refresh

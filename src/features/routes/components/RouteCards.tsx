@@ -50,11 +50,11 @@ export function RouteCard({ route }: { route: TravelRoute }) {
               <RouteIcon className="h-3.5 w-3.5" />
               {route.stops.length} stop
             </span>
-            <span className="inline-flex items-center gap-1 rounded-md bg-sky-50 px-3 py-1.5 text-ai">
+            <span className="inline-flex items-center gap-1 rounded-md bg-sky-50 px-3 py-1.5 text-emerald-500">
               <Navigation className="h-3.5 w-3.5" />
               {displayKm?.toFixed(1) || '-'} km
             </span>
-            <span className="inline-flex items-center gap-1 rounded-md bg-slate-100 px-3 py-1.5 text-slate-700">
+            <span className="inline-flex items-center gap-1 rounded-md bg-slate-100 px-3 py-1.5 text-amber-500">
               <Clock className="h-3.5 w-3.5" />
               {formatRouteDuration(displayMin)}
             </span>

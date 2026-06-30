@@ -67,8 +67,8 @@ export default function SummaryCards({
       {cards.map((card) => {
         const Icon = card.icon;
         const toneClass = {
-          orange: 'text-primary',
-          blue: 'text-ai',
+          orange: 'text-orange-500',
+          blue: 'text-amber-500',
           emerald: 'text-emerald-700',
           slate: 'text-slate-700',
         }[card.tone];

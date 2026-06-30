@@ -79,7 +79,7 @@ export function SentimentRiskPanel({
     <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-5">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <p className="text-xs font-black uppercase tracking-[0.16em] text-ai">Risiko sentimen</p>
+          <p className="text-xs font-black uppercase tracking-[0.16em] text-warning">Risiko sentimen</p>
           <h3 className="mt-2 text-2xl font-black text-slate-950">{label}</h3>
           <p className="mt-1 text-sm font-semibold text-slate-600">Komposisi sentimen untuk prioritas monitoring admin.</p>
         </div>
@@ -163,7 +163,7 @@ export function MonthlySituationPanel({
     <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
       <div className="mb-5 flex items-start justify-between gap-4">
         <div>
-          <p className="text-xs font-black uppercase tracking-[0.16em] text-ai">Snapshot bulanan</p>
+          <p className="text-xs font-black uppercase tracking-[0.16em] text-amber-300">Snapshot bulanan</p>
           <h3 className="mt-1 text-xl font-black text-slate-950">{latestMonth || 'Belum ada tren'}</h3>
           <p className="mt-2 text-sm font-semibold leading-6 text-slate-600">Periode terbaru untuk membaca perubahan situasi dari bulan sebelumnya.</p>
         </div>
@@ -215,11 +215,11 @@ export function TopicSituationPanel({
             <div key={topic.name} className="rounded-xl border border-slate-100 bg-slate-50/70 p-4">
               <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                 <p className="line-clamp-1 font-black text-slate-950">{topic.name}</p>
-                <span className="w-fit rounded-lg bg-white px-3 py-1.5 text-xs font-black text-ai shadow-sm">{topic.reviews} ulasan</span>
+                <span className="w-fit rounded-lg bg-white px-3 py-1.5 text-xs font-black text-amber-400 shadow-sm">{topic.reviews} ulasan</span>
               </div>
               <div className="mt-3 flex items-center gap-3">
                 <div className="h-2 flex-1 overflow-hidden rounded-full bg-white ring-1 ring-slate-200">
-                  <div className="h-full rounded-full bg-ai" style={{ width: `${Math.min(topic.percentage, 100)}%` }} />
+                  <div className="h-full rounded-full bg-amber-400" style={{ width: `${Math.min(topic.percentage, 100)}%` }} />
                 </div>
                 <span className="w-12 text-right text-sm font-black text-slate-700">{topic.percentage}%</span>
               </div>
@@ -244,7 +244,7 @@ export function OperationalSignalsPanel({ signals }: { signals: OperationalSigna
     <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
       <div className="mb-5 flex items-start justify-between gap-4">
         <div>
-          <p className="text-xs font-black uppercase tracking-[0.16em] text-ai">Sinyal operasional</p>
+          <p className="text-xs font-black uppercase tracking-[0.16em] text-warning">Sinyal operasional</p>
           <h3 className="mt-1 text-xl font-black text-slate-950">Apa yang bisa ditindaklanjuti?</h3>
           <p className="mt-2 text-sm font-semibold leading-6 text-slate-600">Saran ringkas untuk promosi, monitoring, validasi lapangan, dan kelengkapan data.</p>
         </div>
@@ -275,7 +275,7 @@ export function OperationalSignalsPanel({ signals }: { signals: OperationalSigna
 export function TrendDeltaCard({ label, value, delta, tone }: { label: string; value: string; delta: string; tone: Tone }) {
   const toneClass = {
     orange: 'border-orange-100 bg-orange-50 text-primary',
-    blue: 'border-sky-100 bg-sky-50 text-ai',
+    blue: 'border-sky-100 bg-sky-50 text-blue-600',
     emerald: 'border-emerald-100 bg-emerald-50 text-emerald-700',
     amber: 'border-amber-100 bg-amber-50 text-amber-700',
     rose: 'border-rose-100 bg-rose-50 text-rose-700',
@@ -292,7 +292,7 @@ export function TrendDeltaCard({ label, value, delta, tone }: { label: string; v
         <TrendingUp className="h-5 w-5" />
       </div>
       <p className="mt-3 text-sm font-black">{delta}</p>
-      <p className="mt-1 text-xs font-bold opacity-75">vs periode sebelumnya</p>
+      <p className="mt-1 text-xs font-bold opacity-75 ">vs periode sebelumnya</p>
     </article>
   );
 }
@@ -322,7 +322,7 @@ export function TopicPriorityPanel({ topics }: { topics: Array<{ name: string; P
                 </div>
                 <div className="mt-3 flex items-center gap-3">
                   <div className="h-2 flex-1 overflow-hidden rounded-full bg-white ring-1 ring-slate-200">
-                    <div className="h-full rounded-full bg-primary" style={{ width: `${Math.min(topic.Percentage, 100)}%` }} />
+                    <div className="h-full rounded-full bg-amber-400" style={{ width: `${Math.min(topic.Percentage, 100)}%` }} />
                   </div>
                   <span className="w-12 text-right text-sm font-black text-slate-700">{topic.Percentage}%</span>
                 </div>
@@ -347,11 +347,11 @@ export function AdminActionChecklist({ items }: { items: ActionItem[] }) {
     <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
       <div className="mb-5 flex items-start justify-between gap-4">
         <div>
-          <p className="text-xs font-black uppercase tracking-[0.16em] text-ai">Checklist tindakan</p>
+          <p className="text-xs font-black uppercase tracking-[0.16em] text-amber-400">Checklist tindakan</p>
           <h3 className="mt-1 text-xl font-black text-slate-950">Prioritas tindakan admin</h3>
           <p className="mt-2 text-sm font-semibold leading-6 text-slate-600">Tindak lanjut dari sinyal analitik.</p>
         </div>
-        <Target className="h-5 w-5 text-ai" />
+        <Target className="h-5 w-5 text-emerald" />
       </div>
       <div className="space-y-3">
         {items.map((item) => (

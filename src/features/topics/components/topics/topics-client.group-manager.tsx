@@ -205,7 +205,7 @@ export function TopicGroupManager({
     <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
       <div className="mb-4 flex items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-black uppercase tracking-[0.16em] text-ai">Kelompok topik</p>
+          <p className="text-xs font-black uppercase tracking-[0.16em] text-amber-400">Kelompok topik</p>
           <h3 className="mt-1 text-xl font-black text-slate-950">Kelola kelompok pengalaman</h3>
           <p className="mt-1 text-sm font-semibold text-slate-500">Tambah, edit, atau hapus kelompok topik agar insight ulasan lebih mudah dibaca admin.</p>
         </div>
@@ -228,7 +228,7 @@ export function TopicGroupManager({
                 {(group.keywords || []).length > 0 ? (
                   <div className="mt-2 flex flex-wrap gap-1">
                     {(group.keywords || []).slice(0, 3).map((keyword) => (
-                      <span key={`${group.id}-${keyword}`} className="rounded-md bg-white px-2 py-0.5 text-[11px] font-black text-ai">
+                      <span key={`${group.id}-${keyword}`} className="rounded-md bg-white px-2 py-0.5 text-[11px] font-black text-amber-400">
                         {keyword}
                       </span>
                     ))}

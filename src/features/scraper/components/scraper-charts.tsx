@@ -47,7 +47,7 @@ export function StatusDistributionChart({ data }: { data: Array<{ status: string
 
 export function ReviewYieldChart({ data }: { data: Array<{ name: string; reviews: number }> }) {
   return (
-    <ChartShell title="Review Yield Bar" description="Job dengan hasil review terbesar sebagai acuan throughput scraping." icon={BarChart3}>
+    <ChartShell title="Review Yield Bar" description="Job dengan hasil review terbesar sebagai acuan scraping." icon={BarChart3}>
       {data.length === 0 ? (
         <ChartEmpty label="Belum ada job selesai dengan review." />
       ) : (
@@ -58,7 +58,7 @@ export function ReviewYieldChart({ data }: { data: Array<{ name: string; reviews
               <XAxis type="number" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
               <YAxis type="category" dataKey="name" width={110} axisLine={false} tickLine={false} tick={{ fill: '#334155', fontSize: 11, fontWeight: 800 }} />
               <Tooltip contentStyle={{ borderRadius: '14px', border: '1px solid #e2e8f0', fontSize: '12px' }} />
-              <Bar dataKey="reviews" name="Review" fill="var(--explore)" radius={[0, 10, 10, 0]} barSize={18} />
+              <Bar dataKey="reviews" name="Review" fill="var(--success)" radius={[0, 10, 10, 0]} barSize={18} />
             </BarChart>
           </ResponsiveContainer>
         </div>

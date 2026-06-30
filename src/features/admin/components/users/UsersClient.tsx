@@ -279,7 +279,7 @@ export function UsersClient() {
                 </h2>
               </div>
               <div className="flex items-center gap-2 rounded-full bg-slate-50 px-3 py-2 text-xs font-bold text-slate-600">
-                <Filter className="h-4 w-4 text-ai" />
+                <Filter className="h-4 w-4 text-amber-500" />
                 {hasFilters ? "Filter aktif" : "Semua data halaman"}
               </div>
             </div>
@@ -288,11 +288,11 @@ export function UsersClient() {
               <Table>
                 <TableHeader>
                   <TableRow className="bg-slate-50/80">
-                    <TableHead className="min-w-[280px] px-5 py-4">Pengguna</TableHead>
-                    <TableHead className="min-w-[140px]">Role</TableHead>
-                    <TableHead className="min-w-[150px]">Status</TableHead>
-                    <TableHead className="min-w-[160px]">Bergabung</TableHead>
-                    <TableHead className="min-w-[180px] text-right">Aksi</TableHead>
+                    <TableHead className="min-w-70 px-5 py-4">Pengguna</TableHead>
+                    <TableHead className="min-w-35">Role</TableHead>
+                    <TableHead className="min-w-37">Status</TableHead>
+                    <TableHead className="min-w-40">Bergabung</TableHead>
+                    <TableHead className="min-w-45 text-right">Aksi</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -364,10 +364,10 @@ export function UsersClient() {
                               label={`Lihat detail ${user.name}`}
                               onClick={() => setDetailUserId(user.id)}
                             >
-                              <Eye className="h-4 w-4 text-ai" />
+                              <Eye className="h-4 w-4 text-blue-500" />
                             </IconAction>
                             <IconAction label={`Edit ${user.name}`} onClick={() => openEdit(user)}>
-                              <Edit className="h-4 w-4 text-explore" />
+                              <Edit className="h-4 w-4 text-warning" />
                             </IconAction>
                             <IconAction
                               label={

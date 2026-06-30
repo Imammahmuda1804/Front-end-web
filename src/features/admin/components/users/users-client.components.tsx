@@ -17,7 +17,7 @@ export function HeroMetric({
   const toneClass = {
     orange: 'bg-orange-100 text-explore',
     emerald: 'bg-emerald-100 text-emerald-700',
-    blue: 'bg-sky-100 text-ai',
+    blue: 'bg-sky-100 text-blue-500',
   }[tone];
 
   return (
@@ -48,7 +48,7 @@ export function HealthCard({
     orange: 'bg-orange-50 text-explore',
     emerald: 'bg-emerald-50 text-emerald-700',
     rose: 'bg-rose-50 text-rose-700',
-    blue: 'bg-sky-50 text-ai',
+    blue: 'bg-sky-50 text-blue-500',
   }[tone];
 
   return (
@@ -101,7 +101,7 @@ export function RoleBadge({ role }: { role: AdminUser['role'] }) {
       className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-extrabold ${
         isAdmin
           ? 'bg-orange-50 text-explore ring-1 ring-orange-200'
-          : 'bg-sky-50 text-ai ring-1 ring-sky-200'
+          : 'bg-sky-50 text-blue-500 ring-1 ring-sky-200'
       }`}
     >
       {isAdmin ? 'Admin' : 'User'}
@@ -213,7 +213,7 @@ export function QueueItem({
   const toneClass = {
     orange: 'bg-orange-50 text-explore',
     rose: 'bg-rose-50 text-rose-700',
-    blue: 'bg-sky-50 text-ai',
+    blue: 'bg-sky-50 text-blue-500',
   }[tone];
 
   return (

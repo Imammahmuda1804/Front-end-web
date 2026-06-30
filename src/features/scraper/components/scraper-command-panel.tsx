@@ -87,7 +87,7 @@ export function ScraperCommandPanel({
         </label>
 
         <div className="rounded-xl border border-blue-100 bg-blue-50/60 p-4">
-          <span className="mb-2 flex items-center gap-2 text-xs font-black uppercase tracking-[0.16em] text-ai">
+          <span className="mb-2 flex items-center gap-2 text-xs font-black uppercase tracking-[0.16em] text-blue-400">
             <Search className="h-3.5 w-3.5" />
             Cari tempat Maps
           </span>
@@ -108,7 +108,7 @@ export function ScraperCommandPanel({
               type="button"
               onClick={onSearchMaps}
               disabled={isSearchingMaps}
-              className="min-h-11 rounded-xl bg-ai px-4 font-black text-white hover:bg-ai/90"
+              className="min-h-11 rounded-xl bg-ai px-4 font-black text-amber-500 hover:bg-ai/90"
             >
               {isSearchingMaps ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
               Cari
@@ -203,7 +203,7 @@ export function ScraperCommandPanel({
         </div>
 
         <Button
-          className="min-h-12 w-full rounded-full bg-primary px-5 font-black text-white shadow-sm shadow-orange-200 hover:bg-primary/90"
+          className="min-h-12 w-full rounded-full bg-emerald-500 px-5 font-black text-white shadow-sm shadow-white hover:bg-emerald/90"
           onClick={onStart}
           disabled={isStarting}
         >

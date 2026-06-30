@@ -40,9 +40,6 @@ export function ReviewFilterBar({
                         <SlidersHorizontal className="h-4 w-4 text-orange-500" />
                         Moderasi review
                     </h3>
-                    <p className="mt-1 text-sm text-slate-500">
-                        Search bersifat cepat pada data halaman ini. Filter lain dikirim ke API dan tersimpan di URL.
-                    </p>
                 </div>
                 <div className="flex flex-wrap gap-2">
                     {hasActiveFilters && (

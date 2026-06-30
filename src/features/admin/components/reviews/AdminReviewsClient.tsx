@@ -166,13 +166,13 @@ export function AdminReviewsClient({ initialFilters }: AdminReviewsClientProps) 
 
                 {selectedDestination && (
                     <div className="mt-4 rounded-lg bg-slate-50 p-3 text-sm text-slate-600">
-                        Review workspace untuk <span className="font-semibold text-slate-900">{selectedDestination.name}</span>, {selectedDestination.city}. Filter dan tab disimpan di URL.
+                        Menampilkan review untuk destianasi <span className="font-semibold text-slate-900">{selectedDestination.name}</span>, {selectedDestination.city}
                     </div>
                 )}
             </section>
 
             {!selectedDestinationId ? (
-                <div className="flex min-h-[360px] flex-col items-center justify-center rounded-lg border border-dashed border-slate-200 bg-slate-50 px-4 py-16 text-center">
+                <div className="flex min-h-360px flex-col items-center justify-center rounded-lg border border-dashed border-slate-200 bg-slate-50 px-4 py-16 text-center">
                     <div className="flex h-16 w-16 items-center justify-center rounded-lg bg-white text-orange-600 shadow-sm">
                         <MessageSquareText className="h-7 w-7" />
                     </div>

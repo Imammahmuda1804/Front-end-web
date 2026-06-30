@@ -1,6 +1,6 @@
 ﻿'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { ElementType } from 'react';
 import {
   AlertTriangle,
@@ -11,6 +11,7 @@ import {
   ThumbsUp,
   TrendingUp,
 } from 'lucide-react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 import { adminDestinationService } from '@/features/admin';
 import {
@@ -47,8 +48,8 @@ export type MetricRow = {
   icon: ElementType;
 };
 
-export const DEST_A_COLOR = 'var(--explore)';
-export const DEST_B_COLOR = 'var(--ai)';
+export const DEST_A_COLOR = '#f59e0b';
+export const DEST_B_COLOR = '#10b981';
 export const SENTIMENT_COLORS = ['#10b981', '#94a3b8', '#ef4444'];
 
 export function percent(value: number | null | undefined) {
@@ -110,10 +111,12 @@ export function CustomTooltip({ active, payload, label }: { active?: boolean; pa
 }
 
 export function CompareClient() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
   const activeTab: Mode = 'compare';
   const [destinations, setDestinations] = useState<DestinationOption[]>([]);
-  const [destA, setDestA] = useState<number | ''>('');
-  const [destB, setDestB] = useState<number | ''>('');
   const [compareData, setCompareData] = useState<CompareResult | null>(null);
   const [trendDataA, setTrendDataA] = useState<TrendData[]>([]);
   const [trendDataB, setTrendDataB] = useState<TrendData[]>([]);
@@ -121,6 +124,33 @@ export function CompareClient() {
   const [topicsB, setTopicsB] = useState<TopicData[]>([]);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const destA = searchParams.get('d1') ? Number(searchParams.get('d1')) : ('' as number | '');
+  const destB = searchParams.get('d2') ? Number(searchParams.get('d2')) : ('' as number | '');
+
+  const updateUrl = useCallback(
+    (param: 'd1' | 'd2', value: number | '') => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (value) {
+        params.set(param, String(value));
+      } else {
+        params.delete(param);
+      }
+      const next = params.toString();
+      router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const handleSwap = useCallback(() => {
+    const params = new URLSearchParams(searchParams.toString());
+    const d1 = params.get('d1');
+    const d2 = params.get('d2');
+    if (d2) params.set('d1', d2); else params.delete('d1');
+    if (d1) params.set('d2', d1); else params.delete('d2');
+    const next = params.toString();
+    router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false });
+  }, [pathname, router, searchParams]);
 
   useEffect(() => {
     let cancelled = false;
@@ -131,8 +161,12 @@ export function CompareClient() {
         if (!cancelled) {
           const list = Array.isArray(res.data) ? res.data : [];
           setDestinations(list);
-          setDestA((current) => current || list[0]?.id || '');
-          setDestB((current) => current || list[1]?.id || '');
+          if (!searchParams.get('d1') && !searchParams.get('d2') && list.length > 0) {
+            const params = new URLSearchParams();
+            params.set('d1', String(list[0].id));
+            if (list[1]) params.set('d2', String(list[1].id));
+            router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+          }
         }
       } catch (error) {
         if (!cancelled) setErrorMessage(getErrorMessage(error, 'Gagal memuat daftar destinasi.'));
@@ -143,6 +177,8 @@ export function CompareClient() {
     return () => {
       cancelled = true;
     };
+    // ponytail: run once on mount, URL is the source of truth
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -186,11 +222,6 @@ export function CompareClient() {
       cancelled = true;
     };
   }, [activeTab, destA, destB]);
-
-  const handleSwap = () => {
-    setDestA(destB);
-    setDestB(destA);
-  };
 
   const selectedA = destinations.find((destination) => destination.id === destA);
   const selectedB = destinations.find((destination) => destination.id === destB);
@@ -294,14 +325,14 @@ export function CompareClient() {
               value={destA}
               destinations={destinations}
               tone="orange"
-              onChange={setDestA}
+              onChange={(val) => updateUrl('d1', val)}
             />
             <button
               type="button"
               onClick={handleSwap}
               disabled={!destA && !destB}
               aria-label="Tukar destinasi pembanding"
-              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border border-sky-200 bg-sky-50 px-4 text-sm font-black text-ai transition-[color,background-color,border-color,box-shadow,transform,opacity] hover:-translate-y-0.5 hover:border-ai disabled:cursor-not-allowed disabled:opacity-40"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border border-sky-200 bg-sky-50 px-4 text-sm font-black text-amber-500 transition-[color,background-color,border-color,box-shadow,transform,opacity] hover:-translate-y-0.5 hover:border-ai disabled:cursor-not-allowed disabled:opacity-40"
             >
               <ArrowRightLeft className="h-4 w-4" />
               Tukar
@@ -311,7 +342,7 @@ export function CompareClient() {
               value={destB}
               destinations={destinations}
               tone="blue"
-              onChange={setDestB}
+              onChange={(val) => updateUrl('d2', val)}
             />
           </div>
 

@@ -98,9 +98,7 @@ export function DestinationAnalytics({ destinationId }: DestinationAnalyticsProp
         dateFormatted: new Date(trend.date).toLocaleDateString('id-ID', { month: 'short', year: '2-digit' }),
     }));
 
-    const handleExport = () => {
-        window.open(adminAnalyticsService.getExportCsvUrl(destinationId), '_blank');
-    };
+    
 
     return (
         <div className="space-y-5">
@@ -120,10 +118,6 @@ export function DestinationAnalytics({ destinationId }: DestinationAnalyticsProp
                     >
                         <RefreshCw className={`h-4 w-4 ${recalculateMutation.isPending ? 'animate-spin' : ''}`} />
                         Hitung ulang
-                    </Button>
-                    <Button onClick={handleExport} variant="outline" className="rounded-full">
-                        <Download className="h-4 w-4" />
-                        Export CSV
                     </Button>
                 </div>
             </div>

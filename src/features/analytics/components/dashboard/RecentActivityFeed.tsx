@@ -90,7 +90,7 @@ export default function RecentActivityFeed({ activity }: RecentActivityFeedProps
   };
 
   const getIconBg = (type: string, status: string) => {
-    if (type === 'registration') return 'bg-sky-50 border-sky-100';
+    if (type === 'registration') return 'bg-blue-300 border-blue-100';
     if (type === 'user_review') return 'bg-emerald-50 border-emerald-100';
     if (type === 'job') {
       if (status === 'COMPLETED' || status === 'completed') return 'bg-emerald-50 border-emerald-100';

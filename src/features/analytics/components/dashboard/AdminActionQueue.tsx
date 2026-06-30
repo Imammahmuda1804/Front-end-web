@@ -15,7 +15,7 @@ type Queue = {
     rating: number | null;
     reviewText: string | null;
     createdAt: string;
-    destination: { id: number; name: string; city: string };
+    destination: { id: number; name: string; city: string; slug?: string };
   }>;
 };
 
@@ -68,7 +68,7 @@ export default function AdminActionQueue({ queue }: Props) {
             const toneClass = {
               rose: 'text-rose-700',
               amber: 'text-amber-700',
-              blue: 'text-ai',
+              blue: 'text-blue-600',
               slate: 'text-slate-600',
             }[action.tone];
 
@@ -89,7 +89,7 @@ export default function AdminActionQueue({ queue }: Props) {
           </div>
           {(queue?.recent_negative_reviews || []).length > 0 ? (
             queue?.recent_negative_reviews.slice(0, 3).map((review) => (
-              <Link key={review.id} href={`/admin/destinations/${review.destination.id}`} className="flex items-start justify-between gap-3 border-b border-slate-100 py-3 transition-colors hover:text-primary">
+              <Link key={review.id} href={`/admin/reviews?destinationId=${review.destination.id}`} className="flex items-start justify-between gap-3 border-b border-slate-100 py-3 transition-colors hover:text-primary">
                 <div className="min-w-0">
                   <p className="truncate text-sm font-black text-slate-950">{review.destination.name}</p>
                   <p className="mt-1 line-clamp-2 text-xs font-semibold leading-5 text-slate-500">

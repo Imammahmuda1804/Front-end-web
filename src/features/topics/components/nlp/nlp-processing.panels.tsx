@@ -64,7 +64,7 @@ export function NlpCommandPanel({
 }) {
   const modes: Array<{ value: NlpProcessingMode; label: string; helper: string; tone: string }> = [
     { value: "skip_existing", label: "Lewati duplikat", helper: "Aman untuk file yang pernah dipakai", tone: "emerald" },
-    { value: "reprocess_existing", label: "Proses ulang", helper: "Hitung ulang review yang sama", tone: "blue" },
+    { value: "reprocess_existing", label: "Proses ulang", helper: "Hitung ulang review yang sama", tone: "amber" },
     { value: "replace_existing", label: "Ganti data", helper: "Hapus data scraping lama destinasi", tone: "rose" },
   ];
 
@@ -149,7 +149,7 @@ export function NlpCommandPanel({
         <ProcessModeSelector modes={modes} mode={mode} onModeChange={onModeChange} />
 
         <Button
-          className="min-h-12 w-full rounded-full bg-primary px-5 font-black text-white shadow-sm shadow-orange-200 hover:bg-primary/90"
+          className="min-h-12 w-full rounded-full bg-success px-5 font-black text-white shadow-sm shadow-white hover:bg-success/90"
           onClick={onSubmit}
           disabled={isProcessing || isPreflighting || !selectedDestination || !file || !preflight}
         >
@@ -227,7 +227,7 @@ function ProcessModeSelector({
             }`}
           >
             <span className="block text-sm font-black text-slate-950">{item.label}</span>
-            <span className={`mt-1 block text-xs font-semibold ${item.tone === "rose" ? "text-rose-600" : item.tone === "blue" ? "text-ai" : "text-emerald-700"}`}>{item.helper}</span>
+            <span className={`mt-1 block text-xs font-semibold ${item.tone === "rose" ? "text-rose-600" : item.tone === "amber" ? "text-amber-700" : item.tone === "blue" ? "text-ai" : "text-emerald-700"}`}>{item.helper}</span>
           </button>
         ))}
       </div>
@@ -290,7 +290,7 @@ export function NlpHistoryPanel({
     <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
       <div className="mb-4 flex items-center justify-between gap-3">
         <div>
-          <p className="text-xs font-black uppercase tracking-[0.16em] text-ai">History process</p>
+          <p className="text-xs font-black uppercase tracking-[0.16em] text-amber-500">History process</p>
           <h2 className="text-xl font-black text-slate-950">Riwayat Proses NLP</h2>
         </div>
         <Button type="button" variant="outline" size="sm" onClick={onRefresh} disabled={loading} className="min-h-11 rounded-full">

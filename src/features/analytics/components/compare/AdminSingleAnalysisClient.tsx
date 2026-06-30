@@ -1,7 +1,8 @@
 ﻿'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { ArrowRightLeft, BarChart2 } from 'lucide-react';
 
 import { adminDestinationService } from '@/features/admin';
@@ -24,13 +25,34 @@ function getErrorMessage(error: unknown, fallback: string) {
 }
 
 export function AdminSingleAnalysisClient() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
   const [destinations, setDestinations] = useState<DestinationOption[]>([]);
-  const [destinationId, setDestinationId] = useState<number | ''>('');
   const [singleData, setSingleData] = useState<DestinationAnalytics | null>(null);
   const [trendData, setTrendData] = useState<TrendData[]>([]);
   const [topics, setTopics] = useState<TopicData[]>([]);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const destinationId = searchParams.get('destinationId')
+    ? Number(searchParams.get('destinationId'))
+    : ('' as number | '');
+
+  const updateUrl = useCallback(
+    (id: number | '') => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (id) {
+        params.set('destinationId', String(id));
+      } else {
+        params.delete('destinationId');
+      }
+      const next = params.toString();
+      router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -41,7 +63,9 @@ export function AdminSingleAnalysisClient() {
         if (!cancelled) {
           const list = Array.isArray(res.data) ? res.data : [];
           setDestinations(list);
-          setDestinationId((current) => current || list[0]?.id || '');
+          if (!searchParams.get('destinationId')) {
+            updateUrl(list[0]?.id || '');
+          }
         }
       } catch (error) {
         if (!cancelled) setErrorMessage(getErrorMessage(error, 'Gagal memuat daftar destinasi.'));
@@ -52,6 +76,8 @@ export function AdminSingleAnalysisClient() {
     return () => {
       cancelled = true;
     };
+    // ponytail: run once on mount, URL is the source of truth
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -139,7 +165,7 @@ export function AdminSingleAnalysisClient() {
           </div>
           <Link
             href="/admin/compare"
-            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-sky-100 bg-white px-5 text-sm font-black text-ai transition hover:border-ai"
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-sky-100 bg-white px-5 text-sm font-black text-amber-400 transition hover:border-ai"
           >
             <ArrowRightLeft className="h-4 w-4" />
             Bandingkan destinasi
@@ -154,7 +180,7 @@ export function AdminSingleAnalysisClient() {
             value={destinationId}
             destinations={destinations}
             tone="orange"
-            onChange={setDestinationId}
+            onChange={updateUrl}
           />
           <p className="text-sm font-semibold text-slate-500">
             Data akan dimuat otomatis setelah destinasi dipilih.

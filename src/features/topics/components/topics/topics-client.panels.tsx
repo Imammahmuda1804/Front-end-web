@@ -206,7 +206,7 @@ export function TopicCommandPanel({
             type="button"
             onClick={onOpenMerge}
             variant="outline"
-            className="min-h-12 whitespace-nowrap rounded-lg px-4 font-black text-ai hover:border-sky-200 hover:bg-sky-50"
+            className="min-h-12 whitespace-nowrap rounded-lg px-4 font-black text-amber-700 hover:border-sky-200 hover:bg-sky-50"
           >
             <GitMerge className="h-4 w-4" />
             Gabungkan
@@ -238,7 +238,7 @@ export function TopicCommandPanel({
             type="button"
             onClick={onAiRename}
             disabled={aiRenamePending || unnamedCount === 0}
-            className="min-h-12 whitespace-nowrap rounded-lg bg-primary px-4 font-black text-white shadow-sm shadow-orange-200 hover:bg-primary/90"
+            className="min-h-12 rounded-lg bg-white px-4 font-black text-amber-400 shadow-sm shadow-amber-300 hover:bg-primary/90"
           >
             {aiRenamePending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
             Bantu beri nama ({unnamedCount})
@@ -312,7 +312,7 @@ export function TopicCloud({ topics, maxDestinations, onSelectTopic }: { topics:
               onClick={() => onSelectTopic(topic.topic_name)}
               title={`${topic.topic_name} (${topic.total_destinations} destinasi)`}
               className={`flex flex-col items-center justify-center rounded-lg border text-center transition hover:-translate-y-0.5 focus:outline-none focus:ring-4 focus:ring-primary/15 ${
-                isOrange ? 'border-orange-200 bg-orange-50 text-primary' : 'border-sky-200 bg-sky-50 text-ai'
+                isOrange ? 'border-orange-200 bg-orange-50 text-primary' : 'border-sky-200 bg-sky-50 text-primary'
               }`}
               style={{ width: size + 34, height: size }}
             >
@@ -371,7 +371,7 @@ export function TopicActionQueue({ items }: { items: ActionItem[] }) {
     <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
       <div className="mb-4 flex items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-black uppercase tracking-[0.16em] text-ai">Antrian tindakan</p>
+          <p className="text-xs font-black uppercase tracking-[0.16em] text-amber-400">Antrian tindakan</p>
           <h3 className="mt-1 text-xl font-black text-slate-950">Prioritas admin</h3>
         </div>
         <Target className="h-5 w-5 text-ai" />
@@ -388,7 +388,7 @@ export function TopicActionQueue({ items }: { items: ActionItem[] }) {
 export function ActionQueueItem({ item }: { item: ActionItem }) {
   const toneClass = {
     orange: 'border-orange-100 bg-orange-50 text-primary',
-    blue: 'border-sky-100 bg-sky-50 text-ai',
+    blue: 'border-sky-100 bg-sky-50 text-blue-500',
     emerald: 'border-emerald-100 bg-emerald-50 text-emerald-700',
     amber: 'border-amber-100 bg-amber-50 text-amber-700',
     rose: 'border-rose-100 bg-rose-50 text-rose-700',

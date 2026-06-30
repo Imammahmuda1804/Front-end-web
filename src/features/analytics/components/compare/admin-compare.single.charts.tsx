@@ -66,7 +66,7 @@ export function MonthlySentimentLineChart({
   data: Array<{ name: string; year?: string; Positif: number; Netral: number; Negatif: number; PosRate: number }>;
 }) {
   return (
-    <div className="relative h-[18rem] min-h-[18rem] w-full min-w-0 overflow-hidden">
+    <div className="relative h-72 min-h-72 w-full min-w-0 overflow-hidden">
       <ResponsiveContainer width="100%" height={288} minWidth={1} minHeight={1}>
         <LineChart data={data} margin={{ top: 10, right: 18, left: -12, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />

@@ -105,7 +105,7 @@ export function SingleAnalysisView({
     {
       label: topics.length > 0 ? `Validasi topik: ${cleanTopicName(topics[0].topic_name)}` : 'Lengkapi pemetaan topik',
       helper: topics.length > 0 ? 'Prioritas konten' : 'Belum ada topik',
-      tone: topics.length > 0 ? 'blue' : 'amber',
+      tone: topics.length > 0 ? 'emerald' : 'amber',
       done: topics.length > 0,
     },
     {

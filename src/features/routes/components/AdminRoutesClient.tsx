@@ -142,7 +142,7 @@ export function AdminRoutesClient() {
                     setEditingRoute(route);
                     setShowBuilder(true);
                   }}
-                  className="inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-lg border border-sky-100 bg-sky-50 px-3 text-xs font-black text-ai"
+                  className="inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-lg border border-amber-100 bg-white px-3 text-xs font-black text-warning"
                 >
                   <Pencil className="h-4 w-4" />
                   Edit

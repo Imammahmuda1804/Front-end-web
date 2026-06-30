@@ -95,7 +95,7 @@ export function buildOperationalSignals({
       label: 'Promosi destinasi',
       status: positiveRatio >= 70 ? 'Layak didorong' : 'Pilih momentum',
       helper: positiveRatio >= 70 ? 'Sentimen positif cukup kuat untuk bahan kampanye atau rekomendasi.' : 'Promosi sebaiknya menunggu isu utama lebih stabil.',
-      tone: positiveRatio >= 70 ? 'emerald' : 'blue',
+      tone: positiveRatio >= 70 ? 'emerald' : 'amber',
     },
     {
       label: 'Monitoring keluhan',
