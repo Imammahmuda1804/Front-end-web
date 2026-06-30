@@ -434,10 +434,10 @@ export function UsersClient() {
             description="Pantau jumlah admin agar akses tetap terkendali."
             firstLabel="Admin"
             firstValue={adminCount}
-            firstColor="bg-explore"
+            firstColor="bg-emerald-500"
             secondLabel="User"
             secondValue={userCount}
-            secondColor="bg-ai"
+            secondColor="bg-blue-500"
           />
           <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
             <p className="text-xs font-black uppercase tracking-[0.18em] text-explore">
