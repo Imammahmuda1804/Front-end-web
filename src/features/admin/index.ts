@@ -7,10 +7,11 @@ export {
   adminDestinationService,
   type AdminDestination,
   type DestinationListResponse,
-  type DestinationImage,
   type DestinationData,
   type DestinationQueryParams,
 } from './services/destination.service';
+
+export type { DestinationImage } from '@/features/destination/components/detail.types';
 
 // Service & tipe admin user
 export {

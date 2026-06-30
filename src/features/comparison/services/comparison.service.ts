@@ -1,5 +1,9 @@
 import { api } from '@/lib/axios';
 
+function getApiUrl(): string {
+  return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+}
+
 export const comparisonService = {
   getCompareData: async (dest1Id: number, dest2Id: number) => {
     const res = await api.get('/api/analytics/compare', {

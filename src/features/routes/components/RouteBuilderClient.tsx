@@ -7,6 +7,7 @@ import { ArrowDown, ArrowUp, Eye, MapPin, Plus, Route as RouteIcon, Sparkles, Tr
 import { toast } from 'sonner';
 import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select';
 import { routesService, RoutePayload, RouteVisibility, TravelRoute } from '../services/routes.service';
+import { api } from '@/lib/axios';
 import type { RouteWaypoint } from './RoutePlannerMap';
 
 const RoutePlannerMap = dynamic(
