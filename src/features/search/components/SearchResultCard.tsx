@@ -103,7 +103,7 @@ export default function SearchResultCard({
               className="object-cover transition-transform duration-700 motion-safe:group-hover:scale-105"
             />
             {!featured && (
-              <div className="absolute inset-x-2 bottom-2 rounded-lg bg-white/95 px-2 py-1 text-center text-[11px] font-black text-ai shadow-sm">
+              <div className="absolute inset-x-2 bottom-2 rounded-lg bg-white/95 px-2 py-1 text-center text-[11px] font-black text-emerald-500 shadow-sm">
                 {searchMode === 'semantic' && matchScore !== undefined ? `${formatPercent(matchScore)} sesuai` : 'Detail'}
               </div>
             )}
@@ -136,9 +136,9 @@ export default function SearchResultCard({
               </div>
 
               {recommendationScore !== undefined && featured && (
-                <div className="shrink-0 rounded-lg bg-ai-container px-2.5 py-1.5 text-right text-ai">
+                <div className="shrink-0 rounded-lg bg-ai-container px-2.5 py-1.5 text-right text-amber-500">
                   <span className="block text-[10px] font-black uppercase tracking-[0.14em] text-amber/75">Skor rekomendasi</span>
-                  <span className={`${featured ? 'text-2xl' : 'text-xl'} font-black leading-none text-emerald-500`}>{(recommendationScore * 100).toFixed(0)}</span>
+                  <span className={`${featured ? 'text-2xl' : 'text-xl'} font-black leading-none text-emerald-400`}>{(recommendationScore * 100).toFixed(0)}</span>
                 </div>
               )}
             </div>
@@ -170,7 +170,7 @@ export default function SearchResultCard({
                   Positif: <span className="font-black text-slate-900">{formatPercent(positiveRatio)}</span>
                 </span>
               </div>
-              <span className="inline-flex min-h-11 shrink-0 items-center justify-center gap-1 rounded-lg bg-amber-200 px-3.5 text-sm font-black text-amber-100 transition-colors group-hover:bg-amber-500/10 group-hover:text-amber-500">
+              <span className="inline-flex min-h-11 shrink-0 items-center justify-center gap-1 rounded-lg bg-amber-200 px-3.5 text-sm font-black text-amber-400 transition-colors group-hover:bg-amber-500/10 group-hover:text-amber-500">
                 <ImageIcon className="h-4 w-4" />
                 {featured ? 'Lihat detail' : 'Buka'}
                 <ArrowRight className="h-4 w-4 transition-transform motion-safe:group-hover:translate-x-1" />
