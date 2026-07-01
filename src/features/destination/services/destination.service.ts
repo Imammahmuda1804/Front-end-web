@@ -3,7 +3,7 @@ import { type SearchDestination } from '@/features/search';
 import { type DestinationDetail } from '../components/detail.types';
 
 const getServerApiUrl = () => {
-  return process.env.API_INTERNAL_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+  return (process.env.API_INTERNAL_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000').replace(/\/+$/, '');
 };
 
 export const destinationService = {
