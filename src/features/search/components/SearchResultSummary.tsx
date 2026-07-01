@@ -47,14 +47,14 @@ export function SearchResultSummary({
 
         {searchMode === 'semantic' && (
           <div className="w-full rounded-lg border border-ai/15 bg-ai-container p-2 shadow-sm shadow-blue-900/5 sm:w-auto">
-            <span className="mb-2 block px-2 text-[11px] font-black uppercase tracking-[0.14em] text-ai">Urutan hasil</span>
+            <span className="mb-2 block px-2 text-[11px] font-black uppercase tracking-[0.14em] text-amber-500">Urutan hasil</span>
             <div className="grid grid-cols-2 gap-1" role="group" aria-label="Urutan hasil semantik">
               <button
                 type="button"
                 onClick={() => onSortChange('hybrid')}
                 aria-pressed={semanticSort === 'hybrid' ? "true" : "false"}
                 className={`min-h-11 rounded-lg px-3 text-sm font-black transition-colors ${
-                  semanticSort === 'hybrid' ? 'bg-explore text-white shadow-sm shadow-orange-900/15' : 'text-slate-700 hover:bg-white hover:text-explore'
+                  semanticSort === 'hybrid' ? 'bg-sky-500/10 text-sky-500 shadow-sm shadow-orange-900/15' : 'text-sky-700 hover:bg-white hover:text-sky-500'
                 }`}
               >
                 Rekomendasi
@@ -64,7 +64,7 @@ export function SearchResultSummary({
                 onClick={() => onSortChange('relevance')}
                 aria-pressed={semanticSort === 'relevance' ? "true" : "false"}
                 className={`min-h-11 rounded-lg px-3 text-sm font-black transition-colors ${
-                  semanticSort === 'relevance' ? 'bg-ai text-white shadow-sm shadow-blue-900/15' : 'text-slate-700 hover:bg-white hover:text-ai'
+                  semanticSort === 'relevance' ? 'bg-emerald-100 text-emerald-500 shadow-sm shadow-blue-900/15' : 'text-slate-700 hover:bg-white hover:text-emerald-500'
                 }`}
               >
                 Paling sesuai

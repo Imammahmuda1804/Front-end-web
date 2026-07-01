@@ -116,7 +116,7 @@ export default function SearchResultCard({
               )}
               {searchMode === 'semantic' && matchScore !== undefined && (
                 <span className="inline-flex items-center gap-1.5 rounded-lg border-2 border-white bg-ai px-3 py-1.5 text-xs font-black text-white shadow-sm">
-                  <Sparkles className="h-3.5 w-3.5 text-white" />
+                  <Sparkles className="h-3.5 w-3.5 text-emerald-500" />
                   {(matchScore * 100).toFixed(0)}% sesuai
                 </span>
               )}
@@ -137,8 +137,8 @@ export default function SearchResultCard({
 
               {recommendationScore !== undefined && featured && (
                 <div className="shrink-0 rounded-lg bg-ai-container px-2.5 py-1.5 text-right text-ai">
-                  <span className="block text-[10px] font-black uppercase tracking-[0.14em] text-ai/75">Skor rekomendasi</span>
-                  <span className={`${featured ? 'text-2xl' : 'text-xl'} font-black leading-none text-ai`}>{(recommendationScore * 100).toFixed(0)}</span>
+                  <span className="block text-[10px] font-black uppercase tracking-[0.14em] text-amber/75">Skor rekomendasi</span>
+                  <span className={`${featured ? 'text-2xl' : 'text-xl'} font-black leading-none text-emerald-500`}>{(recommendationScore * 100).toFixed(0)}</span>
                 </div>
               )}
             </div>
@@ -148,7 +148,7 @@ export default function SearchResultCard({
                 {getDestinationCategoryLabel(destination.category)}
               </span>
               {topTopics.map((topic, topicIndex) => (
-                <span key={`${destination.id}-top-topic-${topic.id}-${topicIndex}`} className="max-w-full truncate rounded-lg border border-ai/15 bg-ai-container px-2.5 py-1 text-[11px] font-extrabold text-ai">
+                <span key={`${destination.id}-top-topic-${topic.id}-${topicIndex}`} className="max-w-full truncate rounded-lg border border-ai/15 bg-white px-2.5 py-1 text-[11px] font-extrabold text-amber-500">
                   {topicIndex === 0 ? 'Paling dibahas: ' : ''}
                   {getDestinationTopicLabel(topic)}
                 </span>
@@ -170,7 +170,7 @@ export default function SearchResultCard({
                   Positif: <span className="font-black text-slate-900">{formatPercent(positiveRatio)}</span>
                 </span>
               </div>
-              <span className="inline-flex min-h-11 shrink-0 items-center justify-center gap-1 rounded-lg bg-ai px-3.5 text-sm font-black text-white transition-colors group-hover:bg-explore group-hover:text-white">
+              <span className="inline-flex min-h-11 shrink-0 items-center justify-center gap-1 rounded-lg bg-amber-200 px-3.5 text-sm font-black text-amber-100 transition-colors group-hover:bg-amber-500/10 group-hover:text-amber-500">
                 <ImageIcon className="h-4 w-4" />
                 {featured ? 'Lihat detail' : 'Buka'}
                 <ArrowRight className="h-4 w-4 transition-transform motion-safe:group-hover:translate-x-1" />
