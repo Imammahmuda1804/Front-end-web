@@ -170,7 +170,7 @@ export default function SearchResultCard({
                   Positif: <span className="font-black text-slate-900">{formatPercent(positiveRatio)}</span>
                 </span>
               </div>
-              <span className="inline-flex min-h-11 shrink-0 items-center justify-center gap-1 rounded-lg bg-amber-200 px-3.5 text-sm font-black text-amber-400 transition-colors group-hover:bg-amber-500/10 group-hover:text-amber-500">
+              <span className="inline-flex min-h-11 shrink-0 items-center justify-center gap-1 rounded-lg bg-amber-100 px-3.5 text-sm font-black text-amber-400 transition-colors group-hover:bg-amber-300 group-hover:text-amber-500">
                 <ImageIcon className="h-4 w-4" />
                 {featured ? 'Lihat detail' : 'Buka'}
                 <ArrowRight className="h-4 w-4 transition-transform motion-safe:group-hover:translate-x-1" />
