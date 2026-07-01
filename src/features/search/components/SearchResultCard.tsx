@@ -102,9 +102,9 @@ export default function SearchResultCard({
               sizes={featured ? '(max-width: 1280px) 100vw, 55vw' : '(max-width: 768px) 35vw, 12vw'}
               className="object-cover transition-transform duration-700 motion-safe:group-hover:scale-105"
             />
-            {!featured && (
+            {!featured && searchMode !== 'semantic' && (
               <div className="absolute inset-x-2 bottom-2 rounded-lg bg-white/95 px-2 py-1 text-center text-[11px] font-black text-emerald-500 shadow-sm">
-                {searchMode === 'semantic' && matchScore !== undefined ? `${formatPercent(matchScore)} sesuai` : 'Detail'}
+                Detail
               </div>
             )}
             <div className={`absolute flex flex-wrap gap-2 ${featured ? 'left-4 top-4' : 'left-2 top-2'}`}>
@@ -115,7 +115,7 @@ export default function SearchResultCard({
                 </span>
               )}
               {searchMode === 'semantic' && matchScore !== undefined && (
-                <span className="inline-flex items-center gap-1.5 rounded-lg border-2 border-white bg-ai px-3 py-1.5 text-xs font-black text-white shadow-sm">
+                <span className="inline-flex items-center gap-1.5 rounded-lg border-2 border-white bg-ai px-3 py-1.5 text-xs font-black text-emerald-500 shadow-sm">
                   <Sparkles className="h-3.5 w-3.5 text-emerald-500" />
                   {(matchScore * 100).toFixed(0)}% sesuai
                 </span>
