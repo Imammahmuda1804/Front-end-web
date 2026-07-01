@@ -82,21 +82,22 @@ api.interceptors.response.use(
           refresh_token: refreshToken
         });
 
-        // Ambil data dari response backend.
-        const newAccessToken = data.data?.access_token || data.access_token;
-        const newRefreshToken = data.data?.refresh_token || data.refresh_token;
+        // Ambil data dari response backend (terbungkus TransformInterceptor).
+        const responseData = data.data || data;
+        const newAccessToken = responseData.access_token;
+        const newRefreshToken = responseData.refresh_token;
+        const user = responseData.user;
 
         if (newAccessToken) {
-          // Memperbarui auth store.
-          useAuthStore.getState().setAccessToken(newAccessToken);
-          const currentUser = useAuthStore.getState().user;
-          if (currentUser && newRefreshToken) {
-            useAuthStore.getState().setAuth(currentUser, newAccessToken, newRefreshToken);
+          if (user && newRefreshToken) {
+            useAuthStore.getState().setAuth(user, newAccessToken, newRefreshToken);
+          } else {
+            useAuthStore.getState().setAccessToken(newAccessToken);
           }
 
           api.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
           originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
-          
+
           processQueue(null, newAccessToken);
           return api(originalRequest);
         }

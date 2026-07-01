@@ -1,20 +1,9 @@
-import type { NlpUploadResponse } from "../../services/nlp.service";
-
 export type Tone = "orange" | "blue" | "emerald" | "amber" | "rose" | "slate";
 
 export function formatFileSize(bytes: number) {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1048576) return `${(bytes / 1024).toFixed(1)} KB`;
   return `${(bytes / 1048576).toFixed(1)} MB`;
-}
-
-export function sentimentTotal(result: NlpUploadResponse | null) {
-  if (!result) return 0;
-  return result.nlp_summary.positive + result.nlp_summary.neutral + result.nlp_summary.negative;
-}
-
-export function sentimentPercent(value: number, total: number) {
-  return total > 0 ? Math.round((value / total) * 100) : 0;
 }
 
 export function formatDateTime(value?: string | null) {

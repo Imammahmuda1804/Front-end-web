@@ -122,7 +122,7 @@ export function UserDetailModal({ userId, open, onOpenChange }: UserDetailModalP
                   <div className="min-w-0">
                     <h3 className="truncate text-2xl font-black text-slate-950">{user.name}</h3>
                     <p className="mt-2 flex items-center gap-2 text-sm font-semibold text-slate-600">
-                      <Mail className="h-4 w-4 text-ai" />
+                      <Mail className="h-4 w-4 text-emerald-500" />
                       <span className="truncate">{user.email}</span>
                     </p>
                     <div className="mt-3 flex flex-wrap gap-2">
@@ -168,7 +168,11 @@ export function UserDetailModal({ userId, open, onOpenChange }: UserDetailModalP
                       onClick={() => setActiveTab(tab.key)}
                       className={`flex min-h-11 items-center gap-2 rounded-full px-4 text-sm font-extrabold transition ${
                         isActive
-                          ? "bg-explore text-white shadow-sm"
+                          ? activeTab === "reviews"
+                            ? "bg-amber-500 text-white shadow-sm"
+                            : activeTab === "favorites"
+                              ? "bg-rose-500 text-white shadow-sm"
+                              : "bg-blue-500 text-white shadow-sm"
                           : "bg-slate-50 text-slate-600 hover:bg-slate-100"
                       }`}
                     >
@@ -329,7 +333,7 @@ function OverviewCard({
   const toneClass = {
     orange: "bg-orange-50 text-explore",
     rose: "bg-rose-50 text-rose-700",
-    blue: "bg-sky-50 text-ai",
+    blue: "bg-sky-50 text-blue-500",
     emerald: "bg-emerald-50 text-emerald-700",
   }[tone];
 
@@ -349,8 +353,8 @@ function RoleBadge({ role }: { role: AdminUserDetail["role"] }) {
     <span
       className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-extrabold ${
         role === "ADMIN"
-          ? "bg-orange-50 text-explore ring-1 ring-orange-200"
-          : "bg-sky-50 text-ai ring-1 ring-sky-200"
+          ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200"
+          : "bg-sky-50 text-blue-600 ring-1 ring-sky-200"
       }`}
     >
       <Shield className="h-3.5 w-3.5" />

@@ -19,7 +19,7 @@ import {
   PipelineStepIndicator,
 } from "./nlp-processing.panels";
 import { NlpResultWorkspace } from "./nlp-processing.result";
-import { formatFileSize, sentimentPercent, sentimentTotal } from "./nlp-processing.utils";
+import { formatFileSize } from "./nlp-processing.utils";
 
 // Mengelola upload file review dan proses NLP manual dari admin.
 export default function NlpProcessingClient() {
@@ -98,10 +98,8 @@ export default function NlpProcessingClient() {
     [destinations, selectedDestination],
   );
 
-  const total = sentimentTotal(result);
-  const positiveRatio = result ? sentimentPercent(result.nlp_summary.positive, total) : 0;
-  const negativeRatio = result ? sentimentPercent(result.nlp_summary.negative, total) : 0;
   const pipelineReadiness = [Boolean(selectedDestination), Boolean(file), !isProcessing].filter(Boolean).length;
+  const isQueued = result?.status === "queued" || result?.status === "processing";
 
   const resetPreflightState = () => {
     setPreflight(null);
@@ -162,7 +160,7 @@ export default function NlpProcessingClient() {
     try {
       const res = await adminNlpService.uploadAndProcess(file, Number(selectedDestination), mode);
       setResult(res);
-      toast.success(`Berhasil. ${res.total_reviews_processed} ulasan diproses, ${res.skipped_duplicates} duplikat dilewati.`);
+      toast.success(`${res.message}`);
       void fetchHistory();
     } catch (error) {
       const maybeError = error as { response?: { data?: { message?: string } }; message?: string };
@@ -180,8 +178,8 @@ export default function NlpProcessingClient() {
         description="Upload file hasil scraping, jalankan sentiment analysis, topic modelling, dan embedding untuk memperbarui insight destinasi."
         insights={[
           { label: "File siap proses", value: file ? "Siap" : "Belum", helper: file ? formatFileSize(file.size) : "Upload Excel/CSV", icon: FileSpreadsheet, tone: file ? "emerald" : "amber" },
-          { label: "Review diproses", value: result ? String(result.total_reviews_processed) : "-", helper: result?.destination_name || selectedDestinationName || "Belum ada hasil", icon: MessageSquareText, tone: "blue" },
-          { label: "Rasio positif", value: result ? `${positiveRatio}%` : "-", helper: result ? "Hasil terakhir" : "Belum proses", icon: BarChart3, tone: result ? "emerald" : "slate" },
+          { label: "Review diproses", value: result ? String(result.total_reviews) : "-", helper: result?.destination_name || selectedDestinationName || "Belum ada hasil", icon: MessageSquareText, tone: result ? "blue" : "slate" },
+          { label: "Status", value: result ? (isQueued ? "Antrean" : result.status) : "-", helper: result ? "Cek riwayat untuk hasil" : "Belum proses", icon: BarChart3, tone: result ? "amber" : "slate" },
         ]}
       />
 
@@ -208,7 +206,7 @@ export default function NlpProcessingClient() {
 
         <div className="space-y-6">
           <PipelineStepIndicator selectedDestination={Boolean(selectedDestination)} fileReady={Boolean(file)} isProcessing={isProcessing} hasResult={Boolean(result)} />
-          <NlpResultWorkspace result={result} isProcessing={isProcessing} selectedDestinationId={selectedDestination} positiveRatio={positiveRatio} negativeRatio={negativeRatio} />
+          <NlpResultWorkspace result={result} isProcessing={isProcessing} />
           <NlpHistoryPanel history={history} loading={historyLoading} error={historyError} selectedHistory={selectedHistory} onSelectHistory={setSelectedHistory} onRefresh={fetchHistory} />
         </div>
       </section>

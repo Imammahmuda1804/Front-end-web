@@ -6,18 +6,10 @@ export type NlpProcessingMode = 'skip_existing' | 'reprocess_existing' | 'replac
 export interface NlpUploadResponse {
   message: string;
   run_id: number;
+  status: string;
   mode: NlpProcessingMode;
   destination_name: string;
-  total_reviews_processed: number;
-  inserted_reviews: number;
-  skipped_duplicates: number;
-  scraped_average_rating: number | null;
-  nlp_summary: {
-    total: number;
-    positive: number;
-    negative: number;
-    neutral: number;
-  };
+  total_reviews: number;
 }
 
 export interface NlpPreflightResponse {

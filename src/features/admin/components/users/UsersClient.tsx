@@ -258,7 +258,7 @@ export function UsersClient() {
                 </Button>
                 <Button
                   type="button"
-                  className="h-12 rounded-full bg-explore px-5 font-extrabold text-white shadow-sm hover:bg-explore/90"
+                  className="h-12 rounded-full bg-warning px-5 font-extrabold text-white shadow-sm hover:bg-warning/90"
                   onClick={openAdd}
                 >
                   <Plus className="mr-2 h-4 w-4" />

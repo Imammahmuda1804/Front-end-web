@@ -172,22 +172,22 @@ export function UserFormModal({ open, onOpenChange, onSuccess, initialData }: Us
                   key={item.label}
                   className={`rounded-xl border p-3 transition ${
                     active
-                      ? "border-explore bg-white shadow-sm"
+                      ? "border-amber-500 bg-white shadow-sm"
                       : "border-white/80 bg-white/60"
                   }`}
                 >
                   <div className="flex items-center gap-3">
                     <div
-                      className={`flex h-9 w-9 items-center justify-center rounded-full ${
+                      className={`flex h-9 w-9 items-center justify-center rounded-full border ${
                         active || completed
-                          ? "bg-explore text-white"
-                          : "bg-slate-100 text-slate-500"
+                          ? "border-emerald-500 bg-emerald-500 text-white"
+                          : "border-emerald-100 bg-emerald-100 text-emerald-500"
                       }`}
                     >
                       {completed ? <Check className="h-4 w-4" /> : <Icon className="h-4 w-4" />}
                     </div>
                     <div>
-                      <p className="text-xs font-black uppercase tracking-[0.12em] text-slate-500">
+                      <p className="text-xs font-black uppercase tracking-[0.12em] text-emerald-500">
                         Langkah {stepNumber}
                       </p>
                       <p className="text-sm font-extrabold text-slate-950">{item.label}</p>
@@ -207,7 +207,7 @@ export function UserFormModal({ open, onOpenChange, onSuccess, initialData }: Us
                 <Input
                   id="name"
                   {...register("name")}
-                  className="h-12 rounded-xl border-slate-200 focus-visible:ring-[var(--explore)]"
+                  className="h-12 rounded-xl border-slate-200 focus-visible:ring-emerald-500"
                   placeholder="Contoh: Siti Rahma"
                 />
                 {errors.name && <p className="text-sm font-medium text-rose-600">{errors.name.message}</p>}
@@ -219,7 +219,7 @@ export function UserFormModal({ open, onOpenChange, onSuccess, initialData }: Us
                   id="email"
                   type="email"
                   {...register("email")}
-                  className="h-12 rounded-xl border-slate-200 focus-visible:ring-[var(--explore)]"
+                  className="h-12 rounded-xl border-slate-200 focus-visible:ring-emerald-500"
                   placeholder="nama@email.com"
                 />
                 {errors.email && <p className="text-sm font-medium text-rose-600">{errors.email.message}</p>}
@@ -242,7 +242,7 @@ export function UserFormModal({ open, onOpenChange, onSuccess, initialData }: Us
                     selected={selectedRole === "ADMIN"}
                     title="Admin"
                     description="Akses penuh ke dashboard operasional dan data platform."
-                    tone="orange"
+                    tone="amber"
                     onClick={() => setValue("role", "ADMIN")}
                   />
                 </div>
@@ -273,7 +273,7 @@ export function UserFormModal({ open, onOpenChange, onSuccess, initialData }: Us
             <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_16rem]">
               <div className="rounded-xl border border-slate-200 bg-white p-4">
                 <div className="mb-4 flex items-start gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-orange-50 text-explore">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-explore">
                     <KeyRound className="h-5 w-5" />
                   </div>
                   <div>
@@ -293,7 +293,7 @@ export function UserFormModal({ open, onOpenChange, onSuccess, initialData }: Us
                     id="password"
                     type="password"
                     {...register("password")}
-                    className="h-12 rounded-xl border-slate-200 focus-visible:ring-[var(--explore)]"
+                    className="h-12 rounded-xl border-slate-200 focus-visible:ring-emerald-500"
                     placeholder="Minimal 6 karakter"
                   />
                   {errors.password && (
@@ -346,7 +346,7 @@ export function UserFormModal({ open, onOpenChange, onSuccess, initialData }: Us
             {step < 3 ? (
               <Button
                 type="button"
-                className="rounded-full bg-explore text-white hover:bg-explore/90"
+                className="rounded-full bg-amber-500 text-white hover:bg-amber-600"
                 onClick={nextStep}
               >
                 Selanjutnya
@@ -354,7 +354,7 @@ export function UserFormModal({ open, onOpenChange, onSuccess, initialData }: Us
             ) : (
               <Button
                 type="button"
-                className="rounded-full bg-explore text-white hover:bg-explore/90"
+                className="rounded-full bg-amber-500 text-white hover:bg-amber-600"
                 onClick={handleSubmit(onSubmit)}
                 disabled={isSubmitting}
               >
@@ -396,31 +396,42 @@ function ChoiceCard({
   selected: boolean;
   title: string;
   description: string;
-  tone: "orange" | "blue" | "emerald" | "rose";
+  tone: "amber" | "blue" | "emerald" | "rose";
   onClick: () => void;
 }) {
-  const color = {
-    orange: "bg-explore",
-    blue: "bg-ai",
-    emerald: "bg-emerald-500",
-    rose: "bg-rose-500",
+  const dotColor = {
+    amber: "bg-amber-500 border-amber-500",
+    blue: "bg-blue-500 border-blue-500",
+    emerald: "bg-emerald-500 border-emerald-500",
+    rose: "bg-rose-500 border-rose-500",
+  }[tone];
+
+  const borderColor = "border-emerald-500 bg-emerald-50";
+
+  const ringColor = "focus:ring-emerald-500/30";
+
+  const textColor = {
+    amber: "text-emerald-600",
+    blue: "text-blue-600",
+    emerald: "text-emerald-600",
+    rose: "text-rose-600",
   }[tone];
 
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`min-h-[7rem] rounded-xl border p-4 text-left transition focus:outline-none focus:ring-2 focus:ring-explore/30 ${
-        selected ? "border-explore bg-explore-container shadow-sm" : "border-slate-200 bg-white hover:bg-slate-50"
+      className={`min-h-[7rem] rounded-xl border p-4 text-left transition focus:outline-none ${ringColor} ${
+        selected ? borderColor : "border-slate-200 bg-white hover:bg-slate-50"
       }`}
     >
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <span className={`h-3 w-3 rounded-full ${color}`} />
-          <span className="font-black text-slate-950">{title}</span>
+          <span className={`h-3 w-3 rounded-full ${dotColor}`} />
+          <span className={`font-black ${textColor}`}>{title}</span>
         </div>
         {selected && (
-          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-explore text-white">
+          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500 text-white">
             <Check className="h-3.5 w-3.5" />
           </span>
         )}
