@@ -63,7 +63,7 @@ function SentimentDot({ sentiment }: { sentiment: string | null }) {
 
 function assignmentToneClass(isPrimary: boolean, isActiveTopic: boolean) {
   if (isActiveTopic) return 'border-orange-200 bg-orange-50 text-primary';
-  if (isPrimary) return 'border-sky-100 bg-sky-50 text-ai';
+  if (isPrimary) return 'border-sky-100 bg-sky-50 text-blue-500';
   return 'border-slate-200 bg-white text-slate-600';
 }
 
@@ -108,7 +108,7 @@ function aggregateBreakdown(items: Array<SentimentBreakdown | undefined>) {
 
 function evidenceStrength(total: number) {
   if (total >= 80) return { label: 'Data kuat', detail: 'Banyak ulasan mendukung pola ini.', tone: 'border-emerald-100 bg-emerald-50 text-emerald-700' };
-  if (total >= 25) return { label: 'Data cukup', detail: 'Cukup untuk membaca kecenderungan umum.', tone: 'border-sky-100 bg-sky-50 text-ai' };
+  if (total >= 25) return { label: 'Data cukup', detail: 'Cukup untuk membaca kecenderungan umum.', tone: 'border-sky-100 bg-sky-50 text-blue-500' };
   if (total > 0) return { label: 'Data terbatas', detail: 'Gunakan sebagai petunjuk awal, bukan kesimpulan final.', tone: 'border-amber-100 bg-amber-50 text-amber-700' };
   return { label: 'Belum ada data', detail: 'Belum cukup ulasan untuk membaca pola.', tone: 'border-slate-200 bg-slate-50 text-slate-600' };
 }
@@ -182,7 +182,7 @@ function ReviewTopicInsight({
   return (
     <div className="mt-3 rounded-lg border border-slate-200 bg-white/90 p-3 shadow-sm">
       <div className="mb-2 flex flex-wrap items-center gap-2">
-        <span className="inline-flex items-center gap-1.5 rounded-lg border border-sky-100 bg-sky-50 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-ai">
+        <span className="inline-flex items-center gap-1.5 rounded-lg border border-sky-100 bg-sky-50 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-amber-500">
           <Target className="h-3 w-3" />
           Hal paling terasa
         </span>
@@ -351,7 +351,7 @@ export default function TopicInsightSection({ destinationId, topics, sentimentBr
     <div>
       <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <div className="mb-2 inline-flex items-center gap-2 rounded-lg bg-sky-50 px-3 py-1.5 text-xs font-black uppercase tracking-[0.16em] text-ai">
+          <div className="mb-2 inline-flex items-center gap-2 rounded-lg bg-sky-50 px-3 py-1.5 text-xs font-black uppercase tracking-[0.16em] text-amber-500">
             <Sparkles className="h-3.5 w-3.5" />
             Peta Ulasan
           </div>
@@ -491,7 +491,7 @@ export default function TopicInsightSection({ destinationId, topics, sentimentBr
                 {dt.isGroup && dt.fineTopics && dt.fineTopics.length > 0 && (
                   <div className="mb-4 flex min-w-0 flex-wrap items-center gap-1.5">
                     {dt.fineTopics.slice(0, 3).map((topic) => (
-                      <span key={topic.id} className="max-w-full truncate rounded-md bg-sky-50 px-2.5 py-1 text-[10px] font-extrabold text-ai ring-1 ring-sky-100">
+                      <span key={topic.id} className="max-w-full truncate rounded-md bg-sky-50 px-2.5 py-1 text-[10px] font-extrabold text-amber-500 ring-1 ring-sky-100">
                         {cleanTopicName(topic.topicName)}
                       </span>
                     ))}
