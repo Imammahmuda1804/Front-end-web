@@ -14,6 +14,10 @@ const jakarta = Plus_Jakarta_Sans({
 export const metadata: Metadata = {
   title: "RANAHINSIGHT — Jelajahi Wisata Sumatera Barat dengan AI",
   description: "Temukan destinasi wisata terbaik di Sumatera Barat menggunakan analisis sentimen AI dan rekomendasi cerdas. Powered by NLP & Topic Modelling.",
+  icons: {
+    icon: "/images/logo-icon.png",
+    apple: "/images/logo-icon.png",
+  },
 };
 
 export default function RootLayout({
