@@ -29,7 +29,7 @@ export default function DestinationQualityMatrix({ destinations }: Props) {
       reviewSize: Math.max(40, Math.min(destination.google_review_count || 40, 900)),
     }));
   const hiddenGems = data
-    .filter((destination) => destination.score >= 75 && destination.rating < 4.4)
+    .filter((destination) => destination.score >= 75 && destination.rating < 4.7)
     .slice(0, 4);
 
   return (

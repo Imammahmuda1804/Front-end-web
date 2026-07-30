@@ -20,9 +20,4 @@ export const authService = {
     const { data } = await api.post('/api/auth/logout');
     return data;
   },
-
-  getCurrentUser: async () => {
-    const { data } = await api.get('/api/auth/me');
-    return data;
-  }
 };
