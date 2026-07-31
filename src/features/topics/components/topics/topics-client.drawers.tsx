@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import Link from 'next/link';
 import { AlertTriangle, CheckCircle2, Layers3, MapPin, MessageSquareText, Star, Target, X } from 'lucide-react';
 
@@ -331,6 +332,13 @@ export function TopicReviewsDrawer({
   onPageChange: (page: number) => void;
   onClose: () => void;
 }) {
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, []);
+
   if (!topic) return null;
   const topicNameMap = buildTopicNameMap(topics, topic);
   const selectedDestination = destinationId === 'all'
@@ -411,10 +419,12 @@ export function TopicReviewsDrawer({
               ))}
             </select>
           </label>
+        </div>
 
+        <div className="flex-1 overflow-y-auto p-5">
           <TopicAdminReadingCard summary={summary} total={meta?.total ?? 0} />
 
-          <div className="mt-4 grid gap-2 rounded-lg border border-slate-200 bg-slate-50/80 p-3 sm:grid-cols-3">
+          <div className="mt-3 mb-5 grid gap-2 rounded-lg border border-slate-200 bg-slate-50/80 p-3 sm:grid-cols-3">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.12em] text-slate-400">Cakupan baca</p>
               <p className="mt-1 text-sm font-black leading-5 text-slate-800">{filterContext}</p>
@@ -430,9 +440,7 @@ export function TopicReviewsDrawer({
               </p>
             </div>
           </div>
-        </div>
 
-        <div className="flex-1 overflow-y-auto p-5">
           {loading ? (
             <div className="space-y-3">
               {Array.from({ length: 5 }).map((_, index) => (
