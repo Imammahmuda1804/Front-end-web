@@ -333,11 +333,15 @@ export function TopicReviewsDrawer({
   onClose: () => void;
 }) {
   useEffect(() => {
-    document.body.style.overflow = 'hidden';
+    if (topic) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
     return () => {
       document.body.style.overflow = '';
     };
-  }, []);
+  }, [topic]);
 
   if (!topic) return null;
   const topicNameMap = buildTopicNameMap(topics, topic);
