@@ -193,6 +193,15 @@ function ReviewTopicInsight({
           <span className="truncate">{primaryName}</span>
           <span className="text-[10px] text-orange-500">{primaryScore}%</span>
         </span>
+        {review.sentimentConfidence !== undefined && review.sentimentConfidence !== null && (
+          <span
+            className="inline-flex max-w-full items-center gap-1 rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[11px] font-black text-emerald-700"
+            title={`Sentiment Confidence: ${Math.round(review.sentimentConfidence * 100)}%`}
+          >
+            <span className="truncate">Sentimen</span>
+            <span className="text-[10px] opacity-75">{Math.round(review.sentimentConfidence * 100)}%</span>
+          </span>
+        )}
         {activeName && activeAssignment?.topicId !== primary.topicId ? (
           <span className="inline-flex max-w-full items-center rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-1 text-[11px] font-black text-amber-700">
             Cocok dengan topik dibuka: <span className="ml-1 truncate">{activeName}</span>
@@ -230,6 +239,7 @@ function ReviewTopicInsight({
 
 export default function TopicInsightSection({ destinationId, topics, sentimentBreakdown, topicGroups }: Props) {
   const [expandedTopicId, setExpandedTopicId] = useState<number | null>(null);
+  const [selectedSubTopicId, setSelectedSubTopicId] = useState<number | 'all'>('all');
   const [topicReviews, setTopicReviews] = useState<TopicReview[]>([]);
   const [loading, setLoading] = useState(false);
   const [reviewMeta, setReviewMeta] = useState<{ total: number; page: number; totalPages: number } | null>(null);
@@ -260,14 +270,31 @@ export default function TopicInsightSection({ destinationId, topics, sentimentBr
   const handleTopicClick = useCallback((topicId: number, keywords: string[] | null, mode: 'topic' | 'group' = 'topic') => {
     if (expandedTopicId === topicId) {
       setExpandedTopicId(null);
+      setSelectedSubTopicId('all');
       setTopicReviews([]);
       setReviewMeta(null);
       return;
     }
 
     setExpandedTopicId(topicId);
+    setSelectedSubTopicId('all');
     setActiveKeywords(keywords || []);
     loadReviews(topicId, 1, mode);
+  }, [expandedTopicId, loadReviews]);
+
+  const handleSubTopicFilter = useCallback((subTopicId: number | 'all', keywords: string[] | null = null) => {
+    setSelectedSubTopicId(subTopicId);
+    setTopicReviews([]);
+    setReviewMeta(null);
+    if (keywords) {
+      setActiveKeywords(keywords);
+    }
+
+    if (subTopicId === 'all') {
+      loadReviews(expandedTopicId!, 1, 'group');
+    } else {
+      loadReviews(subTopicId, 1, 'topic');
+    }
   }, [expandedTopicId, loadReviews]);
 
   const groupedTopics: TopicData[] = (topicGroups || []).map((group) => ({
@@ -549,6 +576,37 @@ export default function TopicInsightSection({ destinationId, topics, sentimentBr
                         )}
                       </div>
 
+                      {dt.isGroup && dt.fineTopics && dt.fineTopics.length > 0 && (
+                        <div className="mb-4 flex flex-wrap items-center gap-1.5 border-b border-slate-100 pb-3">
+                          <span className="text-xs font-black text-slate-400 mr-1">Detail Topik:</span>
+                          <button
+                            type="button"
+                            onClick={() => handleSubTopicFilter('all')}
+                            className={`rounded-lg px-2.5 py-1 text-xs font-bold transition ${
+                              selectedSubTopicId === 'all'
+                                ? 'bg-orange-500 text-white shadow-sm'
+                                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                            }`}
+                          >
+                            Semua ({dt.totalReviews || 0})
+                          </button>
+                          {dt.fineTopics.map((subTopic) => (
+                            <button
+                              key={subTopic.id}
+                              type="button"
+                              onClick={() => handleSubTopicFilter(subTopic.id, subTopic.topicName ? [cleanTopicName(subTopic.topicName)] : null)}
+                              className={`rounded-lg px-2.5 py-1 text-xs font-bold transition ${
+                                selectedSubTopicId === subTopic.id
+                                  ? 'bg-orange-500 text-white shadow-sm'
+                                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                              }`}
+                            >
+                              {cleanTopicName(subTopic.topicName)} ({subTopic.totalReviews || 0})
+                            </button>
+                          ))}
+                        </div>
+                      )}
+
                       {loading && topicReviews.length === 0 ? (
                         <div className="flex items-center justify-center py-8">
                           <Loader2 className="mr-2 h-5 w-5 animate-spin text-primary" />
@@ -596,7 +654,13 @@ export default function TopicInsightSection({ destinationId, topics, sentimentBr
                       {reviewMeta && reviewMeta.page < reviewMeta.totalPages && (
                         <button
                           type="button"
-                          onClick={() => loadReviews(dt.topic.id, reviewMeta.page + 1, dt.isGroup ? 'group' : 'topic')}
+                          onClick={() => {
+                            if (selectedSubTopicId === 'all') {
+                              loadReviews(dt.topic.id, reviewMeta.page + 1, 'group');
+                            } else {
+                              loadReviews(selectedSubTopicId, reviewMeta.page + 1, 'topic');
+                            }
+                          }}
                           disabled={loading}
                           aria-label={`Muat ulasan tambahan untuk topik ${topicLabel}`}
                           className="mt-3 min-h-11 w-full cursor-pointer rounded-lg border border-orange-200 bg-orange-50 text-center text-xs font-black text-primary transition-colors hover:bg-orange-100 disabled:text-orange-300"

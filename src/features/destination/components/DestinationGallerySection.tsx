@@ -25,12 +25,20 @@ export default function DestinationGallerySection({
     <section id="galeri" className="scroll-mt-32 rounded-lg border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
       {sectionHeader}
 
-      <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className={`mt-6 grid gap-4 ${
+        images.length === 1
+          ? 'grid-cols-1 max-w-2xl'
+          : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'
+      }`}>
         {images.length > 0 ? images.slice(0, 5).map((img, idx) => (
           <div
             key={`${img}-${idx}`}
             className={`group relative overflow-hidden rounded-lg border border-slate-200 bg-slate-100 shadow-sm ${
-              idx === 0 ? 'aspect-[16/10] sm:col-span-2 lg:row-span-2 lg:aspect-auto' : 'aspect-[4/3]'
+              images.length === 1
+                ? 'aspect-[16/10]'
+                : idx === 0
+                  ? 'aspect-[16/10] sm:col-span-2 lg:row-span-2 lg:aspect-auto'
+                  : 'aspect-[4/3]'
             }`}
           >
             <Image

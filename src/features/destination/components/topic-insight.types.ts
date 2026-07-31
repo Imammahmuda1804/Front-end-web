@@ -39,6 +39,7 @@ export interface TopicReview {
   rating: number | null;
   reviewDate: string | null;
   sentiment: string | null;
+  sentimentConfidence?: number | null;
   likesCount: number | null;
   topicAssignments?: TopicReviewAssignment[];
 }
