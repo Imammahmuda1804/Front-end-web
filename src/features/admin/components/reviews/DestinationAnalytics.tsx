@@ -111,15 +111,6 @@ export function DestinationAnalytics({ destinationId }: DestinationAnalyticsProp
                 </div>
                 <div className="flex flex-col gap-2 sm:flex-row">
                     <Button
-                        onClick={handleExportCsv}
-                        disabled={isExporting}
-                        variant="outline"
-                        className="rounded-full"
-                    >
-                        <Download className={`h-4 w-4 ${isExporting ? 'animate-bounce' : ''}`} />
-                        Ekspor CSV
-                    </Button>
-                    <Button
                         onClick={() => recalculateMutation.mutate()}
                         disabled={recalculateMutation.isPending}
                         variant="outline"
