@@ -17,6 +17,8 @@ export function ReviewFilterBar({
     onChange,
     onReset,
     onCategoryDelete,
+    onExportAll,
+    isExporting,
 }: {
     queryTerm: string;
     setQueryTerm: (value: string) => void;
@@ -31,6 +33,8 @@ export function ReviewFilterBar({
     onChange: (updates: Record<string, string | number | null>) => void;
     onReset: () => void;
     onCategoryDelete: (category: 'all' | 'processed' | 'unprocessed', label: string) => void;
+    onExportAll: () => void;
+    isExporting: boolean;
 }) {
     return (
         <div className="space-y-3">
@@ -48,6 +52,15 @@ export function ReviewFilterBar({
                             Reset
                         </Button>
                     )}
+                    <Button
+                        variant="outline"
+                        className="rounded-full"
+                        onClick={onExportAll}
+                        disabled={isExporting}
+                    >
+                        <Download className={`h-4 w-4 ${isExporting ? 'animate-bounce' : ''}`} />
+                        Ekspor CSV
+                    </Button>
                     <Button
                         variant="destructive"
                         className="rounded-full"

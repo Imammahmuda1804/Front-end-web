@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { NativeSelectOption } from '@/components/ui/native-select';
 import { GetAdminReviewsResponse, Review, adminReviewsService } from '../../services/reviews.service';
+import { adminAnalyticsService } from '@/features/analytics';
 import { ReviewBulkToolbar, ReviewFilterBar } from './reviews-table.controls';
 import { DeleteReviewDialog, ReviewDataTable, ReviewPreviewDrawer } from './reviews-table.data';
 import { ReviewHealthOverviewCards, ReviewPriorityQueue } from './reviews-table.panels';
@@ -139,6 +140,28 @@ export function ReviewsTable({ destinationId }: ReviewsTableProps) {
     const [previewReview, setPreviewReview] = React.useState<Review | null>(null);
     const [deleteTarget, setDeleteTarget] = React.useState<DeleteTarget>(null);
     const [isDeleting, setIsDeleting] = React.useState(false);
+    const [isExporting, setIsExporting] = React.useState(false);
+
+    const handleExportAll = async () => {
+        try {
+            setIsExporting(true);
+            const { data, filename } = await adminAnalyticsService.exportCsv(destinationId);
+            const url = window.URL.createObjectURL(data);
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', filename || `analytics-export-${destinationId}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+            toast.success('Ekspor CSV berhasil');
+        } catch (error) {
+            console.error('Export error:', error);
+            toast.error('Gagal mengekspor data CSV');
+        } finally {
+            setIsExporting(false);
+        }
+    };
 
     const updateQuery = React.useCallback(
         (updates: Record<string, string | number | null>) => {
@@ -300,6 +323,8 @@ export function ReviewsTable({ destinationId }: ReviewsTableProps) {
                         onChange={updateQuery}
                         onReset={resetFilters}
                         onCategoryDelete={(category, label) => setDeleteTarget({ type: 'category', category, label })}
+                        onExportAll={handleExportAll}
+                        isExporting={isExporting}
                     />
                 </div>
 
