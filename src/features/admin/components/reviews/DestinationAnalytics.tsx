@@ -41,6 +41,7 @@ type SentimentDatum = {
 
 export function DestinationAnalytics({ destinationId }: DestinationAnalyticsProps) {
     const queryClient = useQueryClient();
+    const [isExporting, setIsExporting] = React.useState(false);
     const { data: analytics, isLoading: loadingAnalytics } = useQuery({
         queryKey: ['admin-destination-analytics', destinationId],
         queryFn: () => adminAnalyticsService.getDestinationAnalytics(destinationId),
@@ -70,6 +71,27 @@ export function DestinationAnalytics({ destinationId }: DestinationAnalyticsProp
             toast.error('Gagal menghitung ulang analytics');
         },
     });
+
+    const handleExportCsv = async () => {
+        try {
+            setIsExporting(true);
+            const { data, filename } = await adminAnalyticsService.exportCsv(destinationId);
+            const url = window.URL.createObjectURL(data);
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', filename || `analytics-export-${destinationId}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+            toast.success('Ekspor CSV berhasil');
+        } catch (error) {
+            console.error('Export error:', error);
+            toast.error('Gagal mengekspor data CSV');
+        } finally {
+            setIsExporting(false);
+        }
+    };
 
     if (loadingAnalytics || loadingTopics || loadingTrends) {
         return <AnalyticsSkeleton />;
@@ -110,6 +132,15 @@ export function DestinationAnalytics({ destinationId }: DestinationAnalyticsProp
                     </p>
                 </div>
                 <div className="flex flex-col gap-2 sm:flex-row">
+                    <Button
+                        onClick={handleExportCsv}
+                        disabled={isExporting}
+                        variant="outline"
+                        className="rounded-full"
+                    >
+                        <Download className={`h-4 w-4 ${isExporting ? 'animate-bounce' : ''}`} />
+                        Ekspor CSV
+                    </Button>
                     <Button
                         onClick={() => recalculateMutation.mutate()}
                         disabled={recalculateMutation.isPending}

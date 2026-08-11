@@ -162,6 +162,22 @@ class AdminAnalyticsService {
     return unwrapApiData<{ message?: string }>(response.data);
   }
 
+  async exportCsv(destinationId: number): Promise<{ data: Blob; filename?: string }> {
+    const response = await api.get(`/api/admin/analytics/export/${destinationId}`, {
+      responseType: 'blob',
+    });
+    const contentDisposition = response.headers['content-disposition'];
+    let filename = `analytics-export-${destinationId}.csv`;
+    if (contentDisposition) {
+      const fileNameMatch = contentDisposition.match(/filename\*=UTF-8''(.+)/i) ||
+                            contentDisposition.match(/filename="?([^"]+)"?/i);
+      if (fileNameMatch && fileNameMatch[1]) {
+        filename = decodeURIComponent(fileNameMatch[1]);
+      }
+    }
+    return { data: response.data, filename };
+  }
+
   getExportCsvUrl(destinationId: number): string {
     return `${process.env.NEXT_PUBLIC_API_URL}/api/admin/analytics/export/${destinationId}`;
   }
