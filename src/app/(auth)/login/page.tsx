@@ -60,8 +60,13 @@ function LoginContent() {
     setAuth(user, accessToken, refreshToken);
     toast.success('Login berhasil! Selamat datang.');
 
+    const isAdmin = user?.role === 'ADMIN';
+    const redirectUrl = isAdmin
+      ? (callbackUrl && callbackUrl !== '/' ? callbackUrl : '/admin')
+      : callbackUrl;
+
     setTimeout(() => {
-      router.push(callbackUrl);
+      router.push(redirectUrl);
     }, 500);
   };
 
