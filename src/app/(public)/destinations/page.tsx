@@ -36,13 +36,13 @@ export default async function DestinationsPage() {
                 <Compass className="h-4 w-4" />
                 Cari dengan filter
               </Link>
-              <Link
+             {/*  <Link
                 href="/routes"
                 className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-primary px-5 text-sm font-bold text-primary-foreground transition-colors hover:bg-primary/90"
               >
                 <RouteIcon className="h-4 w-4" />
                 Lihat rute
-              </Link>
+              </Link> */}
             </div>
           </div>
         </div>
