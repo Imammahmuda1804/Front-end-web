@@ -342,13 +342,13 @@ export function FavoriteCard({
             Detail
             <ArrowRight className="h-4 w-4" />
           </Link>
-          <Link
+          {/* <Link
             href={`/routes/new?destinationId=${favorite.destination.id}`}
             className="col-span-2 inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-sky-100 bg-sky-50 px-3 text-xs font-black text-amber-500 transition-[color,background-color,border-color,box-shadow,transform,opacity] hover:bg-ai hover:text-white focus:outline-none focus:ring-4 focus:ring-sky-100"
           >
             Tambahkan ke rute
             <ArrowRight className="h-4 w-4" />
-          </Link>
+          </Link> */}
         </div>
       </div>
     </article>

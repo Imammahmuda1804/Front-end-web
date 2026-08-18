@@ -95,11 +95,11 @@ export function DestinationCatalogCard({ destination, index }: DestinationCatalo
             <span className="sr-only">Bandingkan {destination.name}</span>
           </Link>
         </div>
-        <Link href={`/routes/new?destinationId=${destination.id}`} className="mt-2 inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-orange-100 bg-orange-50 px-4 text-xs font-bold text-primary transition-colors hover:border-primary/30">
+        {/* <Link href={`/routes/new?destinationId=${destination.id}`} className="mt-2 inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-orange-100 bg-orange-50 px-4 text-xs font-bold text-primary transition-colors hover:border-primary/30">
           <RouteIcon className="h-4 w-4" />
           <Plus className="h-3.5 w-3.5" />
           Tambahkan ke rute
-        </Link>
+        </Link> */}
       </div>
     </article>
   );

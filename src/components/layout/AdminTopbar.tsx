@@ -23,7 +23,7 @@ const mobileAdminLinks = [
   { href: '/admin/detail', label: 'Analitik Detail' },
   { href: '/admin/compare', label: 'Bandingkan' },
   { href: '/admin/topics', label: 'Manajemen Topik' },
-  { href: '/admin/routes', label: 'Rute Wisata' },
+  /* { href: '/admin/routes', label: 'Rute Wisata' }, */
   { href: '/admin/scraper', label: 'Scraper' },
   { href: '/admin/nlp-processing', label: 'Proses NLP' },
   { href: '/admin/users', label: 'Pengguna' },

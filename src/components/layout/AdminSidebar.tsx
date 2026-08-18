@@ -29,7 +29,7 @@ const sidebarGroups = [
       { href: '/admin/destinations', label: 'Destinasi', icon: MapPin },
       { href: '/admin/reviews', label: 'Ulasan', icon: MessageSquare },
       { href: '/admin/topics', label: 'Topik', icon: Tags },
-      { href: '/admin/routes', label: 'Rute wisata', icon: Route },
+      /* { href: '/admin/routes', label: 'Rute wisata', icon: Route }, */
     ],
   },
   {

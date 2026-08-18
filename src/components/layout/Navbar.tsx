@@ -45,7 +45,7 @@ export function Navbar() {
     { href: '/', label: 'Beranda', icon: Compass },
     { href: '/destinations', label: 'Destinasi', icon: MapPinned },
     { href: '/search', label: 'Eksplorasi', icon: Compass },
-    { href: '/routes', label: 'Rute', icon: RouteIcon },
+   /*  { href: '/routes', label: 'Rute', icon: RouteIcon }, */
     { href: '/compare', label: 'Bandingkan', icon: GitCompareArrows },
   ];
   return (
@@ -110,9 +110,9 @@ export function Navbar() {
                 <DropdownMenuItem className="rounded-md focus:bg-orange-50 focus:text-primary cursor-pointer text-slate-700 font-medium transition-colors">
                   <Link href="/favorites" className="w-full">Favorit</Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem className="rounded-md focus:bg-orange-50 focus:text-primary cursor-pointer text-slate-700 font-medium transition-colors">
+               {/*  <DropdownMenuItem className="rounded-md focus:bg-orange-50 focus:text-primary cursor-pointer text-slate-700 font-medium transition-colors">
                   <Link href="/routes/saved" className="w-full">Rute tersimpan</Link>
-                </DropdownMenuItem>
+                </DropdownMenuItem> */}
                 <DropdownMenuSeparator className="bg-slate-100" />
                 <DropdownMenuItem onClick={handleLogout} className="text-red-600 focus:text-red-700 focus:bg-red-50 rounded-md cursor-pointer font-bold mt-1 transition-colors">
                   <LogOut className="mr-2 h-4 w-4" />
@@ -162,7 +162,7 @@ export function Navbar() {
                     </Link>
                   );
                 })}
-                {showAuthenticatedUi && (
+                {/* {showAuthenticatedUi && (
                   <Link
                     href="/routes/saved"
                     onClick={() => setMobileOpen(false)}
@@ -171,7 +171,7 @@ export function Navbar() {
                     <RouteIcon className="h-5 w-5" />
                     Rute tersimpan
                   </Link>
-                )}
+                )} */}
                 {(!hasMounted || !isAuthenticated) && (
                   <div className="flex flex-col gap-3 mt-4">
                     <Link href="/login" onClick={() => setMobileOpen(false)} className="rounded-lg bg-slate-100 py-3 text-center font-extrabold text-slate-950 transition-colors hover:bg-slate-200">Masuk</Link>
