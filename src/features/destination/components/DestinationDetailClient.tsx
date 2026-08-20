@@ -52,9 +52,14 @@ export default function DestinationDetailClient({ destination }: Props) {
   const [activeSection, setActiveSection] = useState('ringkasan');
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [nearbyDestinations, setNearbyDestinations] = useState<Array<NearbyDestination & { distance: number }>>([]);
+  const [updatedDestination, setUpdatedDestination] = useState<DestinationDetail | null>(null);
   const { isAuthenticated } = useAuthStore();
   const router = useRouter();
   const reduceMotion = useReducedMotion();
+
+  const activeDestination = (updatedDestination && updatedDestination.id === destination.id)
+    ? updatedDestination
+    : destination;
 
   React.useEffect(() => {
     if (!isAuthenticated) return;
@@ -165,12 +170,12 @@ export default function DestinationDetailClient({ destination }: Props) {
 
   const googleRating = destination.googleRating || 0;
   const googleCount = destination.googleReviewCount || 0;
-  const platformRating = destination.averageUserRating ?? destination.userRating ?? 0;
-  const platformCount = destination.totalUserReviews ?? 0;
+  const platformRating = activeDestination.averageUserRating ?? activeDestination.userRating ?? 0;
+  const platformCount = activeDestination.totalUserReviews ?? 0;
   const positivePercentage = formatPercent(destination.positiveRatio);
   const aiScore = formatScore(destination.recommendationScore);
   const youtubeEmbedUrl = getYouTubeEmbedUrl(destination.youtubeUrl);
-  const reviewPreview = destination.userReviews.slice(0, 3);
+  const reviewPreview = activeDestination.userReviews.slice(0, 3);
   const hasMapsUrl = Boolean(destination.googleMapsUrl?.trim());
   const heroDescription = destination.description
     || 'Deskripsi belum tersedia untuk destinasi ini. Gunakan insight ulasan, galeri, dan lokasi untuk membantu memilih rencana perjalanan.';
@@ -418,7 +423,15 @@ export default function DestinationDetailClient({ destination }: Props) {
                 destinationId={destination.id}
                 isAuthenticated={isAuthenticated}
                 onSuccess={async () => {
-                  await destinationService.revalidateDestination(destination.slug);
+                  try {
+                    const updated = await destinationService.getDestinationBySlug(destination.slug);
+                    if (updated) {
+                      setUpdatedDestination(updated);
+                    }
+                  } catch (err) {
+                    console.error('Failed to fetch updated destination', err);
+                  }
+                  await destinationService.revalidateDestination(destination.slug).catch(() => {});
                   setRefreshKey((prev) => prev + 1);
                   router.refresh();
                 }}

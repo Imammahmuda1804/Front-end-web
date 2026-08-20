@@ -37,6 +37,15 @@ export const destinationService = {
     return data;
   },
 
+  getDestinationBySlug: async (slug: string): Promise<DestinationDetail | null> => {
+    try {
+      const { data } = await api.get(`/api/destinations/slug/${slug}`);
+      return (data?.data || data) as DestinationDetail;
+    } catch {
+      return null;
+    }
+  },
+
   // Dipanggil dari Server (SSR)
   getServerDestinations: async (): Promise<SearchDestination[]> => {
     try {
