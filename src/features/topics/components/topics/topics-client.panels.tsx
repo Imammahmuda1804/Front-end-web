@@ -10,7 +10,7 @@ export function TopicHeroPanel({ topicHealth, namingDebt, coverage }: { topicHea
   const insights = [
     { label: 'Kerapian topik', value: `${topicHealth}%`, helper: 'Nama dan kata kunci tersedia', icon: CheckCircle2, tone: 'emerald' as Tone },
     { label: 'Perlu penamaan', value: String(namingDebt), helper: 'Topik generik perlu dirapikan', icon: Sparkles, tone: namingDebt > 0 ? 'amber' as Tone : 'emerald' as Tone },
-    { label: 'Cakupan destinasi', value: String(coverage), helper: 'Relasi topik ke destinasi', icon: Layers3, tone: 'blue' as Tone },
+    { label: 'Cakupan destinasi', value: String(coverage), helper: 'Relasi topik ke destinasi', icon: Layers3, tone: 'emerald' as Tone },
   ];
 
   return (
@@ -62,7 +62,7 @@ export function TopicMetricsGrid({
   return (
     <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
       <MetricCard icon={Tags} label="Total topik" value={String(totalTopics)} helper="Aktif" tone="orange" />
-      <MetricCard icon={MapPin} label="Relasi Destinasi" value={String(totalDestLinks)} helper="Terhubung" tone="blue" />
+      <MetricCard icon={MapPin} label="Relasi Destinasi" value={String(totalDestLinks)} helper="Terhubung" tone="emerald" />
       <MetricCard icon={AlertTriangle} label="Perlu penamaan" value={String(unnamedCount)} helper="Nama perlu dirapikan" tone={unnamedCount > 0 ? 'amber' : 'emerald'} />
       <MetricCard icon={BarChart3} label="Rata-rata cakupan" value={averageCoverage} helper="Per topik" tone="slate" />
     </section>
