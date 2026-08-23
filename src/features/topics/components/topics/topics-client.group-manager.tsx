@@ -236,7 +236,7 @@ export function TopicGroupManager({
                 ) : null}
               </div>
               <div className="flex shrink-0 gap-2">
-                <button type="button" onClick={() => startEdit(group)} aria-label={`Edit kelompok ${group.group_name}`} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white text-slate-600 shadow-sm transition hover:bg-amber-500 hover:text-amber-600">
+                <button type="button" onClick={() => startEdit(group)} aria-label={`Edit kelompok ${group.group_name}`} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white text-slate-600 shadow-sm transition hover:bg-amber-500 hover:text-amber-200">
                   <Pencil className="h-4 w-4" />
                 </button>
                 <button type="button" onClick={() => onDelete(group)} aria-label={`Hapus kelompok ${group.group_name}`} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white text-slate-600 shadow-sm transition hover:bg-rose-50 hover:text-rose-600">
