@@ -523,13 +523,13 @@ export default function DestinationDetailClient({ destination }: Props) {
                   <Heart className={`h-4 w-4 ${isFavorite ? 'fill-red-500 text-red-500' : ''}`} />
                   {isFavorite ? 'Tersimpan' : 'Simpan destinasi'}
                 </button>
-                <Link
+                {/* <Link
                   href={`/routes/new?destinationId=${destination.id}`}
                   className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-lg border border-sky-100 bg-sky-50 px-5 py-3 text-sm font-bold text-amber-400 transition-colors hover:bg-ai hover:text-white focus:outline-none focus:ring-4 focus:ring-sky-100"
                 >
                   <Route className="h-4 w-4" />
                   Tambahkan ke rute
-                </Link>
+                </Link> */}
               </div>
             </div>
 

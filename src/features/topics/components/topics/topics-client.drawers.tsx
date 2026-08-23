@@ -241,7 +241,7 @@ function ReviewTopicInsight({
   return (
     <div className="mt-3 rounded-lg border border-slate-200 bg-slate-50/85 p-3">
       <div className="flex flex-wrap items-center gap-2">
-        <span className="inline-flex items-center gap-1.5 rounded-lg border border-sky-100 bg-white px-2.5 py-1 text-xs font-black uppercase tracking-[0.12em] text-ai">
+        <span className="inline-flex items-center gap-1.5 rounded-lg border border-sky-100 bg-white px-2.5 py-1 text-xs font-black uppercase tracking-[0.12em] text-amber-300">
           <Target className="h-3 w-3" />
           Hal paling terasa
         </span>
