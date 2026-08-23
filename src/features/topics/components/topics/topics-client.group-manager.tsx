@@ -130,7 +130,7 @@ export function TopicGroupManager({
         />
       </label>
       <div className="mt-4 flex flex-wrap gap-2">
-        <Button type="button" onClick={submitForm} disabled={pending || !form.groupName.trim()} className="min-h-10 rounded-lg bg-ai text-white hover:bg-ai/90">
+        <Button type="button" onClick={submitForm} disabled={pending || !form.groupName.trim()} className="min-h-10 rounded-lg bg-white text-amber-500 hover:bg-amber/90">
           {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
           {isCreating ? 'Tambah kelompok' : 'Simpan kelompok'}
         </Button>
