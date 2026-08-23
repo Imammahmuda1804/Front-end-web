@@ -426,7 +426,7 @@ export function TopicReviewsDrawer({
         </div>
 
         <div className="flex-1 overflow-y-auto p-5">
-          <TopicAdminReadingCard summary={summary} total={meta?.total ?? 0} />
+          {/* <TopicAdminReadingCard summary={summary} total={meta?.total ?? 0} />
 
           <div className="mt-3 mb-5 grid gap-2 rounded-lg border border-slate-200 bg-slate-50/80 p-3 sm:grid-cols-3">
             <div>
@@ -443,7 +443,7 @@ export function TopicReviewsDrawer({
                 Pakai ulasan ini untuk validasi nama topik, kelompok, dan dampaknya ke destinasi.
               </p>
             </div>
-          </div>
+          </div> */}
 
           {loading ? (
             <div className="space-y-3">
