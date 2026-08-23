@@ -209,7 +209,7 @@ export function TopicGroupManager({
           <h3 className="mt-1 text-xl font-black text-slate-950">Kelola kelompok pengalaman</h3>
           <p className="mt-1 text-sm font-semibold text-slate-500">Tambah, edit, atau hapus kelompok topik agar insight ulasan lebih mudah dibaca admin.</p>
         </div>
-        <Button type="button" onClick={startCreate} variant="outline" className="min-h-11 rounded-lg font-black text-ai">
+        <Button type="button" onClick={startCreate} variant="outline" className="min-h-11 rounded-lg font-black text-amber-500">
           <Plus className="h-4 w-4" />
           Tambah kelompok
         </Button>
@@ -236,7 +236,7 @@ export function TopicGroupManager({
                 ) : null}
               </div>
               <div className="flex shrink-0 gap-2">
-                <button type="button" onClick={() => startEdit(group)} aria-label={`Edit kelompok ${group.group_name}`} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white text-slate-600 shadow-sm transition hover:bg-ai-container hover:text-ai">
+                <button type="button" onClick={() => startEdit(group)} aria-label={`Edit kelompok ${group.group_name}`} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white text-slate-600 shadow-sm transition hover:bg-amber-500 hover:text-amber-600">
                   <Pencil className="h-4 w-4" />
                 </button>
                 <button type="button" onClick={() => onDelete(group)} aria-label={`Hapus kelompok ${group.group_name}`} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white text-slate-600 shadow-sm transition hover:bg-rose-50 hover:text-rose-600">

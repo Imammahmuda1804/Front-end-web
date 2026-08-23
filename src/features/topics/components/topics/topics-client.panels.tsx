@@ -353,7 +353,7 @@ export function NamingDebtPanel({ topics, onRename }: { topics: TopicItem[]; onR
                   type="button"
                   aria-label={`Rapikan nama ${topic.topic_name}`}
                   onClick={() => onRename(topic)}
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white text-amber-700 shadow-sm transition hover:text-primary focus:outline-none focus:ring-4 focus:ring-primary/15"
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white hover:bg-amber-500 hover:text-amber-600 shadow-sm transition hover:text-primary focus:outline-none focus:ring-4 focus:ring-primary/15"
                 >
                   <Pencil className="h-4 w-4" />
                 </button>
