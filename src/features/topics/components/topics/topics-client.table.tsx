@@ -216,18 +216,18 @@ export function TopicReviewTable({
                           type="button"
                           aria-label={`Rename topik ${topic.topic_name}`}
                           onClick={() => onRename(topic)}
-                          className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:border-sky-200 hover:bg-sky-50 hover:text-ai focus:outline-none focus:ring-4 focus:ring-primary/15"
+                          className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:border-amber-400 hover:bg-amber-50 hover:text-ai focus:outline-none focus:ring-4 focus:ring-primary/15"
                         >
                           <Pencil className="h-4 w-4" />
                         </button>
-                        <button
+                        {/* <button
                           type="button"
                           aria-label={`Gabungkan topik ${topic.topic_name}`}
                           onClick={() => onMerge(topic)}
                           className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:border-sky-200 hover:bg-sky-50 hover:text-ai focus:outline-none focus:ring-4 focus:ring-sky-100"
                         >
                           <GitMerge className="h-4 w-4" />
-                        </button>
+                        </button> */}
                         <button
                           type="button"
                           aria-label={`Hapus topik ${topic.topic_name}`}
