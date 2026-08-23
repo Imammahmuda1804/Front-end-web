@@ -323,8 +323,8 @@ export default function DestinationDetailClient({ destination }: Props) {
             <section id="vibe" className="scroll-mt-32 rounded-lg border border-white/60 bg-white/96 p-6 shadow-sm backdrop-blur sm:p-8">
               <SectionHeader
                 eyebrow="Pola pengalaman"
-                title="Topik yang paling sering muncul"
-                description="Lihat aspek yang sering dibicarakan wisatawan, lalu buka contoh ulasan untuk membaca konteksnya."
+                title=""
+                description=""
               />
               <div className="mt-6">
                 <TopicInsightSection
@@ -350,7 +350,7 @@ export default function DestinationDetailClient({ destination }: Props) {
                   <SectionHeader
                     eyebrow="Trailer"
                     title="Tonton gambaran suasana destinasi"
-                    description="Gunakan video sebagai preview cepat sebelum membuka maps atau menyusun rute."
+                    description=""
                   />
                   <a
                     href={destination.youtubeUrl}
@@ -394,7 +394,7 @@ export default function DestinationDetailClient({ destination }: Props) {
                 <SectionHeader
                   eyebrow="Galeri"
                   title="Preview visual destinasi"
-                  description="Foto membantu membaca suasana, akses, dan karakter tempat secara cepat."
+                  description=""
                 />
               )}
             />
@@ -403,7 +403,7 @@ export default function DestinationDetailClient({ destination }: Props) {
               <SectionHeader
                 eyebrow="Ulasan"
                 title="Cerita wisatawan"
-                description="Baca pengalaman terbaru dan tambahkan ulasan Anda jika pernah mengunjungi destinasi ini."
+                description=""
               />
 
               <div className="mt-6 grid gap-4 lg:grid-cols-3">
@@ -533,7 +533,7 @@ export default function DestinationDetailClient({ destination }: Props) {
               </div>
             </div>
 
-            {/* <DestinationNearbyList destinations={nearbyDestinations} /> */}
+            <DestinationNearbyList destinations={nearbyDestinations} />
           </aside>
         </div>
       </div>
