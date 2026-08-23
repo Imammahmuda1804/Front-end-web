@@ -178,7 +178,7 @@ function TopicAdminReadingCard({
   const Icon = reading.tone === 'rose' ? AlertTriangle : CheckCircle2;
 
   return (
-    {/* <div className="mt-4 rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
+    <div className="mt-4 rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-stretch">
         <div className={`rounded-lg border p-3 lg:w-64 ${toneClass}`}>
           <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.12em]">
@@ -208,7 +208,7 @@ function TopicAdminReadingCard({
       <p className="mt-3 text-xs font-semibold leading-5 text-slate-500">
         Angka ini berasal dari {total} ulasan pada filter aktif. Gunakan sebagai petunjuk kerja, lalu baca contoh ulasan untuk keputusan rename, merge, dan pengelompokan.
       </p>
-    </div> */}
+    </div>
   );
 }
 
@@ -425,7 +425,7 @@ export function TopicReviewsDrawer({
           </label>
         </div>
 
-        {/* <div className="flex-1 overflow-y-auto p-5">
+        <div className="flex-1 overflow-y-auto p-5">
           <TopicAdminReadingCard summary={summary} total={meta?.total ?? 0} />
 
           <div className="mt-3 mb-5 grid gap-2 rounded-lg border border-slate-200 bg-slate-50/80 p-3 sm:grid-cols-3">
@@ -493,7 +493,7 @@ export function TopicReviewsDrawer({
               ))}
             </div>
           )}
-        </div> */}
+        </div>
 
         <div className="flex items-center justify-between gap-3 border-t border-slate-100 p-5">
           <p className="text-sm font-bold text-slate-500">Halaman {page} dari {meta?.total_pages || 1}</p>
