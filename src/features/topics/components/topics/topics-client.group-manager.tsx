@@ -92,7 +92,7 @@ export function TopicGroupManager({
     <div className="rounded-lg border border-sky-100 bg-sky-50/70 p-4">
       <div className="grid gap-3 md:grid-cols-[1fr_0.7fr_7rem]">
         <label>
-          <span className="mb-1.5 block text-xs font-black uppercase tracking-[0.14em] text-ai">Nama kelompok</span>
+          <span className="mb-1.5 block text-xs font-black uppercase tracking-[0.14em] text-primary">Nama kelompok</span>
           <Input
             value={form.groupName}
             onChange={(event) => setForm((current) => ({ ...current, groupName: event.target.value }))}
@@ -102,7 +102,7 @@ export function TopicGroupManager({
           />
         </label>
         <label>
-          <span className="mb-1.5 block text-xs font-black uppercase tracking-[0.14em] text-ai">Keyword</span>
+          <span className="mb-1.5 block text-xs font-black uppercase tracking-[0.14em] text-primary">Keyword</span>
           <Input
             value={form.keywordsText}
             onChange={(event) => setForm((current) => ({ ...current, keywordsText: event.target.value }))}
@@ -111,7 +111,7 @@ export function TopicGroupManager({
           />
         </label>
         <label>
-          <span className="mb-1.5 block text-xs font-black uppercase tracking-[0.14em] text-ai">Order</span>
+          <span className="mb-1.5 block text-xs font-black uppercase tracking-[0.14em] text-primary">Order</span>
           <Input
             type="number"
             value={form.displayOrder}
@@ -130,7 +130,7 @@ export function TopicGroupManager({
         />
       </label>
       <div className="mt-4 flex flex-wrap gap-2">
-        <Button type="button" onClick={submitForm} disabled={pending || !form.groupName.trim()} className="min-h-10 rounded-lg bg-white text-amber-500 hover:bg-amber/90">
+        <Button type="button" onClick={submitForm} disabled={pending || !form.groupName.trim()} className="min-h-10 rounded-lg bg-amber-200 text-amber-500 hover:bg-amber/90">
           {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
           {isCreating ? 'Tambah kelompok' : 'Simpan kelompok'}
         </Button>
@@ -209,7 +209,7 @@ export function TopicGroupManager({
           <h3 className="mt-1 text-xl font-black text-slate-950">Kelola kelompok pengalaman</h3>
           <p className="mt-1 text-sm font-semibold text-slate-500">Tambah, edit, atau hapus kelompok topik agar insight ulasan lebih mudah dibaca admin.</p>
         </div>
-        <Button type="button" onClick={startCreate} variant="outline" className="min-h-11 rounded-lg font-black text-amber-500">
+        <Button type="button" onClick={startCreate} variant="outline" className="min-h-11 rounded-lg font-black text-amber-500 hover:bg-amber-100 hover:text-amber-500">
           <Plus className="h-4 w-4" />
           Tambah kelompok
         </Button>
@@ -236,7 +236,7 @@ export function TopicGroupManager({
                 ) : null}
               </div>
               <div className="flex shrink-0 gap-2">
-                <button type="button" onClick={() => startEdit(group)} aria-label={`Edit kelompok ${group.group_name}`} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white text-slate-600 shadow-sm transition hover:bg-amber-500 hover:text-amber-200">
+                <button type="button" onClick={() => startEdit(group)} aria-label={`Edit kelompok ${group.group_name}`} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white text-slate-600 shadow-sm transition hover:bg-amber-300 hover:text-amber-200">
                   <Pencil className="h-4 w-4" />
                 </button>
                 <button type="button" onClick={() => onDelete(group)} aria-label={`Hapus kelompok ${group.group_name}`} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white text-slate-600 shadow-sm transition hover:bg-rose-50 hover:text-rose-600">
