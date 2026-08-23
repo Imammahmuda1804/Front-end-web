@@ -242,13 +242,13 @@ export function LocationComparePanel({ destination1, destination2 }: { destinati
     <section className="rounded-lg border border-sky-100 bg-white p-6 shadow-sm self-start
     ">
       <p className="text-xs font-black uppercase tracking-[0.18em] text-amber-500">Lokasi & akses</p>
-      <h2 className="mt-2 text-2xl font-black text-slate-950">Cek posisi sebelum memilih</h2>
+      {/* <h2 className="mt-2 text-2xl font-black text-slate-950">Cek posisi sebelum memilih</h2>
       {distance !== null && (
         <div className="mt-4 rounded-lg border border-sky-100 bg-sky-50 p-4 text-amber-500">
           <p className="text-xs font-black uppercase tracking-[0.12em]">Jarak lurus antar destinasi</p>
           <p className="mt-1 text-3xl font-black">{distance.toFixed(1)} km</p>
         </div>
-      )}
+      )} */}
       <div className="mt-5 space-y-3">
         {[destination1, destination2].map((dest) => {
           const mapsHref = getMapsHref(dest);
