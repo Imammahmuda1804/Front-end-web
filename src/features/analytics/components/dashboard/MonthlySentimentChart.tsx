@@ -86,7 +86,7 @@ export default function MonthlySentimentChart() {
             <div className="mb-5 grid gap-3 sm:grid-cols-3">
               <TrendStat label="Total terbaru" value={latest?.total || 0} tone="slate" />
               <TrendStat label="Positif terbaru" value={latest?.positive || 0} tone="emerald" />
-              <TrendStat label="Delta negatif" value={negativeDelta} tone={negativeDelta > 0 ? 'rose' : 'slate'} signed />
+              {/* <TrendStat label="Delta negatif" value={negativeDelta} tone={negativeDelta > 0 ? 'rose' : 'slate'} signed /> */}
             </div>
             <p className="sr-only">Grafik garis menampilkan rasio ulasan positif, netral, dan negatif per periode. Garis dapat saling bersinggungan untuk memperlihatkan perubahan dominasi sentimen.</p>
             <div className="relative h-[320px] min-h-[320px] w-full min-w-0 overflow-hidden">
@@ -103,9 +103,9 @@ export default function MonthlySentimentChart() {
                 </LineChart>
               </ResponsiveContainer>
             </div>
-            <p className="mt-3 text-xs font-semibold leading-5 text-slate-500">
+            {/* <p className="mt-3 text-xs font-semibold leading-5 text-slate-500">
               Grafik memakai persentase per periode, bukan jumlah mentah, supaya garis positif, netral, dan negatif berada pada skala yang sama dan perubahan arah lebih terbaca.
-            </p>
+            </p> */}
           </>
         )}
       </CardContent>

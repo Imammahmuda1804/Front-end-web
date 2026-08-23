@@ -108,9 +108,9 @@ export function TrendingCarousel({ destinations }: TrendingCarouselProps) {
               Destinasi Yang Layak Masuk <div className='text-orange-300'>Perjalanan Berikutnya</div>
             </h2>
           </div>
-          <p className="max-w-lg text-sm font-medium leading-7 text-slate-600 md:text-base">
+          {/* <p className="max-w-lg text-sm font-medium leading-7 text-slate-600 md:text-base">
             Kurasi ini memadukan sentimen, rating, dan pola topik. Pilih satu destinasi untuk membaca konteksnya tanpa kehilangan daftar pilihan lain.
-          </p>
+          </p> */}
         </header>
 
         <div className="grid gap-7 lg:grid-cols-[minmax(0,1.55fr)_minmax(19rem,0.65fr)] lg:gap-10">
