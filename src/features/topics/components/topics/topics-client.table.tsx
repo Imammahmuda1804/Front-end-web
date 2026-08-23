@@ -114,7 +114,7 @@ export function TopicReviewTable({
                         <p className={`truncate font-black ${status.label === 'Perlu nama' ? 'text-amber-700' : 'text-slate-900'}`}>
                           {topic.topic_name}
                         </p>
-                        <p className="mt-1 text-xs font-bold text-slate-500">{topic.keywords?.length || 0} kata kunci pendukung</p>
+                        <p className="mt-1 text-xs font-bold text-blue-500">{topic.keywords?.length || 0} kata kunci pendukung</p>
                       </div>
                     </TableCell>
                     <TableCell>
