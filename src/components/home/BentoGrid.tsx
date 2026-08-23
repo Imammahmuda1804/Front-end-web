@@ -62,10 +62,10 @@ export function BentoGrid() {
           <Link href="/routes" className="group flex items-start gap-4 py-6 md:pl-8">
             <Map className="mt-1 h-5 w-5 text-primary-500"/>
             <span>
-              <span className="flex items-center gap-2 text-lg font-bold">
+              {/* <span className="flex items-center gap-2 text-lg font-bold">
                 Gunakan rute perjalanan
                 <ArrowRight className="h-4 w-4 transition-transform duration-150 group-hover:translate-x-0.5" />
-              </span>
+              </span> */}
               <span className="mt-2 block text-sm font-medium leading-6 text-slate-400">
                 Simpan urutan kunjungan dan tandai tempat yang sudah didatangi.
               </span>
