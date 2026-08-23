@@ -107,7 +107,7 @@ export function buildOperationalSignals({
       label: 'Validasi lapangan',
       status: trendDelta < -8 ? 'Segera cek' : 'Cek berkala',
       helper: trendDelta < -8 ? 'Tren positif menurun, perlu konfirmasi kondisi aktual di lokasi.' : 'Gunakan kunjungan berkala untuk menjaga kualitas data.',
-      tone: trendDelta < -8 ? 'amber' : 'blue',
+      tone: trendDelta < -8 ? 'amber' : 'emerald',
     },
     {
       label: 'Kualitas data',

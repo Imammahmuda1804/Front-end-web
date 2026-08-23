@@ -53,7 +53,7 @@ export function CompareAnalysisView({
       label: 'Trend unggul',
       value: trendLeader,
       helper: latestTrend?.A !== undefined && latestTrend?.B !== undefined ? `${latestTrend.A}% vs ${latestTrend.B}% positif` : 'Butuh data tren',
-      tone: 'blue' as Tone,
+      tone: 'emerald' as Tone,
       icon: TrendingUp,
     },
     {
