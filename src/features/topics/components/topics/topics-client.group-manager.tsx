@@ -121,7 +121,7 @@ export function TopicGroupManager({
         </label>
       </div>
       <label className="mt-3 block">
-        <span className="mb-1.5 block text-xs font-black uppercase tracking-[0.14em] text-ai">Deskripsi</span>
+        <span className="mb-1.5 block text-xs font-black uppercase tracking-[0.14em] text-primary">Deskripsi</span>
         <Input
           value={form.description}
           onChange={(event) => setForm((current) => ({ ...current, description: event.target.value }))}
