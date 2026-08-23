@@ -533,7 +533,7 @@ export default function DestinationDetailClient({ destination }: Props) {
               </div>
             </div>
 
-            <DestinationNearbyList destinations={nearbyDestinations} />
+            {/* <DestinationNearbyList destinations={nearbyDestinations} /> */}
           </aside>
         </div>
       </div>
