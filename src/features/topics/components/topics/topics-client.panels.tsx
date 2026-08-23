@@ -202,7 +202,7 @@ export function TopicCommandPanel({
         </div>
 
         <div className="grid gap-3 sm:grid-cols-3 2xl:flex 2xl:items-center">
-          <Button
+          {/* <Button
             type="button"
             onClick={onOpenMerge}
             variant="outline"
@@ -210,7 +210,7 @@ export function TopicCommandPanel({
           >
             <GitMerge className="h-4 w-4" />
             Gabungkan
-          </Button>
+          </Button> */}
           
           <Button type="button" onClick={onReset} variant="outline" className="min-h-12 whitespace-nowrap rounded-lg px-4 font-black">
             Reset
@@ -234,7 +234,7 @@ export function TopicCommandPanel({
             {filter.label}
           </button>
         ))}
-        <Button
+        {/* <Button
             type="button"
             onClick={onAiRename}
             disabled={aiRenamePending || unnamedCount === 0}
@@ -242,7 +242,7 @@ export function TopicCommandPanel({
           >
             {aiRenamePending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
             Bantu beri nama ({unnamedCount})
-          </Button>
+          </Button> */}
       </div>
     </section>
   );
