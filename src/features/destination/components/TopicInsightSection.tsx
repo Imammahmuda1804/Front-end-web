@@ -376,7 +376,7 @@ export default function TopicInsightSection({ destinationId, topics, sentimentBr
 
   return (
     <div>
-      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+      {/* <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <div className="mb-2 inline-flex items-center gap-2 rounded-lg bg-sky-50 px-3 py-1.5 text-xs font-black uppercase tracking-[0.16em] text-amber-500">
             <Sparkles className="h-3.5 w-3.5" />
@@ -477,12 +477,12 @@ export default function TopicInsightSection({ destinationId, topics, sentimentBr
             );
           })}
         </div>
-      </div>
+      </div> */}
 
       <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h4 className="text-sm font-black uppercase tracking-[0.14em] text-slate-500">Pembahasan yang membentuk persepsi</h4>
-          <p className="mt-1 text-sm font-semibold text-slate-600">Buka satu pembahasan untuk melihat contoh ulasan dan alasan kenapa destinasi ini dipersepsikan seperti itu.</p>
+          <h4 className="text-sm font-black uppercase tracking-[0.14em] text-slate-500">Lihat Ulasan Berdasarkan Kelompok Topik</h4>
+          <p className="mt-1 text-sm font-semibold text-slate-600">Buka satu pembahasan untuk melihat contoh ulasan.</p>
         </div>
       </div>
 
