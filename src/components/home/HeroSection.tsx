@@ -396,7 +396,7 @@ export function HeroSection() {
               transition={{ duration: 0.68, delay: 0.18, ease: easeOutExpo }}
               className="mt-6 max-w-2xl text-base font-medium leading-7 text-slate-200 md:text-xl"
             >
-              Jelajahi destinasi, pahami pengalaman wisatawan, lalu susun rute perjalanan yang lebih meyakinkan.
+              Eksplorasi destinasi wisata Sumatera Barat dengan mudah dan terarah, lengkap dengan data, sentimen, dan karakter perjalanan yang perlu Anda ketahui.
             </motion.p>
 
             <form
